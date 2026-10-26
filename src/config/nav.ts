@@ -1,16 +1,21 @@
 // Sidebar items. No count badges.
 
+export type NavIcon = "websites" | "templates" | "settings" | "support";
+
 export type NavItem = {
   label: string;
   href: string;
+  /** Icon shown in the user sidebar. Admin and owner sidebars are text only. */
+  icon?: NavIcon;
   /** Only active on this exact path (for section roots like /admin). */
   exact?: boolean;
 };
 
 export const userNav: NavItem[] = [
-  { label: "Websites", href: "/websites" },
-  { label: "Templates", href: "/templates" },
-  { label: "Settings", href: "/settings" },
+  { label: "My Websites", href: "/websites", icon: "websites" },
+  { label: "Templates", href: "/templates", icon: "templates" },
+  { label: "Settings", href: "/settings", icon: "settings" },
+  { label: "Contact Support", href: "/support", icon: "support" },
 ];
 
 export function ownerNav(websiteId: string): NavItem[] {

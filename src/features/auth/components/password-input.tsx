@@ -15,6 +15,7 @@ export function PasswordInput({
   return (
     <div className="relative">
       <Input
+        size="lg"
         {...props}
         type={visible ? "text" : "password"}
         className={cn("pr-11 tracking-wide placeholder-shown:tracking-normal", className)}

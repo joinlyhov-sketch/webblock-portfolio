@@ -1,16 +1,11 @@
 import type { ReactNode } from "react";
-import { SegmentedTabs } from "@/components/common/segmented-tabs";
-
-const tabs = [
-  { label: "Profile", href: "/settings/profile" },
-  { label: "Billing", href: "/settings/billing" },
-];
+import { SettingsHeader } from "@/features/account";
 
 export default function SettingsLayout({ children }: { children: ReactNode }) {
   return (
     <>
-      <SegmentedTabs tabs={tabs} />
-      {children}
+      <SettingsHeader />
+      <div className="flex flex-1 flex-col gap-[15px]">{children}</div>
     </>
   );
 }

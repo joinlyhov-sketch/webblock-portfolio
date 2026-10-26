@@ -55,3 +55,70 @@ export function formatTime(iso: string): string {
 export function formatDateTime(iso: string): string {
   return `${formatDate(iso)}, ${formatTime(iso)}`;
 }
+
+const dayMonthYear = new Intl.DateTimeFormat("en-GB", {
+  timeZone: TIME_ZONE,
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+});
+
+/** "2026-03-12T08:30:00Z" → "12 Mar 2026" */
+export function formatDayMonthYear(iso: string): string {
+  return dayMonthYear.format(new Date(iso));
+}
+
+const MINUTE = 60_000;
+const HOUR = 60 * MINUTE;
+const DAY = 24 * HOUR;
+
+/** "2 hours ago", "yesterday", "5 days ago". Use in Server Components so server and client agree. */
+export function formatRelativeTime(iso: string, now: number = Date.now()): string {
+  const diff = Math.max(0, now - new Date(iso).getTime());
+  if (diff < HOUR) {
+    const minutes = Math.max(1, Math.round(diff / MINUTE));
+    return minutes === 1 ? "a minute ago" : `${minutes} minutes ago`;
+  }
+  if (diff < DAY) {
+    const hours = Math.round(diff / HOUR);
+    return hours === 1 ? "an hour ago" : `${hours} hours ago`;
+  }
+  const days = Math.round(diff / DAY);
+  if (days === 1) return "yesterday";
+  return `${days} days ago`;
+}
+
+/** "Today, 9:14 AM" / "Yesterday, 4:02 PM" / "12 Mar 2026, 9:14 AM". */
+export function formatLastActive(iso: string, now: number = Date.now()): string {
+  const key = (ms: number) => dayMonthYear.format(new Date(ms));
+  if (key(new Date(iso).getTime()) === key(now)) return `Today, ${formatTime(iso)}`;
+  if (key(new Date(iso).getTime()) === key(now - DAY)) return `Yesterday, ${formatTime(iso)}`;
+  return `${formatDayMonthYear(iso)}, ${formatTime(iso)}`;
+}
+
+/** "09:00" → "9:00 AM" · "18:30" → "6:30 PM" */
+export function formatClock(hhmm: string): string {
+  const [h, m] = hhmm.split(":").map(Number);
+  const suffix = h >= 12 ? "PM" : "AM";
+  return `${h % 12 === 0 ? 12 : h % 12}:${String(m).padStart(2, "0")} ${suffix}`;
+}
+
+/** Whole days from `now` until `iso`, never below 0. */
+export function daysUntil(iso: string, now: number = Date.now()): number {
+  return Math.max(0, Math.ceil((new Date(iso).getTime() - now) / DAY));
+}
+
+const dayMonthYearTime = new Intl.DateTimeFormat("en-GB", {
+  timeZone: TIME_ZONE,
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+});
+
+/** "2026-10-06T07:32:00Z" → "6 Oct 2026, 14:32" (receipt line on the payment screen) */
+export function formatDayMonthYearTime(iso: string): string {
+  return dayMonthYearTime.format(new Date(iso)).replace(/^(.*?) at /, "$1, ");
+}

@@ -41,6 +41,7 @@ export function EmailStepForm({ mode }: { mode: "register" | "forgot-password" }
         {isRegister && (
           <Field id="fullName" label="Full name" error={errors.fullName?.[0]}>
             <Input
+              size="lg"
               id="fullName"
               name="fullName"
               autoComplete="name"
@@ -61,6 +62,7 @@ export function EmailStepForm({ mode }: { mode: "register" | "forgot-password" }
           }
         >
           <Input
+            size="lg"
             id="email"
             name="email"
             type="email"

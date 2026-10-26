@@ -19,7 +19,7 @@ export function PaginationItem(props: ComponentProps<"li">) {
 }
 
 const itemBase =
-  "inline-flex items-center justify-center rounded-full text-[13px] font-medium text-foreground-soft outline-none transition-[background-color,color,box-shadow,transform] duration-150 focus-visible:ring-3 focus-visible:ring-ring/40 motion-safe:active:scale-95";
+  "inline-flex items-center justify-center rounded-full text-sm leading-5 font-medium text-foreground-soft outline-none transition-[background-color,color,box-shadow,transform] duration-150 focus-visible:ring-3 focus-visible:ring-ring/40 motion-safe:active:scale-95";
 
 export function PaginationLink({
   className,

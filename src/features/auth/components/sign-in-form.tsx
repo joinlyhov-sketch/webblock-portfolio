@@ -29,6 +29,7 @@ export function SignInForm({ defaultEmail }: { defaultEmail?: string }) {
       <form onSubmit={onSubmit} noValidate className="flex flex-col gap-[18px]">
         <Field id="email" label="Email" error={errors.email?.[0]}>
           <Input
+            size="lg"
             id="email"
             name="email"
             type="email"
