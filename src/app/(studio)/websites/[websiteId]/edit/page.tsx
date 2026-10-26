@@ -1,12 +1,21 @@
-import { PageHeader } from "@/components/common/page-header";
+import type { Metadata } from "next";
+import { getPageData, listMedia, WebsiteEditor } from "@/features/editor";
+import { getWebsite } from "@/features/websites";
 import { requireWebsiteOwner } from "@/lib/auth/session";
 
-export default async function EditPage({
-  params,
-}: {
-  params: Promise<{ websiteId: string }>;
-}) {
+export const metadata: Metadata = { title: "Editor" };
+
+export default async function EditPage({ params }: { params: Promise<{ websiteId: string }> }) {
   const { websiteId } = await params;
   await requireWebsiteOwner(websiteId);
-  return <PageHeader title="Editor" />;
+  const [website, page, media] = await Promise.all([getWebsite(websiteId), getPageData(websiteId), listMedia(websiteId)]);
+  return (
+    <WebsiteEditor
+      websiteId={websiteId}
+      siteName={website.name}
+      domain={`${website.subdomain}.webblock.com`}
+      page={page}
+      media={media.items}
+    />
+  );
 }

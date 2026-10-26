@@ -1,7 +1,8 @@
-import { PageHeader } from "@/components/common/page-header";
+import { listWebsites, WebsitesView } from "@/features/websites";
 import { requireUser } from "@/lib/auth/session";
 
 export default async function WebsitesPage() {
   await requireUser();
-  return <PageHeader title="My websites" />;
+  const data = await listWebsites();
+  return <WebsitesView data={data} />;
 }

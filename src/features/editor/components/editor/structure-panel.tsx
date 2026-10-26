@@ -1,0 +1,199 @@
+"use client";
+
+import { useState } from "react";
+import { Drawer } from "@puckeditor/core";
+import { Add, Copy, Menu, Setting2, Trash } from "iconsax-reactjs";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import type { BlockName } from "../../types";
+import { BLOCK_META, BLOCK_ORDER } from "./block-meta";
+import { useEditorPuck } from "./use-editor-puck";
+
+/** Puck's zone for top-level blocks. */
+const ROOT_ZONE = "root:default-zone";
+
+/** Figma left panel: "Page structure" (select, duplicate, delete, drag to reorder) + "Add a block". */
+export function StructurePanel() {
+  const content = useEditorPuck((s) => s.appState.data.content);
+  const itemSelector = useEditorPuck((s) => s.appState.ui.itemSelector);
+  const dispatch = useEditorPuck((s) => s.dispatch);
+  const [dragFrom, setDragFrom] = useState<number | null>(null);
+  const [dragOver, setDragOver] = useState<number | null>(null);
+
+  const selectedIndex = itemSelector && (itemSelector.zone ?? ROOT_ZONE) === ROOT_ZONE ? itemSelector.index : -1;
+  const select = (index: number | null) =>
+    dispatch({ type: "setUi", ui: { itemSelector: index === null ? null : { index, zone: ROOT_ZONE } } });
+
+  const insert = (type: BlockName) => {
+    const index = selectedIndex >= 0 ? selectedIndex + 1 : content.length;
+    dispatch({ type: "insert", componentType: type, destinationIndex: index, destinationZone: ROOT_ZONE });
+    select(index);
+  };
+
+  const move = (from: number, to: number) => {
+    if (from === to) return;
+    dispatch({ type: "reorder", sourceIndex: from, destinationIndex: to, destinationZone: ROOT_ZONE });
+    select(to);
+  };
+
+  return (
+    <aside aria-label="Page" className="flex w-[300px] shrink-0 flex-col overflow-hidden rounded-[20px] bg-background shadow-card">
+      <section className="p-4">
+        <div className="flex items-center gap-2.5">
+          <h2 className="flex-1 font-sans text-[13px] font-semibold text-foreground">Page structure</h2>
+          <span className="text-[11px] font-medium text-placeholder">Drag to reorder</span>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Site settings"
+            title="Site settings"
+            className="size-6"
+            onClick={() => select(null)}
+          >
+            <Setting2 />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Add a section"
+            title="Add a section"
+            className="size-6"
+            onClick={() => document.getElementById("add-block-list")?.querySelector<HTMLElement>("button")?.focus()}
+          >
+            <Add />
+          </Button>
+        </div>
+
+        {content.length === 0 ? (
+          <p className="mt-3 rounded-xl border border-dashed border-border px-3 py-4 text-center text-xs text-muted-foreground">
+            Your page is empty. Add a block below.
+          </p>
+        ) : (
+          <ol className="flex flex-col gap-0.5 pt-3">
+            {content.map((item, index) => {
+              const meta = BLOCK_META[item.type as BlockName];
+              const Icon = meta.icon;
+              const selected = index === selectedIndex;
+              return (
+                <li
+                  key={item.props.id}
+                  draggable
+                  onDragStart={(e) => {
+                    setDragFrom(index);
+                    e.dataTransfer.effectAllowed = "move";
+                  }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragOver(index);
+                  }}
+                  onDragEnd={() => {
+                    setDragFrom(null);
+                    setDragOver(null);
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    if (dragFrom !== null) move(dragFrom, index);
+                    setDragFrom(null);
+                    setDragOver(null);
+                  }}
+                  className={cn(
+                    "group flex h-[38px] items-center gap-2.5 rounded-xl border pr-2.5 pl-3 transition-colors",
+                    selected ? "border-brand-border bg-primary-soft" : "border-transparent hover:bg-muted",
+                    dragOver === index && dragFrom !== index && "border-dashed border-brand",
+                    dragFrom === index && "opacity-50",
+                  )}
+                >
+                  <button
+                    type="button"
+                    aria-current={selected || undefined}
+                    onClick={() => select(index)}
+                    onKeyDown={(e) => {
+                      if (e.altKey && e.key === "ArrowUp" && index > 0) move(index, index - 1);
+                      if (e.altKey && e.key === "ArrowDown" && index < content.length - 1) move(index, index + 1);
+                    }}
+                    title="Alt + ↑/↓ to move"
+                    className={cn(
+                      "flex min-w-0 flex-1 items-center gap-2.5 text-left text-[13px] outline-none focus-visible:underline",
+                      selected ? "font-semibold text-brand-deep" : "font-medium text-foreground",
+                    )}
+                  >
+                    <Icon aria-hidden className="size-[15px] shrink-0" />
+                    <span className="truncate">{meta.label}</span>
+                  </button>
+                  {selected && (
+                    <span className="flex gap-0.5">
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="size-[26px] [&_svg]:size-3.5"
+                        aria-label={`Duplicate ${meta.label}`}
+                        onClick={() => {
+                          dispatch({ type: "duplicate", sourceIndex: index, sourceZone: ROOT_ZONE });
+                          select(index + 1);
+                        }}
+                      >
+                        <Copy />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="size-[26px] hover:text-danger [&_svg]:size-3.5"
+                        aria-label={`Remove ${meta.label}`}
+                        onClick={() => {
+                          dispatch({ type: "remove", index, zone: ROOT_ZONE });
+                          select(null);
+                        }}
+                      >
+                        <Trash />
+                      </Button>
+                    </span>
+                  )}
+                  <Menu aria-hidden className="size-[15px] shrink-0 cursor-grab text-placeholder" />
+                </li>
+              );
+            })}
+          </ol>
+        )}
+      </section>
+
+      <section className="flex min-h-0 flex-1 flex-col px-4 pt-4 pb-1.5">
+        <div className="flex items-center justify-between">
+          <h2 className="font-sans text-[13px] font-semibold text-foreground">Add a block</h2>
+          <span className="text-[11px] font-medium text-placeholder">Drag or tap</span>
+        </div>
+        <div id="add-block-list" className="-mx-1 min-h-0 flex-1 overflow-y-auto px-1 pt-2.5 pb-3">
+          <Drawer>
+            {BLOCK_ORDER.map((name) => {
+              const meta = BLOCK_META[name];
+              const Icon = meta.icon;
+              return (
+                <Drawer.Item key={name} name={name} label={meta.label}>
+                  {() => (
+                    <div className="mb-2 flex h-[56px] cursor-grab items-center gap-2.5 rounded-[14px] border border-border bg-background pr-3 pl-2.5 shadow-card transition-[border-color,box-shadow] hover:border-primary/40 hover:shadow-button-hover">
+                      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand">
+                        <Icon aria-hidden className="size-4" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-[13px] font-semibold text-foreground">{meta.label}</span>
+                        <span className="block truncate text-[11px] text-muted-foreground">{meta.hint}</span>
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label={`Add ${meta.label}`}
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={() => insert(name)}
+                      >
+                        <Add className="text-brand" />
+                      </Button>
+                    </div>
+                  )}
+                </Drawer.Item>
+              );
+            })}
+          </Drawer>
+        </div>
+      </section>
+    </aside>
+  );
+}

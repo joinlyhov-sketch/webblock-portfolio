@@ -28,6 +28,13 @@
   --color-brand-strong: #2a5fbd; /* text on brand-soft */
   --color-brand-dark: #0936c3;
   --color-brand-soft: #e3eefc;
+  --color-brand-deep: #1f4fb5; /* selected item text (editor structure, option cards) */
+  --color-brand-border: #9dbbe9; /* selected item border */
+
+  /* Editor */
+  --color-segment: #eef2f8; /* segmented-control track (panel tabs, option groups) */
+  --color-canvas: #f4f7fc; /* editor/preview canvas behind the page */
+  --color-canvas-dot: #c9d5ea; /* canvas dot grid */
 
   /* Status */
   --color-success: #1e8a5a;
@@ -76,6 +83,210 @@
 @theme inline {
   --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-familjen-grotesk), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Figma "Puck/Dot grid background": 24px spacing, 3px dots. Editor canvas and preview. */
+@utility bg-dot-grid {
+  background-color: var(--color-canvas);
+  background-image: radial-gradient(var(--color-canvas-dot) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+
+/*
+ * Customer website themes (the Puck templates). Site components use ONLY these `site-*` utilities,
+ * never the platform tokens above. Each template sets the `--site-*` variables on its root
+ * (`[data-site-template]`); "Layout & Design · Visual style" overrides some of them below.
+ */
+@theme inline {
+  --color-site-bg: var(--site-bg); /* page background */
+  --color-site-alt: var(--site-alt); /* alternate section / panel background */
+  --color-site-surface: var(--site-surface); /* cards, inputs, dialogs */
+  --color-site-ink: var(--site-ink); /* main text */
+  --color-site-muted: var(--site-muted); /* secondary text */
+  --color-site-subtle: var(--site-subtle); /* placeholders, captions, faint labels */
+  --color-site-border: var(--site-border);
+  --color-site-accent: var(--site-accent); /* main button, links, active chip */
+  --color-site-accent-fg: var(--site-accent-fg); /* text on accent */
+  --color-site-accent-soft: var(--site-accent-soft); /* soft accent fill */
+  --color-site-tint-1: var(--site-tint-1); /* template extras: pastel cards, stickers, badges… */
+  --color-site-tint-2: var(--site-tint-2);
+  --color-site-tint-3: var(--site-tint-3);
+  --color-site-tint-4: var(--site-tint-4);
+  --color-site-success: var(--site-success); /* "Open now" dot/text */
+  --color-site-success-soft: var(--site-success-soft); /* "Open now" pill */
+  --color-site-map-land: var(--site-map-land);
+  --color-site-map-park: var(--site-map-park);
+  --color-site-map-road: var(--site-map-road);
+  --color-site-map-pin: var(--site-map-pin);
+
+  --font-site-heading: var(--site-font-heading);
+  --font-site-body: var(--site-font-body);
+  --font-site-display: var(--site-font-display); /* script / mono labels */
+
+  --radius-site-card: var(--site-radius-card);
+  --radius-site-image: var(--site-radius-image);
+  --radius-site-button: var(--site-radius-button);
+}
+
+/* Shared defaults; each template block below overrides what it needs. */
+[data-site-template] {
+  --site-success: #1e8a5a;
+  --site-success-soft: #e6f5ec;
+  --site-map-land: #eaf1e8;
+  --site-map-park: #cfe5c8;
+  --site-map-road: #ffffff;
+  --site-map-pin: #2f6bc4;
+  --site-font-body: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --site-space: 1;
+}
+
+/* @site-templates:start — one block per template */
+[data-site-template="everyday-store"] {
+  --site-bg: #ffffff;
+  --site-alt: #f5f8fd;
+  --site-surface: #ffffff;
+  --site-ink: #1b2b4b;
+  --site-muted: #5a6b8c;
+  --site-subtle: #a3adbf;
+  --site-border: #e4ebf5;
+  --site-accent: #1b2b4b;
+  --site-accent-fg: #ffffff;
+  --site-accent-soft: #eaf1fc;
+  --site-tint-1: #e6eefb;
+  --site-tint-2: #e3f5ea;
+  --site-tint-3: #f5f7fa;
+  --site-tint-4: #fdf3e7;
+  --site-success: #1f8a4c;
+  --site-success-soft: #e3f5ea;
+  --site-map-land: #e3ebe2;
+  --site-map-park: #cce3c7;
+  --site-map-road: #ffffff;
+  --site-map-pin: #2f6bc4;
+  --site-font-heading: var(--font-familjen-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --site-font-display: var(--font-familjen-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --site-radius-card: 16px;
+  --site-radius-image: 12px;
+}
+
+[data-site-template="sweet-pastel"] {
+  --site-bg: #fff8f3;
+  --site-alt: #ffe1ea;
+  --site-surface: #ffffff;
+  --site-ink: #4a2b36;
+  --site-muted: #8a6b76;
+  --site-subtle: #9a7a86;
+  --site-border: #f1dde4;
+  --site-accent: #e25c85;
+  --site-accent-fg: #ffffff;
+  --site-accent-soft: #fcd3e0;
+  --site-tint-1: #fff1b8;
+  --site-tint-2: #d8f0e3;
+  --site-tint-3: #e6dcf7;
+  --site-tint-4: #ffe1ea;
+  --site-success: #147345;
+  --site-success-soft: #ebf7f0;
+  --site-map-land: #e8f0e5;
+  --site-map-park: #cce3c7;
+  --site-map-road: #ffffff;
+  --site-map-pin: #2f6bc4;
+  --site-font-heading: var(--font-fredoka), ui-rounded, sans-serif;
+  --site-font-display: var(--font-caveat), "Comic Sans MS", cursive;
+  --site-radius-card: 32px;
+  --site-radius-image: 24px;
+}
+
+[data-site-template="warm-bold"] {
+  --site-bg: #271b15; /* espresso page background */
+  --site-alt: #342419; /* About section, image placeholder */
+  --site-surface: #2e2019; /* dialogs, map pin card + map pill (dark, so gold pin text stays legible) */
+  --site-ink: #f6ecdc; /* cream text */
+  --site-muted: #b89e8a;
+  --site-subtle: #8c7464;
+  --site-border: #4a3528;
+  --site-accent: #f2b544; /* gold */
+  --site-accent-fg: #271b15;
+  --site-accent-soft: #3d2c1a;
+  --site-tint-1: #1a110c; /* deep band: facts strip, footer, feature-card gradient */
+  --site-tint-2: #46362c;
+  --site-tint-3: #4a3528;
+  --site-tint-4: #f6ecdc;
+  --site-success: #7ed39a; /* dark-green "Open now" pill */
+  --site-success-soft: #1f3a2a;
+  --site-map-land: #e8f0e5;
+  --site-map-park: #cce3c7;
+  --site-map-road: #ffffff;
+  --site-map-pin: #f2b544;
+  --site-font-heading: var(--font-playfair), Georgia, serif;
+  --site-font-display: var(--font-dm-mono), ui-monospace, monospace;
+  --site-radius-card: 6px;
+  --site-radius-image: 4px;
+}
+
+[data-site-template="clean-mono"] {
+  --site-bg: #ffffff;
+  --site-alt: #f3f3f3;
+  --site-surface: #ffffff;
+  --site-ink: #111111;
+  --site-muted: #6f6f6f;
+  --site-subtle: #9a9a9a;
+  --site-border: #e5e7eb;
+  --site-accent: #e53935;
+  --site-accent-fg: #ffffff;
+  --site-accent-soft: #fdecea;
+  --site-tint-1: #f3f3f3;
+  --site-tint-2: #e5e7eb;
+  --site-tint-3: #111111;
+  --site-tint-4: #e53935;
+  --site-success: #147345;
+  --site-success-soft: #ebf7f0;
+  --site-map-land: #e8f0e5;
+  --site-map-park: #cce3c7;
+  --site-map-road: #ffffff;
+  --site-map-pin: #2f6bc4;
+  --site-font-heading: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --site-font-display: var(--font-space-mono), ui-monospace, monospace;
+  --site-radius-card: 0px;
+  --site-radius-image: 0px;
+}
+/* @site-templates:end */
+
+/* Visual style → Color palette (accent only, so each template keeps its own backgrounds). */
+[data-site-palette="lavender"] {
+  --site-accent: #2a5fbd;
+  --site-accent-fg: #ffffff;
+  --site-accent-soft: #eef4fd;
+}
+[data-site-palette="bakery"] {
+  --site-accent: #b4601e;
+  --site-accent-fg: #ffffff;
+  --site-accent-soft: #fbf5e8;
+}
+[data-site-palette="sage"] {
+  --site-accent: #3e6b45;
+  --site-accent-fg: #ffffff;
+  --site-accent-soft: #eef1ea;
+}
+
+/* Visual style → Font (headings). */
+[data-site-font="editorial"] {
+  --site-font-heading: var(--font-playfair), Georgia, serif;
+}
+[data-site-font="clean"] {
+  --site-font-heading: var(--font-familjen-grotesk), ui-sans-serif, sans-serif;
+}
+[data-site-font="rounded"] {
+  --site-font-heading: var(--font-fredoka), ui-rounded, sans-serif;
+}
+
+/* Visual style → Buttons. */
+[data-site-buttons="square"] {
+  --site-radius-button: 2px;
+}
+[data-site-buttons="rounded"] {
+  --site-radius-button: 8px;
+}
+[data-site-buttons="pill"] {
+  --site-radius-button: 999px;
 }
 
 @layer base {
