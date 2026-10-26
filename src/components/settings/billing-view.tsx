@@ -93,11 +93,11 @@ export function BillingView({ data, searchParams }: { data: BillingData; searchP
             <div className="flex items-center gap-2">
               {paid && (
                 <Button asChild variant="secondary" size="sm">
-                  <Link href="/billing/plans">Change plan</Link>
+                  <Link href="/billing/plans?from=settings">Change plan</Link>
                 </Button>
               )}
               <Button asChild size="sm" className="bg-primary hover:bg-brand-strong">
-                <Link href="/billing/plans">{paid ? "Renew now" : "Choose plan"}</Link>
+                <Link href="/billing/plans?from=settings">{paid ? "Renew now" : "Choose plan"}</Link>
               </Button>
             </div>
           </div>
@@ -212,7 +212,7 @@ export function BillingView({ data, searchParams }: { data: BillingData; searchP
             description="You’re on the free trial, so there’s nothing to pay yet. Your plan orders and receipts will show up here after you choose a plan."
             action={
               <Button asChild variant="secondary" size="sm">
-                <Link href="/billing/plans">View plans</Link>
+                <Link href="/billing/plans?from=settings">View plans</Link>
               </Button>
             }
           />

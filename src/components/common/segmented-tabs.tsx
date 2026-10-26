@@ -32,7 +32,7 @@ export function SegmentedTabs({
   return (
     <nav
       aria-label={label}
-      className={cn("inline-flex items-center rounded-full bg-segment-track p-1", className)}
+      className={cn("inline-flex w-fit max-w-full items-center self-start rounded-full bg-segment-track p-1", className)}
     >
       {tabs.map((tab) => {
         const active = tab.active ?? pathname === tab.href;

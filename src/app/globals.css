@@ -153,6 +153,38 @@
   --shadow-badge: 0 8px 18px rgb(47 107 196 / 0.28);
   --shadow-upload: 0 8px 10px rgb(47 107 196 / 0.35);
 
+  /* Billing: plan tiers, KHQR panel and page decor (Figma Plans / Payment screens). */
+  --color-tier-plus: #2d57a6;
+  --color-tier-plus-soft: #dce5f6;
+  --color-tier-plus-from: #e6edf8;
+  --color-tier-plus-border: #cedbf2;
+  --color-tier-plus-cta: #5b8fe6;
+  --color-tier-pro: #8a5a12;
+  --color-tier-pro-accent: #b3832a;
+  --color-tier-pro-soft: #f1e9d9;
+  --color-tier-pro-from: #f5efe3;
+  --color-tier-pro-border: #d1b57f;
+  --color-tier-ultra: #5b21b6;
+  --color-tier-ultra-soft: #e5dcf8;
+  --color-tier-ultra-from: #ece6fa;
+  --color-tier-ultra-border: #dacff5;
+  --color-tier-ultra-cta: #6d3fd6;
+  --color-card-tint: #f2f7ff;
+  --color-badge-pink: #f06bc7;
+  --color-bubble-from: #6b99f2;
+  --color-bubble-to: #2a5ebd;
+  --color-eyebrow-border: #d5e2f8;
+  --color-cube: #ccdbf5;
+  --color-dot: #c3d3f0;
+  --color-khqr: #e1232e;
+  --color-slate-soft: #f1f5f9;
+  --color-slate: #64748b;
+  --shadow-plan-card: 0 10px 28px rgb(31 51 102 / 0.06);
+  --shadow-payment-card: 0 24px 48px -16px rgb(60 120 207 / 0.1), 0 2px 8px rgb(60 120 207 / 0.06);
+  --shadow-bubble: 0 14px 28px -4px rgb(47 107 196 / 0.35);
+  --shadow-plan-lg: 0 2px 3px rgb(60 120 207 / 0.04), 0 12px 14px rgb(60 120 207 / 0.1);
+  --shadow-plan-lg-pro: 0 2px 3px rgb(60 120 207 / 0.04), 0 20px 20px rgb(60 120 207 / 0.16);
+
   /* Page content inset from the sidebar and the right edge. */
   --spacing-page: 15px;
 
@@ -231,4 +263,29 @@
 @utility bg-dots {
   background-image: radial-gradient(circle at 1.5px 1.5px, rgb(170 185 244 / 0.85) 1.5px, transparent 1.6px);
   background-size: 24px 24px;
+}
+
+/* Floating cubes of the billing screens (Figma "Floating cube": 6s loop, rise/fall 6-12px, rotate 8deg). */
+@keyframes billing-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--r0, 14deg));
+    animation-timing-function: ease-in-out;
+  }
+  45% {
+    transform: translateY(var(--dy, -6px)) rotate(var(--r1, 6deg));
+    animation-timing-function: ease-in-out;
+  }
+  85% {
+    transform: translateY(0) rotate(var(--r0, 14deg));
+  }
+}
+
+@utility animate-billing-float {
+  animation: billing-float 6s linear infinite;
+  animation-delay: var(--delay, 0s);
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    transform: rotate(var(--r0, 14deg));
+  }
 }

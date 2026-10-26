@@ -98,3 +98,18 @@ export function formatClock(hhmm: string): string {
 export function daysUntil(iso: string, now: number = Date.now()): number {
   return Math.max(0, Math.ceil((new Date(iso).getTime() - now) / DAY));
 }
+
+const dayMonthYearTime = new Intl.DateTimeFormat("en-GB", {
+  timeZone: TIME_ZONE,
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+});
+
+/** "2026-10-06T07:32:00Z" → "6 Oct 2026, 14:32" (receipt line on the payment screen) */
+export function formatDayMonthYearTime(iso: string): string {
+  return dayMonthYearTime.format(new Date(iso)).replace(/^(.*?) at /, "$1, ");
+}

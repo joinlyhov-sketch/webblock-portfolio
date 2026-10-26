@@ -10,6 +10,7 @@ import {
   updateProfile,
   type ListOrdersFilter,
 } from "@/features/account/api";
+import { settlePendingPayments } from "@/features/billing/api";
 import { listWebsites } from "@/features/websites/api";
 import { ApiError } from "@/lib/api/errors";
 import type { Page } from "@/lib/api/types";
@@ -44,6 +45,7 @@ function trialProgress(subscription: Subscription): number {
 export async function getSidebarView(
   userId: string,
 ): Promise<{ profile: Profile; summary: SidebarSummary }> {
+  await settlePendingPayments(userId);
   const [profile, subscription, websites] = await Promise.all([
     getProfile(userId),
     getSubscription(userId).catch(() => null),
@@ -98,6 +100,8 @@ export async function getBillingView(
     plan: options.find((p) => p.value === planParam)?.value,
   };
 
+  // A payment confirmed while the user was elsewhere still lands in the history.
+  await settlePendingPayments(userId);
   const [subscription, orders, websites] = await Promise.all([
     getSubscription(userId),
     listOrders(

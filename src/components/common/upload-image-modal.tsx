@@ -84,7 +84,7 @@ function UploadForm({ rule, onClose, onUpload }: Pick<UploadImageModalProps, "ru
             <>
               <p className="max-w-full truncate text-[13px] leading-[19.5px] font-bold">{file.name}</p>
               <p className="text-xs leading-[18px] text-hint-strong">
-                {(file.size / 1024).toFixed(0)} KB · ready to upload
+                {(file.size / 1024).toFixed(0)} KB Â· ready to upload
               </p>
             </>
           ) : (
@@ -99,7 +99,7 @@ function UploadForm({ rule, onClose, onUpload }: Pick<UploadImageModalProps, "ru
                 >
                   browse your files
                 </button>{" "}
-                · {rule.label}
+                Â· {rule.label}
               </p>
             </>
           )}

@@ -25,7 +25,7 @@ export function PillTabs({
   return (
     <nav
       aria-label={label}
-      className={cn("inline-flex items-end rounded-full bg-segment", large ? "p-1" : "gap-0.5 p-[3px]")}
+      className={cn("inline-flex w-fit max-w-full items-end self-start rounded-full bg-segment", large ? "p-1" : "gap-0.5 p-[3px]")}
     >
       {tabs.map((tab) => {
         const active = tab.active ?? pathname === tab.href;
@@ -36,11 +36,11 @@ export function PillTabs({
             scroll={false}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "inline-flex items-center justify-center rounded-full px-[18px] text-sm leading-[21px] outline-none transition-[background-color,color,box-shadow] focus-visible:ring-3 focus-visible:ring-ring/40",
+              "inline-flex items-center justify-center rounded-full px-[18px] text-sm leading-[21px] outline-none transition-[background-color,color,box-shadow,transform] duration-200 ease-out motion-safe:active:scale-[0.97] focus-visible:ring-3 focus-visible:ring-ring/40",
               large ? "h-9 w-[108px]" : "h-7 w-[88px]",
               active
                 ? "bg-background font-semibold text-brand-deep shadow-segment"
-                : "font-medium text-muted-foreground hover:text-foreground",
+                : "font-medium text-muted-foreground hover:bg-background/60 hover:text-foreground",
             )}
           >
             {tab.label}

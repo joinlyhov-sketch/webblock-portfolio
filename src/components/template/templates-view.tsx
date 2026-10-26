@@ -17,14 +17,24 @@ export function TemplatesView({
       <Breadcrumb current="Templates" />
 
       <section className="relative h-[357px] shrink-0 overflow-hidden rounded-[28px] border border-border bg-linear-to-b from-[#fbfcff] to-[#f1f5fd]">
-        <div aria-hidden className="bg-dots absolute inset-0 [mask-image:radial-gradient(ellipse_70%_90%_at_50%_45%,black,transparent_85%)]" />
+        {/* Dot grid, fading out toward every edge (mask is a gradient, so no box edge is ever visible). */}
         <div
           aria-hidden
-          className="absolute top-[65px] left-1/2 h-[260px] w-[760px] max-w-full -translate-x-1/2 bg-[url('/images/hero-glow.svg')] bg-[length:980px_480px] bg-center bg-no-repeat"
+          className="bg-dots absolute inset-0 [mask-image:radial-gradient(ellipse_60%_75%_at_50%_45%,black_20%,transparent_100%)]"
         />
-        <span aria-hidden className="absolute top-[92px] left-[18%] size-3 -rotate-14 rounded-[3px] bg-primary/35" />
-        <span aria-hidden className="absolute top-[215px] right-[17%] size-[9px] rotate-12 rounded-[3px] bg-primary/25" />
-        <span aria-hidden className="absolute top-[88px] right-[11%] size-1.5 -rotate-8 rounded-[3px] bg-primary/20" />
+        {/* Centre glow: a gradient that reaches transparent well inside its layer, so it never clips. */}
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-[radial-gradient(ellipse_45%_55%_at_50%_50%,rgb(67_121_214/0.16),rgb(67_121_214/0.06)_45%,transparent_75%)]"
+        />
+        {/* Edge fade (Figma "Edge fade"): soft wash toward the top and bottom edges. */}
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-[radial-gradient(ellipse_100%_56%_at_50%_50%,rgb(247_249_254/0),rgb(247_249_254/0.2)_60%,rgb(247_249_254/0.9)_100%)]"
+        />
+        <span aria-hidden className="absolute top-[92px] left-[18%] size-3 rounded-full bg-primary/30 blur-[1px]" />
+        <span aria-hidden className="absolute top-[215px] right-[17%] size-[9px] rounded-full bg-primary/20 blur-[1px]" />
+        <span aria-hidden className="absolute top-[88px] right-[11%] size-1.5 rounded-full bg-primary/20" />
 
         <p className="absolute top-[29px] left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-border bg-background py-[5px] pr-3 pl-2.5 text-xs leading-4 font-medium whitespace-pre text-brand backdrop-blur-[4px]">
           <span aria-hidden className="text-sm leading-none">

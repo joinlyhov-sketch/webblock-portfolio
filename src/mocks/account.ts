@@ -80,3 +80,31 @@ export const planFilterOptions = [
   { value: "PRO", label: "Pro" },
   { value: "ULTRA", label: "Ultra" },
 ];
+
+/** Limits and price of each paid plan (the same numbers the plans screens show). */
+export const planLimits = {
+  PLUS: {
+    name: "Plus",
+    price: "9.99",
+    websites: 1,
+    redeploys: 5,
+    products: 30,
+    includes: ["1 website", "5 redeploys a month", "Up to 30 products", "Status monitoring"],
+  },
+  PRO: {
+    name: "Pro",
+    price: "19.99",
+    websites: 3,
+    redeploys: 30,
+    products: 200,
+    includes: ["Up to 3 websites", "30 redeploys a month", "Up to 200 products", "Logs"],
+  },
+  ULTRA: {
+    name: "Ultra",
+    price: "39.99",
+    websites: 10,
+    redeploys: 100,
+    products: 1000,
+    includes: ["Up to 10 websites", "100 redeploys a month", "Up to 1,000 products", "Logs"],
+  },
+} as const;

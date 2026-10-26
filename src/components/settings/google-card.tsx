@@ -27,7 +27,7 @@ export function GoogleCard({
             </p>
           </div>
           {!googleEmail && (
-            <Button variant="secondary" size="sm" className="border-primary text-primary">
+            <Button variant="secondary" size="sm" className="border-[1.2px] border-primary text-primary hover:border-primary">
               Connect
             </Button>
           )}

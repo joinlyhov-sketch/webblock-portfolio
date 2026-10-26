@@ -3,9 +3,8 @@ export type TemplateCategory = "CLOTHES" | "FOOD_BEVERAGES" | "TECHNOLOGY" | "HA
 export type TemplatePreviewImage = { url: string; width: number; height: number };
 
 export type TemplatePreviews = {
+  /** Full-page capture, used only as the small tilted preview in the business-info modal. */
   desktop: TemplatePreviewImage;
-  tablet: TemplatePreviewImage;
-  mobile: TemplatePreviewImage;
 };
 
 export type Template = {
@@ -16,6 +15,6 @@ export type Template = {
   thumbnailUrl: string;
   /** Short label shown next to the name on the preview screen, e.g. "Popular". */
   badge?: string;
-  /** Full-page captures of the template site, shown scrollable in the preview device frame. */
+  /** Static capture for the business-info modal. The preview screen loads the live /template-sites/<id> page. */
   previews: TemplatePreviews;
 };

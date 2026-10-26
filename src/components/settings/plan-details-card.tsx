@@ -171,7 +171,7 @@ function PlanDetailsDialog({
             Close
           </Button>
           <Button asChild size="sm">
-            <Link href="/billing/plans">{paid ? "Change plan" : "Choose a plan"}</Link>
+            <Link href="/billing/plans?from=settings">{paid ? "Change plan" : "Choose a plan"}</Link>
           </Button>
         </div>
       </div>

@@ -1,7 +1,8 @@
-import { getTemplate, listTemplates } from "@/features/templates/api";
+import { getTemplate, getTemplateSite, listTemplates } from "@/features/templates/api";
 import type { SearchParams } from "@/lib/table-query";
 import { CATEGORY_LABELS } from "@/config/categories";
 import type { Template, TemplateCategory } from "@/types/template";
+import type { TemplateSite } from "@/types/template-site";
 
 const CATEGORY_BY_PARAM: Record<string, TemplateCategory> = {
   clothes: "CLOTHES",
@@ -42,4 +43,8 @@ export async function getTemplatesView(searchParams: SearchParams): Promise<Temp
 
 export async function getTemplateView(templateId: string): Promise<Template> {
   return getTemplate(templateId);
+}
+
+export async function getTemplateSiteView(templateId: string): Promise<TemplateSite> {
+  return getTemplateSite(templateId);
 }

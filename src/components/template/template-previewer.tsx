@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Add, ArrowLeft, Devices, Lock1, Mobile, Monitor } from "iconsax-reactjs";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { Template, TemplatePreviewImage } from "@/types/template";
+import type { Template } from "@/types/template";
 import { BusinessInfoModal } from "./business-info-modal";
 
 type Device = "desktop" | "tablet" | "mobile";
@@ -29,33 +29,117 @@ const softDots = [
   { file: "1568c", size: 10, left: 180, top: 920 },
 ];
 
-const scrollArea =
-  "overflow-x-clip overflow-y-auto [scrollbar-color:var(--color-scroll-thumb)_var(--color-scroll-track)] [scrollbar-width:thin]";
+/** Natural (Figma) size of each device, used to fit it into the viewport. */
+const natural: Record<Device, { w: number; h: number }> = {
+  desktop: { w: 1317.6, h: 880 },
+  tablet: { w: 662.316, h: 889.26 },
+  mobile: { w: 426.866, h: 888.76 },
+};
+
+/**
+ * Figma "Preview decor" motion, a 2s loop: each element fades in and floats up after a stagger
+ * (0.05 + 0.04 per item, of 2s), then drifts up 6 or 10px. "Template dot" pulses to 1.3x.
+ * Also the enter animation used whenever the device size changes.
+ */
+const FLOAT_COUNT = 10;
+function buildMotionCss() {
+  const pct = (n: number) => +(n * 100).toFixed(2);
+  const frames = Array.from({ length: FLOAT_COUNT }, (_, i) => {
+    const d = 0.05 + 0.04 * i;
+    const amp = i === 9 ? 6 : i % 2 ? 10 : 6;
+    return `@keyframes pv-float-${i}{0%{opacity:0;transform:translateY(12px);animation-timing-function:linear}${pct(d)}%{opacity:0;transform:translateY(12px);animation-timing-function:ease-out}${pct(d + 0.3)}%{opacity:1;transform:translateY(0.3px)}${pct(d + 0.35)}%{opacity:1;transform:translateY(0);animation-timing-function:ease-in-out}99.99%{opacity:1;transform:translateY(-${amp}px);animation-timing-function:ease-in-out}100%{opacity:1;transform:translateY(0)}}`;
+  }).join("");
+  return `${frames}
+@keyframes pv-pulse{0%,50%{transform:scale(1);animation-timing-function:ease-out}80%{transform:scale(1.3);animation-timing-function:ease-in-out}100%{transform:scale(1)}}
+@keyframes pv-enter{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+.pv-float{animation:var(--pv-name) 2s infinite both}
+.pv-pulse{animation:pv-pulse 2s infinite}
+.pv-enter{animation:pv-enter .5s cubic-bezier(.22,1,.36,1) both}
+@media (prefers-reduced-motion:reduce){.pv-float,.pv-pulse,.pv-enter{animation:none!important;opacity:1!important}}`;
+}
+const motionCss = buildMotionCss();
+
+/** Scales a device down so it always fits the stage (never up, never overflowing the viewport). */
+function DeviceStage({
+  device,
+  padBottom,
+  children,
+}: {
+  device: Device;
+  padBottom: number;
+  children: React.ReactNode;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState<number | null>(null);
+  const { w, h } = natural[device];
+  const padX = 24;
+  const padTop = 20;
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const fit = () => {
+      const aw = el.clientWidth - padX * 2;
+      const ah = el.clientHeight - padTop - padBottom;
+      setScale(Math.max(0.2, Math.min(1, aw / w, ah / h)));
+    };
+    const ro = new ResizeObserver(fit);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [w, h, padBottom]);
+
+  const s = scale ?? 1;
+  return (
+    <div
+      ref={ref}
+      className="relative flex min-h-0 flex-1 items-center justify-center"
+      style={{ paddingTop: padTop, paddingBottom: padBottom }}
+    >
+      <div
+        key={device}
+        className="pv-enter relative shrink-0 transition-[width,height] duration-500 ease-out"
+        style={{ width: w * s, height: h * s, visibility: scale === null ? "hidden" : "visible" }}
+      >
+        <div className="absolute top-0 left-0 origin-top-left" style={{ width: w, transform: `scale(${s})` }}>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const chip =
   "items-center gap-2 rounded-full bg-background py-2 pr-3.5 pl-3 text-[13px] font-semibold text-foreground shadow-[0_12px_28px_rgb(27_43_75/0.08),0_2px_6px_rgb(27_43_75/0.05)]";
 
-/** The scrollable full-page capture of the template site. */
-function FullPage({ image, alt }: { image: TemplatePreviewImage; alt: string }) {
+/** The live template website. It scrolls natively inside the iframe; the frame is scaled by the stage. */
+function SiteFrame({ templateId, title }: { templateId: string; title: string }) {
+  const [loaded, setLoaded] = useState(false);
   return (
-    <Image
-      src={image.url}
-      alt={alt}
-      width={image.width}
-      height={image.height}
-      unoptimized
-      draggable={false}
-      className="block h-auto w-full max-w-none"
-    />
+    <div className="relative h-full w-full bg-background">
+      {loaded ? null : (
+        <div aria-hidden className="absolute inset-0 flex animate-pulse flex-col gap-4 p-6">
+          <div className="h-8 w-2/5 rounded-lg bg-muted" />
+          <div className="h-40 w-full rounded-xl bg-muted" />
+          <div className="h-5 w-3/5 rounded-lg bg-muted" />
+          <div className="h-5 w-2/5 rounded-lg bg-muted" />
+        </div>
+      )}
+      <iframe
+        src={`/template-sites/${templateId}`}
+        title={title}
+        onLoad={() => setLoaded(true)}
+        className={cn("block h-full w-full border-0 bg-background transition-opacity duration-300", loaded ? "opacity-100" : "opacity-0")}
+      />
+    </div>
   );
 }
 
-function MonitorFrame({ image, alt }: { image: TemplatePreviewImage; alt: string }) {
+function MonitorFrame({ templateId, alt }: { templateId: string; alt: string }) {
   return (
-    <div className="flex w-full max-w-[1317.6px] flex-col items-center">
+    <div className="flex w-[1317.6px] flex-col items-center">
       <div className="flex w-full flex-col overflow-clip rounded-[23.187px] bg-device-monitor px-[13.377px] pt-[13.377px] shadow-[0_23.187px_46.374px_rgb(60_120_207/0.18)]">
-        <div className={cn("aspect-[1290.838/768.077] w-full rounded-[5.797px] bg-background", scrollArea)}>
-          <FullPage image={image} alt={alt} />
+        <div className="h-[768.077px] w-full overflow-clip rounded-[5.797px] bg-background">
+          <SiteFrame templateId={templateId} title={alt} />
         </div>
         <div className="flex h-[43.476px] w-full shrink-0 items-center justify-center bg-device-chin">
           <Image src="/images/preview/monitor-logo.svg" alt="" width={9} height={9} unoptimized />
@@ -67,13 +151,13 @@ function MonitorFrame({ image, alt }: { image: TemplatePreviewImage; alt: string
   );
 }
 
-function TabletFrame({ image, alt }: { image: TemplatePreviewImage; alt: string }) {
+function TabletFrame({ templateId, alt }: { templateId: string; alt: string }) {
   const key =
     "absolute -right-[14px] h-[57.895px] w-[5.789px] rounded-[2.316px] bg-linear-to-r from-device-key-tablet via-device-key-tablet-mid to-device-key-tablet";
   return (
-    <div className="relative flex w-[662.316px] max-w-full flex-col rounded-[48.632px] border-[4.632px] border-device-tablet-edge bg-device-phone p-[18.526px] shadow-[0_6.947px_8.105px_rgb(60_120_207/0.07),0_34.737px_34.737px_rgb(60_120_207/0.18)]">
-      <div className={cn("relative h-[842.947px] w-full rounded-[25.474px] bg-background", scrollArea)}>
-        <FullPage image={image} alt={alt} />
+    <div className="relative flex w-[662.316px] flex-col rounded-[48.632px] border-[4.632px] border-device-tablet-edge bg-device-phone p-[18.526px] shadow-[0_6.947px_8.105px_rgb(60_120_207/0.07),0_34.737px_34.737px_rgb(60_120_207/0.18)]">
+      <div className="relative h-[842.947px] w-full overflow-clip rounded-[25.474px] bg-background">
+        <SiteFrame templateId={templateId} title={alt} />
       </div>
       <div
         aria-hidden
@@ -97,13 +181,13 @@ function TabletFrame({ image, alt }: { image: TemplatePreviewImage; alt: string 
   );
 }
 
-function PhoneFrame({ image, alt }: { image: TemplatePreviewImage; alt: string }) {
+function PhoneFrame({ templateId, alt }: { templateId: string; alt: string }) {
   const key =
     "absolute w-[5.473px] rounded-[2.189px] bg-linear-to-r from-device-key via-device-key-mid to-device-key";
   return (
-    <div className="relative flex w-[426.866px] max-w-full flex-col rounded-[62.607px] border-[4.378px] border-device-phone-edge bg-device-phone p-[13.134px] shadow-[0_6.567px_7.662px_rgb(60_120_207/0.08),0_32.836px_32.836px_rgb(60_120_207/0.2)]">
-      <div className={cn("relative h-[853.731px] w-full rounded-[49.801px] bg-background", scrollArea)}>
-        <div className="sticky top-0 z-10 -mb-[54.726px] h-[54.726px] w-full bg-background">
+    <div className="relative flex w-[426.866px] flex-col rounded-[62.607px] border-[4.378px] border-device-phone-edge bg-device-phone p-[13.134px] shadow-[0_6.567px_7.662px_rgb(60_120_207/0.08),0_32.836px_32.836px_rgb(60_120_207/0.2)]">
+      <div className="relative h-[853.731px] w-full overflow-clip rounded-[49.801px] bg-background">
+        <div className="relative z-10 h-[56.92px] w-full bg-background">
           <span className="absolute top-[18.28px] left-[45.97px] font-[Inter,sans-serif] text-[16.418px] font-semibold text-device-phone">
             9:41
           </span>
@@ -116,8 +200,8 @@ function PhoneFrame({ image, alt }: { image: TemplatePreviewImage; alt: string }
             className="absolute top-[21.02px] left-[291.14px]"
           />
         </div>
-        <div className="pt-[56.92px]">
-          <FullPage image={image} alt={alt} />
+        <div className="h-[calc(100%-56.92px)] w-full">
+          <SiteFrame templateId={templateId} title={alt} />
         </div>
       </div>
       <div
@@ -152,10 +236,10 @@ export function TemplatePreviewer({
   const [using, setUsing] = useState(false);
   const active = devices.find((d) => d.id === device)!;
   const alt = `${template.name} template, ${active.label.toLowerCase()} size`;
-  const image = template.previews[device];
-
+  
   return (
-    <div className="flex min-h-dvh flex-col bg-linear-to-b from-page-from via-page-via via-60% to-page">
+    <div className="flex h-dvh max-h-dvh flex-col overflow-hidden bg-linear-to-b from-page-from via-page-via via-60% to-page">
+      <style>{motionCss}</style>
       <header className="flex h-[72px] shrink-0 items-center gap-6 border-b border-border bg-background px-8">
         <div className="flex min-w-px flex-1 items-center gap-4 overflow-clip">
           <Link
@@ -185,10 +269,10 @@ export function TemplatePreviewer({
                 aria-pressed={on}
                 onClick={() => setDevice(d.id)}
                 className={cn(
-                  "flex h-9 min-w-px flex-1 items-center justify-center gap-1.5 rounded-[9px] px-[18px] text-sm leading-[21px] outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/40 [&_svg]:size-[14px]",
+                  "flex h-9 min-w-px flex-1 items-center justify-center gap-1.5 rounded-[9px] px-[18px] text-sm leading-[21px] outline-none transition-[background-color,color,box-shadow] duration-300 ease-out focus-visible:ring-3 focus-visible:ring-ring/40 [&_svg]:size-[14px]",
                   on
                     ? "bg-background font-semibold text-brand-deep shadow-[0_4px_5px_rgb(60_120_207/0.08),0_1px_1.5px_rgb(60_120_207/0.08)]"
-                    : "font-medium text-muted-foreground hover:text-foreground",
+                    : "font-medium text-muted-foreground hover:bg-background/60 hover:text-foreground",
                 )}
               >
                 {d.icon}
@@ -206,37 +290,53 @@ export function TemplatePreviewer({
       </header>
 
       {device === "desktop" ? (
-        <div className="relative flex flex-1 flex-col items-center justify-center overflow-x-clip overflow-y-auto bg-page px-12 py-8">
+        <div className="relative flex min-h-0 flex-1 flex-col bg-page">
           <div aria-hidden className="bg-dots pointer-events-none absolute inset-0" />
           <div aria-hidden className="pointer-events-none absolute inset-0 hidden xl:block">
-            {softDots.map((d) => (
-              <Image
+            {softDots.map((d, i) => (
+              <div
                 key={d.file}
-                src={`/images/preview/dot-${d.file}.svg`}
-                alt=""
-                width={d.size}
-                height={d.size}
-                unoptimized
-                style={{ left: d.left, top: d.top }}
-                className="absolute"
-              />
+                className="pv-float absolute"
+                style={{
+                  left: `${(d.left / 1728) * 100}%`,
+                  top: `${(d.top / 1045) * 100}%`,
+                  width: d.size,
+                  height: d.size,
+                  ["--pv-name" as string]: `pv-float-${i}`,
+                }}
+              >
+                <Image src={`/images/preview/dot-${d.file}.svg`} alt="" width={d.size} height={d.size} unoptimized />
+              </div>
             ))}
           </div>
-          <p className={cn(chip, "absolute top-[120px] left-7 hidden xl:inline-flex")}>
-            <span aria-hidden className="size-2.5 rounded-full bg-primary shadow-[0_0_0_3px_rgb(67_121_214/0.35)]" />
-            Template preview
-          </p>
-          <div className="relative flex w-full flex-1 items-center justify-center">
-            <MonitorFrame image={image} alt={alt} />
+          <div
+            aria-hidden
+            className="pv-float absolute top-[11.5%] left-7 hidden xl:block"
+            style={{ ["--pv-name" as string]: "pv-float-8" }}
+          >
+            <p className={cn(chip, "inline-flex")}>
+              <span className="pv-pulse size-2.5 rounded-full bg-primary shadow-[0_0_0_3px_rgb(67_121_214/0.35)]" />
+              Template preview
+            </p>
           </div>
-          <p className={cn(chip, "absolute bottom-6 left-1/2 inline-flex -translate-x-1/2")}>
-            <Lock1 aria-hidden className="size-[14px]" />
-            yourbusiness.webblock.com
-          </p>
+          <DeviceStage device="desktop" padBottom={64}>
+            <MonitorFrame templateId={template.id} alt={alt} />
+          </DeviceStage>
+          <div
+            className="pv-float pointer-events-none absolute inset-x-0 bottom-4 flex justify-center"
+            style={{ ["--pv-name" as string]: "pv-float-9" }}
+          >
+            <p className={cn(chip, "inline-flex")}>
+              <Lock1 aria-hidden className="size-[14px]" />
+              yourbusiness.webblock.com
+            </p>
+          </div>
         </div>
       ) : (
-        <div className="flex flex-1 items-center justify-center overflow-x-clip overflow-y-auto bg-background px-4 py-8">
-          {device === "tablet" ? <TabletFrame image={image} alt={alt} /> : <PhoneFrame image={image} alt={alt} />}
+        <div className="relative flex min-h-0 flex-1 flex-col bg-background">
+          <DeviceStage device={device} padBottom={20}>
+            {device === "tablet" ? <TabletFrame templateId={template.id} alt={alt} /> : <PhoneFrame templateId={template.id} alt={alt} />}
+          </DeviceStage>
         </div>
       )}
 

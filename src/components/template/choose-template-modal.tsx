@@ -1,15 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
 import { Add, ArrowDown2, Layer, LayoutMaximize, SearchNormal1 } from "iconsax-reactjs";
-import { CategoryBadge } from "@/components/common/category-badge";
 import { EmptyState } from "@/components/common/empty-state";
 import { Modal } from "@/components/common/modal";
 import { CATEGORY_LABELS } from "@/config/categories";
 import type { Template, TemplateCategory } from "@/types/template";
 import { BusinessInfoModal } from "./business-info-modal";
+import { TemplateCard } from "./template-card";
 
 /** "Start a new website": pick a template (search and category work in the browser), then fill the form. */
 export function ChooseTemplateModal({
@@ -135,56 +133,11 @@ function TemplatePicker({
         ) : (
           <div className="grid gap-[15px] sm:grid-cols-2 xl:grid-cols-4">
             {shown.map((template) => (
-              <ChooserCard key={template.id} template={template} onUse={onUse} />
+              <TemplateCard key={template.id} template={template} onUse={onUse} previewClassName="h-[360px]" />
             ))}
           </div>
         )}
       </div>
     </div>
-  );
-}
-
-/** Template card of the chooser: taller preview (360px) than the Templates page card. */
-function ChooserCard({ template, onUse }: { template: Template; onUse: (template: Template) => void }) {
-  return (
-    <article className="flex flex-col gap-3.5 rounded-[20px] border border-border bg-background p-3 shadow-card">
-      <div className="relative overflow-hidden rounded-[14px] bg-preview-panel">
-        <div className="relative h-[360px] overflow-hidden rounded-t-lg bg-background shadow-[0_10px_30px_rgb(60_120_207/0.12),0_2px_6px_rgb(60_120_207/0.05)]">
-          <Image
-            src={template.thumbnailUrl}
-            alt={`${template.name} template preview`}
-            fill
-            unoptimized
-            sizes="300px"
-            className="object-cover object-top"
-          />
-        </div>
-        <CategoryBadge category={template.category} className="absolute top-2.5 right-2.5 shadow-none" />
-      </div>
-      <div className="flex h-[90px] flex-col gap-2.5 overflow-hidden px-1.5 pb-1.5">
-        <div className="flex flex-col gap-[5px]">
-          <h3 className="text-[17px] font-semibold text-foreground">{template.name}</h3>
-          <p className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
-            <Layer aria-hidden className="size-3.5 shrink-0" />
-            <span className="truncate">{template.description}</span>
-          </p>
-        </div>
-        <div className="flex gap-2.5">
-          <Link
-            href={`/templates/${template.id}/preview`}
-            className="flex flex-1 items-center justify-center rounded-full border border-border bg-background px-3 py-1.5 text-[13px] font-semibold text-foreground shadow-button outline-none transition-colors hover:bg-primary-soft focus-visible:ring-3 focus-visible:ring-ring/40"
-          >
-            Preview
-          </Link>
-          <button
-            type="button"
-            onClick={() => onUse(template)}
-            className="flex h-[31px] flex-1 items-center justify-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-[13px] font-semibold text-primary-foreground outline-none transition-colors hover:bg-brand focus-visible:ring-3 focus-visible:ring-ring/40 focus-visible:ring-offset-2 [&_svg]:size-[15px]"
-          >
-            <Add aria-hidden /> Use template
-          </button>
-        </div>
-      </div>
-    </article>
   );
 }

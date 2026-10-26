@@ -4,6 +4,8 @@ import { delay } from "@/lib/api/delay";
 import type { Page } from "@/lib/api/types";
 import { toPage } from "@/lib/table-query";
 import { templates } from "@/mocks/templates";
+import { templateSites } from "@/mocks/template-sites";
+import type { TemplateSite } from "@/types/template-site";
 import type { Template, TemplateCategory } from "@/types/template";
 
 export type ListTemplatesFilter = {
@@ -29,4 +31,13 @@ export async function getTemplate(templateId: string): Promise<Template> {
     throw new ApiError({ title: "Template not found", status: 404, detail: "That template is not available." });
   }
   return template;
+}
+
+export async function getTemplateSite(templateId: string): Promise<TemplateSite> {
+  await delay(50);
+  const site = templateSites[templateId];
+  if (!site) {
+    throw new ApiError({ title: "Template not found", status: 404, detail: "That template is not available." });
+  }
+  return site;
 }

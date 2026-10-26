@@ -10,8 +10,6 @@ export const templates: Template[] = [
     badge: "Popular",
     previews: {
       desktop: { url: "/mock/templates/everyday-store-desktop.png", width: 1296, height: 3443 },
-      tablet: { url: "/mock/templates/everyday-store-tablet.png", width: 738, height: 2660 },
-      mobile: { url: "/mock/templates/everyday-store-mobile.png", width: 351, height: 3681 },
     },
   },
   {
@@ -22,8 +20,6 @@ export const templates: Template[] = [
     thumbnailUrl: "/mock/templates/sweet-pastel.png",
     previews: {
       desktop: { url: "/mock/templates/sweet-pastel-desktop.png", width: 1296, height: 3891 },
-      tablet: { url: "/mock/templates/sweet-pastel-tablet.png", width: 738, height: 3201 },
-      mobile: { url: "/mock/templates/sweet-pastel-mobile.png", width: 351, height: 3105 },
     },
   },
   {
@@ -34,8 +30,6 @@ export const templates: Template[] = [
     thumbnailUrl: "/mock/templates/warm-bold.png",
     previews: {
       desktop: { url: "/mock/templates/warm-bold-desktop.png", width: 1296, height: 3942 },
-      tablet: { url: "/mock/templates/warm-bold-tablet.png", width: 738, height: 3157 },
-      mobile: { url: "/mock/templates/warm-bold-mobile.png", width: 351, height: 3660 },
     },
   },
   {
@@ -46,8 +40,6 @@ export const templates: Template[] = [
     thumbnailUrl: "/mock/templates/clean-mono.png",
     previews: {
       desktop: { url: "/mock/templates/clean-mono-desktop.png", width: 1277, height: 4090 },
-      tablet: { url: "/mock/templates/clean-mono-tablet.png", width: 738, height: 3120 },
-      mobile: { url: "/mock/templates/clean-mono-mobile.png", width: 351, height: 3436 },
     },
   },
 ];

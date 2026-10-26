@@ -3,11 +3,26 @@ import { ApiError } from "@/lib/api/errors";
 import { delay } from "@/lib/api/delay";
 import type { Page } from "@/lib/api/types";
 import { toPage, type TableQuery } from "@/lib/table-query";
-import { planFilterOptions, planOrders, profiles as seed, subscriptions } from "@/mocks/account";
+import {
+  planFilterOptions,
+  planOrders as ordersSeed,
+  planLimits,
+  profiles as seed,
+  subscriptions as subscriptionsSeed,
+} from "@/mocks/account";
 import type { OrderStatus, PlanCode, PlanOrder, Profile, Subscription } from "@/types/account";
+import type { PaidPlanCode } from "@/types/billing";
 
-const globalForStore = globalThis as typeof globalThis & { __wbProfiles?: Profile[] };
+const globalForStore = globalThis as typeof globalThis & {
+  __wbProfiles?: Profile[];
+  __wbSubscriptions?: Record<string, Subscription>;
+  __wbPlanOrders?: Record<string, PlanOrder[]>;
+};
 const store: Profile[] = (globalForStore.__wbProfiles ??= structuredClone(seed));
+const subscriptions: Record<string, Subscription> = (globalForStore.__wbSubscriptions ??=
+  structuredClone(subscriptionsSeed));
+const planOrders: Record<string, PlanOrder[]> = (globalForStore.__wbPlanOrders ??=
+  structuredClone(ordersSeed));
 
 function find(userId: string): Profile {
   const profile = store.find((p) => p.id === userId);
@@ -91,4 +106,49 @@ export async function listOrders(
 
 export async function listPlanOptions(): Promise<{ value: PlanCode; label: string }[]> {
   return planFilterOptions as { value: PlanCode; label: string }[];
+}
+
+/**
+ * Puts the user on a paid plan after a confirmed payment. Spring does this when the bank confirms;
+ * the mock calls it from features/billing/api.ts.
+ */
+export async function activatePlan(
+  userId: string,
+  plan: PaidPlanCode,
+  nextPaymentAt: string,
+): Promise<Subscription> {
+  const current = subscriptions[userId];
+  if (!current) {
+    throw new ApiError({ title: "No subscription", status: 404, detail: "This account has no plan yet." });
+  }
+  const meta = planLimits[plan];
+  const used = (key: string) => current.usage.find((u) => u.key === key)?.used ?? 0;
+  const next: Subscription = {
+    ...current,
+    plan,
+    planName: meta.name,
+    renewsAt: nextPaymentAt,
+    monthlyPrice: meta.price,
+    usage: [
+      { key: "websites", label: "Websites", cardLabel: "Website", used: used("websites"), limit: meta.websites },
+      {
+        key: "redeploys",
+        label: "Redeploys",
+        cardLabel: "Redeploys this month",
+        used: Math.min(meta.redeploys, used("redeploys") || used("deploys")),
+        limit: meta.redeploys,
+      },
+      { key: "products", label: "Products", cardLabel: "Products", used: used("products"), limit: meta.products },
+    ],
+    includes: [...meta.includes],
+  };
+  subscriptions[userId] = next;
+  find(userId).plan = plan;
+  return next;
+}
+
+/** Adds a finished payment to the billing history. */
+export async function recordPlanOrder(userId: string, order: PlanOrder): Promise<void> {
+  const list = (planOrders[userId] ??= []);
+  if (!list.some((o) => o.id === order.id)) list.unshift(order);
 }
