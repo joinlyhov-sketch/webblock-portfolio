@@ -2,24 +2,35 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ROLE_COOKIE } from "@/lib/auth/roles";
 import { parseForm, signInInput, type FieldErrors } from "../schemas";
 import { Field, FormFooter, OrDivider } from "./field";
 import { GoogleButton } from "./google-button";
 import { PasswordInput } from "./password-input";
 
 export function SignInForm({ defaultEmail }: { defaultEmail?: string }) {
+  const router = useRouter();
   const [errors, setErrors] = useState<FieldErrors>({});
-  const [notice, setNotice] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const result = parseForm(signInInput, new FormData(e.currentTarget));
     setErrors(result.ok ? {} : result.fieldErrors);
+    if (!result.ok) return;
+
+    // TEMPORARY mock sign-in until the real login exists: any valid email + password signs in,
+    // emails starting with "admin@" as ADMIN. It only sets the mock role cookie that
+    // lib/auth/session.ts already reads.
     // TODO(auth): replace with signInAction via useActionState once the invariant hook
     // allows public auth actions (they can't start with require*() — nobody is signed in yet).
-    setNotice(result.ok ? "Sign-in isn't connected to the server yet." : null);
+    const role = result.data.email.toLowerCase().startsWith("admin@") ? "ADMIN" : "USER";
+    document.cookie = `${ROLE_COOKIE}=${role}; path=/; max-age=${60 * 60 * 24 * 7}; samesite=lax`;
+    setPending(true);
+    router.push(role === "ADMIN" ? "/admin" : "/websites");
   }
 
   return (
@@ -59,14 +70,9 @@ export function SignInForm({ defaultEmail }: { defaultEmail?: string }) {
             aria-describedby="password-msg"
           />
         </Field>
-        <Button type="submit" size="lg" className="mt-1 w-full">
+        <Button type="submit" size="lg" className="mt-1 w-full" loading={pending}>
           Sign in
         </Button>
-        {notice && (
-          <p role="status" className="rounded-[14px] bg-primary-soft px-3.5 py-3 text-[13px] text-foreground-soft">
-            {notice}
-          </p>
-        )}
       </form>
       <FormFooter>
         New to WebBlock?{" "}
