@@ -28,26 +28,138 @@
   --color-brand-strong: #2a5fbd; /* text on brand-soft */
   --color-brand-dark: #0936c3;
   --color-brand-soft: #e3eefc;
+  --color-brand-deep: #1f4fb5; /* Figma text-brand-deep: active nav, avatar initials */
+  --color-heading: #1f3c6e; /* hero headings, logo wordmark */
+  --color-violet-border: #cfe0f8; /* trial card border, avatar gradient end */
+  --color-trial-from: #e7effd; /* trial card gradient start */
+  /* Settings (Figma) */
+  --color-segment: #eef2f8; /* segmented tabs track */
+  --color-panel: #f6f8fc; /* details panel, close button */
+  --color-track: #e8eef8; /* progress track in dialogs */
+  --color-hint: #8a9ab8; /* helper text */
+  --color-hint-strong: #657899; /* upload hint text */
+  --color-dropzone: #9dbdeb; /* dashed border of the upload area */
+  --color-field-locked: #f4f7fc; /* read-only input */
+  --color-badge-soft: #e6effc; /* plan badge in the profile card */
+  --color-tile: #eef3fc; /* icon tile in billing cards */
+  --color-plan-from: #8fc2fa; /* plan badge gradient */
+  --color-plan-to: #4d91e3;
+  --color-avatar-from: #d2e1fa;
+  --color-usage-from: #2c5bb0; /* usage bar gradient */
+  --color-pro-from: #e8b84a; /* Pro plan panel (gold) */
+  --color-pro-to: #c4871a;
+  --color-ultra-from: #8d6fe6; /* Ultra plan panel (purple) */
+  --color-ultra-to: #5f3fbd;
+  --color-logo-from: #6091e6;
+  --color-logo-to: #3562b0;
+
+  /* Template preview: device switcher, page gradient and device frames (Figma 08b) */
+  --color-switcher: #e9eff9;
+  --color-page: #f8f9fc;
+  --color-page-from: #dfe7fe;
+  --color-page-via: #eef2ff;
+  --color-device-monitor: #171f33;
+  --color-device-chin: #e5ebf2;
+  --color-device-stand: #ccd6e5;
+  --color-device-phone: #0b0b0d;
+  --color-device-phone-edge: #6e7076;
+  --color-device-tablet-edge: #8e9198;
+  --color-device-key: #7a7d84;
+  --color-device-key-mid: #d2d4d8;
+  --color-device-key-tablet: #9a9da4;
+  --color-device-key-tablet-mid: #e4e6ea;
+  --color-scroll-track: rgb(128 140 166 / 0.12);
+  --color-scroll-thumb: rgb(89 102 133 / 0.55);
+
+  /* Contact Support (Figma 24) */
+  --color-hero-from: #e8f2ff;
+  --color-hero-to: #fcfeff;
+  --color-hero-fade: #f0f5ff;
+  --color-field-disabled: #f4f7fc;
+  --color-faq-row: #f7f9fe;
+  --color-faq-open-border: #cfddf5;
+  --color-faq-open-text: #2f5fb8;
+  --color-help-from: #e5f0ff;
+  --color-help-to: #f5faff;
+  --color-help-icon: #d1e3ff;
+  --color-plane-from: #6c9bea;
+  --color-plane-to: #3a68c4;
+  --color-sent-from: #eaf1fd;
+  --color-sent-to: #f7faff;
+  --color-body-soft: #657899;
+  --color-ink: #1a273d;
+  --color-overlay: rgb(11 21 48 / 0.34);
+  --shadow-support: 0 8px 24px -6px rgb(60 120 207 / 0.07);
+  /* Business info wizard (Figma 09) */
+  --color-wizard-from: #eef4fe;
+  --color-wizard-to: #dce8fc;
+  --color-wizard-footer: #f8fafe;
+  --color-dropzone: #f5f8fe;
+  --color-dropzone-border: #9dbdeb;
+  --color-picker: #f1f5fc;
+  --color-optional: #95a6c4;
+  --color-step-line: #dce6f6;
+  --shadow-wizard: 0 25px 80px rgb(136 136 136 / 0.38), 0 4px 12px rgb(60 120 207 / 0.18);
+  --shadow-panel-sm: 0 8px 12px rgb(60 120 207 / 0.07);
 
   /* Status */
   --color-success: #1e8a5a;
   --color-success-soft: #e6f5ec;
   --color-warning: #d97706;
+  --color-warning-soft: #fdf1e0;
   --color-danger: #cc3d3d;
   --color-danger-soft: #fce8e8;
   --color-destructive: #cc3d3d;
+
+  /* Website categories (badges) */
+  --color-category-clothes: #b8326e;
+  --color-category-clothes-soft: #fce9f2;
+  --color-category-food: #5e7a12;
+  --color-category-food-soft: #f1f6df;
+  --color-category-tech: #0e7490;
+  --color-category-tech-soft: #e3f3f7;
+  --color-category-handmade: #b4570f;
+  --color-category-handmade-soft: #fdf0e3;
+
+  /* My Websites: status pills, notifications, dashed tile, template chooser */
+  --color-status-draft-soft: #e6eefa;
+  --color-status-suspended: #b76e0b;
+  --color-status-suspended-soft: #fdf1de;
+  --color-segment-track: #eef2f8;
+  --color-dashed-line: #9dbdeb;
+  --color-chip: #eaf0f9;
+  --color-preview-panel: #f1f5fc;
+  --color-notice-border: #e6ecf5;
+  --color-notice-unread: #f4f8fe;
+  --color-notice-warning: #e8a317;
+  --color-notice-warning-soft: #fdefd2;
+  --color-scrim: rgb(11 21 48 / 0.34);
 
   /* Shadows (blue-tinted, from Figma effects) */
   --shadow-button: 0 1px 1px rgb(60 120 207 / 0.06), 0 1px 0.5px rgb(60 120 207 / 0.04);
   --shadow-button-hover: 0 4px 10px rgb(47 107 196 / 0.18), 0 1px 2px rgb(47 107 196 / 0.1);
   --shadow-card: 5px 6px 12px rgb(60 120 207 / 0.05);
+  --shadow-modal: 0 24px 60px rgb(27 43 75 / 0.18), 0 4px 12px rgb(27 43 75 / 0.08);
   --shadow-page-active: 0 4px 5px rgb(47 107 196 / 0.28);
+  --shadow-panel: 0 8px 24px rgb(60 120 207 / 0.06), 0 1px 2px rgb(60 120 207 / 0.03); /* billing cards */
+  --shadow-surface: 0 8px 12px rgb(60 120 207 / 0.06), 0 1px 1px rgb(60 120 207 / 0.03); /* profile cards */
+  --shadow-table: 0 16px 20px rgb(60 120 207 / 0.08), 0 1px 1.5px rgb(60 120 207 / 0.04);
+  --shadow-segment: 0 4px 5px rgb(60 120 207 / 0.08), 0 1px 1.5px rgb(60 120 207 / 0.08);
+  --shadow-tab: 0 4px 5px rgb(60 120 207 / 0.06), 0 1px 1.5px rgb(60 120 207 / 0.08);
+  --shadow-menu: 0 4px 12px rgb(60 120 207 / 0.08), 0 24px 60px -18px rgb(60 120 207 / 0.2);
+  --shadow-notifications: 0 16px 40px rgb(27 43 75 / 0.14);
+  --shadow-dialog: 0 4px 12px rgb(15 23 42 / 0.08), 0 24px 60px -18px rgb(15 23 42 / 0.2);
+  --shadow-avatar: 0 4px 20px rgb(60 120 207 / 0.2);
+  --shadow-badge: 0 8px 18px rgb(47 107 196 / 0.28);
+  --shadow-upload: 0 8px 10px rgb(47 107 196 / 0.35);
 
   /* Page content inset from the sidebar and the right edge. */
   --spacing-page: 15px;
 
   --animate-toast-in: toast-in 200ms ease-out;
   --animate-row-in: row-in 240ms ease-out both;
+  --animate-modal-in: modal-in 180ms ease-out;
+  --animate-pop-in: pop-in 140ms ease-out;
 
   @keyframes toast-in {
     from {
@@ -57,6 +169,28 @@
     to {
       opacity: 1;
       transform: translateX(0);
+    }
+  }
+
+  @keyframes modal-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 
@@ -91,4 +225,10 @@
   h4 {
     font-family: var(--font-heading);
   }
+}
+
+/* Dot grid from the Figma "Puck/Dot grid background": 3px dots every 24px. */
+@utility bg-dots {
+  background-image: radial-gradient(circle at 1.5px 1.5px, rgb(170 185 244 / 0.85) 1.5px, transparent 1.6px);
+  background-size: 24px 24px;
 }

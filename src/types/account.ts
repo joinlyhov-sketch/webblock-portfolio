@@ -1,0 +1,67 @@
+export type PlanCode = "FREE_TRIAL" | "PLUS" | "PRO" | "ULTRA";
+
+export type Profile = {
+  id: string;
+  fullName: string;
+  /** Two letters shown when there is no photo, e.g. "SV". */
+  initials: string;
+  email: string;
+  avatarUrl: string | null;
+  plan: PlanCode;
+  memberSince: string;
+  lastSignInAt: string;
+  hasPassword: boolean;
+  /** Email of the connected Google account, or `null` when not connected. */
+  googleEmail: string | null;
+};
+
+export type UsageMetric = {
+  key: string;
+  /** Name in the plan dialog, e.g. "Websites". */
+  label: string;
+  /** Shorter name in the plan card, e.g. "Website". */
+  cardLabel: string;
+  used: number;
+  limit: number;
+};
+
+export type Subscription = {
+  plan: PlanCode;
+  planName: string;
+  trialStartsAt: string;
+  trialEndsAt: string;
+  trialDays: number;
+  /** Next renewal date of a paid plan, or `null` on the free trial. */
+  renewsAt: string | null;
+  /** Monthly price of this plan as a decimal string, or `null` on the free trial. */
+  monthlyPrice: string | null;
+  /** Lowest monthly price of a paid plan, as a decimal string. */
+  startingPrice: string;
+  usage: UsageMetric[];
+  includes: string[];
+};
+
+export type OrderStatus = "PAID" | "EXPIRED";
+
+export type PlanOrder = {
+  id: string;
+  plan: PlanCode;
+  planName: string;
+  /** Website the plan was bought for. */
+  websiteName: string;
+  /** "Monthly" and so on, shown under the plan name. */
+  period: string | null;
+  createdAt: string;
+  amount: string;
+  currency: "USD" | "KHR";
+  status: OrderStatus;
+};
+
+export type SidebarSummary = {
+  planLabel: string;
+  daysLeft: number;
+  /** 0–100, how much of the trial has passed. */
+  progress: number;
+  /** Name of the website shown in the trial card, or `null` when the user has none live. */
+  liveWebsiteName: string | null;
+};
