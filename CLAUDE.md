@@ -76,7 +76,10 @@ Details and component usage: `.claude/rules/components.md`.
 - Bugs: `/investigate` — no fix without a reproduction first.
 - Review before committing: ask the `code-reviewer` and `invariant-auditor` agents.
 - CI (`.github/workflows/ci.yml`) runs the invariant checks, their tests, lint, build and gitleaks
-  on pushes to `dev`/`master` and pull requests into them.
-- Branches: work on your own branch (any short, clear name, e.g. `products-page`) → pull request into `dev`.
-  Only the designated teammate merges `dev` into `master` for submission. Never commit to `master` yourself.
+  on pushes to `dev`/`Master` and pull requests into them.
+- Branches (names are case-sensitive):
+  - `Master` — submission only. Only the designated teammate merges `dev` into `Master`. Never commit to it.
+  - `dev` — integration. Never commit to it directly; changes arrive by pull request.
+  - `feature/<name>` — one per feature, created from `dev`, short kebab-case name
+    (e.g. `feature/products`, `feature/admin-users`) → pull request into `dev`.
 - Never edit `.claude/hooks/` to make a check pass; if a rule looks wrong, stop and ask.

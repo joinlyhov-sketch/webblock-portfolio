@@ -12,10 +12,19 @@ const usd = new Intl.NumberFormat("en-US", {
 
 const khr = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
 
-/** "4.5" USD → "$4.50" · "18000" KHR → "18,000៛" */
-export function formatPrice(price: string, currency: Currency): string {
+/**
+ * "4.5" USD → "$4.50" · "18000" KHR → "18,000៛".
+ * `trimZeroCents` drops ".00" on whole amounts: "0" USD → "$0" (pricing cards).
+ */
+export function formatPrice(
+  price: string,
+  currency: Currency,
+  { trimZeroCents = false }: { trimZeroCents?: boolean } = {},
+): string {
   const amount = Number(price);
-  return currency === "USD" ? usd.format(amount) : `${khr.format(amount)}៛`;
+  if (currency === "KHR") return `${khr.format(amount)}៛`;
+  const text = usd.format(amount);
+  return trimZeroCents ? text.replace(/\.00$/, "") : text;
 }
 
 const date = new Intl.DateTimeFormat("en-US", {

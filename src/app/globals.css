@@ -17,6 +17,7 @@
   --color-border: #e5e7eb;
   --color-input: #e5e7eb;
   --color-ring: #4379d6;
+  --color-border-strong: #7c8dae; /* Figma border-strong: outline buttons */
 
   /* Accent: page titles, links, active sort, focus ring */
   --color-primary: #4379d6;
@@ -28,6 +29,97 @@
   --color-brand-strong: #2a5fbd; /* text on brand-soft */
   --color-brand-dark: #0936c3;
   --color-brand-soft: #e3eefc;
+  --color-brand-deep: #1f4fb5; /* text on brand-soft (tonal buttons, selected chips) */
+
+  /* Logo mark gradient (Figma "Logo · WebBlock icon") */
+  --color-logo-from: #6091e6;
+  --color-logo-to: #3562b0;
+
+  /* Landing · decor (dot grid, diamonds) */
+  --color-decor-dot: #b9cbea;
+  --color-decor-diamond: #ccdbf5;
+
+  /* Landing · pricing plan themes (trial uses primary / primary-soft) */
+  --color-plan-plus: #2d57a6;
+  --color-plan-plus-light: #5b8fe6; /* CTA gradient start */
+  --color-plan-plus-soft: #dce5f6;
+  --color-plan-plus-tint: #e6edf8;
+  --color-plan-plus-border: #cedbf2;
+  --color-plan-pro: #b3832a;
+  --color-plan-pro-strong: #8a5a12;
+  --color-plan-pro-soft: #f1e9d9;
+  --color-plan-pro-tint: #f5efe3;
+  --color-plan-pro-border: #d1b57f;
+  --color-plan-ultra: #6d3fd6;
+  --color-plan-ultra-strong: #5b21b6;
+  --color-plan-ultra-soft: #e5dcf8;
+  --color-plan-ultra-tint: #ece6fa;
+  --color-plan-ultra-border: #dacff5;
+
+  /* Landing · CTA band */
+  --color-cta-from: #fcffff;
+  --color-cta-via: #edf5ff;
+  --color-cta-to: #d1e3ff;
+  --color-cta-border: #d1e0f7;
+
+  /* Landing · showcase & templates */
+  --color-window-close: #ff5f57; /* browser chrome traffic lights */
+  --color-window-minimize: #febc2e;
+  --color-window-zoom: #28c840;
+  --color-browser-url: #52525b;
+  --color-browser-glass: rgb(235 235 235 / 0.35); /* clear frosted browser frame: the slider shows through */
+  --color-browser-page: rgb(230 230 230 / 0.75); /* frosted tint behind transparent template pages */
+  --shadow-browser: 0 24px 70px rgb(0 0 0 / 0.16);
+  --shadow-browser-sm: 0 12px 35px rgb(0 0 0 / 0.16);
+
+  /* Landing · how it works demo */
+  --color-hiw-stage: #eaeff6; /* behind the choose-template dialog */
+  --color-hiw-chip: #eaf0f9;
+  --color-hiw-preview: #f1f5fc; /* template thumbnail well */
+  --color-hiw-sky-from: #dfe7fe; /* editor / deploy page gradient */
+  --color-hiw-sky-via: #eef2ff;
+  --color-hiw-sky-to: #f8f9fc;
+  --color-hiw-draft: #e6eefa;
+  --color-hiw-canvas: #f4f8ff;
+  --color-hiw-drag: #5b8fd9; /* dragged block outline, deploy dot fields */
+  --color-hiw-info: #eaf2fd;
+  --color-hiw-button-preview: #9dbdeb;
+  --color-hiw-diamond: #cfe0f8;
+  --color-hiw-scrim: #0b1530;
+  /* The sample "Petal & Stem" site and its palettes */
+  --color-site-rose: #c2417a;
+  --color-site-bakery: #b4601e;
+  --color-site-bakery-light: #fbf5e8;
+  --color-site-bakery-dark: #4a2c12;
+  --color-site-sage: #3e6b45;
+  --color-site-sage-light: #eef1ea;
+  --color-site-sage-dark: #24331f;
+  --shadow-hiw-panel: 0 2px 8px rgb(60 120 207 / 0.06), 0 28px 56px -18px rgb(60 120 207 / 0.12);
+  --shadow-hiw-screen: 0 51px 128px -26px rgb(41 84 191 / 0.16);
+  --shadow-hiw-step: 0 12px 30px -10px rgb(60 120 207 / 0.1);
+  --shadow-hiw-dialog: 0 4px 12px rgb(15 23 42 / 0.08), 0 24px 60px -18px rgb(15 23 42 / 0.2);
+  --shadow-hiw-ring: 0 12px 16px rgb(47 107 196 / 0.18);
+  --shadow-hiw-pill: 0 6px 16px rgb(27 43 75 / 0.06), 0 1px 2px rgb(27 43 75 / 0.04);
+  --shadow-hiw-steps: 0 10px 30px -12px rgb(60 120 207 / 0.2), 0 2px 6px rgb(60 120 207 / 0.05);
+  --shadow-hiw-node: 0 4px 10px rgb(47 107 196 / 0.22);
+  --shadow-hiw-modal: 0 28px 72px -10px rgb(15 23 42 / 0.2);
+  --shadow-hiw-success: 0 14px 30px rgb(60 120 207 / 0.16), 0 2px 6px rgb(30 138 90 / 0.1);
+  --shadow-hiw-cta: 0 8px 10px rgb(47 107 196 / 0.35);
+  --drop-shadow-hiw-cursor: 0 2px 4px rgb(27 43 75 / 0.25);
+
+  /* Landing · editor demo */
+  --color-editor-canvas: #eef2f8; /* editor chrome background + loop veil */
+  --color-editor-selected: #9dbbe9; /* selected page-structure row border */
+  --color-editor-drop: #eaf1fd; /* drop-zone fill */
+  --color-editor-bubble: #f3f5f9; /* AI chat bubble */
+  --color-editor-open: #147345; /* "Open now" on the mock site */
+  --color-editor-dot: #aab9f4; /* canvas dot grid (used at 85%) */
+  --shadow-editor-showcase: 0 28px 56px -18px rgb(60 120 207 / 0.12), 0 2px 8px rgb(60 120 207 / 0.06);
+  --shadow-editor-frame: 0 40px 96px -24px rgb(41 84 191 / 0.14);
+  --shadow-editor-panel: 0 5.63px 16.89px rgb(27 43 75 / 0.06), 0 0.7px 1.4px rgb(27 43 75 / 0.04);
+  --shadow-editor-composer: 0 2.8px 11.26px rgb(27 43 75 / 0.06);
+  --shadow-editor-ghost: 0 9.85px 19.7px -4.22px rgb(31 64 140 / 0.22);
+  --drop-shadow-editor-cursor: 0 2.4px 2.4px rgb(27 43 75 / 0.25);
 
   /* Status */
   --color-success: #1e8a5a;
@@ -42,12 +134,79 @@
   --shadow-button-hover: 0 4px 10px rgb(47 107 196 / 0.18), 0 1px 2px rgb(47 107 196 / 0.1);
   --shadow-card: 5px 6px 12px rgb(60 120 207 / 0.05);
   --shadow-page-active: 0 4px 5px rgb(47 107 196 / 0.28);
+  --shadow-float: 0 10px 30px rgb(60 120 207 / 0.12), 0 2px 6px rgb(60 120 207 / 0.05); /* Figma Shadow/Card */
+  --shadow-logo: 0 3px 4px rgb(67 121 214 / 0.6);
+  --shadow-plan: 0 10px 28px rgb(31 51 102 / 0.06);
+  --shadow-soft: 0 8px 24px -6px rgb(27 43 75 / 0.07);
+  --shadow-cta: 0 24px 56px -12px rgb(41 84 191 / 0.14);
 
   /* Page content inset from the sidebar and the right edge. */
   --spacing-page: 15px;
 
   --animate-toast-in: toast-in 200ms ease-out;
   --animate-row-in: row-in 240ms ease-out both;
+  --animate-accordion-down: accordion-down 200ms ease-out;
+  --animate-accordion-up: accordion-up 200ms ease-out;
+  --animate-fade-in: fade-in 200ms ease-out;
+  --animate-fade-out: fade-out 150ms ease-in forwards;
+  --animate-sheet-in-right: sheet-in-right 280ms cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-sheet-out-right: sheet-out-right 200ms ease-in forwards;
+  --animate-sheet-in-left: sheet-in-left 280ms cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-sheet-out-left: sheet-out-left 200ms ease-in forwards;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes sheet-in-right {
+    from {
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes sheet-out-right {
+    to {
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes sheet-in-left {
+    from {
+      transform: translateX(-100%);
+    }
+  }
+
+  @keyframes sheet-out-left {
+    to {
+      transform: translateX(-100%);
+    }
+  }
 
   @keyframes toast-in {
     from {
@@ -79,6 +238,17 @@
 }
 
 @layer base {
+  /* Landing anchors (#pricing, #faq…) stop below the fixed header. */
+  html:has([data-landing]) {
+    scroll-padding-top: 7rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html:has([data-landing]) {
+      scroll-behavior: smooth;
+    }
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
