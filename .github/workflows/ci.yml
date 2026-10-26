@@ -1,20 +1,20 @@
-# Branch flow: your branch → pull request into dev → the designated teammate merges dev into master (submission).
-# Runs on every push to dev or master, and on every pull request into dev or master.
-# Branch names are case-sensitive: if your submit branch is "MASTER", change "master" below to match.
+# Branch flow: feature/<name> → pull request into dev → the designated teammate merges dev into Master (submission).
+# Runs on every push to dev or Master, and on every pull request into dev or Master.
+# Branch names are case-sensitive: the submit branch is "Master" with a capital M.
 name: CI
 
 on:
   push:
-    branches: [dev, master]
+    branches: [dev, Master]
   pull_request:
-    branches: [dev, master]
+    branches: [dev, Master]
 
 # Saves Actions minutes (private repo: the organization's monthly allowance is shared by all its repos).
 # A newer push to the same branch or pull request cancels the older, now-outdated run.
-# Runs on master are never cancelled, so every submission commit gets a full check.
+# Runs on Master are never cancelled, so every submission commit gets a full check.
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/Master' }}
 
 jobs:
   check:

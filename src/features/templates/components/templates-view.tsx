@@ -1,77 +1,79 @@
-import Form from "next/form";
-import { Layer, Magicpen, SearchNormal1 } from "iconsax-reactjs";
-import { Button } from "@/components/ui/button";
-import type { Page } from "@/lib/api/types";
-import type { Template, TemplateQuery } from "../types";
-import { CategoryFilter } from "./category-filter";
-import { TemplateCard } from "./template-card";
+import { Breadcrumb } from "@/components/common/breadcrumb";
+import { FilterSelect } from "@/components/common/filter-select";
+import { SearchInput } from "@/components/common/search-input";
+import { categoryOptions, type TemplatesView as TemplatesData } from "../service";
+import { TemplatesGrid } from "./templates-grid";
 
-/** Figma "08 Templates": hero with search, count + category filter, card grid (or empty state). */
-export function TemplatesView({ data, query }: { data: Page<Template>; query: TemplateQuery }) {
+/** "Templates": hero with search, then the count + category filter (in the URL) and the grid. */
+export function TemplatesView({
+  data,
+  businessTypes,
+}: {
+  data: TemplatesData;
+  businessTypes: string[];
+}) {
   return (
-    <div className="flex flex-col gap-[15px]">
-      <nav aria-label="Breadcrumb" className="text-[13px] text-muted-foreground">
-        Dashboard <span aria-hidden>›</span> <span className="font-semibold text-foreground">Templates</span>
-      </nav>
+    <>
+      <Breadcrumb current="Templates" />
 
-      <section className="bg-dot-grid relative overflow-hidden rounded-[28px] border border-border px-6 pt-7 pb-16">
-        <div className="mx-auto flex max-w-[800px] flex-col items-center text-center">
-          <span className="flex items-center gap-1.5 rounded-full border border-border bg-background py-[5px] pr-3 pl-2.5 text-xs font-medium text-brand">
-            <Magicpen aria-hidden className="size-3.5" /> Choose the one that matches your business
+      <section className="relative h-[357px] shrink-0 overflow-hidden rounded-[28px] border border-border bg-linear-to-b from-[#fbfcff] to-[#f1f5fd]">
+        {/* Dot grid, fading out toward every edge (mask is a gradient, so no box edge is ever visible). */}
+        <div
+          aria-hidden
+          className="bg-dots absolute inset-0 [mask-image:radial-gradient(ellipse_60%_75%_at_50%_45%,black_20%,transparent_100%)]"
+        />
+        {/* Centre glow: a gradient that reaches transparent well inside its layer, so it never clips. */}
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-[radial-gradient(ellipse_45%_55%_at_50%_50%,rgb(67_121_214/0.16),rgb(67_121_214/0.06)_45%,transparent_75%)]"
+        />
+        {/* Edge fade (Figma "Edge fade"): soft wash toward the top and bottom edges. */}
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-[radial-gradient(ellipse_100%_56%_at_50%_50%,rgb(247_249_254/0),rgb(247_249_254/0.2)_60%,rgb(247_249_254/0.9)_100%)]"
+        />
+        <span aria-hidden className="absolute top-[92px] left-[18%] size-3 rounded-full bg-primary/30 blur-[1px]" />
+        <span aria-hidden className="absolute top-[215px] right-[17%] size-[9px] rounded-full bg-primary/20 blur-[1px]" />
+        <span aria-hidden className="absolute top-[88px] right-[11%] size-1.5 rounded-full bg-primary/20" />
+
+        <p className="absolute top-[29px] left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-border bg-background py-[5px] pr-3 pl-2.5 text-xs leading-4 font-medium whitespace-pre text-brand backdrop-blur-[4px]">
+          <span aria-hidden className="text-sm leading-none">
+            ✦
           </span>
-          <h1 className="mt-5 text-[44px] leading-[48px] font-semibold tracking-[-1.2px] text-foreground">
+          {"choose  which match with your business"}
+        </p>
+
+        <div className="absolute top-[71px] left-1/2 flex w-[800px] max-w-full -translate-x-1/2 flex-col items-center px-4 text-center">
+          <h1 className="text-[44px] leading-[48px] font-semibold tracking-[-1.2px] text-heading">
             Start from a website that
             <br />
             already <span className="text-primary">looks like yours</span>
           </h1>
-          <p className="mt-2.5 max-w-[780px] text-[15px] leading-[22.5px] text-muted-foreground">
-            Same pages, different look. Pick the style that fits your brand, then swap in your name, photos and prices.
+          <p className="max-w-[780px] pt-2.5 text-[15px] leading-[22.5px] text-muted-foreground">
+            Same pages, different look. Pick the style that fits your brand, then swap in your name, photos and
+            prices.
           </p>
-          <Form action="" role="search" className="mt-6 flex h-14 w-full max-w-[560px] items-center gap-2.5 rounded-full border border-border bg-background pr-1.5 pl-[22px] shadow-card">
-            {query.category && <input type="hidden" name="category" value={query.category} />}
-            <SearchNormal1 aria-hidden className="size-[17px] text-muted-foreground" />
-            <label htmlFor="template-search" className="sr-only">
-              Search templates
-            </label>
-            <input
-              id="template-search"
-              name="q"
-              type="search"
-              defaultValue={query.q}
-              placeholder="Search templates, e.g. “minimal”"
-              className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-placeholder"
-            />
-            <Button type="submit" size="icon-lg" aria-label="Search" className="size-11 bg-primary">
-              <SearchNormal1 />
-            </Button>
-          </Form>
+        </div>
+
+        <div className="absolute top-[226px] left-1/2 w-[560px] max-w-full -translate-x-1/2 px-4">
+          <SearchInput
+            variant="hero"
+            defaultValue={data.q}
+            placeholder="Search templates, e.g. “minimal”"
+            label="Search templates"
+          />
         </div>
       </section>
 
-      <div className="flex items-center justify-between gap-4">
-        <p className="text-[13px] text-muted-foreground" aria-live="polite">
-          {data.totalItems} {data.totalItems === 1 ? "template" : "templates"}
+      <div className="flex items-center gap-2">
+        <p className="text-[13px] leading-[19.5px] text-muted-foreground" aria-live="polite">
+          {data.templates.length} {data.templates.length === 1 ? "template" : "templates"}
         </p>
-        <CategoryFilter query={query} />
+        <span aria-hidden className="h-px flex-1" />
+        <FilterSelect label="Category:" param="category" value={data.category} options={categoryOptions} />
       </div>
 
-      {data.items.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-[20px] border border-dashed border-border px-6 py-24 text-center">
-          <span className="flex size-12 items-center justify-center rounded-full bg-brand-soft text-brand">
-            <Layer aria-hidden className="size-[22px]" />
-          </span>
-          <h2 className="text-[17px] font-semibold text-foreground">No templates match yet</h2>
-          <p className="max-w-md text-[13px] text-muted-foreground">
-            Try another search or category, or choose All categories to see every template.
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-[15px] md:grid-cols-2 xl:grid-cols-4">
-          {data.items.map((template) => (
-            <TemplateCard key={template.id} template={template} />
-          ))}
-        </div>
-      )}
-    </div>
+      <TemplatesGrid templates={data.templates} businessTypes={businessTypes} />
+    </>
   );
 }

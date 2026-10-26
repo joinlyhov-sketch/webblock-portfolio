@@ -2,39 +2,44 @@ import type { Template } from "@/features/templates/types";
 
 export const templates: Template[] = [
   {
-    id: "3b8f2d61-9c4e-4a7b-8e15-6d2a9f0c4e11",
-    key: "everyday-store",
+    id: "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c01",
     name: "Everyday store",
     description: "Products, categories and clear prices",
     category: "CLOTHES",
-    thumbnailUrl: "/mock/templates/everyday-store/thumbnail.webp",
-    demoBusinessName: "Petal & Stem",
+    thumbnailUrl: "/mock/templates/everyday-store.png",
+    badge: "Popular",
+    previews: {
+      desktop: { url: "/mock/templates/everyday-store-desktop.png", width: 1296, height: 3443 },
+    },
   },
   {
-    id: "8e41c7a2-5d3f-4b96-a0e8-2c7f1b9d6a32",
-    key: "sweet-pastel",
+    id: "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c02",
     name: "Sweet pastel",
     description: "Round photos, stickers, candy colours",
-    category: "FOOD_AND_BEVERAGES",
-    thumbnailUrl: "/mock/templates/sweet-pastel/thumbnail.webp",
-    demoBusinessName: "Sugar & Crumb",
+    category: "FOOD_BEVERAGES",
+    thumbnailUrl: "/mock/templates/sweet-pastel.png",
+    previews: {
+      desktop: { url: "/mock/templates/sweet-pastel-desktop.png", width: 1296, height: 3891 },
+    },
   },
   {
-    id: "c2d95e08-7a1b-4f63-9b4d-8e0a3c5f7b53",
-    key: "warm-bold",
+    id: "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c03",
     name: "Warm & bold",
     description: "Full-bleed hero, serif, menu-board grid",
-    category: "FOOD_AND_BEVERAGES",
-    thumbnailUrl: "/mock/templates/warm-bold/thumbnail.webp",
-    demoBusinessName: "Kiln Coffee",
+    category: "FOOD_BEVERAGES",
+    thumbnailUrl: "/mock/templates/warm-bold.png",
+    previews: {
+      desktop: { url: "/mock/templates/warm-bold-desktop.png", width: 1296, height: 3942 },
+    },
   },
   {
-    id: "f6a07b3c-2e8d-4c15-b7f9-4d1e6a2b8c74",
-    key: "clean-mono",
+    id: "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c04",
     name: "Clean mono",
     description: "Hairlines, big type, catalogue layout",
     category: "TECHNOLOGY",
-    thumbnailUrl: "/mock/templates/clean-mono/thumbnail.webp",
-    demoBusinessName: "Northpoint Audio",
+    thumbnailUrl: "/mock/templates/clean-mono.png",
+    previews: {
+      desktop: { url: "/mock/templates/clean-mono-desktop.png", width: 1277, height: 4090 },
+    },
   },
 ];

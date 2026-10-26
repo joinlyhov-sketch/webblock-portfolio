@@ -1,86 +1,95 @@
-import Image from "next/image";
-import Link from "next/link";
-import { Add, Edit2, ExportSquare, Eye, Global } from "iconsax-reactjs";
+import { SearchNormal1 } from "iconsax-reactjs";
+import { Breadcrumb } from "@/components/common/breadcrumb";
+import { EmptyState } from "@/components/common/empty-state";
 import { PageHeader } from "@/components/common/page-header";
-import { StatusBadge, type StatusMeta } from "@/components/common/status-badge";
-import { Button } from "@/components/ui/button";
-import type { Page } from "@/lib/api/types";
-import { formatDate } from "@/lib/format";
-import type { Website, WebsiteStatus } from "../types";
+import { SearchInput } from "@/components/common/search-input";
+import { SegmentedTabs } from "@/components/common/segmented-tabs";
+import { formatRelativeTime } from "@/lib/format";
+import { tableHref, type SearchParams } from "@/lib/table-query";
+import type { NotificationsView } from "@/features/notifications/service";
+import type { WebsitesView as WebsitesData } from "../service";
+import type { Template } from "@/features/templates/types";
+import { NewWebsiteCard } from "./new-website-card";
+import { NotificationBell } from "./notification-bell";
+import { WebsiteCard } from "./website-card";
 
-const WEBSITE_STATUS = {
-  DRAFT: { label: "Draft", tone: "neutral" },
-  DEPLOYING: { label: "Deploying", tone: "brand" },
-  LIVE: { label: "Live", tone: "success" },
-  FAILED: { label: "Deploy failed", tone: "danger" },
-} satisfies Record<WebsiteStatus, StatusMeta>;
+/** "My Websites": status tabs and search (both in the URL), the new-website tile and the cards. */
+export function WebsitesView({
+  data,
+  notifications,
+  templates,
+  businessTypes,
+  searchParams,
+}: {
+  data: WebsitesData;
+  notifications: NotificationsView;
+  templates: Template[];
+  businessTypes: string[];
+  searchParams: SearchParams;
+}) {
+  const filtering = data.status !== "ALL" || data.q !== "";
+  const tab = (label: string, status: string | null, count: number, active: boolean) => ({
+    label,
+    count,
+    active,
+    href: tableHref(searchParams, { status, page: null }),
+  });
 
-/** The user's websites with Edit / Preview / View live. */
-export function WebsitesView({ data }: { data: Page<Website> }) {
   return (
     <>
+      <div className="relative z-[5]">
+        <Breadcrumb current="My Websites" />
+        <div className="absolute -top-2.5 right-0">
+          <NotificationBell
+            items={notifications.items.map((n) => ({ ...n, timeLabel: shortTime(n.createdAt) }))}
+          />
+        </div>
+      </div>
+
       <PageHeader
-        title="My websites"
-        description="Edit your pages, preview them on any device and deploy when you're ready."
-        actions={
-          <Button asChild>
-            <Link href="/templates">
-              <Add /> New website
-            </Link>
-          </Button>
-        }
+        className="mb-0"
+        title="My Websites"
+        description="Pick a website to edit it, manage it or publish changes."
       />
 
-      {data.items.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-[20px] border border-dashed border-border px-6 py-24 text-center">
-          <span className="flex size-12 items-center justify-center rounded-full bg-brand-soft text-brand">
-            <Global aria-hidden className="size-[22px]" />
-          </span>
-          <h2 className="text-[17px] font-semibold text-foreground">No websites yet</h2>
-          <p className="max-w-md text-[13px] text-muted-foreground">Pick a template to start your first website.</p>
-          <Button asChild variant="soft" size="sm">
-            <Link href="/templates">Browse templates</Link>
-          </Button>
-        </div>
-      ) : (
-        <ul className="grid grid-cols-1 gap-[15px] md:grid-cols-2 xl:grid-cols-3">
-          {data.items.map((website) => (
-            <li key={website.id} className="flex flex-col gap-4 rounded-[20px] border border-border bg-background p-3 shadow-card">
-              <div className="relative h-44 overflow-hidden rounded-[14px] bg-primary-soft">
-                {website.thumbnailUrl && (
-                  <Image src={website.thumbnailUrl} alt="" fill sizes="(min-width: 1280px) 33vw, 100vw" className="object-cover object-top" />
-                )}
-                <StatusBadge {...WEBSITE_STATUS[website.status]} className="absolute top-2.5 right-3 shadow-button" />
-              </div>
-              <div className="flex flex-col gap-1 px-1.5">
-                <h2 className="text-[17px] font-semibold text-foreground">{website.name}</h2>
-                <p className="text-[13px] text-muted-foreground">
-                  {website.subdomain}.webblock.com · edited {formatDate(website.updatedAt)}
-                </p>
-              </div>
-              <div className="flex gap-2 px-1.5 pb-1.5">
-                <Button asChild variant="soft" size="sm" className="flex-1">
-                  <Link href={`/websites/${website.id}/edit`}>
-                    <Edit2 /> Edit
-                  </Link>
-                </Button>
-                <Button asChild variant="secondary" size="sm" className="flex-1">
-                  <Link href={`/websites/${website.id}/preview`}>
-                    <Eye /> Preview
-                  </Link>
-                </Button>
-                {website.status === "LIVE" && (
-                  <Button asChild variant="ghost" size="icon-sm" aria-label={`Open the live ${website.name} site`}>
-                    <Link href={`/sites/${website.id}`} target="_blank">
-                      <ExportSquare />
-                    </Link>
-                  </Button>
-                )}
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <SegmentedTabs
+          label="Filter websites by status"
+          tabs={[
+            tab("All", null, data.counts.ALL, data.status === "ALL"),
+            tab("Live", "live", data.counts.LIVE, data.status === "LIVE"),
+            tab("Draft", "draft", data.counts.DRAFT, data.status === "DRAFT"),
+            tab("Suspended", "suspended", data.counts.SUSPENDED, data.status === "SUSPENDED"),
+          ]}
+        />
+        <SearchInput defaultValue={data.q} placeholder="Search websites" label="Search websites" />
+      </div>
+
+      <div className="pt-1 pb-6">
+        {filtering && data.websites.length === 0 ? (
+          <EmptyState
+            icon={<SearchNormal1 />}
+            title="No websites found"
+            description="Nothing matches this filter. Try another status or clear your search."
+          />
+        ) : (
+          <div className="grid gap-[15px] sm:grid-cols-2 lg:grid-cols-3 min-[1440px]:grid-cols-4">
+            {!filtering && <NewWebsiteCard templates={templates} businessTypes={businessTypes} />}
+            {data.websites.map((website) => (
+              <WebsiteCard key={website.id} website={website} filtered={data.status !== "ALL"} />
+            ))}
+          </div>
+        )}
+      </div>
     </>
   );
+}
+
+/** "2 minutes ago" → "2 mins ago", so it fits the narrow notification row. */
+function shortTime(iso: string): string {
+  const text = formatRelativeTime(iso)
+    .replace("minutes", "mins")
+    .replace("a minute", "1 min")
+    .replace("an hour", "1 hour");
+  return text === "yesterday" ? "Yesterday" : text;
 }

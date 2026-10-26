@@ -1,0 +1,33 @@
+import { Marquee } from "@/components/common/motion";
+import { BrowserMock, showcaseTemplates, TemplateThumb } from "./template-mock";
+
+// Three passes of the four templates so one marquee copy is wider than an ultra-wide screen.
+const marqueeTemplates = [...showcaseTemplates, ...showcaseTemplates, ...showcaseTemplates];
+
+/**
+ * "Websites built with WebBlock": a slow marquee of template thumbnails (pauses on hover) with the
+ * Petal & Stem site in a browser window overlapping the bottom of its cards from md up.
+ */
+export function HeroShowcase() {
+  return (
+    <section aria-label="Websites built with WebBlock" className="relative pb-6 md:pb-12">
+      {/* White band behind the slider row so the hero dot grid never shows around the cards. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[140px] bg-background mask-[linear-gradient(to_bottom,transparent,black_24px,black_calc(100%-24px),transparent)] md:top-[58px] md:h-[218px]"
+      />
+      <Marquee
+        duration={40}
+        className="pt-4 mask-[linear-gradient(to_right,transparent_1.3%,black_12.7%,black_87.3%,transparent_98.7%)] md:pt-[98px]"
+        trackClassName="gap-4 pr-4 md:gap-6 md:pr-6"
+      >
+        {marqueeTemplates.map((template, i) => (
+          <TemplateThumb key={`${template.slug}-${i}`} template={template} />
+        ))}
+      </Marquee>
+      <div className="relative z-10 mx-auto mt-6 w-full max-w-[820px] px-4 sm:px-6 md:-mt-[44px] md:px-0">
+        <BrowserMock template={showcaseTemplates[0]} preload />
+      </div>
+    </section>
+  );
+}

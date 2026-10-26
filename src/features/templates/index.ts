@@ -1,4 +1,5 @@
-export { getTemplate, getTemplatePage, getTemplates } from "./api";
+// Public API of the templates feature (template gallery and previewer).
+export { TemplatePreviewer } from "./components/template-previewer";
 export { TemplatesView } from "./components/templates-view";
-export { UseTemplateButton } from "./components/use-template-button";
-export type { Template, TemplateCategory, TemplateQuery } from "./types";
+export { getTemplateSiteView, getTemplatesView, getTemplateView } from "./service";
+export type * from "./types";

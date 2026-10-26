@@ -1,18 +1,15 @@
-import { PageHeader } from "@/components/common/page-header";
-import { Button } from "@/components/ui/button";
+import type { Metadata } from "next";
+import { AuthHeader, AuthShell, SignInForm, emailFromSearchParams } from "@/features/auth";
+import type { SearchParams } from "@/lib/table-query";
 
-export default function SignInPage() {
+export const metadata: Metadata = { title: "Sign in" };
+
+export default async function SignInPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  const email = emailFromSearchParams(await searchParams);
   return (
-    <>
-      <PageHeader title="Sign in" description="Mock sign-in until the backend is ready." />
-      <form action="/api/mock-auth" method="post" className="flex flex-col gap-3">
-        <Button type="submit" name="role" value="USER">
-          Sign in as User
-        </Button>
-        <Button type="submit" name="role" value="ADMIN" variant="secondary">
-          Sign in as Admin
-        </Button>
-      </form>
-    </>
+    <AuthShell headline={{ line1: "Pick up right", line2: "where you", accent: "left off." }}>
+      <AuthHeader title="Welcome back" description="Sign in to manage your websites." />
+      <SignInForm defaultEmail={email ?? undefined} />
+    </AuthShell>
   );
 }

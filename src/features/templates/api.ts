@@ -1,35 +1,43 @@
-// Data access for templates. Mock now; when Spring is ready only the function bodies change.
-import type { PageData } from "@/features/editor";
+// Data access for templates. Mock now, Spring later.
 import { ApiError } from "@/lib/api/errors";
-import { mockDelay } from "@/lib/api/mock";
+import { delay } from "@/lib/api/delay";
 import type { Page } from "@/lib/api/types";
 import { toPage } from "@/lib/table-query";
-import { templatePages } from "@/mocks/template-pages";
 import { templates } from "@/mocks/templates";
-import type { Template, TemplateQuery } from "./types";
+import { templateSites } from "@/mocks/template-sites";
+import type { TemplateSite } from "@/features/template-sites/types";
+import type { Template, TemplateCategory } from "./types";
 
-/** GET /templates?q=&category= */
-export async function getTemplates(query: TemplateQuery = {}): Promise<Page<Template>> {
-  await mockDelay();
-  const q = query.q?.trim().toLowerCase();
-  const items = templates.filter(
-    (t) =>
-      (!query.category || t.category === query.category) &&
-      (!q || `${t.name} ${t.description} ${t.demoBusinessName}`.toLowerCase().includes(q)),
-  );
-  return toPage(items, { page: 0, size: 50 });
+export type ListTemplatesFilter = {
+  category?: TemplateCategory;
+  q?: string;
+};
+
+export async function listTemplates(filter: ListTemplatesFilter = {}): Promise<Page<Template>> {
+  await delay();
+  const q = filter.q?.trim().toLowerCase();
+  const items = templates
+    .filter((t) => !filter.category || t.category === filter.category)
+    .filter(
+      (t) => !q || t.name.toLowerCase().includes(q) || t.description.toLowerCase().includes(q),
+    );
+  return toPage(items, { page: 0, size: 100 });
 }
 
-/** GET /templates/{templateId} */
 export async function getTemplate(templateId: string): Promise<Template> {
-  await mockDelay();
+  await delay(100);
   const template = templates.find((t) => t.id === templateId);
-  if (!template) throw new ApiError({ title: "Template not found", status: 404 });
+  if (!template) {
+    throw new ApiError({ title: "Template not found", status: 404, detail: "That template is not available." });
+  }
   return template;
 }
 
-/** GET /templates/{templateId}/page — the template's default content (used by "Preview"). */
-export async function getTemplatePage(templateId: string): Promise<PageData> {
-  const template = await getTemplate(templateId);
-  return templatePages[template.key];
+export async function getTemplateSite(templateId: string): Promise<TemplateSite> {
+  await delay(50);
+  const site = templateSites[templateId];
+  if (!site) {
+    throw new ApiError({ title: "Template not found", status: 404, detail: "That template is not available." });
+  }
+  return site;
 }
