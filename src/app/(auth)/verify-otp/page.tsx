@@ -1,5 +1,28 @@
-import { PageHeader } from "@/components/common/page-header";
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { Sms } from "iconsax-reactjs";
+import { AuthHeader, AuthShell, OtpForm, emailFromSearchParams } from "@/features/auth";
+import type { SearchParams } from "@/lib/table-query";
 
-export default function VerifyOtpPage() {
-  return <PageHeader title="Verify your email" />;
+export const metadata: Metadata = { title: "Check your email" };
+
+export default async function VerifyOtpPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  const email = emailFromSearchParams(await searchParams);
+  if (!email) redirect("/register");
+  return (
+    <AuthShell headline={{ line1: "One quick check,", line2: "then", accent: "you’re in." }}>
+      <AuthHeader
+        step={2}
+        backHref="/register"
+        icon={<Sms />}
+        title="Check your email"
+        description={
+          <>
+            We sent a 6-digit code to <b className="font-bold text-foreground">{email}</b>. Enter it below.
+          </>
+        }
+      />
+      <OtpForm email={email} submitLabel="Verify email" nextHref="/create-password" changeEmailHref="/register" />
+    </AuthShell>
+  );
 }
