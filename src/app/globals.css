@@ -147,12 +147,16 @@
   --animate-row-in: row-in 240ms ease-out both;
   --animate-accordion-down: accordion-down 200ms ease-out;
   --animate-accordion-up: accordion-up 200ms ease-out;
-  --animate-fade-in: fade-in 200ms ease-out;
+  --animate-fade-in: fade-in 200ms ease-out; /* overlays (Sheet backdrop) */
   --animate-fade-out: fade-out 150ms ease-in forwards;
   --animate-sheet-in-right: sheet-in-right 280ms cubic-bezier(0.32, 0.72, 0, 1);
   --animate-sheet-out-right: sheet-out-right 200ms ease-in forwards;
   --animate-sheet-in-left: sheet-in-left 280ms cubic-bezier(0.32, 0.72, 0, 1);
   --animate-sheet-out-left: sheet-out-left 200ms ease-in forwards;
+
+  /* Auth screens: content rises in once on load. Use with `motion-safe:` and an animation delay. */
+  --animate-fade-up: fade-up 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-fade-in-slow: fade-in 700ms ease-out both; /* auth backgrounds */
 
   @keyframes accordion-down {
     from {
@@ -181,6 +185,17 @@
   @keyframes fade-out {
     to {
       opacity: 0;
+    }
+  }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 
