@@ -1,0 +1,256 @@
+import Link from "next/link";
+import {
+  Card as CardIcon,
+  Clock,
+  Crown1,
+  Danger,
+  DocumentText,
+  DollarCircle,
+  MinusCirlce,
+  SearchNormal1,
+  Sms,
+  TickCircle,
+  Timer1,
+  Wallet2,
+} from "iconsax-reactjs";
+import { Avatar } from "@/components/common/avatar";
+import { Callout } from "@/components/common/callout";
+import { DetailList } from "@/components/common/card";
+import { DataTable } from "@/components/common/data-table";
+import { EmptyState } from "@/components/common/empty-state";
+import { FilterMenu } from "@/components/common/filter-menu";
+import { KpiCard, KpiGrid } from "@/components/common/kpi-card";
+import { Modal } from "@/components/common/modal";
+import { PlanBadge, planLabel } from "@/components/common/plan-badge";
+import { StatusBadge, statusLabel } from "@/components/common/status-badge";
+import { TableSearch } from "@/components/common/table-search";
+import { Button } from "@/components/ui/button";
+import type { Page } from "@/lib/api/types";
+import { formatDate, formatMonth, formatPrice, formatPriceShort } from "@/lib/format";
+import { tableHref, type SearchParams } from "@/lib/table-query";
+import { cn } from "@/lib/utils";
+import type { Payment, PlanCode, Subscription, SubscriptionStats, SubscriptionStatus } from "../types";
+import { AdminPageHeader } from "./admin-page-header";
+import { DetailHero, DetailSection, HeroChip } from "./detail-hero";
+
+const STATUSES: SubscriptionStatus[] = ["ACTIVE", "PENDING", "CANCELED", "EXPIRED"];
+const PLANS: PlanCode[] = ["FREE_TRIAL", "PLUS", "PRO", "ULTRA"];
+
+export function SubscriptionsView({
+  subscriptions,
+  stats,
+  searchParams,
+  detail,
+}: {
+  subscriptions: Page<Subscription>;
+  stats: SubscriptionStats;
+  searchParams: SearchParams;
+  /** The subscription opened with `?subscription=<id>`, with its payments. */
+  detail: { subscription: Subscription; payments: Page<Payment> } | null;
+}) {
+  const status = typeof searchParams.status === "string" ? searchParams.status : undefined;
+  const plan = typeof searchParams.plan === "string" ? searchParams.plan : undefined;
+  const filtered = Boolean(searchParams.q || status || plan);
+  const detailHref = (id: string) => tableHref(searchParams, { subscription: id });
+
+  return (
+    <>
+      <AdminPageHeader title="Subscriptions" description="Plans, trials and payments for every project." />
+
+      <KpiGrid>
+        <KpiCard label="Monthly revenue" value={formatPriceShort(stats.monthlyRevenue, "USD")} tone="success" icon={<DollarCircle />} />
+        <KpiCard label="Active plans" value={stats.activePlans} tone="brand" icon={<CardIcon />} href={tableHref({}, { status: "ACTIVE" })} />
+        <KpiCard label="Trials ending ≤ 3 days" value={stats.trialsEndingSoon} tone="violet" icon={<Timer1 />} href={tableHref({}, { plan: "FREE_TRIAL" })} />
+        <KpiCard label="Pending" value={stats.pending} tone="warning" icon={<Danger />} href={tableHref({}, { status: "PENDING" })} />
+      </KpiGrid>
+
+      <DataTable
+        label="Subscriptions"
+        itemLabel="subscriptions"
+        data={subscriptions}
+        searchParams={searchParams}
+        rowKey={(s) => s.id}
+        toolbar={
+          <>
+            <TableSearch searchParams={searchParams} placeholder="Search by user or project" />
+            <FilterMenu
+              label="Status"
+              options={[
+                { label: "All", href: tableHref(searchParams, { status: null, page: null }), active: !status },
+                ...STATUSES.map((s) => ({
+                  label: statusLabel(s),
+                  href: tableHref(searchParams, { status: s, page: null }),
+                  active: status === s,
+                })),
+              ]}
+            />
+            <FilterMenu
+              label="Plan"
+              options={[
+                { label: "All", href: tableHref(searchParams, { plan: null, page: null }), active: !plan },
+                ...PLANS.map((p) => ({
+                  label: planLabel(p),
+                  href: tableHref(searchParams, { plan: p, page: null }),
+                  active: plan === p,
+                })),
+              ]}
+            />
+            <Button asChild size="sm" className="ml-auto">
+              <Link href="/admin/subscriptions/plans">Manage plans</Link>
+            </Button>
+          </>
+        }
+        empty={
+          filtered ? (
+            <EmptyState
+              icon={<SearchNormal1 />}
+              title="No subscriptions match these filters"
+              action={
+                <Button asChild variant="soft" size="sm">
+                  <Link href="/admin/subscriptions">Clear filters</Link>
+                </Button>
+              }
+            />
+          ) : (
+            <EmptyState icon={<CardIcon />} title="No subscriptions yet" description="Trials and paid plans show here." />
+          )
+        }
+        columns={[
+          {
+            key: "user",
+            header: "User · project",
+            sortField: "userName",
+            cell: (s) => (
+              <Link href={detailHref(s.id)} scroll={false} className="group flex min-w-0 items-center gap-3">
+                <Avatar name={s.userName} src={s.userAvatarUrl} />
+                <span className="min-w-0">
+                  <span className="block max-w-[240px] truncate font-semibold text-foreground group-hover:text-primary">
+                    {s.userName}
+                  </span>
+                  <span className="block max-w-[240px] truncate text-xs text-muted-foreground">{s.websiteName}</span>
+                </span>
+              </Link>
+            ),
+          },
+          { key: "plan", header: "Plan", sortField: "plan", cell: (s) => <PlanBadge plan={s.plan} /> },
+          { key: "status", header: "Status", sortField: "status", cell: (s) => <StatusBadge status={s.status} /> },
+          {
+            key: "start",
+            header: "Start",
+            sortField: "startAt",
+            cell: (s) => <span className="text-muted-foreground">{formatDate(s.startAt)}</span>,
+          },
+          {
+            key: "end",
+            header: "End",
+            sortField: "endAt",
+            cell: (s) => <span className="text-muted-foreground">{formatDate(s.endAt)}</span>,
+          },
+          {
+            key: "redeploys",
+            header: "Redeploys left",
+            sortField: "redeploysLeft",
+            cell: (s) => (
+              <span className={cn("tabular-nums", s.redeploysLeft === 0 && "font-semibold text-danger")}>
+                {s.redeploysLeft} of {s.redeployLimit}
+              </span>
+            ),
+          },
+        ]}
+      />
+
+      {detail && (
+        <SubscriptionDetail
+          subscription={detail.subscription}
+          payments={detail.payments}
+          closeHref={tableHref(searchParams, { subscription: null })}
+        />
+      )}
+    </>
+  );
+}
+
+function statusCallout(s: Subscription) {
+  const plan = `${planLabel(s.plan)} plan`;
+  switch (s.status) {
+    case "ACTIVE":
+      return <Callout tone="success" icon={<TickCircle />} title="Subscription active" description={`${plan} · renews ${formatDate(s.endAt)}`} />;
+    case "PENDING":
+      return <Callout icon={<Clock />} title="Waiting for payment" description={`${plan} · due ${formatDate(s.endAt)}`} />;
+    case "CANCELED":
+      return <Callout tone="neutral" icon={<MinusCirlce />} title="Subscription canceled" description={`${plan} · no further payments`} />;
+    case "EXPIRED":
+      return <Callout tone="danger" icon={<Timer1 />} title="Subscription expired" description={`Ended ${formatDate(s.endAt)} · the website is offline`} />;
+  }
+}
+
+function SubscriptionDetail({
+  subscription: s,
+  payments,
+  closeHref,
+}: {
+  subscription: Subscription;
+  payments: Page<Payment>;
+  closeHref: string;
+}) {
+  return (
+    <Modal title={`${s.userName} · ${s.websiteName}`} hideTitle size="lg" closeHref={closeHref}>
+      <DetailHero
+        media={<Avatar name={s.userName} src={s.userAvatarUrl} size="lg" className="ring-4" />}
+        badge={<StatusBadge status={s.status} />}
+        title={s.userName}
+        link={{ href: `https://${s.websiteDomain}`, label: s.websiteDomain }}
+        chips={
+          <>
+            <HeroChip icon={<Sms />}>{s.userEmail}</HeroChip>
+            <HeroChip icon={<Crown1 />}>{planLabel(s.plan)} plan</HeroChip>
+          </>
+        }
+      />
+      <div className="space-y-5 px-6 py-5">
+        {statusCallout(s)}
+
+        <DetailSection title="Subscription details" icon={<DocumentText />}>
+          <DetailList
+            items={[
+              { label: "Plan", value: planLabel(s.plan) },
+              { label: "Project", value: s.websiteName },
+              { label: "Status", value: statusLabel(s.status) },
+              { label: "Start date", value: formatDate(s.startAt) },
+              { label: "End date", value: formatDate(s.endAt) },
+              { label: "Redeploys left", value: `${s.redeploysLeft} of ${s.redeployLimit}` },
+            ]}
+          />
+        </DetailSection>
+
+        <DetailSection title="Payment history" icon={<Wallet2 />}>
+          {payments.items.length ? (
+            <ul className="divide-y divide-border rounded-2xl border border-border text-[13px]">
+              {payments.items.map((p) => (
+                <li key={p.id} className="flex items-center gap-3 px-3.5 py-2.5">
+                  <span className="font-semibold text-brand">
+                    {planLabel(p.plan)} plan · {formatMonth(p.periodStart)}
+                    {p.status === "FAILED" && " · failed"}
+                  </span>
+                  <span className="text-muted-foreground">{formatDate(p.createdAt)}</span>
+                  <span
+                    className={cn(
+                      "ml-auto font-semibold tabular-nums",
+                      p.status === "FAILED" ? "text-danger" : "text-foreground",
+                    )}
+                  >
+                    {formatPrice(p.amount, "USD")}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="rounded-2xl border border-dashed border-border px-4 py-5 text-center text-[13px] text-muted-foreground">
+              No payments yet — free trials aren&apos;t billed.
+            </p>
+          )}
+        </DetailSection>
+      </div>
+    </Modal>
+  );
+}

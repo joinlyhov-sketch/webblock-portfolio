@@ -1,7 +1,29 @@
-import { PageHeader } from "@/components/common/page-header";
+import { getWebsite, listDeploys, listWebsites, WebsitesView, type ReleaseStatus } from "@/features/admin";
 import { requireAdmin } from "@/lib/auth/session";
+import { parseTableQuery, type SearchParams } from "@/lib/table-query";
 
-export default async function AdminWebsitesPage() {
+export const metadata = { title: "User Websites" };
+
+const RELEASES: ReleaseStatus[] = ["LIVE", "GOING_LIVE", "FAILED"];
+const param = (v: SearchParams[string]) => (typeof v === "string" && v ? v : undefined);
+
+export default async function AdminWebsitesPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   await requireAdmin();
-  return <PageHeader title="Websites" />;
+  const query = await searchParams;
+  const release = RELEASES.find((r) => r === query.release);
+  const websiteId = param(query.website);
+
+  const [websites, detail] = await Promise.all([
+    listWebsites(
+      { q: param(query.q), release, ownerId: param(query.owner) },
+      parseTableQuery(query, { sort: { field: "lastDeployAt", direction: "desc" } }),
+    ),
+    websiteId
+      ? Promise.all([getWebsite(websiteId), listDeploys({ websiteId }, { page: 0, size: 3 })]).then(
+          ([website, deploys]) => ({ website, deploys }),
+        )
+      : null,
+  ]);
+
+  return <WebsitesView websites={websites} searchParams={query} detail={detail} />;
 }

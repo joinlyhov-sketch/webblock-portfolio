@@ -1,8 +1,9 @@
 // Optimistic redirects only. Real authorization is require*() in pages and actions.
 import { NextResponse, type NextRequest } from "next/server";
-import { ROLE_COOKIE } from "@/lib/auth/roles";
+import { AUTH_PREVIEW, ROLE_COOKIE } from "@/lib/auth/roles";
 
 export function proxy(request: NextRequest) {
+  if (AUTH_PREVIEW) return NextResponse.next();
   const role = request.cookies.get(ROLE_COOKIE)?.value;
 
   if (!role) {

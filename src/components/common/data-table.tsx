@@ -39,6 +39,8 @@ type DataTableProps<T> = {
   toolbar?: ReactNode;
   /** Shown when there are no items at all (use `EmptyState` when it exists). */
   empty?: ReactNode;
+  /** `false` for a short preview table (e.g. a dashboard widget): no pagination footer. */
+  footer?: boolean;
 };
 
 /**
@@ -67,10 +69,11 @@ export function DataTable<T>({
   label,
   toolbar,
   empty,
+  footer = true,
 }: DataTableProps<T>) {
   const { sort } = parseTableQuery(searchParams);
   const offset = data.page * data.size;
-  const fillerRows = data.items.length > 0 ? data.size - data.items.length : 0;
+  const fillerRows = footer && data.items.length > 0 ? data.size - data.items.length : 0;
   const colSpan = columns.length + 1;
 
   return (
@@ -149,7 +152,7 @@ export function DataTable<T>({
         </TableBody>
       </Table>
 
-      {data.totalItems > 0 && (
+      {footer && data.totalItems > 0 && (
         <div className="border-t border-border">
           <TablePagination data={data} searchParams={searchParams} itemLabel={itemLabel} />
         </div>
