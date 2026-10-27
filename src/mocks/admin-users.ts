@@ -10,17 +10,19 @@ export const userStats: UserStats = {
 export const userAccounts: UserAccount[] = [
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0101",
+    accountCode: "usr_0b7f21",
     fullName: "Sovannarith Soeun",
     email: "sovannarith@gmail.com",
     avatarUrl: "/mock/avatars/sovannarith-soeun.jpg",
     plan: "PRO",
     status: "ACTIVE",
-    signInMethod: "GOOGLE",
+    signInMethod: "EMAIL",
     websiteCount: 3,
     joinedAt: "2026-09-04T02:15:00Z",
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0102",
+    accountCode: "usr_1c94a0",
     fullName: "Dara Chan",
     email: "dara@mapleandrye.com",
     avatarUrl: "/mock/avatars/dara-chan.jpg",
@@ -32,17 +34,19 @@ export const userAccounts: UserAccount[] = [
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0103",
+    accountCode: "usr_2e61d7",
     fullName: "Sophea Lim",
     email: "hello@stillpoint.studio",
     avatarUrl: "/mock/avatars/sophea-lim.jpg",
     plan: "PLUS",
     status: "ACTIVE",
     signInMethod: "GOOGLE",
-    websiteCount: 2,
+    websiteCount: 1,
     joinedAt: "2026-08-12T05:05:00Z",
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0104",
+    accountCode: "usr_05d48e",
     fullName: "Kosal Ruos",
     email: "kosal@cornerchair.co",
     avatarUrl: "/mock/avatars/kosal-ruos.jpg",
@@ -54,6 +58,7 @@ export const userAccounts: UserAccount[] = [
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0105",
+    accountCode: "usr_3a08f2",
     fullName: "Vanna Nhem",
     email: "vanna@lanterncafe.com",
     avatarUrl: "/mock/avatars/vanna-nhem.jpg",
@@ -65,6 +70,7 @@ export const userAccounts: UserAccount[] = [
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0106",
+    accountCode: "usr_4d7c19",
     fullName: "Rith Phan",
     email: "rith@fixright.com",
     avatarUrl: "/mock/avatars/rith-phan.jpg",
@@ -76,6 +82,7 @@ export const userAccounts: UserAccount[] = [
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0107",
+    accountCode: "usr_5f2b63",
     fullName: "Anna Tran",
     email: "anna@hollowandco.com",
     avatarUrl: "/mock/avatars/anna-tran.jpg",
@@ -87,6 +94,7 @@ export const userAccounts: UserAccount[] = [
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0108",
+    accountCode: "usr_6b90ce",
     fullName: "Lida Vong",
     email: "lida@petalpress.com",
     avatarUrl: "/mock/avatars/lida-vong.jpg",
@@ -98,6 +106,7 @@ export const userAccounts: UserAccount[] = [
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0109",
+    accountCode: "usr_7e14a5",
     fullName: "Bora Sam",
     email: "bora@riverfish.kh",
     avatarUrl: "/mock/avatars/bora-sam.jpg",
@@ -109,6 +118,7 @@ export const userAccounts: UserAccount[] = [
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0110",
+    accountCode: "usr_8c3d71",
     fullName: "Chenda Hout",
     email: "chenda@houtceramics.com",
     avatarUrl: null,
@@ -120,6 +130,7 @@ export const userAccounts: UserAccount[] = [
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0111",
+    accountCode: "usr_9a56e0",
     fullName: "Piseth Keo",
     email: "piseth.keo@gmail.com",
     avatarUrl: null,
@@ -131,6 +142,7 @@ export const userAccounts: UserAccount[] = [
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0112",
+    accountCode: "usr_a1f7b4",
     fullName: "Srey Neang",
     email: "srey@neangtailoring.com",
     avatarUrl: null,
@@ -142,6 +154,7 @@ export const userAccounts: UserAccount[] = [
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0113",
+    accountCode: "usr_b3c829",
     fullName: "Tola Mao",
     email: "tola@maoprint.kh",
     avatarUrl: null,
@@ -153,6 +166,7 @@ export const userAccounts: UserAccount[] = [
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0114",
+    accountCode: "usr_c6e05d",
     fullName: "Visal Chea",
     email: "visal@cheahardware.com",
     avatarUrl: null,
@@ -164,6 +178,7 @@ export const userAccounts: UserAccount[] = [
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0115",
+    accountCode: "usr_d82a1f",
     fullName: "Chanthavy Sokhapheap Ratanakvisal",
     email: "chanthavy.sokhapheap.ratanakvisal@phnompenhflowerstudio.com",
     avatarUrl: null,

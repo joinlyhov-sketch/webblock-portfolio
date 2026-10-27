@@ -5,10 +5,17 @@ import { AdminPageHeader } from "./admin-page-header";
 import { NotificationPanel } from "./notification-panel";
 
 /** Full notifications page: the same list as the bell popover, without the height limit. */
-export function NotificationsView({ notifications }: { notifications: Page<AdminNotification> }) {
+export function NotificationsView({
+  notifications,
+}: {
+  notifications: Page<AdminNotification>;
+}) {
   return (
     <>
-      <AdminPageHeader title="Notifications" description="Deploys, trials and payments that need a look." />
+      <AdminPageHeader
+        title="Notifications"
+        description="Deploys, trials and payments that need a look."
+      />
       <Card className="mx-auto max-w-3xl overflow-hidden">
         <NotificationPanel notifications={notifications.items} variant="page" />
       </Card>

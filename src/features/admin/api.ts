@@ -5,6 +5,7 @@ import type { Page } from "@/lib/api/types";
 import { toPage, type TableQuery } from "@/lib/table-query";
 import { adminNotifications } from "@/mocks/admin-notifications";
 import { adminOverview } from "@/mocks/admin-overview";
+import { adminProfile } from "@/mocks/admin-profile";
 import {
   payments,
   plans,
@@ -16,6 +17,7 @@ import { adminDeploys, adminWebsites } from "@/mocks/admin-websites";
 import type {
   AdminNotification,
   AdminOverview,
+  AdminProfile,
   NotificationFilters,
   AdminWebsite,
   Deploy,
@@ -53,7 +55,11 @@ const matches = (q: string | undefined, ...values: string[]) =>
   !q || values.some((v) => v.toLowerCase().includes(q.trim().toLowerCase()));
 
 function notFound(entity: string): never {
-  throw new ApiError({ title: "Not found", status: 404, detail: `${entity} not found.` });
+  throw new ApiError({
+    title: "Not found",
+    status: 404,
+    detail: `${entity} not found.`,
+  });
 }
 
 // ── Overview ─────────────────────────────────────────────────────────────────
@@ -67,9 +73,16 @@ export async function getOverview(): Promise<AdminOverview> {
 // ── Users ────────────────────────────────────────────────────────────────────
 
 /** GET /api/admin/users?q=&page=&size=&sort= */
-export async function listUsers(filters: UserFilters, query: TableQuery): Promise<Page<UserAccount>> {
+export async function listUsers(
+  filters: UserFilters,
+  query: TableQuery,
+): Promise<Page<UserAccount>> {
   await delay();
-  const items = userAccounts.filter((u) => matches(filters.q, u.fullName, u.email));
+  const items = userAccounts.filter(
+    (u) =>
+      matches(filters.q, u.fullName, u.email) &&
+      (!filters.plan || u.plan === filters.plan),
+  );
   return toPage(sorted(items, query.sort), query);
 }
 
@@ -90,8 +103,16 @@ export async function exportUsersCsv(filters: UserFilters): Promise<string> {
   await delay();
   const cell = (v: string | number) => `"${String(v).replaceAll('"', '""')}"`;
   const rows = userAccounts
-    .filter((u) => matches(filters.q, u.fullName, u.email))
-    .map((u) => [u.fullName, u.email, u.websiteCount, u.plan, u.status, u.joinedAt].map(cell).join(","));
+    .filter(
+      (u) =>
+        matches(filters.q, u.fullName, u.email) &&
+        (!filters.plan || u.plan === filters.plan),
+    )
+    .map((u) =>
+      [u.fullName, u.email, u.websiteCount, u.plan, u.status, u.joinedAt]
+        .map(cell)
+        .join(","),
+    );
   return ["Name,Email,Websites,Plan,Status,Joined", ...rows].join("\n");
 }
 
@@ -100,7 +121,11 @@ export async function suspendUser(userId: string): Promise<UserAccount> {
   await delay();
   const user = userAccounts.find((u) => u.id === userId) ?? notFound("User");
   if (user.status === "SUSPENDED") {
-    throw new ApiError({ title: "Conflict", status: 409, detail: `${user.fullName} is already suspended.` });
+    throw new ApiError({
+      title: "Conflict",
+      status: 409,
+      detail: `${user.fullName} is already suspended.`,
+    });
   }
   user.status = "SUSPENDED";
   return user;
@@ -117,12 +142,16 @@ export async function reactivateUser(userId: string): Promise<UserAccount> {
 // ── Websites ─────────────────────────────────────────────────────────────────
 
 /** GET /api/admin/websites?q=&release=&ownerId=&page=&size=&sort= */
-export async function listWebsites(filters: WebsiteFilters, query: TableQuery): Promise<Page<AdminWebsite>> {
+export async function listWebsites(
+  filters: WebsiteFilters,
+  query: TableQuery,
+): Promise<Page<AdminWebsite>> {
   await delay();
   const items = adminWebsites.filter(
     (w) =>
       matches(filters.q, w.name, w.domain, w.ownerName) &&
       (!filters.release || w.releaseStatus === filters.release) &&
+      (!filters.plan || w.plan === filters.plan) &&
       (!filters.ownerId || w.ownerId === filters.ownerId),
   );
   return toPage(sorted(items, query.sort), query);
@@ -152,20 +181,36 @@ const redeployKeys = new Map<string, Deploy>();
  * POST /api/admin/websites/{websiteId}/redeploy (Idempotency-Key header).
  * The backend runs the pipeline and its retries; we only trigger it and show the state.
  */
-export async function redeployWebsite(websiteId: string, idempotencyKey: string): Promise<Deploy> {
+export async function redeployWebsite(
+  websiteId: string,
+  idempotencyKey: string,
+): Promise<Deploy> {
   await delay();
   const existing = redeployKeys.get(idempotencyKey);
   if (existing) return existing;
 
-  const website = adminWebsites.find((w) => w.id === websiteId) ?? notFound("Website");
+  const website =
+    adminWebsites.find((w) => w.id === websiteId) ?? notFound("Website");
   if (website.siteStatus === "SUSPENDED") {
-    throw new ApiError({ title: "Conflict", status: 409, detail: "Resume hosting before redeploying." });
+    throw new ApiError({
+      title: "Conflict",
+      status: 409,
+      detail: "Resume hosting before redeploying.",
+    });
   }
   if (website.releaseStatus === "GOING_LIVE") {
-    throw new ApiError({ title: "Conflict", status: 409, detail: "A deploy is already in progress." });
+    throw new ApiError({
+      title: "Conflict",
+      status: 409,
+      detail: "A deploy is already in progress.",
+    });
   }
   if (website.redeploysLeft <= 0) {
-    throw new ApiError({ title: "Limit reached", status: 429, detail: "No redeploys left on this plan this month." });
+    throw new ApiError({
+      title: "Limit reached",
+      status: 429,
+      detail: "No redeploys left on this plan this month.",
+    });
   }
 
   const previous = adminDeploys.filter((d) => d.websiteId === websiteId);
@@ -195,7 +240,8 @@ export async function redeployWebsite(websiteId: string, idempotencyKey: string)
 /** POST /api/admin/websites/{websiteId}/suspend — takes the site offline, content is kept. */
 export async function suspendWebsite(websiteId: string): Promise<AdminWebsite> {
   await delay();
-  const website = adminWebsites.find((w) => w.id === websiteId) ?? notFound("Website");
+  const website =
+    adminWebsites.find((w) => w.id === websiteId) ?? notFound("Website");
   website.siteStatus = "SUSPENDED";
   return website;
 }
@@ -203,7 +249,8 @@ export async function suspendWebsite(websiteId: string): Promise<AdminWebsite> {
 /** POST /api/admin/websites/{websiteId}/resume */
 export async function resumeWebsite(websiteId: string): Promise<AdminWebsite> {
   await delay();
-  const website = adminWebsites.find((w) => w.id === websiteId) ?? notFound("Website");
+  const website =
+    adminWebsites.find((w) => w.id === websiteId) ?? notFound("Website");
   website.siteStatus = website.liveRelease ? "ONLINE" : "NOT_DEPLOYED";
   return website;
 }
@@ -232,13 +279,21 @@ export async function getSubscriptionStats(): Promise<SubscriptionStats> {
 }
 
 /** GET /api/admin/subscriptions/{subscriptionId} */
-export async function getSubscription(subscriptionId: string): Promise<Subscription> {
+export async function getSubscription(
+  subscriptionId: string,
+): Promise<Subscription> {
   await delay(150);
-  return subscriptions.find((s) => s.id === subscriptionId) ?? notFound("Subscription");
+  return (
+    subscriptions.find((s) => s.id === subscriptionId) ??
+    notFound("Subscription")
+  );
 }
 
 /** GET /api/admin/subscriptions/{subscriptionId}/payments — newest first. */
-export async function listPayments(subscriptionId: string, query: TableQuery): Promise<Page<Payment>> {
+export async function listPayments(
+  subscriptionId: string,
+  query: TableQuery,
+): Promise<Page<Payment>> {
   await delay(150);
   const items = payments
     .filter((p) => p.subscriptionId === subscriptionId)
@@ -261,7 +316,10 @@ export async function getPlan(planId: string): Promise<Plan> {
 }
 
 /** PUT /api/admin/plans/{planId} — applies to new subscriptions and renewals. */
-export async function updatePlan(planId: string, input: PlanInput): Promise<Plan> {
+export async function updatePlan(
+  planId: string,
+  input: PlanInput,
+): Promise<Plan> {
   await delay();
   const plan = plans.find((p) => p.id === planId) ?? notFound("Plan");
   Object.assign(plan, input);
@@ -289,9 +347,13 @@ export async function getUnreadNotificationCount(): Promise<number> {
 }
 
 /** POST /api/admin/notifications/{notificationId}/read */
-export async function markNotificationRead(notificationId: string): Promise<AdminNotification> {
+export async function markNotificationRead(
+  notificationId: string,
+): Promise<AdminNotification> {
   await delay(150);
-  const notification = adminNotifications.find((n) => n.id === notificationId) ?? notFound("Notification");
+  const notification =
+    adminNotifications.find((n) => n.id === notificationId) ??
+    notFound("Notification");
   notification.readAt ??= new Date().toISOString();
   return notification;
 }
@@ -301,4 +363,12 @@ export async function markAllNotificationsRead(): Promise<void> {
   await delay(150);
   const now = new Date().toISOString();
   for (const n of adminNotifications) n.readAt ??= now;
+}
+
+// ── Profile ──────────────────────────────────────────────────────────────────
+
+/** GET /api/admin/me — the signed-in admin (Spring reads who from the session). */
+export async function getAdminProfile(): Promise<AdminProfile> {
+  await delay(100);
+  return adminProfile;
 }

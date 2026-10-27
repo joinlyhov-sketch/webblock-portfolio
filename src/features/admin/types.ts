@@ -9,6 +9,8 @@ export type SignInMethod = "EMAIL" | "GOOGLE";
 
 export type UserAccount = {
   id: string;
+  /** Human-readable account number shown to admins, e.g. "usr_0b7f21". */
+  accountCode: string;
   fullName: string;
   email: string;
   avatarUrl: string | null;
@@ -27,12 +29,17 @@ export type UserStats = {
 };
 
 /** Whether the site is reachable. Owned by the backend (hosting + billing state). */
-export type SiteStatus = "ONLINE" | "NOT_DEPLOYED" | "OFFLINE_BILLING" | "SUSPENDED";
+export type SiteStatus =
+  "ONLINE" | "NOT_DEPLOYED" | "OFFLINE_BILLING" | "SUSPENDED";
 
 /** Result of the latest deploy. */
 export type ReleaseStatus = "LIVE" | "GOING_LIVE" | "FAILED";
 
-export type RoutingStatus = "LIVE" | "UPDATING";
+/** A deploy's result. REPLACED = it was live until a newer deploy went live. */
+export type DeployStatus = ReleaseStatus | "REPLACED";
+
+/** STABLE = traffic confirmed on the live release; UPDATING = switching to a new release. */
+export type RoutingStatus = "STABLE" | "UPDATING";
 
 export type AdminWebsite = {
   id: string;
@@ -55,6 +62,8 @@ export type AdminWebsite = {
   productCount: number;
   productLimit: number;
   redeploysLeft: number;
+  /** Redeploys included per month on the plan. */
+  redeployLimit: number;
   sslValidUntil: string | null;
 };
 
@@ -65,7 +74,7 @@ export type Deploy = {
   websiteThumbnailUrl: string | null;
   ownerName: string;
   number: number;
-  status: ReleaseStatus;
+  status: DeployStatus;
   /** Pipeline step while GOING_LIVE, e.g. 4 of 5 "Provision & deploy". */
   currentStep: number | null;
   totalSteps: number;
@@ -136,7 +145,8 @@ export type PlanInput = {
   monitoring: string;
 };
 
-export type AttentionKind = "FAILED_DEPLOYS" | "PLAN_EXPIRED" | "PAYMENTS_PAST_DUE" | "TRIALS_ENDING";
+export type AttentionKind =
+  "FAILED_DEPLOYS" | "PLAN_EXPIRED" | "PAYMENTS_PAST_DUE" | "TRIALS_ENDING";
 
 export type AttentionItem = {
   kind: AttentionKind;
@@ -144,8 +154,12 @@ export type AttentionItem = {
   /** Most recent example, e.g. the latest failed website. */
   latestName: string | null;
   latestAt: string | null;
+  /** Owner of the latest example, e.g. "Anna Tran". */
+  latestOwnerName: string | null;
   /** Payments past due only: total amount at risk. */
   amountAtRisk: string | null;
+  /** Payments past due only: days until the backend retries the latest payment. */
+  retryInDays: number | null;
 };
 
 export type AdminOverview = {
@@ -156,6 +170,19 @@ export type AdminOverview = {
   /** Last 12 months, oldest first. `month` is the first day of the month. */
   revenueByMonth: { month: string; amount: string }[];
   attention: AttentionItem[];
+};
+
+/** The signed-in admin's own account (header "Admin profile"). */
+export type AdminProfile = {
+  id: string;
+  /** Human-readable account number, e.g. "ADM-000001". */
+  accountCode: string;
+  fullName: string;
+  email: string;
+  avatarUrl: string | null;
+  /** Role shown under the name, e.g. "WebBlock Admin". */
+  title: string;
+  joinedAt: string;
 };
 
 /** What happened. Decides the colour of the dot on the avatar. */
@@ -186,8 +213,17 @@ export type AdminNotification = {
 
 export type NotificationFilters = { unread?: boolean };
 
-export type UserFilters = { q?: string };
+export type UserFilters = { q?: string; plan?: PlanCode };
 
-export type WebsiteFilters = { q?: string; release?: ReleaseStatus; ownerId?: string };
+export type WebsiteFilters = {
+  q?: string;
+  release?: ReleaseStatus;
+  plan?: PlanCode;
+  ownerId?: string;
+};
 
-export type SubscriptionFilters = { q?: string; status?: SubscriptionStatus; plan?: PlanCode };
+export type SubscriptionFilters = {
+  q?: string;
+  status?: SubscriptionStatus;
+  plan?: PlanCode;
+};

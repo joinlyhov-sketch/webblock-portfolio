@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Global } from "iconsax-reactjs";
 import { cn } from "@/lib/utils";
 
 const SIZE = {
@@ -7,12 +8,13 @@ const SIZE = {
   lg: { box: "size-[72px] text-xl", px: 72 },
 } as const;
 
+/** "Sokha Chan" → "SC" · "Admin" → "AD" */
 function initials(name: string): string {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
+  const parts = name.split(/\s+/).filter(Boolean);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return parts
     .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
+    .map((part) => part[0].toUpperCase())
     .join("");
 }
 
@@ -31,6 +33,7 @@ export function Avatar({
   const s = SIZE[size];
   return (
     <span
+      data-avatar
       className={cn(
         "relative inline-grid shrink-0 place-items-center overflow-hidden rounded-full bg-brand font-bold text-primary-foreground ring-2 ring-background",
         s.box,
@@ -38,7 +41,13 @@ export function Avatar({
       )}
     >
       {src ? (
-        <Image src={src} alt="" width={s.px} height={s.px} className="size-full object-cover" />
+        <Image
+          src={src}
+          alt=""
+          width={s.px}
+          height={s.px}
+          className="size-full object-cover"
+        />
       ) : (
         <span aria-hidden>{initials(name)}</span>
       )}
@@ -46,7 +55,7 @@ export function Avatar({
   );
 }
 
-/** Small rounded-square website thumbnail; a neutral tile when there is no image yet. */
+/** Small rounded-square website thumbnail; a globe placeholder (plus "No preview" when large) when there is no image yet. */
 export function Thumbnail({
   src,
   size = "md",
@@ -59,6 +68,7 @@ export function Thumbnail({
   const px = size === "sm" ? 28 : size === "md" ? 36 : 120;
   return (
     <span
+      data-thumb
       className={cn(
         "relative inline-block shrink-0 overflow-hidden border border-border bg-muted",
         size === "lg" ? "aspect-[4/3] w-[120px] rounded-2xl" : "rounded-lg",
@@ -67,7 +77,7 @@ export function Thumbnail({
         className,
       )}
     >
-      {src && (
+      {src ? (
         <Image
           src={src}
           alt=""
@@ -75,6 +85,24 @@ export function Thumbnail({
           height={size === "lg" ? 90 : px}
           className="size-full object-cover"
         />
+      ) : (
+        <span className="flex size-full flex-col items-center justify-center gap-1 bg-primary-soft text-primary/70">
+          <Global
+            aria-hidden
+            className={cn(
+              size === "sm"
+                ? "size-3.5"
+                : size === "md"
+                  ? "size-[18px]"
+                  : "size-7",
+            )}
+          />
+          {size === "lg" && (
+            <span className="text-[11px] font-medium text-muted-foreground">
+              No preview
+            </span>
+          )}
+        </span>
       )}
     </span>
   );

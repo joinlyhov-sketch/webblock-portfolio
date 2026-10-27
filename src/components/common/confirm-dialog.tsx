@@ -47,17 +47,24 @@ export function ConfirmDialog({
 }) {
   return (
     <Dialog open={open} onOpenChange={(next) => !pending && onOpenChange(next)}>
-      <DialogContent showClose={false} className="max-w-[380px] rounded-[20px] p-[22px]">
+      <DialogContent
+        showClose={false}
+        className="max-w-[380px] rounded-[20px] p-[22px]"
+      >
         <span
           aria-hidden
           className={cn(
             "mb-3 grid size-10 place-items-center rounded-xl [&_svg]:size-5",
-            tone === "danger" ? "bg-danger-soft text-danger" : "bg-brand-soft text-brand",
+            tone === "danger"
+              ? "bg-danger-soft text-danger"
+              : "bg-brand-soft text-brand",
           )}
         >
           {icon ?? <Danger />}
         </span>
-        <DialogTitle className="text-[17px] font-semibold text-foreground">{title}</DialogTitle>
+        <DialogTitle className="text-[17px] font-semibold text-foreground">
+          {title}
+        </DialogTitle>
         <DialogDescription className="mt-1.5 text-[13px] leading-5 text-muted-foreground">
           {description}
         </DialogDescription>

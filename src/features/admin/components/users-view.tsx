@@ -17,20 +17,30 @@ import { Avatar, Thumbnail } from "@/components/common/avatar";
 import { DataTable } from "@/components/common/data-table";
 import { EmptyState } from "@/components/common/empty-state";
 import { KpiCard, KpiGrid } from "@/components/common/kpi-card";
+import { FilterMenu } from "@/components/common/filter-menu";
 import { Modal } from "@/components/common/modal";
-import { PlanBadge, planLabel } from "@/components/common/plan-badge";
+import {
+  PlanBadge,
+  planLabel,
+  planRing,
+  planTone,
+} from "@/components/common/plan-badge";
+import { RowsInput } from "@/components/common/rows-input";
 import { StatusBadge } from "@/components/common/status-badge";
 import { TableSearch } from "@/components/common/table-search";
 import { Button } from "@/components/ui/button";
 import type { Page } from "@/lib/api/types";
 import { formatDate } from "@/lib/format";
 import { tableHref, type SearchParams } from "@/lib/table-query";
-import type { AdminWebsite, UserAccount, UserStats } from "../types";
+import { cn } from "@/lib/utils";
+import type { AdminWebsite, PlanCode, UserAccount, UserStats } from "../types";
 import { AdminPageHeader } from "./admin-page-header";
-import { DetailHero, DetailSection, HeroChip } from "./detail-hero";
+import { DetailCard, HeroDecor } from "./detail-hero";
 import { UserRowMenu } from "./user-row-menu";
 
 const count = new Intl.NumberFormat("en-US");
+
+const PLANS: PlanCode[] = ["FREE_TRIAL", "PLUS", "PRO", "ULTRA"];
 
 export function UsersView({
   users,
@@ -45,30 +55,97 @@ export function UsersView({
   detail: { user: UserAccount; websites: Page<AdminWebsite> } | null;
 }) {
   const q = typeof searchParams.q === "string" ? searchParams.q : "";
+  const plan =
+    typeof searchParams.plan === "string" ? searchParams.plan : undefined;
+  // Export CSV keeps the current search and plan filter.
+  const exportQuery = new URLSearchParams({
+    ...(q && { q }),
+    ...(plan && { plan }),
+  }).toString();
   const detailHref = (id: string) => tableHref(searchParams, { user: id });
 
   return (
     <>
-      <AdminPageHeader title="User Accounts" description="Search accounts and see each owner's websites." />
+      <AdminPageHeader
+        title="User Accounts"
+        description="Search accounts and see each owner's websites."
+      />
 
       <KpiGrid>
-        <KpiCard label="Total accounts" value={count.format(stats.totalAccounts)} tone="brand" icon={<Profile2User />} />
-        <KpiCard label="On free trial" value={count.format(stats.onFreeTrial)} tone="violet" icon={<Timer1 />} href="/admin/subscriptions?plan=FREE_TRIAL" />
-        <KpiCard label="Paying" value={count.format(stats.paying)} tone="success" icon={<CardIcon />} href="/admin/subscriptions?status=ACTIVE" />
-        <KpiCard label="Live websites" value={count.format(stats.liveWebsites)} tone="teal" icon={<Global />} href="/admin/websites?release=LIVE" />
+        <KpiCard
+          label="Total accounts"
+          value={count.format(stats.totalAccounts)}
+          tone="brand"
+          icon={<Profile2User />}
+          href="/admin/users"
+        />
+        <KpiCard
+          label="On free trial"
+          value={count.format(stats.onFreeTrial)}
+          tone="violet"
+          icon={<Timer1 />}
+          href="/admin/subscriptions?plan=FREE_TRIAL"
+        />
+        <KpiCard
+          label="Paying"
+          value={count.format(stats.paying)}
+          tone="success"
+          icon={<CardIcon />}
+          href="/admin/subscriptions?status=ACTIVE"
+        />
+        <KpiCard
+          label="Live websites"
+          value={count.format(stats.liveWebsites)}
+          tone="teal"
+          icon={<Global />}
+          href="/admin/websites?release=LIVE"
+        />
       </KpiGrid>
 
       <DataTable
+        fill
+        rowClassName="relative cursor-pointer"
         label="User accounts"
+        minWidth="min-w-[960px]"
+        compact
         itemLabel="accounts"
         data={users}
         searchParams={searchParams}
         rowKey={(u) => u.id}
         toolbar={
           <>
-            <TableSearch searchParams={searchParams} placeholder="Search by name or email" />
-            <Button asChild size="md" className="ml-auto">
-              <a href={`/admin/users/export${q ? `?q=${encodeURIComponent(q)}` : ""}`} download>
+            <TableSearch
+              searchParams={searchParams}
+              placeholder="Search by name or email"
+            />
+            <FilterMenu
+              label="Plan"
+              options={[
+                {
+                  label: "All",
+                  href: tableHref(searchParams, { plan: null, page: null }),
+                  active: !plan,
+                },
+                ...PLANS.map((p) => ({
+                  label: planLabel(p),
+                  href: tableHref(searchParams, { plan: p, page: null }),
+                  active: plan === p,
+                })),
+              ]}
+            />
+            {/* key: reset the box when the URL size changes (e.g. back button). */}
+            <div className="ml-auto">
+              <RowsInput
+                key={users.size}
+                searchParams={searchParams}
+                size={users.size}
+              />
+            </div>
+            <Button asChild size="sm">
+              <a
+                href={`/admin/users/export${exportQuery ? `?${exportQuery}` : ""}`}
+                download
+              >
                 <ExportSquare />
                 Export CSV
               </a>
@@ -76,19 +153,31 @@ export function UsersView({
           </>
         }
         empty={
-          q ? (
+          q || plan ? (
             <EmptyState
               icon={<SearchNormal1 />}
-              title={`No accounts match “${q}”`}
-              description="Check the spelling or search by email instead."
+              title={
+                q
+                  ? `No accounts match “${q}”`
+                  : "No accounts match these filters"
+              }
+              description={
+                q ? "Check the spelling or search by email instead." : undefined
+              }
               action={
                 <Button asChild variant="soft" size="sm">
-                  <Link href="/admin/users">Clear search</Link>
+                  <Link href="/admin/users">
+                    {plan ? "Clear filters" : "Clear search"}
+                  </Link>
                 </Button>
               }
             />
           ) : (
-            <EmptyState icon={<Profile2User />} title="No accounts yet" description="People who sign up show here." />
+            <EmptyState
+              icon={<Profile2User />}
+              title="No accounts yet"
+              description="People who sign up show here."
+            />
           )
         }
         columns={[
@@ -97,31 +186,66 @@ export function UsersView({
             header: "Account",
             sortField: "fullName",
             cell: (u) => (
-              <Link href={detailHref(u.id)} scroll={false} className="group flex min-w-0 items-center gap-3">
-                <Avatar name={u.fullName} src={u.avatarUrl} />
+              // Stretched link: the whole row opens the popup.
+              <Link
+                href={detailHref(u.id)}
+                scroll={false}
+                className="group flex min-w-0 items-center gap-3 outline-none after:absolute after:inset-0 after:content-[''] focus-visible:after:ring-3 focus-visible:after:ring-ring/40"
+              >
+                <Avatar
+                  name={u.fullName}
+                  src={u.avatarUrl}
+                  className={planRing(u.plan)}
+                />
                 <span className="min-w-0">
                   <span className="block max-w-[260px] truncate font-semibold text-foreground group-hover:text-primary">
                     {u.fullName}
                   </span>
-                  <span className="block max-w-[260px] truncate text-xs text-muted-foreground">{u.email}</span>
+                  <span className="block max-w-[260px] truncate text-xs text-muted-foreground">
+                    {u.email}
+                  </span>
                 </span>
               </Link>
             ),
           },
-          { key: "websites", header: "Websites", sortField: "websiteCount", cell: (u) => u.websiteCount },
-          { key: "plan", header: "Plan", sortField: "plan", cell: (u) => <PlanBadge plan={u.plan} /> },
+          {
+            key: "websites",
+            header: "Websites",
+            sortField: "websiteCount",
+            cell: (u) => u.websiteCount,
+          },
+          {
+            key: "plan",
+            header: "Plan",
+            sortField: "plan",
+            cell: (u) => <PlanBadge plan={u.plan} />,
+          },
           {
             key: "joined",
             header: "Joined",
             sortField: "joinedAt",
-            cell: (u) => <span className="text-muted-foreground">{formatDate(u.joinedAt)}</span>,
+            cell: (u) => (
+              <span className="text-muted-foreground">
+                {formatDate(u.joinedAt)}
+              </span>
+            ),
           },
-          { key: "status", header: "Status", sortField: "status", cell: (u) => <StatusBadge status={u.status} /> },
+          {
+            key: "status",
+            header: "Status",
+            sortField: "status",
+            cell: (u) => <StatusBadge status={u.status} />,
+          },
           {
             key: "actions",
             header: <span className="sr-only">Actions</span>,
             className: "w-16 text-right",
-            cell: (u) => <UserRowMenu user={u} detailHref={detailHref(u.id)} />,
+            cell: (u) => (
+              // Above the stretched row link so the menu still opens on its own.
+              <div className="relative z-10 inline-flex">
+                <UserRowMenu user={u} detailHref={detailHref(u.id)} />
+              </div>
+            ),
           },
         ]}
       />
@@ -146,91 +270,181 @@ function UserDetail({
   websites: Page<AdminWebsite>;
   closeHref: string;
 }) {
-  return (
-    <Modal
-      title={user.fullName}
-      hideTitle
-      closeHref={closeHref}
-      footer={
-        <>
-          <Button asChild variant="secondary" className="flex-1">
-            <Link href={`/admin/subscriptions?q=${encodeURIComponent(user.email)}`}>
-              <DocumentText />
-              View subscription
-            </Link>
-          </Button>
-          <Button asChild className="flex-1">
-            <Link href={`/admin/websites?owner=${user.id}`}>
-              <ExportSquare />
-              View websites
-            </Link>
-          </Button>
-        </>
-      }
-    >
-      <DetailHero
-        media={<Avatar name={user.fullName} src={user.avatarUrl} size="lg" className="ring-4" />}
-        title={user.fullName}
-        subtitle={user.email}
-        chips={
-          <>
-            <StatusBadge status={user.status} />
-            <HeroChip icon={<Sms />}>{user.signInMethod === "GOOGLE" ? "Google sign-in" : "Email sign-in"}</HeroChip>
-          </>
-        }
-      />
-      <div className="space-y-5 px-6 py-5">
-        <DetailSection title="Account details" icon={<Profile />}>
-          <dl className="grid gap-2.5 sm:grid-cols-3">
-            <InfoTile icon={<DocumentText />} label="Account ID" value={user.id.slice(0, 8)} />
-            <InfoTile icon={<Calendar1 />} label="Joined" value={formatDate(user.joinedAt)} />
-            <InfoTile icon={<Crown1 />} label="Plan" value={`${planLabel(user.plan)} · monthly`} />
-          </dl>
-        </DetailSection>
+  const suspended = user.status === "SUSPENDED";
 
-        <DetailSection
+  return (
+    <Modal title={user.fullName} hideTitle size="xl" closeHref={closeHref}>
+      <div className="relative isolate space-y-4 px-6 pt-7 pb-6">
+        <HeroDecor layout="card" />
+
+        <div className="flex items-center gap-[22px] pr-11 pl-2">
+          <span className="relative shrink-0">
+            <Avatar
+              name={user.fullName}
+              src={user.avatarUrl}
+              size="lg"
+              // The white border is the gap between the photo and the plan-coloured ring.
+              className={cn(
+                "size-[104px] text-2xl border-[4px] border-background shadow-card",
+                planRing(user.plan),
+                "ring-[3px] ring-offset-0",
+              )}
+            />
+            <span
+              aria-hidden
+              className={cn(
+                "absolute top-1 right-1 size-3.5 rounded-full ring-[3px] ring-background",
+                suspended ? "bg-danger" : "bg-primary",
+              )}
+            />
+          </span>
+          <div className="min-w-0">
+            <h2 className="truncate text-[22px] leading-[30px] font-semibold tracking-[-0.17px] text-foreground">
+              {user.fullName}
+            </h2>
+            <p className="truncate text-[13px] text-muted-foreground">
+              {user.email}
+            </p>
+            <div className="flex flex-wrap items-center gap-1.5 pt-2">
+              <StatusBadge status={user.status} />
+              <span className="inline-flex h-6 items-center gap-1.5 rounded-full bg-brand-soft px-2.5 text-xs font-semibold text-info">
+                <Sms aria-hidden className="size-3.5" />
+                {user.signInMethod === "GOOGLE"
+                  ? "Google sign-in"
+                  : "Email sign-in"}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <DetailCard title="Account details" icon={<Profile />}>
+          <dl className="grid gap-3 px-4 pt-3.5 pb-4 sm:grid-cols-3">
+            <InfoTile
+              icon={<DocumentText />}
+              label="Account ID"
+              value={user.accountCode}
+            />
+            <InfoTile
+              icon={<Calendar1 />}
+              label="Joined"
+              value={formatDate(user.joinedAt)}
+            />
+            <InfoTile
+              icon={<Crown1 />}
+              label="Plan"
+              value={
+                user.plan === "FREE_TRIAL"
+                  ? "Free trial"
+                  : `${planLabel(user.plan)} · monthly`
+              }
+              tone={planTone(user.plan)}
+            />
+          </dl>
+        </DetailCard>
+
+        <DetailCard
           title="Projects & website status"
           icon={<Global />}
           aside={`${websites.totalItems} ${websites.totalItems === 1 ? "website" : "websites"}`}
         >
           {websites.items.length ? (
-            <ul className="divide-y divide-border rounded-2xl border border-border">
-              {websites.items.map((w) => (
-                <li key={w.id}>
-                  <Link
-                    href={`/admin/websites?website=${w.id}`}
-                    className="flex items-center gap-3 px-3.5 py-2.5 transition-colors hover:bg-muted"
-                  >
-                    <Thumbnail src={w.thumbnailUrl} />
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[13px] font-semibold text-foreground">{w.name}</span>
-                      <span className="block truncate text-xs text-muted-foreground">{w.domain}</span>
-                    </span>
-                    {w.releaseStatus ? <StatusBadge status={w.releaseStatus} /> : <StatusBadge status="NOT_DEPLOYED" />}
-                  </Link>
-                </li>
-              ))}
+            <ul className="max-h-[192px] divide-y divide-border overflow-y-auto">
+              {websites.items.map((w) => {
+                const published = w.liveRelease !== null;
+                return (
+                  <li key={w.id}>
+                    <Link
+                      href={`/admin/websites?website=${w.id}`}
+                      className="flex h-16 items-center gap-3 px-4 transition-colors outline-none hover:bg-muted focus-visible:bg-muted"
+                    >
+                      <Thumbnail
+                        src={w.thumbnailUrl}
+                        className="h-8 w-10 rounded-lg"
+                      />
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-[13px] font-bold text-foreground">
+                          {w.name}
+                        </span>
+                        <span className="block truncate text-xs text-muted-foreground">
+                          {published ? w.domain : "Not published"}
+                        </span>
+                      </span>
+                      <StatusBadge
+                        status={
+                          published ? (w.releaseStatus ?? "LIVE") : "DRAFT"
+                        }
+                      />
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           ) : (
-            <p className="rounded-2xl border border-dashed border-border px-4 py-6 text-center text-[13px] text-muted-foreground">
+            <p className="px-4 py-6 text-center text-[13px] text-muted-foreground">
               No websites yet.
             </p>
           )}
-        </DetailSection>
+        </DetailCard>
+
+        <div className="flex gap-3 pt-1">
+          <Button asChild variant="secondary" size="sm" className="flex-1">
+            <Link
+              href={`/admin/subscriptions?q=${encodeURIComponent(user.email)}`}
+            >
+              <DocumentText />
+              View subscription
+            </Link>
+          </Button>
+          <Button asChild size="sm" className="flex-1">
+            <Link href={`/admin/websites?owner=${user.id}`}>
+              <ExportSquare />
+              View websites
+            </Link>
+          </Button>
+        </div>
       </div>
     </Modal>
   );
 }
 
-function InfoTile({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
+function InfoTile({
+  icon,
+  label,
+  value,
+  tone,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string;
+  /** Colours the tile, e.g. by plan with `planTone(plan)`. */
+  tone?: { surface: string; chip: string; text: string };
+}) {
   return (
-    <div className="flex items-center gap-2.5 rounded-xl bg-muted px-3 py-2.5">
-      <span aria-hidden className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-soft text-brand [&_svg]:size-4">
+    <div
+      className={cn(
+        "flex items-center gap-3 rounded-xl p-3",
+        tone?.surface ?? "bg-muted",
+      )}
+    >
+      <span
+        aria-hidden
+        className={cn(
+          "grid size-9 shrink-0 place-items-center rounded-[10px] [&_svg]:size-[18px]",
+          tone?.chip ?? "bg-brand-soft text-brand",
+        )}
+      >
         {icon}
       </span>
-      <div className="min-w-0">
-        <dt className="text-xs text-muted-foreground">{label}</dt>
-        <dd className="truncate text-[13px] font-semibold text-foreground">{value}</dd>
+      <div className="min-w-0 text-[13px] leading-5">
+        <dt className="text-muted-foreground">{label}</dt>
+        <dd
+          className={cn(
+            "truncate font-semibold",
+            tone?.text ?? "text-foreground",
+          )}
+        >
+          {value}
+        </dd>
       </div>
     </div>
   );

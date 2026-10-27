@@ -37,6 +37,12 @@
   --color-danger: #cc3d3d;
   --color-danger-soft: #fce8e8;
   --color-danger-muted: #eba3a3; /* chart segment next to danger */
+
+  /* "Needs attention" donut + dots (Figma: soft red, pink, yellow, blue) */
+  --color-chart-red: #d4736b;
+  --color-chart-pink: #ebaaa6;
+  --color-chart-yellow: #e9c45e;
+  --color-chart-blue: #7fa6e6;
   --color-destructive: #cc3d3d;
   --color-info: #3c78cf; /* in-progress states: deploying, updating */
   --color-info-soft: #e3eefc;
@@ -67,19 +73,45 @@
 
   --animate-toast-in: toast-in 200ms ease-out;
   --animate-row-in: row-in 240ms ease-out both;
-  --animate-dialog-in: dialog-in 180ms ease-out;
+  /* Every popup "pops" from its own centre (fade + slight scale) — no sliding in or out.
+     Scale only: centred popups already use the `translate` property, so never animate translate here. */
+  --animate-pop-in: pop-in 180ms ease-out;
+  --animate-pop-out: pop-out 150ms ease-in forwards;
   --animate-fade-in: fade-in 150ms ease-out;
+  --animate-fade-out: fade-out 150ms ease-in forwards;
 
-  @keyframes dialog-in {
+  @keyframes pop-in {
     from {
       opacity: 0;
-      transform: translate(-50%, -48%) scale(0.98);
+      transform: scale(0.96);
     }
     to {
       opacity: 1;
-      transform: translate(-50%, -50%) scale(1);
+      transform: scale(1);
     }
   }
+
+  @keyframes pop-out {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+
+
+  @keyframes fade-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
 
   @keyframes fade-in {
     from {

@@ -3,10 +3,20 @@ import { cn } from "@/lib/utils";
 
 // shadcn/ui table primitives, styled to the Figma admin table. Use `common/data-table` for screens.
 
-export function Table({ className, ...props }: ComponentProps<"table">) {
+export function Table({
+  className,
+  containerClassName,
+  ...props
+}: ComponentProps<"table"> & { containerClassName?: string }) {
   return (
-    <div className="relative w-full overflow-x-auto">
-      <table className={cn("w-full caption-bottom border-collapse text-sm", className)} {...props} />
+    <div className={cn("relative w-full overflow-x-auto", containerClassName)}>
+      <table
+        className={cn(
+          "w-full caption-bottom border-collapse text-sm",
+          className,
+        )}
+        {...props}
+      />
     </div>
   );
 }
@@ -16,15 +26,27 @@ export function TableHeader({ className, ...props }: ComponentProps<"thead">) {
 }
 
 export function TableBody({ className, ...props }: ComponentProps<"tbody">) {
-  return <tbody className={cn("[&_tr:last-child]:border-0", className)} {...props} />;
+  return (
+    <tbody className={cn("[&_tr:last-child]:border-0", className)} {...props} />
+  );
 }
 
 export function TableFooter({ className, ...props }: ComponentProps<"tfoot">) {
-  return <tfoot className={cn("border-t border-border", className)} {...props} />;
+  return (
+    <tfoot className={cn("border-t border-border", className)} {...props} />
+  );
 }
 
 export function TableRow({ className, ...props }: ComponentProps<"tr">) {
-  return <tr className={cn("border-b border-border transition-colors duration-150", className)} {...props} />;
+  return (
+    <tr
+      className={cn(
+        "border-b border-border transition-colors duration-150",
+        className,
+      )}
+      {...props}
+    />
+  );
 }
 
 export function TableHead({ className, ...props }: ComponentProps<"th">) {
@@ -40,9 +62,22 @@ export function TableHead({ className, ...props }: ComponentProps<"th">) {
 }
 
 export function TableCell({ className, ...props }: ComponentProps<"td">) {
-  return <td className={cn("h-[68px] px-4 py-3 align-middle", className)} {...props} />;
+  return (
+    <td
+      className={cn("h-[68px] px-4 py-3 align-middle", className)}
+      {...props}
+    />
+  );
 }
 
-export function TableCaption({ className, ...props }: ComponentProps<"caption">) {
-  return <caption className={cn("mt-4 text-sm text-muted-foreground", className)} {...props} />;
+export function TableCaption({
+  className,
+  ...props
+}: ComponentProps<"caption">) {
+  return (
+    <caption
+      className={cn("mt-4 text-sm text-muted-foreground", className)}
+      {...props}
+    />
+  );
 }

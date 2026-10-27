@@ -4,7 +4,9 @@ import {
   Edit2,
   Forbidden2,
   Global,
+  MinusCirlce,
   Refresh2,
+  RotateLeft,
   Send2,
   TickCircle,
   Timer1,
@@ -28,16 +30,35 @@ export type Status =
   | "ONLINE"
   | "NOT_DEPLOYED"
   | "OFFLINE_BILLING"
+  | "DRAFT"
   // Releases and deploys
   | "LIVE"
   | "GOING_LIVE"
   | "FAILED"
+  | "REPLACED"
   // Routing
+  | "STABLE"
   | "UPDATING"
   // Payments
-  | "PAID";
+  | "PAID"
+  // Publish pipeline: generation request, release, steps
+  | "QUEUED"
+  | "PUBLISHING"
+  | "PUBLISHED"
+  | "STUCK"
+  | "NONE_YET"
+  | "BUILDING"
+  | "DEPLOYING"
+  | "READY"
+  | "ROLLED_BACK"
+  | "DONE"
+  | "RUNNING"
+  | "WAITING"
+  | "NOT_STARTED"
+  // Admin actions
+  | "SUCCEEDED";
 
-type Tone = "success" | "danger" | "info" | "warning" | "neutral";
+type Tone = "success" | "danger" | "info" | "warning" | "neutral" | "draft";
 
 type StatusMeta = {
   label: string;
@@ -53,12 +74,29 @@ const STATUS = {
   EXPIRED: { label: "Expired", tone: "danger", icon: Timer1 },
   ONLINE: { label: "Online", tone: "success", icon: Global },
   NOT_DEPLOYED: { label: "Not deployed", tone: "info", icon: Edit2 },
+  DRAFT: { label: "Draft", tone: "draft", icon: Edit2 },
   OFFLINE_BILLING: { label: "Offline · billing", tone: "danger", icon: Timer1 },
   LIVE: { label: "Live", tone: "success", icon: Global },
   GOING_LIVE: { label: "Going live", tone: "info", icon: Send2 },
   FAILED: { label: "Failed", tone: "danger", icon: Danger },
+  REPLACED: { label: "Replaced", tone: "neutral", icon: RotateLeft },
+  STABLE: { label: "Stable", tone: "success", icon: Global },
   UPDATING: { label: "Updating", tone: "info", icon: Refresh2 },
   PAID: { label: "Paid", tone: "success", icon: Wallet2 },
+  QUEUED: { label: "Queued", tone: "draft", icon: Edit2 },
+  PUBLISHING: { label: "Publishing", tone: "info", icon: Send2 },
+  PUBLISHED: { label: "Published", tone: "success", icon: Global },
+  STUCK: { label: "Stuck", tone: "warning", icon: Clock },
+  NONE_YET: { label: "None yet", tone: "draft", icon: Edit2 },
+  BUILDING: { label: "Building", tone: "info", icon: Send2 },
+  DEPLOYING: { label: "Deploying", tone: "info", icon: Send2 },
+  READY: { label: "Ready", tone: "warning", icon: Clock },
+  ROLLED_BACK: { label: "Rolled back", tone: "danger", icon: Timer1 },
+  DONE: { label: "Done", tone: "success", icon: TickCircle },
+  RUNNING: { label: "Running", tone: "info", icon: Send2 },
+  WAITING: { label: "Waiting", tone: "warning", icon: Clock },
+  NOT_STARTED: { label: "Not started", tone: "neutral", icon: MinusCirlce },
+  SUCCEEDED: { label: "Succeeded", tone: "success", icon: Global },
 } satisfies Record<Status, StatusMeta>;
 
 const TONE = {
@@ -67,14 +105,24 @@ const TONE = {
   info: "bg-info-soft text-info",
   warning: "bg-warning-soft text-warning",
   neutral: "bg-neutral-soft text-muted-foreground",
+  draft: "bg-info-soft text-foreground-soft",
 } satisfies Record<Tone, string>;
 
-/** Pill with a light tint and an icon per status (Figma "Status badge"). */
-export function StatusBadge({ status, className }: { status: Status; className?: string }) {
+/** Pill with a light tint and an icon per status (Figma "Status badge"). `detail` adds " · 52 min". */
+export function StatusBadge({
+  status,
+  detail,
+  className,
+}: {
+  status: Status;
+  detail?: string;
+  className?: string;
+}) {
   const meta: StatusMeta = STATUS[status];
   const Icon = meta.icon;
   return (
     <span
+      data-badge
       className={cn(
         "inline-flex h-6 items-center gap-[5px] rounded-full px-2 text-xs font-medium whitespace-nowrap shadow-button",
         TONE[meta.tone],
@@ -83,6 +131,7 @@ export function StatusBadge({ status, className }: { status: Status; className?:
     >
       <Icon aria-hidden className="size-3.5" />
       {meta.label}
+      {detail && <> · {detail}</>}
     </span>
   );
 }

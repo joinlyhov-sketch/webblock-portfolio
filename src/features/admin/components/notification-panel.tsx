@@ -8,7 +8,10 @@ import { EmptyState } from "@/components/common/empty-state";
 import { toast } from "@/components/common/toast";
 import { formatTimeAgo } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { markAllNotificationsReadAction, markNotificationReadAction } from "../actions";
+import {
+  markAllNotificationsReadAction,
+  markNotificationReadAction,
+} from "../actions";
 import type { AdminNotification, NotificationKind } from "../types";
 
 /** Colour of the small dot on the avatar: red = broken, amber = money/time running out, blue = activity. */
@@ -45,11 +48,16 @@ export function NotificationPanel({
   const [items, markRead] = useOptimistic(
     notifications,
     (current, id: string | "all") =>
-      current.map((n) => (n.readAt === null && (id === "all" || n.id === id) ? { ...n, readAt: "now" } : n)),
+      current.map((n) =>
+        n.readAt === null && (id === "all" || n.id === id)
+          ? { ...n, readAt: "now" }
+          : n,
+      ),
   );
 
   const unread = items.filter((n) => n.readAt === null).length;
-  const shown = tab === "unread" ? items.filter((n) => n.readAt === null) : items;
+  const shown =
+    tab === "unread" ? items.filter((n) => n.readAt === null) : items;
 
   function open(n: AdminNotification) {
     onNavigate?.();
@@ -72,7 +80,9 @@ export function NotificationPanel({
     <div className="flex min-h-0 flex-col">
       <div className="flex items-center justify-between gap-4 px-5 pt-5 pb-2.5">
         {variant === "popover" ? (
-          <h2 className="text-[19px] font-semibold text-foreground">Notifications</h2>
+          <h2 className="text-[19px] font-semibold text-foreground">
+            Notifications
+          </h2>
         ) : (
           <span />
         )}
@@ -86,7 +96,11 @@ export function NotificationPanel({
         </button>
       </div>
 
-      <div role="tablist" aria-label="Filter notifications" className="flex gap-6 border-b border-border px-5">
+      <div
+        role="tablist"
+        aria-label="Filter notifications"
+        className="flex gap-6 border-b border-border px-5"
+      >
         {(
           [
             ["all", "All notifications"],
@@ -118,15 +132,27 @@ export function NotificationPanel({
 
       <ul
         role="tabpanel"
-        aria-label={tab === "unread" ? "Unread notifications" : "All notifications"}
-        className={cn("divide-y divide-border overflow-y-auto", variant === "popover" && "max-h-[408px]")}
+        aria-label={
+          tab === "unread" ? "Unread notifications" : "All notifications"
+        }
+        className={cn(
+          "divide-y divide-border overflow-y-auto",
+          variant === "popover" && "max-h-[408px]",
+        )}
       >
         {shown.length === 0 && (
           <li className="px-5 py-4">
             {tab === "unread" ? (
-              <EmptyState icon={<TickCircle />} title="You're all caught up" description="New activity will show here." />
+              <EmptyState
+                icon={<TickCircle />}
+                title="You're all caught up"
+                description="New activity will show here."
+              />
             ) : (
-              <EmptyState icon={<NotificationBing />} title="No notifications yet" />
+              <EmptyState
+                icon={<NotificationBing />}
+                title="No notifications yet"
+              />
             )}
           </li>
         )}
@@ -135,22 +161,40 @@ export function NotificationPanel({
           const row = (
             <>
               <span className="relative shrink-0">
-                <Avatar name={n.actorName} src={n.actorAvatarUrl} className="size-10 text-xs ring-0" />
+                <Avatar
+                  name={n.actorName}
+                  src={n.actorAvatarUrl}
+                  className="size-10 text-xs ring-0"
+                />
                 <span
                   aria-hidden
-                  className={cn("absolute right-0 bottom-0 size-2.5 rounded-full ring-2 ring-background", KIND_DOT[n.kind])}
+                  className={cn(
+                    "absolute right-0 bottom-0 size-2.5 rounded-full ring-2 ring-background",
+                    KIND_DOT[n.kind],
+                  )}
                 />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-semibold text-foreground">{n.actorName}</span>
-                <span className="block truncate text-[13px] text-muted-foreground">{n.message}</span>
+                <span className="block truncate text-sm font-semibold text-foreground">
+                  {n.actorName}
+                </span>
+                <span className="block truncate text-[13px] text-muted-foreground">
+                  {n.message}
+                </span>
               </span>
               <span className="flex shrink-0 flex-col items-end gap-1.5 self-stretch py-0.5">
                 <span
                   aria-hidden
-                  className={cn("size-2 rounded-full", isUnread ? "bg-primary" : "bg-transparent")}
+                  className={cn(
+                    "size-2 rounded-full",
+                    isUnread ? "bg-primary" : "bg-transparent",
+                  )}
                 />
-                <time dateTime={n.createdAt} suppressHydrationWarning className="text-xs text-placeholder">
+                <time
+                  dateTime={n.createdAt}
+                  suppressHydrationWarning
+                  className="text-xs text-placeholder"
+                >
                   {formatTimeAgo(n.createdAt)}
                 </time>
               </span>
@@ -164,11 +208,20 @@ export function NotificationPanel({
           return (
             <li key={n.id}>
               {n.link ? (
-                <Link href={n.link} scroll={false} onClick={() => open(n)} className={className}>
+                <Link
+                  href={n.link}
+                  scroll={false}
+                  onClick={() => open(n)}
+                  className={className}
+                >
                   {row}
                 </Link>
               ) : (
-                <button type="button" onClick={() => open(n)} className={className}>
+                <button
+                  type="button"
+                  onClick={() => open(n)}
+                  className={className}
+                >
                   {row}
                 </button>
               )}
@@ -176,7 +229,6 @@ export function NotificationPanel({
           );
         })}
       </ul>
-
     </div>
   );
 }

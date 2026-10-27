@@ -95,9 +95,9 @@ export const adminNotifications: AdminNotification[] = [
   {
     id: "d2f4a6c8-6e8a-4b1c-9d3e-4f6a8c0e0709",
     kind: "DEPLOY_FAILED",
-    actorId: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0101",
-    actorName: "Sovannarith Soeun",
-    actorAvatarUrl: "/mock/avatars/sovannarith-soeun.jpg",
+    actorId: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0103",
+    actorName: "Sophea Lim",
+    actorAvatarUrl: "/mock/avatars/sophea-lim.jpg",
     message: "Still Point Studio deploy failed at the Build step.",
     link: "/admin/websites?website=9b2d4f6a-1c3e-4a5b-8d7f-2e4c6a8b0202",
     createdAt: ago(60 * 24 * 3),

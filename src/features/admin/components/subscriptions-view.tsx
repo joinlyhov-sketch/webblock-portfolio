@@ -21,19 +21,36 @@ import { EmptyState } from "@/components/common/empty-state";
 import { FilterMenu } from "@/components/common/filter-menu";
 import { KpiCard, KpiGrid } from "@/components/common/kpi-card";
 import { Modal } from "@/components/common/modal";
-import { PlanBadge, planLabel } from "@/components/common/plan-badge";
+import { PlanBadge, planLabel, planRing } from "@/components/common/plan-badge";
+import { RowsInput } from "@/components/common/rows-input";
 import { StatusBadge, statusLabel } from "@/components/common/status-badge";
 import { TableSearch } from "@/components/common/table-search";
 import { Button } from "@/components/ui/button";
 import type { Page } from "@/lib/api/types";
-import { formatDate, formatMonth, formatPrice, formatPriceShort } from "@/lib/format";
+import {
+  formatDate,
+  formatMonth,
+  formatPrice,
+  formatPriceShort,
+} from "@/lib/format";
 import { tableHref, type SearchParams } from "@/lib/table-query";
 import { cn } from "@/lib/utils";
-import type { Payment, PlanCode, Subscription, SubscriptionStats, SubscriptionStatus } from "../types";
+import type {
+  Payment,
+  PlanCode,
+  Subscription,
+  SubscriptionStats,
+  SubscriptionStatus,
+} from "../types";
 import { AdminPageHeader } from "./admin-page-header";
 import { DetailHero, DetailSection, HeroChip } from "./detail-hero";
 
-const STATUSES: SubscriptionStatus[] = ["ACTIVE", "PENDING", "CANCELED", "EXPIRED"];
+const STATUSES: SubscriptionStatus[] = [
+  "ACTIVE",
+  "PENDING",
+  "CANCELED",
+  "EXPIRED",
+];
 const PLANS: PlanCode[] = ["FREE_TRIAL", "PLUS", "PRO", "ULTRA"];
 
 export function SubscriptionsView({
@@ -48,35 +65,75 @@ export function SubscriptionsView({
   /** The subscription opened with `?subscription=<id>`, with its payments. */
   detail: { subscription: Subscription; payments: Page<Payment> } | null;
 }) {
-  const status = typeof searchParams.status === "string" ? searchParams.status : undefined;
-  const plan = typeof searchParams.plan === "string" ? searchParams.plan : undefined;
+  const status =
+    typeof searchParams.status === "string" ? searchParams.status : undefined;
+  const plan =
+    typeof searchParams.plan === "string" ? searchParams.plan : undefined;
   const filtered = Boolean(searchParams.q || status || plan);
-  const detailHref = (id: string) => tableHref(searchParams, { subscription: id });
+  const detailHref = (id: string) =>
+    tableHref(searchParams, { subscription: id });
 
   return (
     <>
-      <AdminPageHeader title="Subscriptions" description="Plans, trials and payments for every project." />
+      <AdminPageHeader
+        title="Subscriptions"
+        description="Plans, trials and payments for every project."
+      />
 
       <KpiGrid>
-        <KpiCard label="Monthly revenue" value={formatPriceShort(stats.monthlyRevenue, "USD")} tone="success" icon={<DollarCircle />} />
-        <KpiCard label="Active plans" value={stats.activePlans} tone="brand" icon={<CardIcon />} href={tableHref({}, { status: "ACTIVE" })} />
-        <KpiCard label="Trials ending ≤ 3 days" value={stats.trialsEndingSoon} tone="violet" icon={<Timer1 />} href={tableHref({}, { plan: "FREE_TRIAL" })} />
-        <KpiCard label="Pending" value={stats.pending} tone="warning" icon={<Danger />} href={tableHref({}, { status: "PENDING" })} />
+        <KpiCard
+          label="Monthly revenue"
+          value={formatPriceShort(stats.monthlyRevenue, "USD")}
+          tone="success"
+          icon={<DollarCircle />}
+        />
+        <KpiCard
+          label="Active plans"
+          value={stats.activePlans}
+          tone="brand"
+          icon={<CardIcon />}
+          href={tableHref({}, { status: "ACTIVE" })}
+        />
+        <KpiCard
+          label="Trials ending ≤ 3 days"
+          value={stats.trialsEndingSoon}
+          tone="violet"
+          icon={<Timer1 />}
+          href={tableHref({}, { plan: "FREE_TRIAL" })}
+        />
+        <KpiCard
+          label="Pending"
+          value={stats.pending}
+          tone="warning"
+          icon={<Danger />}
+          href={tableHref({}, { status: "PENDING" })}
+        />
       </KpiGrid>
 
       <DataTable
+        fill
+        rowClassName="relative cursor-pointer"
         label="Subscriptions"
+        minWidth="min-w-[960px]"
+        compact
         itemLabel="subscriptions"
         data={subscriptions}
         searchParams={searchParams}
         rowKey={(s) => s.id}
         toolbar={
           <>
-            <TableSearch searchParams={searchParams} placeholder="Search by user or project" />
+            <TableSearch
+              searchParams={searchParams}
+              placeholder="Search by user or project"
+            />
             <FilterMenu
               label="Status"
               options={[
-                { label: "All", href: tableHref(searchParams, { status: null, page: null }), active: !status },
+                {
+                  label: "All",
+                  href: tableHref(searchParams, { status: null, page: null }),
+                  active: !status,
+                },
                 ...STATUSES.map((s) => ({
                   label: statusLabel(s),
                   href: tableHref(searchParams, { status: s, page: null }),
@@ -87,7 +144,11 @@ export function SubscriptionsView({
             <FilterMenu
               label="Plan"
               options={[
-                { label: "All", href: tableHref(searchParams, { plan: null, page: null }), active: !plan },
+                {
+                  label: "All",
+                  href: tableHref(searchParams, { plan: null, page: null }),
+                  active: !plan,
+                },
                 ...PLANS.map((p) => ({
                   label: planLabel(p),
                   href: tableHref(searchParams, { plan: p, page: null }),
@@ -95,7 +156,15 @@ export function SubscriptionsView({
                 })),
               ]}
             />
-            <Button asChild size="sm" className="ml-auto">
+            {/* key: reset the box when the URL size changes (e.g. back button). */}
+            <div className="ml-auto">
+              <RowsInput
+                key={subscriptions.size}
+                searchParams={searchParams}
+                size={subscriptions.size}
+              />
+            </div>
+            <Button asChild size="sm">
               <Link href="/admin/subscriptions/plans">Manage plans</Link>
             </Button>
           </>
@@ -112,7 +181,11 @@ export function SubscriptionsView({
               }
             />
           ) : (
-            <EmptyState icon={<CardIcon />} title="No subscriptions yet" description="Trials and paid plans show here." />
+            <EmptyState
+              icon={<CardIcon />}
+              title="No subscriptions yet"
+              description="Trials and paid plans show here."
+            />
           )
         }
         columns={[
@@ -121,37 +194,71 @@ export function SubscriptionsView({
             header: "User · project",
             sortField: "userName",
             cell: (s) => (
-              <Link href={detailHref(s.id)} scroll={false} className="group flex min-w-0 items-center gap-3">
-                <Avatar name={s.userName} src={s.userAvatarUrl} />
+              // Stretched link: the whole row opens the popup.
+              <Link
+                href={detailHref(s.id)}
+                scroll={false}
+                className="group flex min-w-0 items-center gap-3 outline-none after:absolute after:inset-0 after:content-[''] focus-visible:after:ring-3 focus-visible:after:ring-ring/40"
+              >
+                <Avatar
+                  name={s.userName}
+                  src={s.userAvatarUrl}
+                  className={planRing(s.plan)}
+                />
                 <span className="min-w-0">
                   <span className="block max-w-[240px] truncate font-semibold text-foreground group-hover:text-primary">
                     {s.userName}
                   </span>
-                  <span className="block max-w-[240px] truncate text-xs text-muted-foreground">{s.websiteName}</span>
+                  <span className="block max-w-[240px] truncate text-xs text-muted-foreground">
+                    {s.websiteName}
+                  </span>
                 </span>
               </Link>
             ),
           },
-          { key: "plan", header: "Plan", sortField: "plan", cell: (s) => <PlanBadge plan={s.plan} /> },
-          { key: "status", header: "Status", sortField: "status", cell: (s) => <StatusBadge status={s.status} /> },
+          {
+            key: "plan",
+            header: "Plan",
+            sortField: "plan",
+            cell: (s) => <PlanBadge plan={s.plan} />,
+          },
+          {
+            key: "status",
+            header: "Status",
+            sortField: "status",
+            cell: (s) => <StatusBadge status={s.status} />,
+          },
           {
             key: "start",
             header: "Start",
             sortField: "startAt",
-            cell: (s) => <span className="text-muted-foreground">{formatDate(s.startAt)}</span>,
+            cell: (s) => (
+              <span className="text-muted-foreground">
+                {formatDate(s.startAt)}
+              </span>
+            ),
           },
           {
             key: "end",
             header: "End",
             sortField: "endAt",
-            cell: (s) => <span className="text-muted-foreground">{formatDate(s.endAt)}</span>,
+            cell: (s) => (
+              <span className="text-muted-foreground">
+                {formatDate(s.endAt)}
+              </span>
+            ),
           },
           {
             key: "redeploys",
             header: "Redeploys left",
             sortField: "redeploysLeft",
             cell: (s) => (
-              <span className={cn("tabular-nums", s.redeploysLeft === 0 && "font-semibold text-danger")}>
+              <span
+                className={cn(
+                  "tabular-nums",
+                  s.redeploysLeft === 0 && "font-semibold text-danger",
+                )}
+              >
                 {s.redeploysLeft} of {s.redeployLimit}
               </span>
             ),
@@ -174,13 +281,40 @@ function statusCallout(s: Subscription) {
   const plan = `${planLabel(s.plan)} plan`;
   switch (s.status) {
     case "ACTIVE":
-      return <Callout tone="success" icon={<TickCircle />} title="Subscription active" description={`${plan} · renews ${formatDate(s.endAt)}`} />;
+      return (
+        <Callout
+          tone="success"
+          icon={<TickCircle />}
+          title="Subscription active"
+          description={`${plan} · renews ${formatDate(s.endAt)}`}
+        />
+      );
     case "PENDING":
-      return <Callout icon={<Clock />} title="Waiting for payment" description={`${plan} · due ${formatDate(s.endAt)}`} />;
+      return (
+        <Callout
+          icon={<Clock />}
+          title="Waiting for payment"
+          description={`${plan} · due ${formatDate(s.endAt)}`}
+        />
+      );
     case "CANCELED":
-      return <Callout tone="neutral" icon={<MinusCirlce />} title="Subscription canceled" description={`${plan} · no further payments`} />;
+      return (
+        <Callout
+          tone="neutral"
+          icon={<MinusCirlce />}
+          title="Subscription canceled"
+          description={`${plan} · no further payments`}
+        />
+      );
     case "EXPIRED":
-      return <Callout tone="danger" icon={<Timer1 />} title="Subscription expired" description={`Ended ${formatDate(s.endAt)} · the website is offline`} />;
+      return (
+        <Callout
+          tone="danger"
+          icon={<Timer1 />}
+          title="Subscription expired"
+          description={`Ended ${formatDate(s.endAt)} · the website is offline`}
+        />
+      );
   }
 }
 
@@ -194,9 +328,21 @@ function SubscriptionDetail({
   closeHref: string;
 }) {
   return (
-    <Modal title={`${s.userName} · ${s.websiteName}`} hideTitle size="lg" closeHref={closeHref}>
+    <Modal
+      title={`${s.userName} · ${s.websiteName}`}
+      hideTitle
+      size="lg"
+      closeHref={closeHref}
+    >
       <DetailHero
-        media={<Avatar name={s.userName} src={s.userAvatarUrl} size="lg" className="ring-4" />}
+        media={
+          <Avatar
+            name={s.userName}
+            src={s.userAvatarUrl}
+            size="lg"
+            className={cn(planRing(s.plan), "ring-[3px] ring-offset-[3px]")}
+          />
+        }
         badge={<StatusBadge status={s.status} />}
         title={s.userName}
         link={{ href: `https://${s.websiteDomain}`, label: s.websiteDomain }}
@@ -218,7 +364,10 @@ function SubscriptionDetail({
               { label: "Status", value: statusLabel(s.status) },
               { label: "Start date", value: formatDate(s.startAt) },
               { label: "End date", value: formatDate(s.endAt) },
-              { label: "Redeploys left", value: `${s.redeploysLeft} of ${s.redeployLimit}` },
+              {
+                label: "Redeploys left",
+                value: `${s.redeploysLeft} of ${s.redeployLimit}`,
+              },
             ]}
           />
         </DetailSection>
@@ -227,12 +376,17 @@ function SubscriptionDetail({
           {payments.items.length ? (
             <ul className="divide-y divide-border rounded-2xl border border-border text-[13px]">
               {payments.items.map((p) => (
-                <li key={p.id} className="flex items-center gap-3 px-3.5 py-2.5">
+                <li
+                  key={p.id}
+                  className="flex items-center gap-3 px-3.5 py-2.5"
+                >
                   <span className="font-semibold text-brand">
                     {planLabel(p.plan)} plan · {formatMonth(p.periodStart)}
                     {p.status === "FAILED" && " · failed"}
                   </span>
-                  <span className="text-muted-foreground">{formatDate(p.createdAt)}</span>
+                  <span className="text-muted-foreground">
+                    {formatDate(p.createdAt)}
+                  </span>
                   <span
                     className={cn(
                       "ml-auto font-semibold tabular-nums",

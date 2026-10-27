@@ -48,8 +48,8 @@ export const adminNav: NavItem[] = [
     href: "/admin/monitoring",
     icon: "monitoring",
     children: [
-      { label: "Pipeline", href: "/admin/monitoring/pipeline" },
-      { label: "Activity log", href: "/admin/monitoring/activity" },
+      { label: "Pipeline & Generation", href: "/admin/monitoring/pipeline" },
+      { label: "Activity Log", href: "/admin/monitoring/activity" },
     ],
   },
 ];

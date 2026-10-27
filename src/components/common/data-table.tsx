@@ -11,7 +11,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { Page } from "@/lib/api/types";
-import { parseTableQuery, tableHref, type SearchParams } from "@/lib/table-query";
+import {
+  parseTableQuery,
+  tableHref,
+  type SearchParams,
+} from "@/lib/table-query";
 import { cn } from "@/lib/utils";
 
 export type DataTableColumn<T> = {
@@ -41,6 +45,17 @@ type DataTableProps<T> = {
   empty?: ReactNode;
   /** `false` for a short preview table (e.g. a dashboard widget): no pagination footer. */
   footer?: boolean;
+  /** Smallest table width, e.g. "min-w-[960px]". Narrower screens scroll the table sideways. */
+  minWidth?: string;
+  /** Extra row classes, e.g. "relative cursor-pointer" for rows with a stretched link. */
+  rowClassName?: string;
+  /**
+   * Stretch to the bottom of a flex-column parent (the Admin `<main>`): toolbar, header row and
+   * footer stay put and only the rows scroll. Never shorter than 420px — below that the page scrolls.
+   */
+  fill?: boolean;
+  /** Denser rows and smaller text (Admin Portal): 56px rows, 13px text, 40px header. */
+  compact?: boolean;
 };
 
 /**
@@ -70,29 +85,84 @@ export function DataTable<T>({
   toolbar,
   empty,
   footer = true,
+  minWidth,
+  rowClassName,
+  fill = false,
+  compact = false,
 }: DataTableProps<T>) {
   const { sort } = parseTableQuery(searchParams);
   const offset = data.page * data.size;
-  const fillerRows = footer && data.items.length > 0 ? data.size - data.items.length : 0;
+  const fillerRows =
+    footer && data.items.length > 0 ? data.size - data.items.length : 0;
   const colSpan = columns.length + 1;
+  const isEmpty = data.items.length === 0;
 
   return (
-    <section className="overflow-hidden rounded-[20px] border border-border bg-background shadow-card">
+    <section
+      className={cn(
+        "overflow-hidden rounded-[20px] border border-border bg-background shadow-card",
+        fill && "flex min-h-[420px] flex-1 flex-col",
+      )}
+    >
       {toolbar && (
-        <div className="flex flex-wrap items-center gap-2.5 border-b border-border px-4 py-3.5">{toolbar}</div>
+        <div
+          className={cn(
+            "flex shrink-0 flex-wrap items-center gap-2.5 border-b border-border px-4",
+            compact
+              ? "py-2.5 [&_button]:h-8 [&_button]:text-xs [&_input]:h-8 [&_input]:text-xs"
+              : "py-3.5",
+          )}
+        >
+          {toolbar}
+        </div>
       )}
 
-      <Table aria-label={label}>
-        <TableHeader>
+      <Table
+        aria-label={label}
+        className={cn(
+          minWidth,
+          compact &&
+            cn(
+              "text-xs [&_td]:h-12 [&_td]:py-1.5 [&_th]:h-[34px] [&_th]:text-[11px] [&_td_.text-xs]:text-[11px]",
+              // Smaller badges, avatars and thumbnails inside rows.
+              "[&_[data-badge]]:h-5 [&_[data-badge]]:px-1.5 [&_[data-badge]]:text-[11px] [&_[data-badge]_svg]:size-3",
+              "[&_[data-avatar]]:size-7 [&_[data-avatar]]:text-[10px] [&_[data-thumb]]:size-7",
+            ),
+        )}
+        containerClassName={
+          fill
+            ? cn(
+                "overflow-y-auto overscroll-contain",
+                isEmpty ? "shrink-0" : "min-h-0 flex-1",
+              )
+            : undefined
+        }
+      >
+        <TableHeader
+          className={cn(
+            // Sticky header: under border-collapse the row border scrolls away, so draw it as a shadow.
+            fill &&
+              "sticky top-0 z-20 shadow-[inset_0_-1px_0_var(--color-border)] [&_tr]:border-0",
+          )}
+        >
           <TableRow>
             <TableHead className="w-[72px] pl-[21px]">No.</TableHead>
             {columns.map((column) => {
-              const active = sort && column.sortField === sort.field ? sort.direction : undefined;
+              const active =
+                sort && column.sortField === sort.field
+                  ? sort.direction
+                  : undefined;
               return (
                 <TableHead
                   key={column.key}
                   className={column.className}
-                  aria-sort={active === "asc" ? "ascending" : active === "desc" ? "descending" : undefined}
+                  aria-sort={
+                    active === "asc"
+                      ? "ascending"
+                      : active === "desc"
+                        ? "descending"
+                        : undefined
+                  }
                 >
                   {column.sortField ? (
                     <SortLink
@@ -115,10 +185,15 @@ export function DataTable<T>({
           {data.items.map((row, i) => (
             <TableRow
               key={rowKey(row)}
-              className="hover:bg-muted/70 motion-safe:animate-row-in"
+              className={cn(
+                "hover:bg-muted/70 motion-safe:animate-row-in",
+                rowClassName,
+              )}
               style={{ animationDelay: `${i * 25}ms` }}
             >
-              <TableCell className="pl-[21px] tabular-nums">{offset + i + 1}</TableCell>
+              <TableCell className="pl-[21px] tabular-nums">
+                {offset + i + 1}
+              </TableCell>
               {columns.map((column) => (
                 <TableCell key={column.key} className={column.className}>
                   {column.cell(row)}
@@ -132,29 +207,49 @@ export function DataTable<T>({
               <TableCell colSpan={colSpan} />
             </TableRow>
           ))}
-
-          {data.items.length === 0 && (
-            <TableRow>
-              <TableCell colSpan={colSpan} className="h-64 text-center">
-                {data.totalItems > 0 ? (
-                  <p className="text-muted-foreground">
-                    This page is empty.{" "}
-                    <Link href={tableHref(searchParams, { page: null })} className="font-medium text-primary hover:underline">
-                      Go to the first page
-                    </Link>
-                  </p>
-                ) : (
-                  (empty ?? <p className="text-muted-foreground">No {itemLabel} yet.</p>)
-                )}
-              </TableCell>
-            </TableRow>
-          )}
         </TableBody>
       </Table>
 
+      {/* Outside the (possibly wider-than-screen) table, so it stays centred in the visible area. */}
+      {isEmpty && (
+        <div
+          className={cn(
+            "flex items-center justify-center px-6 py-10 text-center",
+            fill ? "flex-1" : "min-h-64",
+          )}
+        >
+          {data.totalItems > 0 ? (
+            <p className="text-muted-foreground">
+              This page is empty.{" "}
+              <Link
+                href={tableHref(searchParams, { page: null })}
+                className="font-medium text-primary hover:underline"
+              >
+                Go to the first page
+              </Link>
+            </p>
+          ) : (
+            (empty ?? (
+              <p className="text-muted-foreground">No {itemLabel} yet.</p>
+            ))
+          )}
+        </div>
+      )}
+
       {footer && data.totalItems > 0 && (
-        <div className="border-t border-border">
-          <TablePagination data={data} searchParams={searchParams} itemLabel={itemLabel} />
+        <div
+          className={cn(
+            "shrink-0 border-t border-border",
+            // Compact footer: smaller "Showing …" text and page buttons.
+            compact &&
+              "[&_a]:h-7 [&_a]:min-w-7 [&_a]:text-xs [&_p]:text-xs [&_span]:text-xs [&>div]:py-2",
+          )}
+        >
+          <TablePagination
+            data={data}
+            searchParams={searchParams}
+            itemLabel={itemLabel}
+          />
         </div>
       )}
     </section>
@@ -174,7 +269,12 @@ function SortLink({
   children: ReactNode;
 }) {
   const next = active === "asc" ? "desc" : "asc";
-  const Icon = active === "asc" ? ArrowUp2 : active === "desc" ? ArrowDown2 : ArrowSwapVertical;
+  const Icon =
+    active === "asc"
+      ? ArrowUp2
+      : active === "desc"
+        ? ArrowDown2
+        : ArrowSwapVertical;
 
   return (
     <Link
@@ -190,18 +290,28 @@ function SortLink({
         aria-hidden
         className={cn(
           "size-3.5 transition-[opacity,transform] duration-150",
-          active ? "opacity-100" : "opacity-60 group-hover:opacity-100 motion-safe:group-hover:scale-110",
+          active
+            ? "opacity-100"
+            : "opacity-60 group-hover:opacity-100 motion-safe:group-hover:scale-110",
         )}
       />
       <span className="sr-only">
-        {active ? `, sorted ${active === "asc" ? "ascending" : "descending"}` : ", sort"}
+        {active
+          ? `, sorted ${active === "asc" ? "ascending" : "descending"}`
+          : ", sort"}
       </span>
     </Link>
   );
 }
 
 /** Loading state for loading.tsx: same frame as DataTable with pulsing rows. */
-export function DataTableSkeleton({ columns = 5, rows = 8 }: { columns?: number; rows?: number }) {
+export function DataTableSkeleton({
+  columns = 5,
+  rows = 8,
+}: {
+  columns?: number;
+  rows?: number;
+}) {
   return (
     <div
       aria-busy="true"
@@ -211,9 +321,18 @@ export function DataTableSkeleton({ columns = 5, rows = 8 }: { columns?: number;
       <div className="h-11 border-b border-border bg-muted" />
       <div className="animate-pulse">
         {Array.from({ length: rows }, (_, r) => (
-          <div key={r} className="flex h-[68px] items-center gap-6 border-b border-border px-5 last:border-0">
+          <div
+            key={r}
+            className="flex h-[68px] items-center gap-6 border-b border-border px-5 last:border-0"
+          >
             {Array.from({ length: columns }, (_, c) => (
-              <div key={c} className={cn("h-3.5 rounded-full bg-surface", c === 0 ? "w-6" : "flex-1")} />
+              <div
+                key={c}
+                className={cn(
+                  "h-3.5 rounded-full bg-surface",
+                  c === 0 ? "w-6" : "flex-1",
+                )}
+              />
             ))}
           </div>
         ))}

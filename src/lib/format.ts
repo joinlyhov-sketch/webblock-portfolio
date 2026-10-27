@@ -63,11 +63,16 @@ export function formatRelative(iso: string, now: Date = new Date()): string {
   return formatDate(iso);
 }
 
-/** 126 → "2m 06s" · 47 → "47s" */
+/** 126 → "2m 06s" · 48 → "0m 48s" */
 export function formatDuration(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return m ? `${m}m ${String(s).padStart(2, "0")}s` : `${s}s`;
+  return `${Math.floor(seconds / 60)}m ${String(seconds % 60).padStart(2, "0")}s`;
+}
+
+const dayMonth = new Intl.DateTimeFormat("en-US", { timeZone: TIME_ZONE, month: "short", day: "numeric" });
+
+/** "2026-10-02T07:12:00Z" → "Oct 2" (short dates inside compact lists). */
+export function formatDayMonth(iso: string): string {
+  return dayMonth.format(new Date(iso));
 }
 
 const usdWhole = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
@@ -90,4 +95,18 @@ export function formatTimeAgo(iso: string, now: Date = new Date()): string {
   if (days === 1) return "Yesterday";
   if (days < 7) return plural(days, "day");
   return formatDate(iso);
+}
+
+const clock = new Intl.DateTimeFormat("en-GB", {
+  timeZone: TIME_ZONE,
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: false,
+});
+
+/** Log timestamps, 24-hour with milliseconds: "2026-10-22T04:33:42.118Z" → "11:33:42.118" */
+export function formatClock(iso: string): string {
+  const d = new Date(iso);
+  return `${clock.format(d)}.${String(d.getUTCMilliseconds()).padStart(3, "0")}`;
 }

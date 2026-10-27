@@ -21,12 +21,19 @@ export function DetailHero({
   chips?: ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-4 bg-primary-soft/70 px-6 pt-6 pb-5">
+    <div className="relative isolate flex items-center gap-4 overflow-hidden bg-linear-to-b from-primary-soft to-background px-6 pt-6 pb-5">
+      <HeroDecor />
       <div className="shrink-0">{media}</div>
       <div className="min-w-0 flex-1 space-y-1.5 pr-8">
         {badge}
-        <h2 className="text-[26px] leading-8 font-semibold tracking-[-0.4px] break-words text-foreground">{title}</h2>
-        {subtitle && <p className="truncate text-[13px] text-muted-foreground">{subtitle}</p>}
+        <h2 className="text-[26px] leading-8 font-semibold tracking-[-0.4px] break-words text-foreground">
+          {title}
+        </h2>
+        {subtitle && (
+          <p className="truncate text-[13px] text-muted-foreground">
+            {subtitle}
+          </p>
+        )}
         {link && (
           <a
             href={link.href}
@@ -44,8 +51,52 @@ export function DetailHero({
   );
 }
 
+const DOTS =
+  "bg-[radial-gradient(var(--color-primary)_1.3px,transparent_1.4px)] bg-size-[10px_10px]";
+
+/** Figma hero background: dot grids, a small floating dot and soft circles behind the content. */
+export function HeroDecor({ layout = "band" }: { layout?: "band" | "card" }) {
+  // "band": behind a short hero strip (website, subscription). "card": top of a white popup (user).
+  if (layout === "card") {
+    return (
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[200px]"
+      >
+        <span className="absolute top-[69px] -right-[21px] size-[120px] rounded-full bg-brand-soft/80" />
+        <span className="absolute top-[69px] left-[19px] size-16 rounded-full bg-brand-soft/80" />
+        <span
+          className={`absolute top-[15px] left-[17px] h-12 w-[60px] opacity-35 ${DOTS}`}
+        />
+        <span
+          className={`absolute top-[91px] right-[121px] size-12 opacity-35 ${DOTS}`}
+        />
+      </div>
+    );
+  }
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+      <span className="absolute -top-4 -right-16 size-44 rounded-full bg-brand-soft/80" />
+      <span className="absolute top-[58%] -left-8 size-28 rounded-full bg-brand-soft/70" />
+      <span
+        className={`absolute top-3 left-6 h-[34px] w-[60px] opacity-35 ${DOTS}`}
+      />
+      <span
+        className={`absolute top-[46%] right-[24%] h-10 w-10 opacity-35 ${DOTS}`}
+      />
+      <span className="absolute top-9 left-[62%] size-2 rounded-full bg-primary/60" />
+    </div>
+  );
+}
+
 /** Small outlined chip under the hero title: owner, deploy, email, plan. */
-export function HeroChip({ icon, children }: { icon?: ReactNode; children: ReactNode }) {
+export function HeroChip({
+  icon,
+  children,
+}: {
+  icon?: ReactNode;
+  children: ReactNode;
+}) {
   return (
     <span className="inline-flex h-7 max-w-full items-center gap-1.5 rounded-full border border-border bg-background px-2.5 text-xs font-medium text-foreground-soft [&_svg]:size-3.5 [&_svg]:shrink-0">
       {icon}
@@ -69,15 +120,56 @@ export function DetailSection({
   return (
     <section className="space-y-2.5">
       <header className="flex items-center justify-between gap-3">
-        <h3 className="flex items-center gap-2.5 text-sm font-semibold text-foreground">
+        <h3 className="flex items-center gap-2.5 text-[15px] font-semibold text-foreground">
           {icon && (
-            <span aria-hidden className="grid size-7 place-items-center rounded-full bg-brand-soft text-brand [&_svg]:size-3.5">
+            <span
+              aria-hidden
+              className="grid size-7 place-items-center rounded-full bg-brand-soft text-brand [&_svg]:size-3.5"
+            >
               {icon}
             </span>
           )}
           {title}
         </h3>
-        {aside && <span className="text-xs text-muted-foreground">{aside}</span>}
+        {aside && (
+          <span className="text-xs text-muted-foreground">{aside}</span>
+        )}
+      </header>
+      {children}
+    </section>
+  );
+}
+
+/**
+ * Bordered section inside a detail popup (Figma user detail): icon chip + bold title + aside in a
+ * header row with a divider, then the content.
+ */
+export function DetailCard({
+  title,
+  icon,
+  aside,
+  children,
+}: {
+  title: string;
+  icon: ReactNode;
+  aside?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <section className="overflow-hidden rounded-2xl border border-border bg-background">
+      <header className="flex items-center gap-2.5 border-b border-border px-4 py-3">
+        <span
+          aria-hidden
+          className="grid size-7 shrink-0 place-items-center rounded-full bg-brand-soft text-brand [&_svg]:size-3.5"
+        >
+          {icon}
+        </span>
+        <h3 className="flex-1 text-[13px] font-bold text-foreground">
+          {title}
+        </h3>
+        {aside && (
+          <span className="text-xs text-muted-foreground">{aside}</span>
+        )}
       </header>
       {children}
     </section>

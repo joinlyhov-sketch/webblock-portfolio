@@ -35,7 +35,13 @@ export type ActionMenuItem = {
  *   { label: "Suspend user", icon: <Forbidden2 />, danger: true, onSelect: () => setConfirm(true) },
  * ]} />
  */
-export function ActionMenu({ label, items }: { label: string; items: ActionMenuItem[] }) {
+export function ActionMenu({
+  label,
+  items,
+}: {
+  label: string;
+  items: ActionMenuItem[];
+}) {
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
@@ -45,31 +51,54 @@ export function ActionMenu({ label, items }: { label: string; items: ActionMenuI
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         {items.map((item, i) => {
-          const className = cn(item.danger && "text-danger data-[highlighted]:bg-danger-soft");
+          const className = cn(
+            item.danger && "text-danger data-[highlighted]:bg-danger-soft",
+          );
           const content = (
             <>
               {item.icon}
               <span className="flex-1">{item.label}</span>
-              {item.externalHref && <ArrowRight2 aria-hidden className="-rotate-45 text-placeholder" />}
+              {item.externalHref && (
+                <ArrowRight2
+                  aria-hidden
+                  className="-rotate-45 text-placeholder"
+                />
+              )}
             </>
           );
           return (
             <Fragment key={item.label}>
               {item.danger && i > 0 && <DropdownMenuSeparator />}
               {item.href ? (
-                <DropdownMenuItem asChild className={className} disabled={item.disabled}>
+                <DropdownMenuItem
+                  asChild
+                  className={className}
+                  disabled={item.disabled}
+                >
                   <Link href={item.href} scroll={false}>
                     {content}
                   </Link>
                 </DropdownMenuItem>
               ) : item.externalHref ? (
-                <DropdownMenuItem asChild className={className} disabled={item.disabled}>
-                  <a href={item.externalHref} target="_blank" rel="noopener noreferrer">
+                <DropdownMenuItem
+                  asChild
+                  className={className}
+                  disabled={item.disabled}
+                >
+                  <a
+                    href={item.externalHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     {content}
                   </a>
                 </DropdownMenuItem>
               ) : (
-                <DropdownMenuItem className={className} disabled={item.disabled} onSelect={item.onSelect}>
+                <DropdownMenuItem
+                  className={className}
+                  disabled={item.disabled}
+                  onSelect={item.onSelect}
+                >
                   {content}
                 </DropdownMenuItem>
               )}

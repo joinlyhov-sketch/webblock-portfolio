@@ -4,10 +4,22 @@ import { cn } from "@/lib/utils";
 type Tone = "info" | "danger" | "neutral" | "success";
 
 const TONE = {
-  info: { box: "border-brand-soft bg-primary-soft", chip: "bg-brand-soft text-brand" },
-  danger: { box: "border-danger-soft bg-danger-soft/50", chip: "bg-danger-soft text-danger" },
-  neutral: { box: "border-border bg-surface", chip: "bg-neutral-soft text-muted-foreground" },
-  success: { box: "border-success-soft bg-success-soft/50", chip: "bg-success-soft text-success" },
+  info: {
+    box: "border-brand-soft bg-primary-soft",
+    chip: "bg-brand-soft text-brand",
+  },
+  danger: {
+    box: "border-danger-soft bg-danger-soft/50",
+    chip: "bg-danger-soft text-danger",
+  },
+  neutral: {
+    box: "border-border bg-surface",
+    chip: "bg-neutral-soft text-muted-foreground",
+  },
+  success: {
+    box: "border-success-soft bg-success-soft/50",
+    chip: "bg-success-soft text-success",
+  },
 } satisfies Record<Tone, { box: string; chip: string }>;
 
 /**
@@ -49,8 +61,17 @@ export function Callout({
         {icon}
       </span>
       <div className="min-w-0">
-        <p className={cn("text-foreground", description ? "text-[15px] font-semibold" : "text-[13px]")}>{title}</p>
-        {description && <p className="text-xs text-muted-foreground">{description}</p>}
+        <p
+          className={cn(
+            "text-foreground",
+            description ? "text-[15px] font-semibold" : "text-[13px]",
+          )}
+        >
+          {title}
+        </p>
+        {description && (
+          <p className="text-xs text-muted-foreground">{description}</p>
+        )}
       </div>
     </div>
   );

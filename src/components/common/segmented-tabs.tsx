@@ -12,11 +12,25 @@ export type SegmentedTab = {
 };
 
 /** Pill segmented tabs. Each tab is a link, so the active tab lives in the URL. */
-export function SegmentedTabs({ tabs, className }: { tabs: SegmentedTab[]; className?: string }) {
+export function SegmentedTabs({
+  tabs,
+  className,
+  size = "md",
+}: {
+  tabs: SegmentedTab[];
+  className?: string;
+  /** "sm" for table toolbars (13px). */
+  size?: "md" | "sm";
+}) {
   const pathname = usePathname();
 
   return (
-    <nav className={cn("mb-6 inline-flex rounded-full border border-border bg-surface p-1", className)}>
+    <nav
+      className={cn(
+        "mb-6 inline-flex rounded-full border border-border bg-surface p-1",
+        className,
+      )}
+    >
       {tabs.map((tab) => {
         const active = tab.active ?? pathname === tab.href;
         return (
@@ -26,7 +40,8 @@ export function SegmentedTabs({ tabs, className }: { tabs: SegmentedTab[]; class
             scroll={false}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
+              "rounded-full font-medium whitespace-nowrap transition-colors",
+              size === "sm" ? "px-3 py-[3px] text-xs" : "px-4 py-1.5 text-sm",
               active
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground",

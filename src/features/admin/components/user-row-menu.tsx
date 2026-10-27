@@ -30,9 +30,18 @@ export function UserRowMenu({
             ? {
                 label: "Reactivate user",
                 icon: <TickCircle />,
-                onSelect: () => run(() => reactivateUserAction(user.id), `${user.fullName} reactivated`),
+                onSelect: () =>
+                  run(
+                    () => reactivateUserAction(user.id),
+                    `${user.fullName} reactivated`,
+                  ),
               }
-            : { label: "Suspend user", icon: <Forbidden2 />, danger: true, onSelect: () => setConfirm(true) },
+            : {
+                label: "Suspend user",
+                icon: <Forbidden2 />,
+                danger: true,
+                onSelect: () => setConfirm(true),
+              },
         ]}
       />
       <ConfirmDialog
@@ -44,7 +53,11 @@ export function UserRowMenu({
         description="They won't be able to sign in or edit their websites. Their websites and data are kept, so you can reactivate them any time."
         confirmLabel="Suspend user"
         onConfirm={() =>
-          run(() => suspendUserAction(user.id), `${user.fullName} suspended`, () => setConfirm(false))
+          run(
+            () => suspendUserAction(user.id),
+            `${user.fullName} suspended`,
+            () => setConfirm(false),
+          )
         }
       />
     </>

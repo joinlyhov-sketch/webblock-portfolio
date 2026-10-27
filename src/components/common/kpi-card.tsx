@@ -2,19 +2,45 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-export type KpiTone = "brand" | "teal" | "success" | "danger" | "violet" | "warning";
+export type KpiTone =
+  "brand" | "teal" | "success" | "danger" | "violet" | "warning";
 
 const TONE = {
-  brand: { border: "border-brand", bar: "bg-brand", chip: "bg-brand-soft text-brand" },
-  teal: { border: "border-teal", bar: "bg-teal", chip: "bg-teal-soft text-teal" },
-  success: { border: "border-success", bar: "bg-success", chip: "bg-success-soft text-success" },
-  danger: { border: "border-danger", bar: "bg-danger", chip: "bg-danger-soft text-danger" },
-  violet: { border: "border-violet", bar: "bg-violet", chip: "bg-violet-soft text-violet" },
-  warning: { border: "border-warning", bar: "bg-warning", chip: "bg-warning-soft text-warning" },
-} satisfies Record<KpiTone, { border: string; bar: string; chip: string }>;
+  brand: {
+    hover: "hover:border-brand/40",
+    bar: "bg-brand",
+    chip: "bg-brand-soft text-brand",
+  },
+  teal: {
+    hover: "hover:border-teal/40",
+    bar: "bg-teal",
+    chip: "bg-teal-soft text-teal",
+  },
+  success: {
+    hover: "hover:border-success/40",
+    bar: "bg-success",
+    chip: "bg-success-soft text-success",
+  },
+  danger: {
+    hover: "hover:border-danger/40",
+    bar: "bg-danger",
+    chip: "bg-danger-soft text-danger",
+  },
+  violet: {
+    hover: "hover:border-violet/40",
+    bar: "bg-violet",
+    chip: "bg-violet-soft text-violet",
+  },
+  warning: {
+    hover: "hover:border-warning/40",
+    bar: "bg-warning",
+    chip: "bg-warning-soft text-warning",
+  },
+} satisfies Record<KpiTone, { hover: string; bar: string; chip: string }>;
 
 /**
- * Stat card (Figma "KPI card · admin"): coloured left bar, icon chip, label and a big value.
+ * Stat card (Figma "KPI card · admin"): label and icon chip on top, big value below,
+ * with a short coloured accent bar on the left edge.
  * With `href` the whole card is a link to the filtered list behind the number.
  *
  * @example
@@ -35,21 +61,35 @@ export function KpiCard({
 }) {
   const styles = TONE[tone];
   const className = cn(
-    "relative flex h-[174px] flex-col justify-between overflow-hidden rounded-[20px] border bg-background py-[22px] pr-[22px] pl-[30px] shadow-kpi",
-    styles.border,
-    href &&
-      "transition-[box-shadow,transform] duration-150 outline-none hover:shadow-card focus-visible:ring-3 focus-visible:ring-ring/40 motion-safe:hover:-translate-y-0.5",
+    "relative flex h-[128px] flex-col justify-between overflow-hidden rounded-2xl border border-border bg-background px-5 py-4 shadow-kpi",
+    href && [
+      "transition-[border-color,box-shadow,transform] duration-150 outline-none hover:shadow-card focus-visible:ring-3 focus-visible:ring-ring/40 motion-safe:hover:-translate-y-0.5",
+      styles.hover,
+    ],
   );
   const content = (
     <>
-      <span aria-hidden className={cn("absolute inset-y-0 left-0 w-1.5 opacity-85", styles.bar)} />
-      <span className="flex items-center gap-3">
-        <span className={cn("grid size-10 shrink-0 place-items-center rounded-full [&_svg]:size-5", styles.chip)}>
+      <span
+        aria-hidden
+        className={cn(
+          "absolute top-4 bottom-4 left-0 w-1 rounded-r-full",
+          styles.bar,
+        )}
+      />
+      <span className="flex items-start justify-between gap-3">
+        <span className="pt-1 text-sm leading-5 font-medium text-muted-foreground">
+          {label}
+        </span>
+        <span
+          className={cn(
+            "grid size-9 shrink-0 place-items-center rounded-xl [&_svg]:size-[18px]",
+            styles.chip,
+          )}
+        >
           {icon}
         </span>
-        <span className="text-[15px] font-medium text-foreground-soft">{label}</span>
       </span>
-      <span className="font-heading text-[34px] leading-[42px] font-bold tracking-[-0.56px] text-foreground tabular-nums">
+      <span className="font-heading text-[30px] leading-9 font-bold tracking-[-0.5px] text-foreground tabular-nums">
         {value}
       </span>
     </>
@@ -66,5 +106,9 @@ export function KpiCard({
 
 /** Row of KPI cards: 4 across on desktop, 2 on tablet, 1 on phones. */
 export function KpiGrid({ children }: { children: ReactNode }) {
-  return <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">{children}</div>;
+  return (
+    <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      {children}
+    </div>
+  );
 }
