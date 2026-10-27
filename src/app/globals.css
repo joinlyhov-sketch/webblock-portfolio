@@ -148,6 +148,25 @@
   --color-ultra-to: #5f3fbd;
   --color-logo-from: #6091e6;
   --color-logo-to: #3562b0;
+  /* "Current plan" card panels (Figma "Current plan card · by plan"): a metallic sweep with a bright band. */
+  --image-plan-panel-pro: linear-gradient(
+    47.168deg,
+    #8a5a12 10.99%,
+    #b3832a 46.099%,
+    #d9ae4a 60.923%,
+    #f1d58e 69.505%,
+    #d6aa45 78.087%,
+    #9c6b1a 89.01%
+  );
+  --image-plan-panel-ultra: linear-gradient(
+    47.168deg,
+    #4c1d95 10.99%,
+    #6d3fd6 46.099%,
+    #8d66ee 60.923%,
+    #c4adfa 69.505%,
+    #8f6cf0 78.087%,
+    #5b21b6 89.01%
+  );
 
   /* Template preview: device switcher, page gradient and device frames (Figma 08b) */
   --color-switcher: #e9eff9;
