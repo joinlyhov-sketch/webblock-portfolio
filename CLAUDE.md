@@ -92,3 +92,5 @@ Details and component usage: `.claude/rules/components.md`.
   - `feature/<name>` — one per feature, created from `dev`, short kebab-case name
     (e.g. `feature/products`, `feature/admin-users`) → pull request into `dev`.
 - Never edit `.claude/hooks/` to make a check pass; if a rule looks wrong, stop and ask.
+- Commits and pull requests carry no Claude attribution: no `Co-Authored-By: Claude` trailer, no
+  "Generated with Claude Code" line, no session link (also turned off in `.claude/settings.json` `attribution`).
