@@ -203,6 +203,25 @@
   --color-success-soft: #e6f5ec;
   --color-warning: #d97706;
   --color-warning-soft: #fdf1e0;
+
+  /* Admin portal: chart segments, info state, plan tones */
+  --color-danger-muted: #eba3a3; /* chart segment next to danger */
+  --color-chart-red: #d4736b;
+  --color-chart-pink: #ebaaa6;
+  --color-chart-yellow: #e9c45e;
+  --color-chart-blue: #7fa6e6;
+  --color-info: #3c78cf; /* in-progress states: deploying, updating */
+  --color-info-soft: #e3eefc;
+  --color-neutral-soft: #eef2f7; /* not deployed, free trial */
+  --color-teal: #0f8a86;
+  --color-teal-soft: #dff4f2;
+  --color-violet: #6d3fd6;
+  --color-violet-soft: #f1ecfd;
+  --color-gold: #9c6b1a;
+  --color-gold-soft: #fbf3e0;
+  --color-gold-strong: #b8862b; /* Pro plan filled button */
+  --shadow-kpi: 0 8px 24px rgb(31 51 102 / 0.06);
+  --shadow-popover: 0 12px 32px rgb(31 51 102 / 0.14);
   --color-danger: #cc3d3d;
   --color-danger-soft: #fce8e8;
   --color-destructive: #cc3d3d;
@@ -293,6 +312,7 @@
   --animate-row-in: row-in 240ms ease-out both;
   --animate-modal-in: modal-in 180ms ease-out;
   --animate-pop-in: pop-in 140ms ease-out;
+  --animate-pop-out: pop-out 150ms ease-in forwards;
   --animate-accordion-down: accordion-down 200ms ease-out;
   --animate-accordion-up: accordion-up 200ms ease-out;
   --animate-fade-in: fade-in 200ms ease-out; /* overlays (Sheet backdrop) */
@@ -401,6 +421,17 @@
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  @keyframes pop-out {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.96);
     }
   }
 

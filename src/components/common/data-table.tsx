@@ -43,19 +43,29 @@ type DataTableProps<T> = {
   heading?: ReactNode;
   /** Search, filters and actions shown above the table. */
   toolbar?: ReactNode;
-  /** Shown when there are no items at all (use `EmptyState` when it exists). */
+  /** Shown when there are no items at all (use `EmptyState`). */
   empty?: ReactNode;
   /** Sort applied when the URL has none; its header shows as active. */
   defaultSort?: TableQuery["sort"];
+  /** `false` for a short preview table (e.g. a dashboard widget): no pagination footer. */
+  footer?: boolean;
+  /** Smallest table width, e.g. "min-w-[960px]". Narrower screens scroll the table sideways. */
+  minWidth?: string;
+  /** Extra row classes, e.g. "relative cursor-pointer" for rows with a stretched link. */
+  rowClassName?: string;
+  /** Stretch to the bottom of a flex-column parent (the Admin `<main>`), never shorter than 420px. */
+  fill?: boolean;
+  /** Denser rows and smaller text (Admin Portal): 48px rows, 12px text, 34px header. */
+  compact?: boolean;
   className?: string;
 };
 
 /**
  * Every list screen's table ("Draft table style"): "No." first column, sortable headers,
  * pinned footer with "Showing …" + pagination. Only real rows are drawn (no empty filler rows). The card
- * takes the height its parent gives it (e.g. `flex-1`), whatever the row count: spare room stays blank
- * above the footer, and when there are too many rows only the rows scroll while the toolbar, the column
- * headers and the footer stay in place.
+ * takes the height its parent gives it (e.g. `flex-1` or `fill`), whatever the row count: spare room stays
+ * blank above the footer, and when there are too many rows only the rows scroll while the toolbar, the
+ * column headers and the footer stay in place.
  * A Server Component — page, size and sort live in the URL (see `lib/table-query`).
  *
  * @example
@@ -82,6 +92,11 @@ export function DataTable<T>({
   toolbar,
   empty,
   defaultSort,
+  footer = true,
+  minWidth,
+  rowClassName,
+  fill = false,
+  compact = false,
   className,
 }: DataTableProps<T>) {
   const { sort } = parseTableQuery(searchParams, { sort: defaultSort });
@@ -93,15 +108,36 @@ export function DataTable<T>({
     <section
       className={cn(
         "flex min-h-0 flex-col overflow-hidden rounded-[20px] border border-border bg-background shadow-table",
+        fill && "min-h-[420px] flex-1",
         className,
       )}
     >
       {heading && <div className="shrink-0 px-4 pt-5 pb-1">{heading}</div>}
       {toolbar && (
-        <div className="flex shrink-0 flex-wrap items-center gap-2.5 border-b border-border px-4 py-3.5">{toolbar}</div>
+        <div
+          className={cn(
+            "flex shrink-0 flex-wrap items-center gap-2.5 border-b border-border px-4",
+            compact ? "py-2.5 [&_button]:h-8 [&_button]:text-xs [&_input]:h-8 [&_input]:text-xs" : "py-3.5",
+          )}
+        >
+          {toolbar}
+        </div>
       )}
 
-      <Table aria-label={label} containerClassName="min-h-0 grow">
+      <Table
+        aria-label={label}
+        containerClassName={cn("min-h-0 grow", fill && "overscroll-contain")}
+        className={cn(
+          minWidth,
+          compact &&
+            cn(
+              "text-xs [&_td]:h-12 [&_td]:py-1.5 [&_th]:h-[34px] [&_th]:text-[11px] [&_td_.text-xs]:text-[11px]",
+              // Smaller badges, avatars and thumbnails inside rows.
+              "[&_[data-badge]]:h-5 [&_[data-badge]]:px-1.5 [&_[data-badge]]:text-[11px] [&_[data-badge]_svg]:size-3",
+              "[&_[data-avatar]]:size-7 [&_[data-avatar]]:text-[10px] [&_[data-thumb]]:size-7",
+            ),
+        )}
+      >
         <TableHeader className="sticky top-0 z-10 shadow-[inset_0_-1px_0_var(--color-border)]">
           <TableRow className="border-0">
             <TableHead className="h-auto w-[77px] py-3 pr-0 pl-[21px] leading-normal">No.</TableHead>
@@ -134,7 +170,7 @@ export function DataTable<T>({
             {data.items.map((row, i) => (
               <TableRow
                 key={rowKey(row)}
-                className="hover:bg-muted/70 motion-safe:animate-row-in"
+                className={cn("hover:bg-muted/70 motion-safe:animate-row-in", rowClassName)}
                 style={{ animationDelay: `${i * 25}ms` }}
               >
                 <TableCell className="pr-0 pl-[21px] tabular-nums">{offset + i + 1}</TableCell>
@@ -162,20 +198,24 @@ export function DataTable<T>({
         )}
       </Table>
 
+      {/* Outside the (possibly wider-than-screen) table, so it stays centred in the visible area. */}
       {noItems && (
-        <div className="flex min-h-[300px] flex-1 items-center justify-center">
+        <div className="flex min-h-[300px] flex-1 items-center justify-center px-6 py-10 text-center">
           {empty ?? <p className="text-muted-foreground">No {itemLabel} yet.</p>}
         </div>
       )}
 
-      <div className="shrink-0 border-t border-border">
-        <TablePagination
-          data={data}
-          searchParams={searchParams}
-          itemLabel={itemLabel}
-          itemLabelOne={itemLabelOne}
-        />
-      </div>
+      {footer && (
+        <div
+          className={cn(
+            "shrink-0 border-t border-border",
+            // Compact footer: smaller "Showing …" text and page buttons.
+            compact && "[&_a]:h-7 [&_a]:min-w-7 [&_a]:text-xs [&_p]:text-xs [&_span]:text-xs [&>div]:py-2",
+          )}
+        >
+          <TablePagination data={data} searchParams={searchParams} itemLabel={itemLabel} itemLabelOne={itemLabelOne} />
+        </div>
+      )}
     </section>
   );
 }

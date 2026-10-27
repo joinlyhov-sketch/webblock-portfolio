@@ -22,7 +22,9 @@ function show(variant: Variant, title: string, message?: string) {
       <span aria-hidden className={cn("w-1 shrink-0", styles.bar)} />
       <div className="flex-1 px-4 py-3">
         <p className={cn("text-sm font-semibold", styles.title)}>{title}</p>
-        {message && <p className="mt-0.5 text-sm text-muted-foreground">{message}</p>}
+        {message && (
+          <p className="mt-0.5 text-sm text-muted-foreground">{message}</p>
+        )}
       </div>
       <button
         type="button"

@@ -1,5 +1,6 @@
 // Sidebar items. No count badges.
 
+/** Icon names, mapped to iconsax icons in components/layout/sidebar-nav.tsx. */
 export type NavIcon =
   | "websites"
   | "templates"
@@ -7,15 +8,20 @@ export type NavIcon =
   | "support"
   | "products"
   | "business"
-  | "monitor";
+  | "monitor"
+  | "overview"
+  | "users"
+  | "subscriptions"
+  | "monitoring";
 
 export type NavItem = {
   label: string;
   href: string;
-  /** Icon shown in the user and owner sidebars. The admin sidebar is text only. */
-  icon?: NavIcon;
   /** Only active on this exact path (for section roots like /admin). */
   exact?: boolean;
+  icon?: NavIcon;
+  /** Sub-pages shown under the item; the item itself is then a group toggle, not a link. */
+  children?: NavItem[];
 };
 
 export const userNav: NavItem[] = [
@@ -34,13 +40,19 @@ export function ownerNav(websiteId: string): NavItem[] {
   ];
 }
 
+// Notifications open from the header bell; plans are managed from Subscriptions.
 export const adminNav: NavItem[] = [
-  { label: "Overview", href: "/admin", exact: true },
-  { label: "Users", href: "/admin/users" },
-  { label: "Websites", href: "/admin/websites" },
-  { label: "Subscriptions", href: "/admin/subscriptions" },
-  { label: "Plans", href: "/admin/plans" },
-  { label: "Notifications", href: "/admin/notifications" },
-  { label: "Pipeline", href: "/admin/monitoring/pipeline" },
-  { label: "Activity", href: "/admin/monitoring/activity" },
+  { label: "Overview", href: "/admin", exact: true, icon: "overview" },
+  { label: "User Accounts", href: "/admin/users", icon: "users" },
+  { label: "User Websites", href: "/admin/websites", icon: "websites" },
+  { label: "Subscriptions", href: "/admin/subscriptions", icon: "subscriptions" },
+  {
+    label: "Monitoring",
+    href: "/admin/monitoring",
+    icon: "monitoring",
+    children: [
+      { label: "Pipeline & Generation", href: "/admin/monitoring/pipeline" },
+      { label: "Activity Log", href: "/admin/monitoring/activity" },
+    ],
+  },
 ];

@@ -34,6 +34,12 @@ Check `components/common/` first. Never create a second badge, modal, table, toa
   coloured title, message, close ✕, slides in from the right). Use toasts only when needed.
 - Tabs → `SegmentedTabs` (pill segmented style). Charts → `common/charts` (wraps recharts).
 - Images → `ProductImage` (4:3, handles `null`).
+- Plans → `PlanBadge` / `planLabel` (`common/plan-badge`). Stat cards → `KpiCard` in a `KpiGrid`.
+- Row "⋯" menus → `ActionMenu`; "Are you sure?" → `ConfirmDialog`; toolbar dropdown filters → `FilterMenu`;
+  toolbar search → `TableSearch` (GET form, `?q=`). Panels → `Card` + `CardHeader`; label/value rows → `DetailList`.
+- People → `Avatar` (initials when no photo); website previews → `Thumbnail`. Notices → `Callout`.
+  Empty lists → `EmptyState` (pass it to `DataTable`'s `empty`).
+- Admin row details are URL-driven popups: link to `?user=<id>` and render `<Modal closeHref=…>`.
 
 ## Tokens (defined once in `src/app/globals.css` `@theme`)
 - Fonts: Familjen Grotesk (headings), DM Sans (body), loaded with `next/font/google`.
