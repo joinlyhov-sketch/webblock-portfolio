@@ -3,7 +3,7 @@
 /*
  * Design tokens (from Figma "Local WebBlock UI"). Components use these via Tailwind classes — never raw hex.
  * Names follow shadcn/ui (background, foreground, muted, muted-foreground, input, ring, destructive…)
- * so components added with `npx shadcn add` pick them up without edits.
+ * so components added with `pnpm dlx shadcn add` pick them up without edits.
  */
 @theme {
   /* Surfaces & text */
