@@ -3,6 +3,7 @@
 import type { ActionResult } from "@/lib/actions/result";
 import {
   createWebsite,
+  deleteWebsite,
   suspendWebsite,
   listBusinessTypes,
   listWebsites,
@@ -134,6 +135,16 @@ export async function reactivate(websiteId: string): Promise<ActionResult> {
   try {
     const website = await reactivateWebsite(websiteId);
     return { ok: true, data: undefined, message: `${website.name} is live again` };
+  } catch (e) {
+    if (e instanceof ApiError) return { ok: false, message: e.message };
+    throw e;
+  }
+}
+
+export async function remove(websiteId: string): Promise<ActionResult> {
+  try {
+    await deleteWebsite(websiteId);
+    return { ok: true, data: undefined, message: "Website deleted" };
   } catch (e) {
     if (e instanceof ApiError) return { ok: false, message: e.message };
     throw e;

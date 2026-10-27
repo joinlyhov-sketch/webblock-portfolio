@@ -1,4 +1,4 @@
-export { getPageData, getPublishedPage, listMedia } from "./api";
+export { getMediaFile, getPageData, getPublishedPage, listMedia } from "./api";
 export { DeployButton } from "./components/preview/deploy-button";
 export { PreviewShell } from "./components/preview/preview-shell";
 export { SiteRenderer } from "./components/site-renderer";

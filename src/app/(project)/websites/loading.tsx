@@ -8,7 +8,7 @@ export default function WebsitesLoading() {
         <div className="h-11 w-[420px] animate-pulse rounded-full bg-segment-track" />
         <div className="h-11 w-[360px] animate-pulse rounded-full bg-muted" />
       </div>
-      <div className="grid gap-[15px] sm:grid-cols-2 lg:grid-cols-3 min-[1440px]:grid-cols-4">
+      <div className="grid gap-[15px] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {Array.from({ length: 4 }, (_, i) => (
           <div key={i} className="h-[364px] animate-pulse rounded-[20px] bg-muted" />
         ))}

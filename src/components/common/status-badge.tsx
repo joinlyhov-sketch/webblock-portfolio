@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
-import { CloseCircle, Edit2, Global, PauseCircle, TickCircle } from "iconsax-reactjs";
+import { CloseCircle, Edit2, Global, InfoCircle, PauseCircle, TickCircle } from "iconsax-reactjs";
 import type { OrderStatus } from "@/features/account";
 import type { WebsiteStatus } from "@/features/websites";
 import { cn } from "@/lib/utils";
 
-export type BadgeStatus = WebsiteStatus | OrderStatus;
+/** `UNSAVED`: the editor has changes that are not saved as a draft yet. */
+export type BadgeStatus = WebsiteStatus | OrderStatus | "UNSAVED";
 
 type StatusMeta = { label: string; icon: ReactNode; className: string };
 
@@ -18,6 +19,7 @@ const statusMeta = {
   },
   PAID: { label: "Paid", icon: <TickCircle />, className: "bg-success-soft text-success" },
   EXPIRED: { label: "Expired", icon: <CloseCircle />, className: "bg-danger-soft text-danger" },
+  UNSAVED: { label: "Unsaved changes", icon: <InfoCircle />, className: "bg-warning-soft text-warning" },
 } satisfies Record<BadgeStatus, StatusMeta>;
 
 /** Every status in the app: light tint pill with an icon (Figma "Status badge"). */

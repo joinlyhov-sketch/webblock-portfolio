@@ -5,6 +5,7 @@ import { requireUser, requireWebsiteOwner } from "@/lib/auth/session";
 import {
   createWebsiteFromTemplate,
   reactivate,
+  remove,
   suspend,
 } from "./service";
 import type { ActionResult } from "@/lib/actions/result";
@@ -16,6 +17,14 @@ export async function createWebsiteFromTemplateAction(
 ): Promise<ActionResult<{ id: string }>> {
   const user = await requireUser();
   const result = await createWebsiteFromTemplate(user.id, templateId, formData);
+  if (result.ok) revalidatePath("/websites");
+  return result;
+}
+
+/** "…" menu → Delete website (drafts only; the API refuses anything else). */
+export async function deleteWebsiteAction(websiteId: string): Promise<ActionResult> {
+  await requireWebsiteOwner(websiteId);
+  const result = await remove(websiteId);
   if (result.ok) revalidatePath("/websites");
   return result;
 }

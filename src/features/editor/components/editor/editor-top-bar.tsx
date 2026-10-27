@@ -1,8 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, ArrowRotateLeft as Undo, ArrowRotateRight as Redo, Export, Eye, Send2 as Rocket } from "iconsax-reactjs";
-import { StatusBadge, type StatusMeta } from "@/components/common/status-badge";
+import {
+  ArrowLeft,
+  ArrowRotateLeft as Undo,
+  ArrowRotateRight as Redo,
+  Export,
+  ExportSquare,
+  Eye,
+  Global,
+  Send2 as Rocket,
+} from "iconsax-reactjs";
+import { StatusBadge, type BadgeStatus } from "@/components/common/status-badge";
 import { Button } from "@/components/ui/button";
 import { DeviceSwitcher, type Device } from "../preview/devices";
 import { useEditorPuck } from "./use-editor-puck";
@@ -10,14 +19,20 @@ import { useEditorPuck } from "./use-editor-puck";
 export type SaveState = "draft" | "live" | "unsaved";
 
 const SAVE_STATE = {
-  draft: { label: "Draft · not deployed yet", tone: "neutral" },
-  live: { label: "Live", tone: "success" },
-  unsaved: { label: "Unsaved changes", tone: "warning" },
-} satisfies Record<SaveState, StatusMeta>;
+  draft: "DRAFT",
+  live: "LIVE",
+  unsaved: "UNSAVED",
+} satisfies Record<SaveState, BadgeStatus>;
 
-/** Figma "Editor top bar": site info + status, undo/redo, device toggle, Save draft / Preview / Deploy. */
+/**
+ * Figma "Editor top bar": site info + status, undo/redo, device toggle, Save draft / Preview / Deploy.
+ * A website that has been deployed (`portalHref` set, Figma "17 Editor (live)") also shows its address
+ * and a Portal button.
+ */
 export function EditorTopBar({
   siteName,
+  domain,
+  portalHref,
   saveState,
   device,
   onDeviceChange,
@@ -28,6 +43,9 @@ export function EditorTopBar({
   busy,
 }: {
   siteName: string;
+  domain: string | null;
+  /** Owner Portal link, only for live and suspended websites. */
+  portalHref: string | null;
   saveState: SaveState;
   device: Device;
   onDeviceChange: (device: Device) => void;
@@ -54,9 +72,16 @@ export function EditorTopBar({
       </span>
       <div className="min-w-0">
         <p className="truncate text-[13px] leading-[19.5px] font-semibold text-foreground">{siteName}</p>
-        <p className="text-xs leading-[18px] text-muted-foreground">Home page</p>
+        {portalHref && domain ? (
+          <p className="flex items-center gap-1 text-xs leading-[18px] text-muted-foreground">
+            <Global aria-hidden className="size-[11px] shrink-0" />
+            <span className="truncate">{domain}</span>
+          </p>
+        ) : (
+          <p className="text-xs leading-[18px] text-muted-foreground">Home page</p>
+        )}
       </div>
-      <StatusBadge {...SAVE_STATE[saveState]} className="hidden xl:inline-flex" />
+      <StatusBadge status={SAVE_STATE[saveState]} className="hidden xl:inline-flex" />
 
       <div className="flex-1" />
       <div className="flex gap-1">
@@ -77,9 +102,19 @@ export function EditorTopBar({
       <DeviceSwitcher value={device} onChange={onDeviceChange} />
       <div className="flex-1" />
 
-      <Button variant="secondary" onClick={onSave} loading={busy === "save"} disabled={busy !== null}>
+      <Button variant={portalHref ? "ghost" : "secondary"} onClick={onSave} loading={busy === "save"} disabled={busy !== null}>
         {busy !== "save" && <Export />} Save draft
       </Button>
+      {portalHref && (
+        <>
+          <span aria-hidden className="h-7 w-px shrink-0 bg-border" />
+          <Button asChild variant="secondary">
+            <Link href={portalHref} onClick={onBack}>
+              <ExportSquare /> Portal
+            </Link>
+          </Button>
+        </>
+      )}
       <Button variant="secondary" onClick={onPreview} loading={busy === "preview"} disabled={busy !== null}>
         {busy !== "preview" && <Eye />} Preview
       </Button>

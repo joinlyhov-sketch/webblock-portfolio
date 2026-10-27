@@ -10,7 +10,7 @@ const DEVICE_LABEL = { desktop: "Desktop", tablet: "Tablet", mobile: "Mobile" } 
  * "sugarandcrumb.webblock.com · Desktop 1280 · 100%"). The site uses container queries, so it
  * responds to this width rather than the browser window.
  */
-export function EditorCanvas({ device, domain }: { device: Device; domain: string }) {
+export function EditorCanvas({ device, domain }: { device: Device; domain: string | null }) {
   const width = DEVICE_WIDTH[device];
   const { ref, zoom } = useFitZoom<HTMLDivElement>(width);
 
@@ -18,7 +18,7 @@ export function EditorCanvas({ device, domain }: { device: Device; domain: strin
     <div ref={ref} className="bg-dot-grid relative flex min-w-0 flex-1 flex-col items-center overflow-y-auto rounded-[20px] px-6 pt-4 pb-10">
       <div className="flex w-full items-center justify-between pb-2 text-xs text-muted-foreground" style={{ maxWidth: width * zoom }}>
         <span className="truncate">
-          {domain} · {DEVICE_LABEL[device]} {width}
+          {domain ?? "Not deployed yet"} · {DEVICE_LABEL[device]} {width}
         </span>
         <span className="tabular-nums">{Math.round(zoom * 100)}%</span>
       </div>

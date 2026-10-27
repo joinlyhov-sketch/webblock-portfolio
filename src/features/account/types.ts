@@ -41,6 +41,32 @@ export type Subscription = {
   includes: string[];
 };
 
+/**
+ * Whether the user may deploy a website right now (GET /me/deploy-access?websiteId=).
+ * The backend decides; the screens only show the answer.
+ * - FIRST_FREE_DEPLOY: free trial, the one deploy that costs nothing.
+ * - WITHIN_PLAN: paid plan with room left in its limits.
+ * - SUBSCRIPTION_REQUIRED: free trial already used its deploy: pick a plan.
+ * - PLAN_EXPIRED: a paid plan that was not renewed: renew it.
+ * - WEBSITE_LIMIT / REDEPLOY_LIMIT: the paid plan's website or monthly redeploy limit is reached.
+ */
+export type DeployReason =
+  | "FIRST_FREE_DEPLOY"
+  | "WITHIN_PLAN"
+  | "SUBSCRIPTION_REQUIRED"
+  | "PLAN_EXPIRED"
+  | "WEBSITE_LIMIT"
+  | "REDEPLOY_LIMIT";
+
+export type DeployAccess = {
+  allowed: boolean;
+  reason: DeployReason;
+  plan: PlanCode;
+  planName: string;
+  /** True when this website was never deployed, so the deploy would add a website. */
+  firstDeploy: boolean;
+};
+
 export type OrderStatus = "PAID" | "EXPIRED";
 
 export type PlanOrder = {

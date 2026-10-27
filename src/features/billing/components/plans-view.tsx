@@ -22,7 +22,7 @@ export function PlansView({ view }: { view: PlansData }) {
     view.from === "settings" || paid
       ? { href: "/settings/billing", label: "Back to settings" }
       : view.variant === "deploy"
-        ? { href: "/websites", label: "Back to editor" }
+        ? { href: view.websiteId ? `/websites/${view.websiteId}/edit` : "/websites", label: "Back to editor" }
         : { href: "/websites", label: "Back to dashboard" };
 
   const title = `Choose a plan for ${view.websiteName}`;
@@ -125,6 +125,7 @@ function TierCard({ plan, view }: { plan: BillingPlan; view: PlansData }) {
         price={plan.monthlyPrice}
         mode={mode}
         from={view.from}
+        forWebsite={view.websiteId ?? undefined}
         label={current ? `Renew ${plan.name}` : `Choose ${plan.name}`}
         className={cn("h-[46px] w-full rounded-3xl text-[15px] font-medium text-primary-foreground", theme.cta)}
       />

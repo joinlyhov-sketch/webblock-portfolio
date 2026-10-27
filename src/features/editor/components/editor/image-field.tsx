@@ -2,13 +2,18 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Gallery, GalleryEdit, Trash } from "iconsax-reactjs";
+import { Export, Gallery, GalleryEdit, Trash } from "iconsax-reactjs";
+import { toast } from "@/components/common/toast";
+import { UploadImageModal } from "@/components/common/upload-image-modal";
 import { Button } from "@/components/ui/button";
+import { SITE_IMAGE_RULE } from "@/lib/image-rules";
 import { cn } from "@/lib/utils";
+import { uploadMediaAction } from "../../actions";
 import { useMedia } from "./editor-context";
 
 /**
- * Figma "Content · Image": thumbnail + file name, "Replace image" (pick from the library) and remove.
+ * Figma "Content · Image": thumbnail + file name, "Replace image" (pick from the library),
+ * "Upload" (a file from the owner's computer) and remove.
  * Used as a Puck custom field, so it also works inside product rows.
  */
 export function ImageField({
@@ -22,9 +27,25 @@ export function ImageField({
   onChange: (value: string | null) => void;
   readOnly?: boolean;
 }) {
-  const media = useMedia();
+  const { websiteId, media, addMedia } = useMedia();
   const [picking, setPicking] = useState(false);
-  const name = value?.split("/").pop() ?? "No image";
+  const [uploading, setUploading] = useState(false);
+  // Uploaded images live at /api/mock-media/<id>, so show the original file name from the library.
+  const name = media.find((asset) => asset.url === value)?.name ?? value?.split("/").pop() ?? "No image";
+
+  async function upload(file: File): Promise<boolean> {
+    const formData = new FormData();
+    formData.set("image", file);
+    const result = await uploadMediaAction(websiteId, formData);
+    if (!result.ok) {
+      toast.error("Couldn't upload image", result.message);
+      return false;
+    }
+    addMedia(result.data);
+    onChange(result.data.url);
+    setPicking(false);
+    return true;
+  }
 
   return (
     <div className="flex flex-col gap-2.5">
@@ -53,6 +74,9 @@ export function ImageField({
           onClick={() => setPicking((open) => !open)}
         >
           <GalleryEdit /> Replace image
+        </Button>
+        <Button variant="secondary" size="sm" disabled={readOnly} onClick={() => setUploading(true)}>
+          <Export /> Upload
         </Button>
         <Button
           variant="secondary"
@@ -93,6 +117,8 @@ export function ImageField({
           ))}
         </div>
       )}
+
+      <UploadImageModal open={uploading} onClose={() => setUploading(false)} rule={SITE_IMAGE_RULE} onUpload={upload} />
     </div>
   );
 }

@@ -13,7 +13,8 @@ export default async function EditPage({ params }: { params: Promise<{ websiteId
     <WebsiteEditor
       websiteId={websiteId}
       siteName={website.name}
-      domain={`${website.subdomain}.webblock.com`}
+      domain={website.domain}
+      status={website.status}
       page={page}
       media={media.items}
     />

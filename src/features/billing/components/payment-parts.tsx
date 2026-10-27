@@ -1,7 +1,9 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { Check, Clock, Crown, Global, Lock1, Refresh2, ShieldTick } from "iconsax-reactjs";
 import { formatDayMonthYear, formatDayMonthYearTime, formatPrice } from "@/lib/format";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { PaidPlanCode, PaymentOrder } from "../types";
 import { RegenerateCodeButton } from "./regenerate-code-button";
@@ -256,6 +258,11 @@ export function PaymentSuccessPanel({ order }: { order: PaymentOrder }) {
         <p className="flex items-center gap-2 text-xs leading-[18px] text-success">
           <Check aria-hidden className="size-3.5" /> Payment confirmed · setting up your plan…
         </p>
+        {order.websiteId && (
+          <Button asChild>
+            <Link href={`/websites/${order.websiteId}/edit`}>Back to editor to deploy {order.websiteName}</Link>
+          </Button>
+        )}
       </div>
       <p className="flex items-center gap-2.5 rounded-[20px] px-3.5 py-3 text-xs leading-[18px] text-muted-foreground">
         <Lock1 aria-hidden className="size-[14px] shrink-0" />

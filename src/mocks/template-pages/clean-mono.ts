@@ -40,6 +40,9 @@ export const cleanMonoPage: PageData = {
       instagramUrl: "https://instagram.com/northpointaudio",
       currency: "USD",
       palette: "original",
+      accentColor: null,
+      backgroundColor: null,
+      textColor: null,
       font: "original",
       buttonStyle: "square",
     },
@@ -98,8 +101,7 @@ export const cleanMonoPage: PageData = {
       props: {
         id: "clean-mono-about",
         eyebrow: "04 — ABOUT THE STORE",
-        heading:
-          "We're a small audio shop with a listening bar. Bring your own music, try anything on the wall, and take your time — nobody will hover.",
+        heading: "A small audio shop with a listening bar. Take your time — nobody will hover.",
         body: "",
         imageUrl: `${IMG}/listening-bar.webp`,
         caption: "THE LISTENING BAR — FLOOR 2, SORYA CENTER",

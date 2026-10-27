@@ -30,12 +30,24 @@ export type PlansView = {
   currentPrice: string | null;
   daysLeft: number;
   websiteName: string;
+  /** Website being deployed when the owner was sent here from Deploy, else `null`. */
+  websiteId: string | null;
   /** "settings" when the user came from Settings → Billing. */
   from: string;
 };
 
 function first(value: string | string[] | undefined): string {
   return (Array.isArray(value) ? value[0] : value) ?? "";
+}
+
+/** The website the owner is paying for: the one they were deploying (`chosen`), else their main one. */
+async function websiteFor(userId: string, chosen: string | null | undefined): Promise<Website | null> {
+  if (chosen) {
+    const mine = await listWebsites(userId);
+    const match = mine.items.find((w) => w.id === chosen);
+    if (match) return match;
+  }
+  return primaryWebsite(userId);
 }
 
 async function primaryWebsite(userId: string): Promise<Website | null> {
@@ -57,7 +69,7 @@ export async function getPlansView(
   const [plans, subscription, website] = await Promise.all([
     listPlans(),
     getSubscription(userId),
-    primaryWebsite(userId),
+    websiteFor(userId, first(searchParams.website)),
   ]);
   const paid = subscription.renewsAt !== null;
   const variant: PlansVariant = paid ? "change" : first(searchParams.from) === "deploy" ? "deploy" : "dashboard";
@@ -69,6 +81,7 @@ export async function getPlansView(
     currentPrice: subscription.monthlyPrice,
     daysLeft: daysUntil(subscription.renewsAt ?? subscription.trialEndsAt),
     websiteName: website?.name ?? "your website",
+    websiteId: variant === "deploy" || first(searchParams.from) === "deploy" ? (website?.id ?? null) : null,
     from: first(searchParams.from) === "settings" ? "settings" : "",
   };
 }
@@ -78,11 +91,15 @@ function isPaidPlan(value: string): value is PaidPlanCode {
 }
 
 /** Creates the payment for a plan and returns its id so the caller can open the payment page. */
-export async function startPayment(userId: string, planCode: string): Promise<ActionResult<{ orderId: string }>> {
+export async function startPayment(
+  userId: string,
+  planCode: string,
+  forWebsite?: string,
+): Promise<ActionResult<{ orderId: string }>> {
   if (!isPaidPlan(planCode)) return { ok: false, message: "Choose Plus, Pro or Ultra." };
   try {
-    const [subscription, website] = await Promise.all([getSubscription(userId), primaryWebsite(userId)]);
-    return createFor(userId, planCode, subscription, website);
+    const [subscription, website] = await Promise.all([getSubscription(userId), websiteFor(userId, forWebsite)]);
+    return createFor(userId, planCode, subscription, website, forWebsite ? (website?.id ?? null) : null);
   } catch (e) {
     if (e instanceof ApiError) return { ok: false, message: e.message };
     throw e;
@@ -94,11 +111,13 @@ async function createFor(
   plan: PaidPlanCode,
   subscription: Subscription,
   website: Website | null,
+  deployingId: string | null,
 ): Promise<ActionResult<{ orderId: string }>> {
   const name = website?.name ?? "Your website";
   const order = await createPayment(userId, {
     plan,
     kind: subscription.renewsAt === null ? "SUBSCRIBE" : subscription.plan === plan ? "RENEW" : "CHANGE",
+    websiteId: deployingId,
     websiteName: name,
     websiteDomain: website?.domain ?? `${slug(name)}.webblock.com`,
     websiteImageUrl: name === "Petal & Stem" || !website ? PETAL_IMAGE : website.thumbnailUrl,
@@ -111,8 +130,8 @@ export async function regeneratePayment(userId: string, orderId: string): Promis
   try {
     const old = await getPayment(userId, orderId);
     if (old.status === "PAID") return { ok: true, data: { orderId: old.id } };
-    const [subscription, website] = await Promise.all([getSubscription(userId), primaryWebsite(userId)]);
-    return createFor(userId, old.plan, subscription, website);
+    const [subscription, website] = await Promise.all([getSubscription(userId), websiteFor(userId, old.websiteId)]);
+    return createFor(userId, old.plan, subscription, website, old.websiteId);
   } catch (e) {
     if (e instanceof ApiError) return { ok: false, message: e.message };
     throw e;

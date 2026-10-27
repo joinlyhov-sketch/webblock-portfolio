@@ -25,3 +25,10 @@ export function checkImage(file: File, rule: ImageRule): string | null {
   if (file.size > rule.maxBytes) return `That file is too large. Use ${rule.label}.`;
   return null;
 }
+
+/** Photos the owner places on their website (hero, products, about). */
+export const SITE_IMAGE_RULE: ImageRule = {
+  maxBytes: 5 * 1024 * 1024,
+  types: ["image/png", "image/jpeg", "image/webp"],
+  label: "PNG, JPG or WebP up to 5 MB",
+};

@@ -10,7 +10,8 @@ import {
   profiles as seed,
   subscriptions as subscriptionsSeed,
 } from "@/mocks/account";
-import type { OrderStatus, PlanCode, PlanOrder, Profile, Subscription } from "./types";
+import { websitePages } from "@/mocks/website-pages";
+import type { DeployAccess, DeployReason, OrderStatus, PlanCode, PlanOrder, Profile, Subscription } from "./types";
 import type { PaidPlanCode } from "@/features/billing/types";
 
 const globalForStore = globalThis as typeof globalThis & {
@@ -77,6 +78,57 @@ export async function getSubscription(userId: string): Promise<Subscription> {
     throw new ApiError({ title: "No subscription", status: 404, detail: "This account has no plan yet." });
   }
   return subscription;
+}
+
+function usageOf(subscription: Subscription, key: string) {
+  return subscription.usage.find((u) => u.key === key);
+}
+
+/**
+ * GET /me/deploy-access?websiteId= — can this user deploy this website now?
+ * Free trial: one free deploy, then a plan is required. Paid plans: a website that was never
+ * deployed counts against the website limit, a website that is already live against the
+ * monthly redeploy limit. Spring applies the same rules inside the publish call.
+ */
+export async function getDeployAccess(userId: string, websiteId: string): Promise<DeployAccess> {
+  const subscription = await getSubscription(userId);
+  const firstDeploy = !websitePages.find((p) => p.websiteId === websiteId)?.published;
+  const trial = subscription.renewsAt === null;
+
+  let reason: DeployReason;
+  if (trial) {
+    const deploys = usageOf(subscription, "deploys");
+    reason = firstDeploy && (deploys?.used ?? 0) < (deploys?.limit ?? 1) ? "FIRST_FREE_DEPLOY" : "SUBSCRIPTION_REQUIRED";
+  } else if (new Date(subscription.renewsAt as string).getTime() < Date.now()) {
+    reason = "PLAN_EXPIRED";
+  } else {
+    const metric = usageOf(subscription, firstDeploy ? "websites" : "redeploys");
+    const full = metric !== undefined && metric.used >= metric.limit;
+    reason = full ? (firstDeploy ? "WEBSITE_LIMIT" : "REDEPLOY_LIMIT") : "WITHIN_PLAN";
+  }
+  return {
+    allowed: reason === "FIRST_FREE_DEPLOY" || reason === "WITHIN_PLAN",
+    reason,
+    plan: subscription.plan,
+    planName: subscription.planName,
+    firstDeploy,
+  };
+}
+
+/**
+ * MOCK ONLY: counts a finished deploy against the plan. Spring does this inside the publish call;
+ * the mock calls it from features/editor/api.ts.
+ */
+export async function recordDeploy(userId: string, websiteId: string): Promise<void> {
+  const subscription = await getSubscription(userId);
+  const firstDeploy = !websitePages.find((p) => p.websiteId === websiteId)?.published;
+  const bump = (key: string) => {
+    const metric = usageOf(subscription, key);
+    if (metric) metric.used += 1;
+  };
+  if (firstDeploy) bump("websites");
+  if (subscription.renewsAt === null) bump("deploys");
+  else if (!firstDeploy) bump("redeploys");
 }
 
 export type ListOrdersFilter = {

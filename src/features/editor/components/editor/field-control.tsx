@@ -3,8 +3,10 @@
 import type { ComponentType } from "react";
 import { AutoField, type Field } from "@puckeditor/core";
 import { TextalignCenter, TextalignLeft, TextalignRight } from "iconsax-reactjs";
+import { SelectField } from "@/components/common/select-field";
 import { cn } from "@/lib/utils";
 import type { FieldMeta } from "../puck-config";
+import { ruleMessage } from "./field-rules";
 
 const inputClass =
   "w-full rounded-xl border border-border bg-background px-3.5 text-sm text-foreground shadow-card outline-none transition-[border-color,box-shadow] placeholder:text-placeholder focus-visible:border-primary focus-visible:ring-3 focus-visible:ring-ring/25";
@@ -80,6 +82,13 @@ export function FieldControl({
   const id = `field-${name}`;
   const label = field.label ?? name;
   const text = typeof value === "string" ? value : "";
+  const problem = field.type === "text" || field.type === "textarea" ? ruleMessage(meta.rule, text) : null;
+  const problemId = `${id}-error`;
+  const problemNote = problem && (
+    <p id={problemId} role="alert" className="text-xs text-danger">
+      {problem}
+    </p>
+  );
 
   const labelRow = (
     <div className="flex items-baseline justify-between gap-2">
@@ -103,9 +112,12 @@ export function FieldControl({
             value={text}
             placeholder={field.placeholder}
             maxLength={meta.maxLength}
+            aria-invalid={problem !== null}
+            aria-describedby={problem ? problemId : undefined}
             onChange={(e) => onChange(e.target.value)}
-            className={cn(inputClass, "h-10")}
+            className={cn(inputClass, "h-10", problem && "border-danger")}
           />
+          {problemNote}
         </div>
       );
 
@@ -118,14 +130,18 @@ export function FieldControl({
             id={id}
             value={text}
             maxLength={meta.maxLength}
+            aria-invalid={problem !== null}
+            aria-describedby={problem ? problemId : undefined}
             rows={isHeading ? 2 : 3}
             onChange={(e) => onChange(e.target.value)}
             className={cn(
               inputClass,
               "resize-y py-3 leading-[1.55]",
               isHeading ? "min-h-16 font-heading text-base font-semibold" : "min-h-[84px]",
+              problem && "border-danger",
             )}
           />
+          {problemNote}
           {meta.maxLength && (
             <p className="text-right text-xs text-muted-foreground" aria-live="polite">
               {text.length} / {meta.maxLength}
@@ -155,18 +171,13 @@ export function FieldControl({
       return (
         <div className="flex flex-col gap-2">
           {labelRow}
-          <select
+          <SelectField
             id={id}
             value={String(value ?? "")}
-            onChange={(e) => onChange(e.target.value)}
-            className={cn(inputClass, "h-10 cursor-pointer")}
-          >
-            {field.options.map((o) => (
-              <option key={String(o.value)} value={String(o.value)}>
-                {o.label}
-              </option>
-            ))}
-          </select>
+            onValueChange={onChange}
+            className={cn(inputClass, "h-10")}
+            options={field.options.map((o) => ({ value: String(o.value), label: o.label }))}
+          />
         </div>
       );
 

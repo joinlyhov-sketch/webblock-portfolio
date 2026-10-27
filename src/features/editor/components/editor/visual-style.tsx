@@ -3,7 +3,9 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import type { ButtonStyleKey, FontKey, PaletteKey, SiteRootProps } from "../../types";
+import { siteColorVars } from "../site/site-colors";
 import { siteFontVariables } from "../site/site-fonts";
+import { ColorPicker } from "./color-picker";
 
 const PALETTES: { value: PaletteKey; label: string }[] = [
   { value: "original", label: "Original" },
@@ -44,13 +46,15 @@ function OptionCard({ active, label, onClick, children }: { active: boolean; lab
   );
 }
 
-/** "Layout & Design · Visual style · Whole site": palette, heading font and button shape. */
+type StyleProps = Pick<SiteRootProps, "palette" | "accentColor" | "backgroundColor" | "textColor" | "font" | "buttonStyle">;
+
+/** "Layout & Design · Visual style · Whole site": palette, own colours, heading font and button shape. */
 export function VisualStyle({
   site,
   onChange,
 }: {
   site: SiteRootProps;
-  onChange: <K extends "palette" | "font" | "buttonStyle">(name: K, value: SiteRootProps[K]) => void;
+  onChange: (patch: Partial<StyleProps>) => void;
 }) {
   const palette = site.palette === "original" ? undefined : site.palette;
   return (
@@ -65,7 +69,7 @@ export function VisualStyle({
       </p>
       <div role="radiogroup" aria-labelledby="vs-palette" className="grid grid-cols-4 gap-2 pt-2">
         {PALETTES.map((p) => (
-          <OptionCard key={p.value} active={site.palette === p.value} label={p.label} onClick={() => onChange("palette", p.value)}>
+          <OptionCard key={p.value} active={site.palette === p.value} label={p.label} onClick={() => onChange({ palette: p.value, accentColor: null })}>
             <span
               aria-hidden
               data-site-template={site.templateId}
@@ -82,20 +86,25 @@ export function VisualStyle({
       <div
         data-site-template={site.templateId}
         data-site-palette={palette}
+        style={siteColorVars(site)}
         className="flex gap-2 pt-2.5"
-        aria-label="Current colours"
+        role="group"
+        aria-label="Site colours"
       >
         {(
           [
-            ["Accent", "bg-site-accent"],
-            ["Background", "bg-site-bg"],
-            ["Text", "bg-site-ink"],
+            ["Accent", "accentColor", "bg-site-accent"],
+            ["Background", "backgroundColor", "bg-site-bg"],
+            ["Text", "textColor", "bg-site-ink"],
           ] as const
-        ).map(([label, swatch]) => (
-          <span key={label} className="flex flex-1 items-center gap-1.5 rounded-full border border-border bg-muted px-2 py-1.5 text-xs text-foreground">
-            <span aria-hidden className={cn("size-[18px] shrink-0 rounded-[5px] border border-border", swatch)} />
-            {label}
-          </span>
+        ).map(([label, name, swatch]) => (
+          <ColorPicker
+            key={name}
+            label={label}
+            value={site[name]}
+            swatchClassName={swatch}
+            onChange={(value) => onChange({ [name]: value })}
+          />
         ))}
       </div>
 
@@ -104,7 +113,7 @@ export function VisualStyle({
       </p>
       <div role="radiogroup" aria-labelledby="vs-font" className="grid grid-cols-4 gap-2 pt-2">
         {FONTS.map((f) => (
-          <OptionCard key={f.value} active={site.font === f.value} label={f.label} onClick={() => onChange("font", f.value)}>
+          <OptionCard key={f.value} active={site.font === f.value} label={f.label} onClick={() => onChange({ font: f.value })}>
             <span
               aria-hidden
               data-site-template={site.templateId}
@@ -124,7 +133,7 @@ export function VisualStyle({
         {BUTTONS.map((b) => {
           const active = site.buttonStyle === b.value;
           return (
-            <OptionCard key={b.value} active={active} label={b.label} onClick={() => onChange("buttonStyle", b.value)}>
+            <OptionCard key={b.value} active={active} label={b.label} onClick={() => onChange({ buttonStyle: b.value })}>
               <span
                 aria-hidden
                 data-site-buttons={b.value}

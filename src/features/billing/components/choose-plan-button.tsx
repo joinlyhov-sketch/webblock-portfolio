@@ -22,6 +22,8 @@ type ChoosePlanButtonProps = {
   label: ReactNode;
   /** Page the user came from ("settings"): the payment page then links back there. */
   from?: string;
+  /** Website being deployed: the payment then belongs to it and links back to it. */
+  forWebsite?: string;
   className?: string;
 };
 
@@ -41,14 +43,14 @@ const COPY: Record<PlanMode, { title: (name: string) => string; detail: string }
 };
 
 /** "Choose Plus": asks to confirm, creates the payment, then opens its KHQR page. */
-export function ChoosePlanButton({ plan, planName, price, mode, label, from, className }: ChoosePlanButtonProps) {
+export function ChoosePlanButton({ plan, planName, price, mode, label, from, forWebsite, className }: ChoosePlanButtonProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
   function confirm() {
     startTransition(async () => {
-      const result = await startPaymentAction(plan);
+      const result = await startPaymentAction(plan, forWebsite);
       if (!result.ok) {
         setOpen(false);
         toast.error("Could not start the payment", result.message);

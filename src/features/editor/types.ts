@@ -58,6 +58,10 @@ export type SiteRootProps = {
   instagramUrl: string;
   currency: Currency;
   palette: PaletteKey;
+  /** Owner-picked "#rrggbb" colours that override the palette/template. null = keep it. */
+  accentColor: string | null;
+  backgroundColor: string | null;
+  textColor: string | null;
   font: FontKey;
   buttonStyle: ButtonStyleKey;
 };
@@ -159,4 +163,12 @@ export type MediaAsset = {
   id: string;
   url: string;
   name: string;
+};
+
+/** One message in the WebBlock AI chat (POST /websites/{websiteId}/ai/messages). */
+export type AiMessage = {
+  id: string;
+  role: "USER" | "ASSISTANT";
+  text: string;
+  createdAt: string;
 };

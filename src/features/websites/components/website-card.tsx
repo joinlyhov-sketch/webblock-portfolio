@@ -33,7 +33,7 @@ function activityText(website: Website): string {
  */
 export function WebsiteCard({ website, filtered = false }: { website: Website; filtered?: boolean }) {
   const suspended = website.status === "SUSPENDED";
-  const hasMenu = website.domain !== null && (filtered || !suspended);
+  const hasMenu = website.status === "DRAFT" || (website.domain !== null && (filtered || !suspended));
   // Suspended in "All": Reactivate is the main action. In the Suspended tab it is the neutral one.
   const reactivateFirst = suspended && !filtered;
 
@@ -103,7 +103,7 @@ export function WebsiteCard({ website, filtered = false }: { website: Website; f
                   </Button>
                 ) : (
                   <Button asChild variant="secondary" size="sm" className="flex-1">
-                    <Link href={`/websites/${website.id}/preview`}>Preview</Link>
+                    <Link href={`/websites/${website.id}/preview?from=websites`}>Preview</Link>
                   </Button>
                 )}
                 <EditButton websiteId={website.id} primary />

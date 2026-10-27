@@ -73,7 +73,7 @@ export function WebsitesView({
             description="Nothing matches this filter. Try another status or clear your search."
           />
         ) : (
-          <div className="grid gap-[15px] sm:grid-cols-2 lg:grid-cols-3 min-[1440px]:grid-cols-4">
+          <div className="grid gap-[15px] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {!filtering && <NewWebsiteCard templates={templates} businessTypes={businessTypes} />}
             {data.websites.map((website) => (
               <WebsiteCard key={website.id} website={website} filtered={data.status !== "ALL"} />

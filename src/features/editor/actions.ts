@@ -5,16 +5,15 @@ import { z } from "zod";
 import type { ActionResult } from "@/lib/actions/result";
 import { ApiError } from "@/lib/api/errors";
 import { requireWebsiteOwner } from "@/lib/auth/session";
-import { publishPage, savePageData } from "./api";
-import { pageDataSchema } from "./schemas";
-import type { PageData } from "./types";
+import { formFile } from "@/lib/files";
+import { checkImage, SITE_IMAGE_RULE } from "@/lib/image-rules";
+import { savePageData, sendAiMessage, uploadMedia } from "./api";
+import { describeIssue } from "./issue-message";
+import { aiPromptSchema, pageDataSchema } from "./schemas";
+import type { AiMessage, MediaAsset, PageData } from "./types";
 
-function invalid(error: z.ZodError): ActionResult<never> {
-  const first = error.issues[0];
-  return {
-    ok: false,
-    message: first ? `${first.message} (${first.path.join(" › ")})` : "Some content is not valid.",
-  };
+function invalid(error: z.ZodError, data: unknown): ActionResult<never> {
+  return { ok: false, message: describeIssue(error.issues[0], data) };
 }
 
 function revalidateWebsite(websiteId: string) {
@@ -31,7 +30,7 @@ export async function savePageAction(
 ): Promise<ActionResult<{ savedAt: string }>> {
   await requireWebsiteOwner(websiteId);
   const parsed = pageDataSchema.safeParse(data);
-  if (!parsed.success) return invalid(parsed.error);
+  if (!parsed.success) return invalid(parsed.error, data);
   try {
     const page = await savePageData(websiteId, parsed.data as PageData);
     revalidateWebsite(websiteId);
@@ -42,25 +41,30 @@ export async function savePageAction(
   }
 }
 
-/**
- * "Deploy": saves the current document, then asks the backend to publish it.
- * The backend owns the deploy pipeline and its retries; this only triggers it.
- * `idempotencyKey` is made once per click so a resubmitted request never deploys twice.
- */
-export async function deployPageAction(
-  websiteId: string,
-  data: PageData,
-  idempotencyKey: string,
-): Promise<ActionResult<{ publishedAt: string }>> {
+/** "Upload from computer" on an image field: stores the file and returns it for the library. */
+export async function uploadMediaAction(websiteId: string, formData: FormData): Promise<ActionResult<MediaAsset>> {
   await requireWebsiteOwner(websiteId);
-  const parsed = pageDataSchema.safeParse(data);
-  if (!parsed.success) return invalid(parsed.error);
-  if (!z.uuid().safeParse(idempotencyKey).success) return { ok: false, message: "Please try deploying again." };
+  const file = formFile(formData, "image");
+  if (!file) return { ok: false, message: "Choose an image first." };
+  const problem = checkImage(file, SITE_IMAGE_RULE);
+  if (problem) return { ok: false, message: problem };
   try {
-    await savePageData(websiteId, parsed.data as PageData);
-    const page = await publishPage(websiteId, idempotencyKey);
-    revalidateWebsite(websiteId);
-    return { ok: true, data: { publishedAt: page.publishedAt ?? new Date().toISOString() }, message: "Website deployed" };
+    const asset = await uploadMedia(websiteId, file);
+    revalidatePath(`/websites/${websiteId}/edit`);
+    return { ok: true, data: asset, message: "Image uploaded" };
+  } catch (e) {
+    if (e instanceof ApiError) return { ok: false, message: e.message };
+    throw e;
+  }
+}
+
+/** WebBlock AI composer: sends the prompt and returns the assistant's reply. */
+export async function askAiAction(websiteId: string, prompt: string): Promise<ActionResult<AiMessage>> {
+  await requireWebsiteOwner(websiteId);
+  const parsed = aiPromptSchema.safeParse(prompt);
+  if (!parsed.success) return { ok: false, message: parsed.error.issues[0]?.message ?? "Type what you want to change." };
+  try {
+    return { ok: true, data: await sendAiMessage(websiteId, parsed.data) };
   } catch (e) {
     if (e instanceof ApiError) return { ok: false, message: e.message };
     throw e;

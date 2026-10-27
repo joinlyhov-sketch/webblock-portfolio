@@ -13,9 +13,12 @@ function refreshBilling() {
 }
 
 /** Creates a pending payment for the chosen plan. The client then opens /billing/pay/<orderId>. */
-export async function startPaymentAction(plan: string): Promise<ActionResult<{ orderId: string }>> {
+export async function startPaymentAction(
+  plan: string,
+  forWebsite?: string,
+): Promise<ActionResult<{ orderId: string }>> {
   const user = await requireUser();
-  const result = await startPayment(user.id, plan);
+  const result = await startPayment(user.id, plan, forWebsite);
   if (result.ok) refreshBilling();
   return result;
 }

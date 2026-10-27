@@ -1,8 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Add, ArrowDown2, Layer, LayoutMaximize, SearchNormal1 } from "iconsax-reactjs";
+import { Add, Layer, LayoutMaximize, SearchNormal1 } from "iconsax-reactjs";
 import { EmptyState } from "@/components/common/empty-state";
+import { PillSelect } from "@/components/common/filter-select";
 import { Modal } from "@/components/common/modal";
 import { CATEGORY_LABELS } from "@/config/categories";
 import type { Template, TemplateCategory } from "../types";
@@ -104,23 +105,15 @@ function TemplatePicker({
             <p className="text-[13px] leading-[19.5px] text-muted-foreground" aria-live="polite">
               {shown.length} {shown.length === 1 ? "template" : "templates"}
             </p>
-            <label className="relative inline-flex h-[34px] items-center gap-1.5 rounded-full border border-border bg-background px-[14px] text-[13px] leading-[19.5px] font-medium text-foreground-soft">
-              <ArrowDown2 aria-hidden className="size-3.5 shrink-0" />
-              <span aria-hidden>Category: {category ? CATEGORY_LABELS[category] : "All"}</span>
-              <select
-                aria-label="Category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value as TemplateCategory | "")}
-                className="absolute inset-0 cursor-pointer rounded-full opacity-0"
-              >
-                <option value="">All categories</option>
-                {categories.map((c) => (
-                  <option key={c} value={c}>
-                    {CATEGORY_LABELS[c]}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <PillSelect
+              label="Category:"
+              value={category}
+              onValueChange={(next) => setCategory(next as TemplateCategory | "")}
+              options={[
+                { value: "", label: "All" },
+                ...categories.map((c) => ({ value: c, label: CATEGORY_LABELS[c] })),
+              ]}
+            />
           </div>
         </div>
 

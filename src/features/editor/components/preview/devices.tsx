@@ -16,24 +16,13 @@ const DEVICES = [
   { value: "mobile", label: "Mobile", icon: Mobile, iconClass: "size-3.5" },
 ] as const;
 
-/** Figma device toggle. Icons only in the editor top bar, icon + label in Preview. */
-export function DeviceSwitcher({
-  value,
-  onChange,
-  withLabels = false,
-}: {
-  value: Device;
-  onChange: (device: Device) => void;
-  withLabels?: boolean;
-}) {
+/** Figma device toggle in the editor top bar: icon-only pill segments. */
+export function DeviceSwitcher({ value, onChange }: { value: Device; onChange: (device: Device) => void }) {
   return (
     <div
       role="radiogroup"
       aria-label="Device"
-      className={cn(
-        "flex gap-0.5 border border-border bg-primary-soft p-1",
-        withLabels ? "rounded-full" : "rounded-xl",
-      )}
+      className="flex gap-0.5 rounded-full border border-border bg-primary-soft p-1"
     >
       {DEVICES.map((d) => {
         const active = d.value === value;
@@ -43,17 +32,16 @@ export function DeviceSwitcher({
             type="button"
             role="radio"
             aria-checked={active}
-            aria-label={withLabels ? undefined : d.label}
+            aria-label={d.label}
             title={d.label}
             onClick={() => onChange(d.value)}
             className={cn(
               "flex h-8 items-center justify-center gap-2 text-[13px] font-medium transition-[background-color,color,box-shadow] outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
-              withLabels ? "rounded-full px-5" : "w-10 rounded-[9px]",
+              "w-10 rounded-full",
               active ? "bg-background text-brand-strong shadow-button" : "text-foreground-soft hover:text-foreground",
             )}
           >
             <d.icon aria-hidden className={d.iconClass} />
-            {withLabels && d.label}
           </button>
         );
       })}

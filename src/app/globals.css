@@ -627,6 +627,18 @@
 }
 
 @layer base {
+  /* Tailwind v4 dropped the pointer cursor on buttons; every clickable control gets it back. */
+  button:not(:disabled):not([aria-disabled="true"]),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="tab"],
+  [role="radio"],
+  [role="option"],
+  [role="menuitem"],
+  summary,
+  label[for] {
+    cursor: pointer;
+  }
+
   /* Landing anchors (#pricing, #faq…) stop below the fixed header. */
   html:has([data-landing]) {
     scroll-padding-top: 7rem;

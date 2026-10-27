@@ -1,46 +1,80 @@
 "use client";
 
 import { ArrowDown2 } from "iconsax-reactjs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useUrlParam } from "@/hooks/use-url-param";
 import { cn } from "@/lib/utils";
 
-type FilterSelectProps = {
+type PillSelectProps = {
   /** Text before the value, e.g. "Category:". */
   label: string;
-  /** URL search param the choice is stored in. */
-  param: string;
-  /** Currently applied value; "" means the default option. */
+  /** "" means the default option ("All"). */
   value: string;
+  onValueChange: (value: string) => void;
   options: { value: string; label: string }[];
   className?: string;
 };
 
-/** Pill dropdown that stores its choice in the URL ("Category: All", "Plan: All", "Rows 10"). */
-export function FilterSelect({ label, param, value, options, className }: FilterSelectProps) {
-  const { setParam, pending } = useUrlParam();
+// Radix Select reserves "" for "nothing selected"; the default option ("All") is stored as "".
+const EMPTY = "__all__";
 
+/** Pill dropdown ("Category: All"). Opens the WebBlock menu, like the card "…" menu. */
+export function PillSelect({
+  label,
+  value,
+  onValueChange,
+  options,
+  className,
+}: PillSelectProps) {
   return (
-    <label
-      className={cn(
-        "relative inline-flex h-[34px] items-center gap-1.5 rounded-full border border-border bg-background px-3.5 text-[13px] leading-[19.5px] font-medium text-foreground-soft transition-[border-color,box-shadow] focus-within:border-primary focus-within:ring-3 focus-within:ring-ring/25",
-        pending && "opacity-70",
-        className,
-      )}
+    <Select
+      value={value || EMPTY}
+      onValueChange={(next) => onValueChange(next === EMPTY ? "" : next)}
     >
-      <ArrowDown2 aria-hidden className="pointer-events-none size-3.5 shrink-0" />
-      <span>{label}</span>
-      <select
-        value={value}
-        onChange={(event) => setParam(param, event.target.value || null)}
+      <SelectTrigger
+        hideIcon
         aria-label={label.replace(/:$/, "")}
-        className="cursor-pointer appearance-none bg-transparent pr-0.5 font-medium outline-none"
+        className={cn(
+          "inline-flex h-[34px] cursor-pointer justify-start gap-1.5 rounded-full border border-border bg-background px-3.5 text-[13px] leading-[19.5px] font-medium text-foreground-soft transition-[border-color,box-shadow] focus-visible:border-primary focus-visible:ring-3 focus-visible:ring-ring/25 data-[state=open]:border-primary",
+          className,
+        )}
       >
+        <ArrowDown2 aria-hidden className="size-3.5" />
+        <span>{label}</span>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent align="end" className="min-w-[180px]">
         {options.map((option) => (
-          <option key={option.value} value={option.value}>
+          <SelectItem key={option.value} value={option.value || EMPTY}>
             {option.label}
-          </option>
+          </SelectItem>
         ))}
-      </select>
-    </label>
+      </SelectContent>
+    </Select>
+  );
+}
+
+/** PillSelect that stores its choice in the URL ("Category: All", "Plan: All"). */
+export function FilterSelect({
+  param,
+  className,
+  ...props
+}: Omit<PillSelectProps, "onValueChange"> & {
+  /** URL search param the choice is stored in. */
+  param: string;
+}) {
+  const { setParam, pending } = useUrlParam();
+  return (
+    <PillSelect
+      {...props}
+      onValueChange={(next) => setParam(param, next || null)}
+      className={cn(pending && "opacity-70", className)}
+    />
   );
 }

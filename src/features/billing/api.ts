@@ -59,6 +59,7 @@ export async function createPayment(userId: string, body: CreatePaymentBody): Pr
     plan: body.plan,
     planName: plan.name,
     kind: body.kind,
+    websiteId: body.websiteId,
     websiteName: body.websiteName,
     websiteDomain: body.websiteDomain,
     websiteImageUrl: body.websiteImageUrl,

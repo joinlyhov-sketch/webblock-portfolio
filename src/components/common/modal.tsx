@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { PortalContainerContext } from "@/components/ui/portal-container";
 import { cn } from "@/lib/utils";
 
 type ModalProps = {
@@ -19,6 +20,8 @@ type ModalProps = {
  */
 export function Modal({ open, onClose, label, children, className }: ModalProps) {
   const ref = useRef<HTMLDialogElement>(null);
+  // Dropdowns inside the modal portal into the <dialog>; in <body> they would sit under its top layer.
+  const [dialogEl, setDialogEl] = useState<HTMLDialogElement | null>(null);
   // `close` events caused by `open` turning false are not the user closing the dialog.
   const closedByProp = useRef(false);
 
@@ -34,7 +37,10 @@ export function Modal({ open, onClose, label, children, className }: ModalProps)
 
   return (
     <dialog
-      ref={ref}
+      ref={(el) => {
+        ref.current = el;
+        setDialogEl(el);
+      }}
       aria-label={label}
       onClose={() => {
         if (closedByProp.current) closedByProp.current = false;
@@ -49,7 +55,7 @@ export function Modal({ open, onClose, label, children, className }: ModalProps)
         className,
       )}
     >
-      {open && children}
+      <PortalContainerContext value={dialogEl}>{open && children}</PortalContainerContext>
     </dialog>
   );
 }

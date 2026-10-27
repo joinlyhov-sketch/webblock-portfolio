@@ -32,6 +32,8 @@ export type PaymentOrder = {
   plan: PaidPlanCode;
   planName: string;
   kind: PaymentKind;
+  /** Website the owner was deploying when they chose the plan, or `null` when they came from Settings. */
+  websiteId: string | null;
   websiteName: string;
   websiteDomain: string;
   websiteImageUrl: string;
@@ -51,6 +53,7 @@ export type PaymentOrder = {
 export type CreatePaymentBody = {
   plan: PaidPlanCode;
   kind: PaymentKind;
+  websiteId: string | null;
   websiteName: string;
   websiteDomain: string;
   websiteImageUrl: string;

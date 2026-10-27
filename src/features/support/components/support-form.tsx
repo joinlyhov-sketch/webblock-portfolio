@@ -9,7 +9,7 @@ import { Modal } from "@/components/common/modal";
 import { toast } from "@/components/common/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { SelectField } from "@/components/common/select-field";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import type { SupportView } from "../service";
@@ -70,21 +70,18 @@ export function SupportForm({ view }: { view: Pick<SupportView, "email" | "websi
             />
           </FormField>
           <FormField id="site" label="Website" labelClassName={labelClass}>
-            <Select
+            <SelectField
               id="site"
               name="site"
               icon={<Global />}
               iconClassName={fieldIconClass}
               className={fieldClass}
               defaultValue={kept("site") ?? view.websites[0]?.id ?? ""}
-            >
-              {view.websites.map((website) => (
-                <option key={website.id} value={website.id}>
-                  {website.name}
-                </option>
-              ))}
-              <option value="">Not about a website</option>
-            </Select>
+              options={[
+                ...view.websites.map((website) => ({ value: website.id, label: website.name })),
+                { value: "", label: "Not about a website" },
+              ]}
+            />
           </FormField>
         </div>
 

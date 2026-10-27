@@ -20,7 +20,7 @@ import { Modal } from "@/components/common/modal";
 import { toast } from "@/components/common/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { SelectField } from "@/components/common/select-field";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { formatClock } from "@/lib/format";
@@ -269,22 +269,15 @@ function BusinessInfoForm({
                 className="space-y-[7px]"
                 error={err("businessType")}
               >
-                <Select
+                <SelectField
                   id="businessType"
                   value={values.businessType}
-                  onChange={(e) => set("businessType")(e.target.value)}
-                  className={cn(fieldClass, "pr-9")}
+                  onValueChange={set("businessType")}
+                  placeholder="Choose a type"
+                  className={fieldClass}
                   aria-invalid={!!err("businessType")}
-                >
-                  <option value="" disabled>
-                    Choose a type
-                  </option>
-                  {businessTypes.map((type) => (
-                    <option key={type} value={type}>
-                      {type}
-                    </option>
-                  ))}
-                </Select>
+                  options={businessTypes.map((type) => ({ value: type, label: type }))}
+                />
               </FormField>
             </div>
             <FormField
@@ -542,17 +535,13 @@ function HourSelect({
   onChange: (value: string) => void;
 }) {
   return (
-    <Select
+    <SelectField
       aria-label={label}
       value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="h-[38px] w-[132px] rounded-lg border-transparent bg-picker pr-9 pl-3 text-sm font-medium"
-    >
-      {TIME_OPTIONS.map((time) => (
-        <option key={time} value={time}>
-          {formatClock(time)}
-        </option>
-      ))}
-    </Select>
+      onValueChange={onChange}
+      className="h-[38px] w-[132px] rounded-lg border-transparent bg-picker px-3 text-sm font-medium"
+      contentClassName="max-h-64"
+      options={TIME_OPTIONS.map((time) => ({ value: time, label: formatClock(time) }))}
+    />
   );
 }

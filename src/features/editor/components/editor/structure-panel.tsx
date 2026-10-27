@@ -161,7 +161,8 @@ export function StructurePanel() {
           <h2 className="font-sans text-[13px] font-semibold text-foreground">Add a block</h2>
           <span className="text-[11px] font-medium text-placeholder">Drag or tap</span>
         </div>
-        <div id="add-block-list" className="-mx-1 min-h-0 flex-1 overflow-y-auto px-1 pt-2.5 pb-3">
+        {/* Puck spaces drawer items with --puck-space-3 (12px); Figma uses 8px between blocks. */}
+        <div id="add-block-list" className="-mx-1 min-h-0 flex-1 overflow-y-auto px-1 pt-2.5 pb-3 [--puck-space-3:8px]">
           <Drawer>
             {BLOCK_ORDER.map((name) => {
               const meta = BLOCK_META[name];
@@ -169,7 +170,7 @@ export function StructurePanel() {
               return (
                 <Drawer.Item key={name} name={name} label={meta.label}>
                   {() => (
-                    <div className="mb-2 flex h-[56px] cursor-grab items-center gap-2.5 rounded-[14px] border border-border bg-background pr-3 pl-2.5 shadow-card transition-[border-color,box-shadow] hover:border-primary/40 hover:shadow-button-hover">
+                    <div className="flex h-[56px] cursor-grab items-center gap-2.5 rounded-[14px] border border-border bg-background pr-3 pl-2.5 shadow-card transition-[border-color,box-shadow] hover:border-primary/40 hover:shadow-button-hover">
                       <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand">
                         <Icon aria-hidden className="size-4" />
                       </span>

@@ -5,7 +5,14 @@
 // the template stored in the root props (`templateId`).
 import type { ComponentType } from "react";
 import type { Config, CustomField, Field, Fields } from "@puckeditor/core";
-import type { BlockName, BlockProps, CtaAction, SiteRootProps, TemplateKey } from "../types";
+import type { ZodType } from "zod";
+import type {
+  BlockName,
+  BlockProps,
+  CtaAction,
+  SiteRootProps,
+  TemplateKey,
+} from "../types";
 import { ImageField } from "./editor/image-field";
 import { SiteRoot } from "./site/site-root";
 import { useSite } from "./site/site-context";
@@ -23,15 +30,21 @@ export type FieldMeta = {
   maxLength?: number;
   /** Adds a grey "(optional)" after the label. */
   optional?: boolean;
+  /** The schema rule for this field (set by `applyFieldRules`): drives the inline error. */
+  rule?: ZodType;
 };
 
 const meta = (m: FieldMeta) => ({ metadata: m });
 
 const text = (label: string, m: FieldMeta = {}, placeholder?: string): Field =>
   ({ type: "text", label, placeholder, ...meta(m) }) as Field;
-const textarea = (label: string, m: FieldMeta = {}): Field => ({ type: "textarea", label, ...meta(m) }) as Field;
+const textarea = (label: string, m: FieldMeta = {}): Field =>
+  ({ type: "textarea", label, ...meta(m) }) as Field;
 
-export const imageField = (label: string, m: FieldMeta = {}): CustomField<string | null> => ({
+export const imageField = (
+  label: string,
+  m: FieldMeta = {},
+): CustomField<string | null> => ({
   type: "custom",
   label,
   render: ImageField,
@@ -45,7 +58,12 @@ const CTA_OPTIONS: { label: string; value: CtaAction }[] = [
   { label: "Email us", value: "email" },
   { label: "Get directions", value: "directions" },
 ];
-const cta = (label: string): Field => ({ type: "select", label, options: CTA_OPTIONS, ...meta({ group: "Buttons" }) });
+const cta = (label: string): Field => ({
+  type: "select",
+  label,
+  options: CTA_OPTIONS,
+  ...meta({ group: "Buttons" }),
+});
 
 const layoutFields = {
   align: {
@@ -91,21 +109,44 @@ const productFields: Field = {
     category: text("Category"),
     imageUrl: imageField("Photo"),
   },
-  defaultItemProps: { name: "New product", description: "", price: "0.00", category: "", imageUrl: null },
+  defaultItemProps: {
+    name: "New product",
+    description: "",
+    price: "0.00",
+    category: "",
+    imageUrl: null,
+  },
   getItemSummary: (item: { name?: string }) => item.name || "Product",
   ...meta({ group: "Products" }),
 };
 
 /** Renders the current template's design for a block. */
-function TemplateBlock({ name, props, isEditing }: { name: BlockName; props: object; isEditing: boolean }) {
+function TemplateBlock({
+  name,
+  props,
+  isEditing,
+}: {
+  name: BlockName;
+  props: object;
+  isEditing: boolean;
+}) {
   const site = useSite();
-  const Design = templateDesigns[site.templateId][name] as ComponentType<{ isEditing: boolean }>;
+  const Design = templateDesigns[site.templateId][name] as ComponentType<{
+    isEditing: boolean;
+  }>;
   return <Design {...props} isEditing={isEditing} />;
 }
 
 function render(name: BlockName) {
-  return function BlockRender({ puck, ...props }: { puck: { isEditing: boolean } }) {
-    return <TemplateBlock name={name} props={props} isEditing={puck.isEditing} />;
+  return function BlockRender({
+    puck,
+    ...props
+  }: {
+    puck: { isEditing: boolean };
+  }) {
+    return (
+      <TemplateBlock name={name} props={props} isEditing={puck.isEditing} />
+    );
   };
 }
 
@@ -115,8 +156,16 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
   root: {
     fields: {
       businessName: text("Business name", { group: "Business" }),
-      statusText: text("Status badge", { group: "Business", optional: true }, "e.g. Open now · until 18:00"),
-      hours: text("Opening hours (short)", { group: "Hours" }, "e.g. 9:00 – 18:00"),
+      statusText: text(
+        "Status badge",
+        { group: "Business", optional: true },
+        "e.g. Open now · until 18:00",
+      ),
+      hours: text(
+        "Opening hours (short)",
+        { group: "Hours" },
+        "e.g. 9:00 – 18:00",
+      ),
       hoursDetail: text("Opening hours (week)", { group: "Hours" }),
       address: text("Address", { group: "Contact" }),
       phones: {
@@ -128,9 +177,21 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
         ...meta({ group: "Contact" }),
       },
       email: text("Email", { group: "Contact" }),
-      telegram: text("Telegram username", { group: "Contact", optional: true }, "without @"),
-      facebookUrl: text("Facebook link", { group: "Social", optional: true }, "https://"),
-      instagramUrl: text("Instagram link", { group: "Social", optional: true }, "https://"),
+      telegram: text(
+        "Telegram username",
+        { group: "Contact", optional: true },
+        "without @",
+      ),
+      facebookUrl: text(
+        "Facebook link",
+        { group: "Social", optional: true },
+        "https://",
+      ),
+      instagramUrl: text(
+        "Instagram link",
+        { group: "Social", optional: true },
+        "https://",
+      ),
       currency: {
         type: "select",
         label: "Currency",
@@ -142,24 +203,47 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
       },
       // Rendered as swatches in "Layout & Design · Visual style"; options are listed in the panel.
       palette: { type: "text", ...meta({ tab: "layout" }), visible: false },
+      accentColor: { type: "text", ...meta({ tab: "layout" }), visible: false },
+      backgroundColor: {
+        type: "text",
+        ...meta({ tab: "layout" }),
+        visible: false,
+      },
+      textColor: { type: "text", ...meta({ tab: "layout" }), visible: false },
       font: { type: "text", ...meta({ tab: "layout" }), visible: false },
       buttonStyle: { type: "text", ...meta({ tab: "layout" }), visible: false },
     } as Fields<SiteRootProps>,
-    render: ({ children, ...site }) => <SiteRoot site={site as SiteRootProps}>{children}</SiteRoot>,
+    render: ({ children, ...site }) => (
+      <SiteRoot site={site as SiteRootProps}>{children}</SiteRoot>
+    ),
   },
 
   components: {
     Hero: {
       label: "Hero",
       fields: {
-        eyebrow: text("Small label", { optional: true }, "Optional · leave empty to hide"),
+        eyebrow: text(
+          "Small label",
+          { optional: true },
+          "Optional · leave empty to hide",
+        ),
         heading: textarea("Heading", { maxLength: 60 }),
         description: textarea("Description"),
         primaryLabel: text("Main button text", { group: "Buttons" }),
         primaryAction: cta("Main button goes to"),
-        secondaryLabel: text("Second button text", { group: "Buttons", optional: true }),
+        secondaryLabel: text("Second button text", {
+          group: "Buttons",
+          optional: true,
+        }),
         secondaryAction: cta("Second button goes to"),
-        imageUrl: imageField("Image", { templates: ["everyday-store", "sweet-pastel", "warm-bold", "clean-mono"] }),
+        imageUrl: imageField("Image", {
+          templates: [
+            "everyday-store",
+            "sweet-pastel",
+            "warm-bold",
+            "clean-mono",
+          ],
+        }),
         sideImages: {
           type: "array",
           label: "Side photos",
@@ -175,15 +259,23 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
           defaultItemProps: { text: "New highlight" },
           getItemSummary: (item: { text?: string }) => item.text || "Highlight",
           max: 3,
-          ...meta({ group: "Extras", templates: ["sweet-pastel", "warm-bold", "clean-mono"] }),
+          ...meta({
+            group: "Extras",
+            templates: ["sweet-pastel", "warm-bold", "clean-mono"],
+          }),
         },
-        badge: text("Badge", { group: "Extras", optional: true, templates: ["warm-bold", "clean-mono"] }),
+        badge: text("Badge", {
+          group: "Extras",
+          optional: true,
+          templates: ["warm-bold", "clean-mono"],
+        }),
         ...layoutFields,
       },
       defaultProps: {
         eyebrow: "",
         heading: "A short, clear headline.",
-        description: "One or two sentences about what you offer and why people love it.",
+        description:
+          "One or two sentences about what you offer and why people love it.",
         primaryLabel: "See products",
         primaryAction: "shop",
         secondaryLabel: "Contact us",
@@ -200,7 +292,11 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
     Text: {
       label: "Text",
       fields: {
-        eyebrow: text("Small label", { optional: true }, "Optional · leave empty to hide"),
+        eyebrow: text(
+          "Small label",
+          { optional: true },
+          "Optional · leave empty to hide",
+        ),
         heading: textarea("Heading", { maxLength: 80 }),
         body: textarea("Paragraph"),
         ...layoutFields,
@@ -218,7 +314,11 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
     ProductCards: {
       label: "Product Cards",
       fields: {
-        eyebrow: text("Small label", { optional: true }, "Optional · leave empty to hide"),
+        eyebrow: text(
+          "Small label",
+          { optional: true },
+          "Optional · leave empty to hide",
+        ),
         heading: textarea("Heading", { maxLength: 60 }),
         viewAllLabel: text("“View all” link text", { optional: true }),
         products: productFields,
@@ -239,7 +339,11 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
     AllProducts: {
       label: "All products",
       fields: {
-        eyebrow: text("Small label", { optional: true }, "Optional · leave empty to hide"),
+        eyebrow: text(
+          "Small label",
+          { optional: true },
+          "Optional · leave empty to hide",
+        ),
         heading: textarea("Heading", { maxLength: 60 }),
         searchPlaceholder: text("Search placeholder"),
         categories: {
@@ -251,7 +355,13 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
           ...meta({ group: "Products" }),
         },
         products: productFields,
-        pageSize: { type: "number", label: "Products per page", min: 2, max: 24, ...meta({ tab: "layout", group: "Layout" }) },
+        pageSize: {
+          type: "number",
+          label: "Products per page",
+          min: 2,
+          max: 24,
+          ...meta({ tab: "layout", group: "Layout" }),
+        },
         columns: columnsField,
         ...layoutFields,
       },
@@ -271,18 +381,29 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
     About: {
       label: "About",
       fields: {
-        eyebrow: text("Small label", { optional: true }, "Optional · leave empty to hide"),
+        eyebrow: text(
+          "Small label",
+          { optional: true },
+          "Optional · leave empty to hide",
+        ),
         heading: textarea("Heading", { maxLength: 80 }),
         body: textarea("Your story"),
-        caption: text("Caption", { optional: true, templates: ["warm-bold", "clean-mono"] }),
+        caption: text("Caption", {
+          optional: true,
+          templates: ["warm-bold", "clean-mono"],
+        }),
         stats: {
           type: "array",
           label: "Numbers",
           arrayFields: { value: text("Number"), label: text("Label") },
           defaultItemProps: { value: "10+", label: "years open" },
-          getItemSummary: (item: { value?: string; label?: string }) => `${item.value ?? ""} ${item.label ?? ""}`.trim() || "Number",
+          getItemSummary: (item: { value?: string; label?: string }) =>
+            `${item.value ?? ""} ${item.label ?? ""}`.trim() || "Number",
           max: 3,
-          ...meta({ group: "Extras", templates: ["sweet-pastel", "clean-mono"] }),
+          ...meta({
+            group: "Extras",
+            templates: ["sweet-pastel", "clean-mono"],
+          }),
         },
         imageUrl: imageField("Image"),
         ...layoutFields,
@@ -302,7 +423,11 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
     VisitUs: {
       label: "Visit us",
       fields: {
-        eyebrow: text("Small label", { optional: true }, "Optional · leave empty to hide"),
+        eyebrow: text(
+          "Small label",
+          { optional: true },
+          "Optional · leave empty to hide",
+        ),
         heading: textarea("Heading", { maxLength: 60 }),
         ...layoutFields,
       },

@@ -5,6 +5,7 @@ import type { Page } from "@/lib/api/types";
 import { toPage } from "@/lib/table-query";
 import { businessTypes, websites as seed } from "@/mocks/websites";
 import { websiteOwners } from "@/mocks/session";
+import { newWebsitePage, websitePages } from "@/mocks/website-pages";
 import type { BusinessDetails } from "./types";
 import type { Website, WebsiteStatus, WebsiteStatusCounts } from "./types";
 
@@ -95,6 +96,25 @@ export async function createWebsite(ownerId: string, body: CreateWebsiteBody): P
   };
   store.unshift(website);
   websiteOwners.push({ websiteId: website.id, ownerId });
+  websitePages.push(newWebsitePage(website.id, website.templateId, website.updatedAt));
+  return website;
+}
+
+/** GET /domains/check — is this public host free? A website may keep the host it already owns. */
+export async function isDomainTaken(host: string, exceptWebsiteId: string): Promise<boolean> {
+  await delay(150);
+  return store.some((w) => w.id !== exceptWebsiteId && w.domain === host);
+}
+
+/**
+ * MOCK ONLY: Spring does this when a deploy finishes. The website goes LIVE on its host.
+ * (A suspended website stays suspended: only reactivating it brings it back.)
+ */
+export async function markWebsiteLive(websiteId: string, domain: string): Promise<Website> {
+  const website = await getWebsite(websiteId);
+  website.domain = domain;
+  if (website.status !== "SUSPENDED") website.status = "LIVE";
+  website.updatedAt = new Date().toISOString();
   return website;
 }
 
@@ -116,6 +136,27 @@ export async function suspendWebsite(websiteId: string): Promise<Website> {
   website.suspendedAt = new Date().toISOString();
   website.updatedAt = website.suspendedAt;
   return website;
+}
+
+/**
+ * DELETE /websites/{websiteId} — removes a website that was never deployed.
+ * The backend refuses (409) for live or suspended websites; the mock does the same.
+ */
+export async function deleteWebsite(websiteId: string): Promise<void> {
+  const website = await getWebsite(websiteId);
+  await delay(300);
+  if (website.status !== "DRAFT") {
+    throw new ApiError({
+      title: "Can't delete this website",
+      status: 409,
+      detail: "Only draft websites can be deleted. Suspend a live website to take it offline.",
+    });
+  }
+  store.splice(store.indexOf(website), 1);
+  const owner = websiteOwners.findIndex((o) => o.websiteId === websiteId);
+  if (owner !== -1) websiteOwners.splice(owner, 1);
+  const page = websitePages.findIndex((p) => p.websiteId === websiteId);
+  if (page !== -1) websitePages.splice(page, 1);
 }
 
 export async function listBusinessTypes(): Promise<string[]> {

@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import type { Field } from "@puckeditor/core";
-import { ArrowDown2, Magicpen, Setting2 } from "iconsax-reactjs";
+import { Add, ArrowDown2, Magicpen, Setting2 } from "iconsax-reactjs";
 import { cn } from "@/lib/utils";
 import type { BlockName, SiteRootProps } from "../../types";
+import { AiChat } from "./ai-chat";
 import { BLOCK_META } from "./block-meta";
 import { FieldControl, fieldMeta } from "./field-control";
 import { useEditorPuck } from "./use-editor-puck";
@@ -57,6 +58,7 @@ function FieldList({
 /** Right panel (Figma "Panel body"): selected block's Content / Layout & Design, or site settings. */
 export function PropertiesPanel() {
   const [tab, setTab] = useState<Tab>("content");
+  const [aiOpen, setAiOpen] = useState(false);
   const selectedItem = useEditorPuck((s) => s.selectedItem);
   const content = useEditorPuck((s) => s.appState.data.content);
   const root = useEditorPuck((s) => s.appState.data.root);
@@ -67,8 +69,9 @@ export function PropertiesPanel() {
   const site = root.props as SiteRootProps;
 
   // Puck types root props loosely here; the page document is validated with zod on save.
-  const setRootProp = (name: string, value: unknown) =>
-    dispatch({ type: "replaceRoot", root: { ...root, props: { ...site, [name]: value } as typeof root.props } });
+  const setRootProps = (patch: Partial<SiteRootProps>) =>
+    dispatch({ type: "replaceRoot", root: { ...root, props: { ...site, ...patch } as typeof root.props } });
+  const setRootProp = (name: string, value: unknown) => setRootProps({ [name]: value });
 
   const setBlockProp = (name: string, value: unknown) => {
     if (!selectedItem) return;
@@ -94,80 +97,105 @@ export function PropertiesPanel() {
       aria-label="Block settings"
       className="flex w-[384px] shrink-0 flex-col overflow-hidden rounded-[20px] bg-background shadow-card"
     >
-      {/* WebBlock AI lives here in Figma; the assistant ships with the backend. */}
+      {/* Figma "Panel header · WebBlock AI switch": opens the AI chat in place of the settings. */}
       <div className="px-4 pt-3 pb-2">
-        <button
-          type="button"
-          aria-disabled
-          title="WebBlock AI is coming soon"
-          className="flex w-full items-center gap-2.5 rounded-full bg-segment py-2 pr-2.5 pl-3.5 text-left"
+        <div
+          className={cn(
+            "flex w-full items-center gap-2.5 rounded-full py-2 pr-2.5 pl-3.5 transition-colors",
+            aiOpen ? "bg-primary-soft" : "bg-segment hover:bg-primary-soft",
+          )}
         >
-          <Magicpen aria-hidden className="size-4 text-brand" />
-          <span className="min-w-0 flex-1">
-            <span className="block text-sm font-semibold text-foreground">WebBlock AI</span>
-            <span className="block text-xs text-placeholder">Coming soon · ask AI to edit your site</span>
-          </span>
-          <span className="flex size-7 items-center justify-center rounded-full bg-background">
-            <ArrowDown2 aria-hidden className="size-3.5 text-foreground-soft" />
-          </span>
-        </button>
-      </div>
-
-      <div className="flex items-center gap-2.5 px-[18px] py-4">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand">
-          <Icon aria-hidden className="size-[18px]" />
-        </span>
-        <div className="min-w-0">
-          <p className="text-sm font-semibold text-foreground">{meta?.label ?? "Site settings"}</p>
-          <p className="text-xs text-muted-foreground">
-            {meta ? `Section ${index + 1} of ${content.length}` : "Business info · select a section to edit it"}
-          </p>
-        </div>
-      </div>
-
-      <div className="px-4 pt-1 pb-2">
-        <div role="tablist" aria-label="Settings" className="flex rounded-full bg-segment p-1">
-          {(
-            [
-              ["content", "Content"],
-              ["layout", "Layout & Design"],
-            ] as const
-          ).map(([value, label]) => (
+          <button
+            type="button"
+            aria-expanded={aiOpen}
+            onClick={() => setAiOpen(true)}
+            className="flex min-w-0 flex-1 items-center gap-2.5 text-left outline-none focus-visible:underline"
+          >
+            <Magicpen aria-hidden className="size-4 shrink-0 text-brand" />
+            <span className="min-w-0 flex-1">
+              <span className={cn("block text-sm font-semibold", aiOpen ? "text-brand-deep" : "text-foreground")}>WebBlock AI</span>
+              <span className="block text-xs text-placeholder">Ask AI to edit your site</span>
+            </span>
+          </button>
+          {aiOpen ? (
             <button
-              key={value}
               type="button"
-              role="tab"
-              aria-selected={tab === value}
-              onClick={() => setTab(value)}
-              className={cn(
-                "h-9 flex-1 rounded-full text-sm transition-[background-color,color,box-shadow] outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
-                tab === value ? "bg-background font-semibold text-brand-deep shadow-button" : "font-medium text-muted-foreground hover:text-foreground",
-              )}
+              aria-label="Close chat"
+              onClick={() => setAiOpen(false)}
+              className="flex size-7 shrink-0 items-center justify-center rounded-full bg-background text-brand-deep outline-none hover:bg-background/70 focus-visible:ring-3 focus-visible:ring-ring/40"
             >
-              {label}
+              <Add aria-hidden className="size-4 rotate-45" />
             </button>
-          ))}
+          ) : (
+            <span aria-hidden className="flex size-7 shrink-0 items-center justify-center rounded-full bg-background">
+              <ArrowDown2 className="size-3.5 text-foreground-soft" />
+            </span>
+          )}
         </div>
       </div>
 
-      <div role="tabpanel" className="min-h-0 flex-1 overflow-y-auto pb-6">
-        <FieldList
-          key={`${selectedItem?.props.id ?? "root"}-${tab}`}
-          fields={fields}
-          values={values}
-          tab={tab}
-          templateId={site.templateId}
-          onChange={selectedItem ? setBlockProp : setRootProp}
-        />
-        {tab === "layout" && (
-          <VisualStyle site={site} onChange={(name, value) => setRootProp(name, value)} />
-        )}
-        {tab === "content" && !selectedItem && (
-          <p className="px-[18px] text-xs text-muted-foreground">
-            These details appear in the header, the Visit us section, the footer and the Contact popup.
-          </p>
-        )}
-      </div>
+      {aiOpen ? (
+        <AiChat />
+      ) : (
+        <>
+
+          <div className="flex items-center gap-2.5 px-[18px] py-4">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand">
+              <Icon aria-hidden className="size-[18px]" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-foreground">{meta?.label ?? "Site settings"}</p>
+              <p className="text-xs text-muted-foreground">
+                {meta ? `Section ${index + 1} of ${content.length}` : "Business info · select a section to edit it"}
+              </p>
+            </div>
+          </div>
+
+          <div className="px-4 pt-1 pb-2">
+            <div role="tablist" aria-label="Settings" className="flex rounded-full bg-segment p-1">
+              {(
+                [
+                  ["content", "Content"],
+                  ["layout", "Layout & Design"],
+                ] as const
+              ).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  role="tab"
+                  aria-selected={tab === value}
+                  onClick={() => setTab(value)}
+                  className={cn(
+                    "h-9 flex-1 rounded-full text-sm transition-[background-color,color,box-shadow] outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
+                    tab === value ? "bg-background font-semibold text-brand-deep shadow-button" : "font-medium text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div role="tabpanel" className="min-h-0 flex-1 overflow-y-auto pb-6">
+            <FieldList
+              key={`${selectedItem?.props.id ?? "root"}-${tab}`}
+              fields={fields}
+              values={values}
+              tab={tab}
+              templateId={site.templateId}
+              onChange={selectedItem ? setBlockProp : setRootProp}
+            />
+            {tab === "layout" && (
+              <VisualStyle site={site} onChange={setRootProps} />
+            )}
+            {tab === "content" && !selectedItem && (
+              <p className="px-[18px] text-xs text-muted-foreground">
+                These details appear in the header, the Visit us section, the footer and the Contact popup.
+              </p>
+            )}
+          </div>
+        </>
+      )}
     </aside>
   );
 }
