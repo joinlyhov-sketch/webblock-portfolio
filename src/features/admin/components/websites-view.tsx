@@ -115,7 +115,7 @@ export function WebsitesView({
                 />
               </Link>
             )}
-            <SegmentedTabs
+            <SegmentedTabs variant="filled"
               size="sm"
               className="mb-0 ml-auto"
               tabs={[
@@ -152,8 +152,7 @@ export function WebsitesView({
         }
         empty={
           filtered ? (
-            <EmptyState
-              variant="dashed"
+            <EmptyState variant="box"
               icon={<SearchNormal1 />}
               title="No websites match these filters"
               action={
@@ -163,8 +162,7 @@ export function WebsitesView({
               }
             />
           ) : (
-            <EmptyState
-              variant="dashed"
+            <EmptyState variant="box"
               icon={<Global />}
               title="No websites yet"
               description="Websites show here once owners create them."
@@ -344,7 +342,7 @@ function WebsiteDetail({
           <>
             <HeroChip
               icon={
-                <Avatar
+                <Avatar variant="solid"
                   name={website.ownerName}
                   src={website.ownerAvatarUrl}
                   size="sm"

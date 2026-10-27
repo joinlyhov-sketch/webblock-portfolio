@@ -1,4 +1,4 @@
-import { ActivityView, listActivity, listActivityActors, type ActivityAction } from "@/features/admin-monitoring";
+import { ActivityView, listActivity, listActivityActors, type ActivityAction } from "@/features/admin/monitoring";
 import { requireAdmin } from "@/lib/auth/session";
 import { parseTableQuery, type SearchParams } from "@/lib/table-query";
 

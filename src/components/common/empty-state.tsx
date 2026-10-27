@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 const art = "absolute max-w-none";
 
 /**
- * Empty list or empty search result: icon, one line of title, a hint, optional action.
- * `illustration` (default): dashed ring + disc art holding `icon`. `dashed`: a blue dashed box (Admin tables).
+ * Empty list or empty search result: icon, title, an optional hint and action.
+ * `illustration` (default): dashed ring + disc art (app screens). `box`: compact dashed box (admin tables).
  */
 export function EmptyState({
   icon,
@@ -19,10 +19,10 @@ export function EmptyState({
   title: string;
   description?: string;
   action?: ReactNode;
-  variant?: "illustration" | "dashed";
+  variant?: "illustration" | "box";
   className?: string;
 }) {
-  if (variant === "dashed") {
+  if (variant === "box") {
     return (
       <div
         className={cn(

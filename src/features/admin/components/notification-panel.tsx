@@ -143,15 +143,13 @@ export function NotificationPanel({
         {shown.length === 0 && (
           <li className="px-5 py-4">
             {tab === "unread" ? (
-              <EmptyState
-                variant="dashed"
+              <EmptyState variant="box"
                 icon={<TickCircle />}
                 title="You're all caught up"
                 description="New activity will show here."
               />
             ) : (
-              <EmptyState
-                variant="dashed"
+              <EmptyState variant="box"
                 icon={<NotificationBing />}
                 title="No notifications yet"
               />
@@ -163,7 +161,7 @@ export function NotificationPanel({
           const row = (
             <>
               <span className="relative shrink-0">
-                <Avatar
+                <Avatar variant="solid"
                   name={n.actorName}
                   src={n.actorAvatarUrl}
                   className="size-10 text-xs ring-0"

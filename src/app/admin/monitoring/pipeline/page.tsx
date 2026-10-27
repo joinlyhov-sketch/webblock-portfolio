@@ -5,7 +5,7 @@ import {
   PipelineView,
   type LogLevel,
   type PipelineStage,
-} from "@/features/admin-monitoring";
+} from "@/features/admin/monitoring";
 import { requireAdmin } from "@/lib/auth/session";
 import { parseTableQuery, type SearchParams } from "@/lib/table-query";
 

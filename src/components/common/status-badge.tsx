@@ -1,19 +1,18 @@
 import type { ComponentType } from "react";
 import {
-  Clock,
-  CloseCircle,
   Danger,
   Edit2,
   Forbidden2,
   Global,
   InfoCircle,
   MinusCirlce,
-  PauseCircle,
   Refresh2,
   RotateLeft,
   Send2,
   TickCircle,
   Timer1,
+  Clock,
+  Wallet2,
 } from "iconsax-reactjs";
 import { cn } from "@/lib/utils";
 
@@ -33,8 +32,6 @@ export type Status =
   | "NOT_DEPLOYED"
   | "OFFLINE_BILLING"
   | "DRAFT"
-  // Editor: changes not saved as a draft yet
-  | "UNSAVED"
   // Releases and deploys
   | "LIVE"
   | "GOING_LIVE"
@@ -59,10 +56,15 @@ export type Status =
   | "RUNNING"
   | "WAITING"
   | "NOT_STARTED"
-  // Admin actions and owner-portal deploys
-  | "SUCCEEDED";
+  // Admin actions
+  | "SUCCEEDED"
+  // Editor: changes not saved as a draft yet
+  | "UNSAVED";
 
-type Tone = "success" | "danger" | "info" | "warning" | "neutral" | "draft" | "suspended";
+/** Old name of `Status`, kept so existing imports keep working. */
+export type BadgeStatus = Status;
+
+type Tone = "success" | "danger" | "info" | "warning" | "neutral" | "draft";
 
 type StatusMeta = {
   label: string;
@@ -72,14 +74,13 @@ type StatusMeta = {
 
 const STATUS = {
   ACTIVE: { label: "Active", tone: "success", icon: TickCircle },
-  SUSPENDED: { label: "Suspended", tone: "suspended", icon: PauseCircle },
+  SUSPENDED: { label: "Suspended", tone: "danger", icon: Forbidden2 },
   PENDING: { label: "Pending", tone: "warning", icon: Clock },
   CANCELED: { label: "Canceled", tone: "danger", icon: Forbidden2 },
-  EXPIRED: { label: "Expired", tone: "danger", icon: CloseCircle },
+  EXPIRED: { label: "Expired", tone: "danger", icon: Timer1 },
   ONLINE: { label: "Online", tone: "success", icon: Global },
   NOT_DEPLOYED: { label: "Not deployed", tone: "info", icon: Edit2 },
   DRAFT: { label: "Draft", tone: "draft", icon: Edit2 },
-  UNSAVED: { label: "Unsaved changes", tone: "warning", icon: InfoCircle },
   OFFLINE_BILLING: { label: "Offline · billing", tone: "danger", icon: Timer1 },
   LIVE: { label: "Live", tone: "success", icon: Global },
   GOING_LIVE: { label: "Going live", tone: "info", icon: Send2 },
@@ -87,7 +88,7 @@ const STATUS = {
   REPLACED: { label: "Replaced", tone: "neutral", icon: RotateLeft },
   STABLE: { label: "Stable", tone: "success", icon: Global },
   UPDATING: { label: "Updating", tone: "info", icon: Refresh2 },
-  PAID: { label: "Paid", tone: "success", icon: TickCircle },
+  PAID: { label: "Paid", tone: "success", icon: Wallet2 },
   QUEUED: { label: "Queued", tone: "draft", icon: Edit2 },
   PUBLISHING: { label: "Publishing", tone: "info", icon: Send2 },
   PUBLISHED: { label: "Published", tone: "success", icon: Global },
@@ -101,7 +102,8 @@ const STATUS = {
   RUNNING: { label: "Running", tone: "info", icon: Send2 },
   WAITING: { label: "Waiting", tone: "warning", icon: Clock },
   NOT_STARTED: { label: "Not started", tone: "neutral", icon: MinusCirlce },
-  SUCCEEDED: { label: "Succeeded", tone: "success", icon: TickCircle },
+  SUCCEEDED: { label: "Succeeded", tone: "success", icon: Global },
+  UNSAVED: { label: "Unsaved changes", tone: "warning", icon: InfoCircle },
 } satisfies Record<Status, StatusMeta>;
 
 const TONE = {
@@ -110,11 +112,10 @@ const TONE = {
   info: "bg-info-soft text-info",
   warning: "bg-warning-soft text-warning",
   neutral: "bg-neutral-soft text-muted-foreground",
-  draft: "bg-status-draft-soft text-foreground-soft",
-  suspended: "bg-status-suspended-soft text-status-suspended",
+  draft: "bg-info-soft text-foreground-soft",
 } satisfies Record<Tone, string>;
 
-/** Every status in the app: light tint pill with an icon (Figma "Status badge"). `detail` adds " · 52 min". */
+/** Pill with a light tint and an icon per status (Figma "Status badge"). `detail` adds " · 52 min". */
 export function StatusBadge({
   status,
   detail,
@@ -130,7 +131,7 @@ export function StatusBadge({
     <span
       data-badge
       className={cn(
-        "inline-flex h-6 items-center gap-[5px] rounded-full px-2 text-xs leading-[18px] font-medium whitespace-nowrap shadow-button",
+        "inline-flex h-6 items-center gap-[5px] rounded-full px-2 text-xs font-medium whitespace-nowrap shadow-button",
         TONE[meta.tone],
         className,
       )}

@@ -1,4 +1,4 @@
-import type { ActivityEntry } from "@/features/admin-monitoring/types";
+import type { ActivityEntry } from "@/features/admin/monitoring/types";
 
 /** Admin and system actions, newest first. null actor = done by the system. */
 export const activityLog: ActivityEntry[] = [

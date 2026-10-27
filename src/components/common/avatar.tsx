@@ -3,15 +3,21 @@ import { Global } from "iconsax-reactjs";
 import { cn } from "@/lib/utils";
 
 const SIZE = {
-  sm: "size-7 text-[11px]",
-  md: "size-9 text-[13px]",
-  lg: "size-[72px] text-xl",
+  sm: { box: "size-7 text-[11px]", px: 28 },
+  md: { box: "size-9 text-[13px]", px: 36 },
+  lg: { box: "size-[72px] text-xl", px: 72 },
+} as const;
+
+const VARIANT = {
+  /** Soft blue gradient, dark-blue initials (app sidebar, settings). */
+  soft: "bg-linear-[140deg] from-brand-soft to-violet-border text-brand-deep",
+  /** Solid brand circle, white initials, white ring (admin tables and menus). */
+  solid: "bg-brand text-primary-foreground ring-2 ring-background",
 } as const;
 
 /** "Sokha Chan" → "SC" · "Admin" → "AD" */
 function initialsOf(name: string): string {
   const parts = name.split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "";
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return parts
     .slice(0, 2)
@@ -19,33 +25,37 @@ function initialsOf(name: string): string {
     .join("");
 }
 
-/** Round avatar: the photo, or the person's initials on the soft blue gradient when there is none. */
+/** Round photo, or the person's initials when `src` is null. */
 export function Avatar({
   name,
-  initials,
   src,
+  initials,
   size = "md",
+  variant = "soft",
   className,
 }: {
   name: string;
+  src: string | null;
   /** Letters shown without a photo, e.g. "SV". Defaults to the first letters of `name`. */
   initials?: string;
-  src: string | null;
   size?: keyof typeof SIZE;
-  /** Extra classes, e.g. a custom size "size-[104px] text-2xl" or `planRing(plan)`. */
+  variant?: keyof typeof VARIANT;
+  /** Extra classes, e.g. a custom size "size-10 text-sm". */
   className?: string;
 }) {
+  const s = SIZE[size];
   return (
     <span
       data-avatar
       className={cn(
-        "relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-linear-[140deg] from-brand-soft to-violet-border font-bold text-brand-deep",
-        SIZE[size],
+        "relative inline-grid shrink-0 place-items-center overflow-hidden rounded-full font-bold",
+        VARIANT[variant],
+        s.box,
         className,
       )}
     >
       {src ? (
-        <Image src={src} alt="" fill unoptimized sizes="104px" className="object-cover" />
+        <Image src={src} alt="" width={s.px} height={s.px} unoptimized className="size-full object-cover" />
       ) : (
         <span aria-hidden>{initials ?? initialsOf(name)}</span>
       )}
@@ -77,30 +87,14 @@ export function Thumbnail({
       )}
     >
       {src ? (
-        <Image
-          src={src}
-          alt=""
-          width={px}
-          height={size === "lg" ? 90 : px}
-          className="size-full object-cover"
-        />
+        <Image src={src} alt="" width={px} height={size === "lg" ? 90 : px} className="size-full object-cover" />
       ) : (
         <span className="flex size-full flex-col items-center justify-center gap-1 bg-primary-soft text-primary/70">
           <Global
             aria-hidden
-            className={cn(
-              size === "sm"
-                ? "size-3.5"
-                : size === "md"
-                  ? "size-[18px]"
-                  : "size-7",
-            )}
+            className={cn(size === "sm" ? "size-3.5" : size === "md" ? "size-[18px]" : "size-7")}
           />
-          {size === "lg" && (
-            <span className="text-[11px] font-medium text-muted-foreground">
-              No preview
-            </span>
-          )}
+          {size === "lg" && <span className="text-[11px] font-medium text-muted-foreground">No preview</span>}
         </span>
       )}
     </span>

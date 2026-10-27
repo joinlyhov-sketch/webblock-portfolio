@@ -45,7 +45,7 @@ export function PageHeader({
           </p>
         )}
       </div>
-      {actions && <div className="flex items-center gap-2">{actions}</div>}
+      {actions && <div className={cn("flex items-center", compact ? "gap-1.5" : "gap-2")}>{actions}</div>}
     </header>
   );
 }

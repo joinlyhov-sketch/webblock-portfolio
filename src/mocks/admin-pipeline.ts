@@ -3,7 +3,7 @@ import type {
   PipelineRun,
   PipelineStep,
   StepStatus,
-} from "@/features/admin-monitoring/types";
+} from "@/features/admin/monitoring/types";
 
 const TITLES = [
   "Request received",

@@ -154,8 +154,7 @@ export function UsersView({
         }
         empty={
           q || plan ? (
-            <EmptyState
-              variant="dashed"
+            <EmptyState variant="box"
               icon={<SearchNormal1 />}
               title={
                 q
@@ -174,8 +173,7 @@ export function UsersView({
               }
             />
           ) : (
-            <EmptyState
-              variant="dashed"
+            <EmptyState variant="box"
               icon={<Profile2User />}
               title="No accounts yet"
               description="People who sign up show here."
@@ -194,7 +192,7 @@ export function UsersView({
                 scroll={false}
                 className="group flex min-w-0 items-center gap-3 outline-none after:absolute after:inset-0 after:content-[''] focus-visible:after:ring-3 focus-visible:after:ring-ring/40"
               >
-                <Avatar
+                <Avatar variant="solid"
                   name={u.fullName}
                   src={u.avatarUrl}
                   className={planRing(u.plan)}
@@ -281,7 +279,7 @@ function UserDetail({
 
         <div className="flex items-center gap-[22px] pr-11 pl-2">
           <span className="relative shrink-0">
-            <Avatar
+            <Avatar variant="solid"
               name={user.fullName}
               src={user.avatarUrl}
               size="lg"

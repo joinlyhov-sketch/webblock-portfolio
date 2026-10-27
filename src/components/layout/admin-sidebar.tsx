@@ -17,7 +17,7 @@ export function AdminSidebar({ user }: { user: SidebarUser }) {
       compact
       footer={
         <div className="flex items-center gap-2.5 px-2 py-1.5">
-          <Avatar name={user.fullName} src={user.avatarUrl} />
+          <Avatar variant="solid" name={user.fullName} src={user.avatarUrl} />
           <div className="min-w-0">
             <p className="truncate text-[13px] font-semibold text-foreground">
               {user.fullName}

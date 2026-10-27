@@ -60,7 +60,7 @@ export function ActivityView({
             <CardHeader compact title="Recent activity" icon={<Activity />} />
             <div className="flex flex-wrap items-center gap-3">
               <div className="max-w-full overflow-x-auto">
-                <SegmentedTabs
+                <SegmentedTabs variant="filled"
                   size="sm"
                   className="mb-0 whitespace-nowrap"
                   tabs={[
@@ -115,8 +115,7 @@ export function ActivityView({
           </div>
         }
         empty={
-          <EmptyState
-            variant="dashed"
+          <EmptyState variant="box"
             icon={action || by ? <SearchNormal1 /> : <Activity />}
             title={
               action || by ? "No actions match these filters" : "No actions yet"

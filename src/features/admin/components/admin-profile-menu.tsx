@@ -34,7 +34,7 @@ export function AdminProfileMenu({ profile }: { profile: AdminProfile }) {
           aria-label="Admin profile"
           className="rounded-full outline-none transition-transform focus-visible:ring-3 focus-visible:ring-ring/40 motion-safe:active:scale-95"
         >
-          <Avatar
+          <Avatar variant="solid"
             name={profile.fullName}
             src={profile.avatarUrl}
             className="size-10 text-xs"
@@ -42,17 +42,16 @@ export function AdminProfileMenu({ profile }: { profile: AdminProfile }) {
         </button>
       </PopoverTrigger>
       <PopoverContent
+        align="end"
         aria-label="Admin profile"
         // Don't drop focus into the first read-only field (it would select its text).
         onOpenAutoFocus={(e) => e.preventDefault()}
-        align="end"
-        sideOffset={8}
-        className="w-[min(280px,calc(100vw-32px))] rounded-[22px] px-4 pt-5 pb-4 shadow-popover"
+        className="w-[min(280px,calc(100vw-32px))] rounded-[22px] px-4 pt-5 pb-4"
       >
         <h2 className="text-lg font-semibold text-foreground">Admin profile</h2>
 
         <div className="mt-4 flex items-center gap-3.5">
-          <Avatar
+          <Avatar variant="solid"
             name={profile.fullName}
             src={profile.avatarUrl}
             className="size-11 text-sm ring-0"

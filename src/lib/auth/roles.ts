@@ -4,11 +4,12 @@
 export const ROLE_COOKIE = "wb_role";
 
 /**
- * TEMPORARY — sign-in isn't built yet. While this is `true`, every page opens without signing in:
- * no cookie means you browse as the mock admin, and role/ownership checks are skipped.
- * Set to `false` once sign-in sets the session. Never active in production builds.
+ * Kept `false`: sign in with the temporary "Enter as User / Enter as Admin" buttons on /sign-in instead,
+ * so role and ownership checks keep running (a page that forgets its require*() check shows up).
+ * While `true`, every page opens without signing in as the mock admin and those checks are skipped.
+ * Never active in production builds.
  */
-const PREVIEW_WITHOUT_SIGN_IN = true;
+const PREVIEW_WITHOUT_SIGN_IN = false;
 
 export const AUTH_PREVIEW = PREVIEW_WITHOUT_SIGN_IN && process.env.NODE_ENV !== "production";
 

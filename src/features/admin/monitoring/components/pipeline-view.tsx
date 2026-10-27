@@ -54,7 +54,7 @@ export function PipelineView({
           <div className="w-full space-y-3">
             <CardHeader compact title="Latest publishes" icon={<Hierarchy />} />
             <div className="flex flex-wrap items-center gap-3">
-              <SegmentedTabs
+              <SegmentedTabs variant="filled"
                 size="sm"
                 className="mb-0"
                 tabs={[
@@ -77,8 +77,7 @@ export function PipelineView({
           </div>
         }
         empty={
-          <EmptyState
-            variant="dashed"
+          <EmptyState variant="box"
             icon={<SearchNormal1 />}
             title={
               stage

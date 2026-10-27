@@ -2,27 +2,24 @@
 
 /** Icon names, mapped to iconsax icons in components/layout/sidebar-nav.tsx. */
 export type NavIcon =
-  // Admin sidebar
-  | "overview"
-  | "users"
-  | "subscriptions"
-  | "monitoring"
-  // User and owner sidebars
   | "websites"
   | "templates"
   | "settings"
   | "support"
   | "products"
   | "business"
-  | "monitor";
+  | "monitor"
+  | "overview"
+  | "users"
+  | "subscriptions"
+  | "monitoring";
 
 export type NavItem = {
   label: string;
   href: string;
-  /** Icon shown before the label. */
-  icon?: NavIcon;
   /** Only active on this exact path (for section roots like /admin). */
   exact?: boolean;
+  icon?: NavIcon;
   /** Sub-pages shown under the item; the item itself is then a group toggle, not a link. */
   children?: NavItem[];
 };

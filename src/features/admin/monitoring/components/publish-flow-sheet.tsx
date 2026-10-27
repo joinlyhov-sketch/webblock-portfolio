@@ -17,7 +17,7 @@ import {
 import { Modal } from "@/components/common/modal";
 import { StatusBadge } from "@/components/common/status-badge";
 import type { Page } from "@/lib/api/types";
-import { formatClock, formatRelative, formatTime } from "@/lib/format";
+import { formatLogTime, formatRelative, formatTime } from "@/lib/format";
 import { tableHref, type SearchParams } from "@/lib/table-query";
 import { cn } from "@/lib/utils";
 import type {
@@ -467,7 +467,7 @@ function LiveLogs({
                 )}
               >
                 <td className="px-4 py-2.5 text-muted-foreground tabular-nums">
-                  {formatClock(line.at)}
+                  {formatLogTime(line.at)}
                 </td>
                 <td className="px-4 py-2.5">
                   <span

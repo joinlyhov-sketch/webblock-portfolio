@@ -171,8 +171,7 @@ export function SubscriptionsView({
         }
         empty={
           filtered ? (
-            <EmptyState
-              variant="dashed"
+            <EmptyState variant="box"
               icon={<SearchNormal1 />}
               title="No subscriptions match these filters"
               action={
@@ -182,8 +181,7 @@ export function SubscriptionsView({
               }
             />
           ) : (
-            <EmptyState
-              variant="dashed"
+            <EmptyState variant="box"
               icon={<CardIcon />}
               title="No subscriptions yet"
               description="Trials and paid plans show here."
@@ -202,7 +200,7 @@ export function SubscriptionsView({
                 scroll={false}
                 className="group flex min-w-0 items-center gap-3 outline-none after:absolute after:inset-0 after:content-[''] focus-visible:after:ring-3 focus-visible:after:ring-ring/40"
               >
-                <Avatar
+                <Avatar variant="solid"
                   name={s.userName}
                   src={s.userAvatarUrl}
                   className={planRing(s.plan)}
@@ -338,7 +336,7 @@ function SubscriptionDetail({
     >
       <DetailHero
         media={
-          <Avatar
+          <Avatar variant="solid"
             name={s.userName}
             src={s.userAvatarUrl}
             size="lg"

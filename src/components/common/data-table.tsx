@@ -43,7 +43,7 @@ type DataTableProps<T> = {
   heading?: ReactNode;
   /** Search, filters and actions shown above the table. */
   toolbar?: ReactNode;
-  /** Shown when there are no items at all (use `EmptyState` when it exists). */
+  /** Shown when there are no items at all (use `EmptyState`). */
   empty?: ReactNode;
   /** Sort applied when the URL has none; its header shows as active. */
   defaultSort?: TableQuery["sort"];
@@ -53,12 +53,9 @@ type DataTableProps<T> = {
   minWidth?: string;
   /** Extra row classes, e.g. "relative cursor-pointer" for rows with a stretched link. */
   rowClassName?: string;
-  /**
-   * Stretch to the bottom of a flex-column parent (the Admin `<main>`). Never shorter than 420px —
-   * below that the page scrolls. (Same as `className="flex-1"` plus that minimum.)
-   */
+  /** Stretch to the bottom of a flex-column parent (the Admin `<main>`), never shorter than 420px. */
   fill?: boolean;
-  /** Denser rows and smaller text (Admin Portal): 48px rows, 12px text, smaller badges and avatars. */
+  /** Denser rows and smaller text (Admin Portal): 48px rows, 12px text, 34px header. */
   compact?: boolean;
   className?: string;
 };
@@ -66,9 +63,9 @@ type DataTableProps<T> = {
 /**
  * Every list screen's table ("Draft table style"): "No." first column, sortable headers,
  * pinned footer with "Showing …" + pagination. Only real rows are drawn (no empty filler rows). The card
- * takes the height its parent gives it (e.g. `flex-1`), whatever the row count: spare room stays blank
- * above the footer, and when there are too many rows only the rows scroll while the toolbar, the column
- * headers and the footer stay in place.
+ * takes the height its parent gives it (e.g. `flex-1` or `fill`), whatever the row count: spare room stays
+ * blank above the footer, and when there are too many rows only the rows scroll while the toolbar, the
+ * column headers and the footer stay in place.
  * A Server Component — page, size and sort live in the URL (see `lib/table-query`).
  *
  * @example
@@ -104,7 +101,8 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   const { sort } = parseTableQuery(searchParams, { sort: defaultSort });
   const offset = data.page * data.size;
-  const isEmpty = data.items.length === 0;
+  const colSpan = columns.length + 1;
+  const noItems = data.totalItems === 0;
 
   return (
     <section
@@ -128,32 +126,27 @@ export function DataTable<T>({
 
       <Table
         aria-label={label}
+        containerClassName={cn("min-h-0 grow", fill && "overscroll-contain")}
         className={cn(
           minWidth,
           compact &&
             cn(
-              "text-xs [&_td]:h-12 [&_td]:py-1.5 [&_th]:text-[11px] [&_td_.text-xs]:text-[11px]",
+              "text-xs [&_td]:h-12 [&_td]:py-1.5 [&_th]:h-[34px] [&_th]:text-[11px] [&_td_.text-xs]:text-[11px]",
               // Smaller badges, avatars and thumbnails inside rows.
               "[&_[data-badge]]:h-5 [&_[data-badge]]:px-1.5 [&_[data-badge]]:text-[11px] [&_[data-badge]_svg]:size-3",
               "[&_[data-avatar]]:size-7 [&_[data-avatar]]:text-[10px] [&_[data-thumb]]:size-7",
             ),
         )}
-        // Empty: the table is just its header row, and the message below takes the free space.
-        containerClassName={cn("overscroll-contain", isEmpty ? "shrink-0" : "min-h-0 grow")}
       >
-        {/* Sticky header: under border-collapse the row border scrolls away, so draw it as a shadow. z-20 keeps
-            it above raised cells (e.g. row menus over a stretched row link). */}
-        <TableHeader className="sticky top-0 z-20 shadow-[inset_0_-1px_0_var(--color-border)]">
+        <TableHeader className="sticky top-0 z-10 shadow-[inset_0_-1px_0_var(--color-border)]">
           <TableRow className="border-0">
-            <TableHead className={cn("h-auto w-[77px] pr-0 pl-[21px] leading-normal", compact ? "py-2.5" : "py-3")}>
-              No.
-            </TableHead>
+            <TableHead className="h-auto w-[77px] py-3 pr-0 pl-[21px] leading-normal">No.</TableHead>
             {columns.map((column) => {
               const active = sort && column.sortField === sort.field ? sort.direction : undefined;
               return (
                 <TableHead
                   key={column.key}
-                  className={cn("h-auto leading-normal", compact ? "py-2.5" : "py-3", column.className)}
+                  className={cn("h-auto py-3 leading-normal", column.className)}
                   aria-sort={active === "asc" ? "ascending" : active === "desc" ? "descending" : undefined}
                 >
                   {column.sortField ? (
@@ -172,7 +165,7 @@ export function DataTable<T>({
           </TableRow>
         </TableHeader>
 
-        {!isEmpty && (
+        {!noItems && (
           <TableBody>
             {data.items.map((row, i) => (
               <TableRow
@@ -188,28 +181,38 @@ export function DataTable<T>({
                 ))}
               </TableRow>
             ))}
+
+            {data.items.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={colSpan} className="h-64 text-center">
+                  <p className="text-muted-foreground">
+                    This page is empty.{" "}
+                    <Link href={tableHref(searchParams, { page: null })} className="font-medium text-primary hover:underline">
+                      Go to the first page
+                    </Link>
+                  </p>
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         )}
       </Table>
 
       {/* Outside the (possibly wider-than-screen) table, so it stays centred in the visible area. */}
-      {isEmpty && (
-        <div className="flex min-h-64 flex-1 items-center justify-center px-6 py-10 text-center">
-          {data.totalItems > 0 ? (
-            <p className="text-muted-foreground">
-              This page is empty.{" "}
-              <Link href={tableHref(searchParams, { page: null })} className="font-medium text-primary hover:underline">
-                Go to the first page
-              </Link>
-            </p>
-          ) : (
-            (empty ?? <p className="text-muted-foreground">No {itemLabel} yet.</p>)
-          )}
+      {noItems && (
+        <div className="flex min-h-[300px] flex-1 items-center justify-center px-6 py-10 text-center">
+          {empty ?? <p className="text-muted-foreground">No {itemLabel} yet.</p>}
         </div>
       )}
 
       {footer && (
-        <div className="shrink-0 border-t border-border">
+        <div
+          className={cn(
+            "shrink-0 border-t border-border",
+            // Compact footer: smaller "Showing …" text and page buttons.
+            compact && "[&_a]:h-7 [&_a]:min-w-7 [&_a]:text-xs [&_p]:text-xs [&_span]:text-xs [&>div]:py-2",
+          )}
+        >
           <TablePagination data={data} searchParams={searchParams} itemLabel={itemLabel} itemLabelOne={itemLabelOne} />
         </div>
       )}
