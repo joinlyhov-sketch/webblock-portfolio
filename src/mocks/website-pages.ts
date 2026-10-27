@@ -1,4 +1,5 @@
-import type { MediaAsset, WebsitePage } from "@/features/editor/types";
+import type { MediaAsset, SiteRootProps, WebsitePage } from "@/features/editor/types";
+import type { BusinessDetails, OpeningHour } from "@/features/websites/types";
 import { LANTERN_CAFE_ID, MAPLE_AND_RYE_ID, NORTHPOINT_AUDIO_ID, PETAL_AND_STEM_ID } from "./session";
 import { templatePages } from "./template-pages";
 import { templateSites } from "./template-sites";
@@ -7,17 +8,71 @@ import { daysAgo, hoursAgo } from "./time";
 // Kept on globalThis so editor saves survive hot reload and are shared by every route in dev.
 const store = globalThis as typeof globalThis & { __wbWebsitePages?: WebsitePage[] };
 
-/** What the backend does on "Use template": copy the template's default page into the new website. */
-export function newWebsitePage(websiteId: string, templateId: string, updatedAt: string): WebsitePage {
+const SHORT_DAY: Record<OpeningHour["day"], string> = {
+  MONDAY: "Mon",
+  TUESDAY: "Tue",
+  WEDNESDAY: "Wed",
+  THURSDAY: "Thu",
+  FRIDAY: "Fri",
+  SATURDAY: "Sat",
+  SUNDAY: "Sun",
+};
+
+/** "09:00" → "9:00", the way the template sites write times. */
+const clock = (hhmm: string) => hhmm.replace(/^0/, "");
+
+/** Opening hours of the business form as the site's two lines: "9:00 – 18:00" and "Mon – Fri 9:00 – 18:00 · Sat closed". */
+function summarizeHours(hours: OpeningHour[]): { hours: string; hoursDetail: string } {
+  const open = hours.find((h) => h.open);
+  const groups: { first: string; last: string; text: string }[] = [];
+  for (const h of hours) {
+    const text = h.open ? `${clock(h.opensAt)} – ${clock(h.closesAt)}` : "closed";
+    const last = groups.at(-1);
+    if (last && last.text === text) last.last = SHORT_DAY[h.day];
+    else groups.push({ first: SHORT_DAY[h.day], last: SHORT_DAY[h.day], text });
+  }
+  return {
+    hours: open ? `${clock(open.opensAt)} – ${clock(open.closesAt)}` : "Closed",
+    hoursDetail: groups.map((g) => `${g.first === g.last ? g.first : `${g.first} – ${g.last}`} ${g.text}`).join(" · "),
+  };
+}
+
+/**
+ * What the backend does on "Use template": copy the template's default page into the new website and
+ * fill in the business details from the form (name, contacts, opening hours).
+ */
+export function newWebsitePage(
+  websiteId: string,
+  templateId: string,
+  updatedAt: string,
+  details?: BusinessDetails,
+): WebsitePage {
   const site = templateSites[templateId];
   if (!site) throw new Error(`Mock: no template page for template ${templateId}`);
+  const draft = structuredClone(templatePages[site.slug]);
+  if (details) {
+    draft.root.props = {
+      ...draft.root.props,
+      businessName: details.businessName,
+      address: details.address,
+      email: details.email,
+      phones: [{ number: details.phone }],
+      ...(details.hours.length > 0 ? summarizeHours(details.hours) : {}),
+    } as SiteRootProps;
+  }
   return {
     websiteId,
-    draft: structuredClone(templatePages[site.slug]),
+    draft,
     published: null,
     updatedAt,
     publishedAt: null,
   };
+}
+
+/** Seed websites: the business name the owner would have typed in the form. */
+function named(page: WebsitePage, businessName: string): WebsitePage {
+  page.draft.root.props = { ...page.draft.root.props, businessName } as SiteRootProps;
+  return page;
 }
 
 function published(page: WebsitePage, publishedAt: string): WebsitePage {
@@ -26,10 +81,10 @@ function published(page: WebsitePage, publishedAt: string): WebsitePage {
 
 // Template ids match src/mocks/websites.ts.
 export const websitePages: WebsitePage[] = (store.__wbWebsitePages ??= [
-  published(newWebsitePage(PETAL_AND_STEM_ID, "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c01", hoursAgo(2)), hoursAgo(2)),
-  newWebsitePage(MAPLE_AND_RYE_ID, "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c02", hoursAgo(26)),
-  newWebsitePage(LANTERN_CAFE_ID, "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c03", daysAgo(5)),
-  published(newWebsitePage(NORTHPOINT_AUDIO_ID, "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c04", hoursAgo(3)), daysAgo(10)),
+  published(named(newWebsitePage(PETAL_AND_STEM_ID, "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c01", hoursAgo(2)), "Petal & Stem"), hoursAgo(2)),
+  named(newWebsitePage(MAPLE_AND_RYE_ID, "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c02", hoursAgo(26)), "Maple & Rye Bakery"),
+  named(newWebsitePage(LANTERN_CAFE_ID, "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c03", daysAgo(5)), "Lantern Café"),
+  published(named(newWebsitePage(NORTHPOINT_AUDIO_ID, "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c04", hoursAgo(3)), "Northpoint Audio"), daysAgo(10)),
 ]);
 
 /** Image library shown under "Replace image": every template photo (stand-in for the owner's uploads). */

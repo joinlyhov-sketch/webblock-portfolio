@@ -35,9 +35,13 @@ export async function getProfileView(userId: string): Promise<Profile> {
   return getProfile(userId);
 }
 
+const BILLING_PERIOD_MS = 30 * 24 * 3_600_000;
+
+/** How much of the current period has passed: the trial, or the 30 days before a paid plan renews. */
 function trialProgress(subscription: Subscription): number {
-  const start = new Date(subscription.trialStartsAt).getTime();
-  const total = new Date(subscription.trialEndsAt).getTime() - start;
+  const end = new Date(subscription.renewsAt ?? subscription.trialEndsAt).getTime();
+  const start = subscription.renewsAt ? end - BILLING_PERIOD_MS : new Date(subscription.trialStartsAt).getTime();
+  const total = end - start;
   return Math.min(100, Math.max(0, Math.round(((Date.now() - start) / total) * 100)));
 }
 
@@ -56,13 +60,15 @@ export async function getSidebarView(
   if (!subscription) {
     return {
       profile,
-      summary: { planLabel: "Free trial", daysLeft: 0, progress: 0, liveWebsiteName },
+      summary: { plan: "FREE_TRIAL", planLabel: "Free trial", daysLeft: 0, renewsAt: null, progress: 0, liveWebsiteName },
     };
   }
   return {
     profile,
     summary: {
+      plan: subscription.plan,
       planLabel: subscription.planName,
+      renewsAt: subscription.renewsAt,
       daysLeft: daysUntil(subscription.renewsAt ?? subscription.trialEndsAt),
       progress: trialProgress(subscription),
       liveWebsiteName,

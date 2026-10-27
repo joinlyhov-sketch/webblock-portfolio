@@ -52,7 +52,10 @@ type DataTableProps<T> = {
 
 /**
  * Every list screen's table ("Draft table style"): "No." first column, sortable headers,
- * pinned footer with "Showing …" + pagination, full grid even with few rows.
+ * pinned footer with "Showing …" + pagination. Only real rows are drawn (no empty filler rows). The card
+ * takes the height its parent gives it (e.g. `flex-1`), whatever the row count: spare room stays blank
+ * above the footer, and when there are too many rows only the rows scroll while the toolbar, the column
+ * headers and the footer stay in place.
  * A Server Component — page, size and sort live in the URL (see `lib/table-query`).
  *
  * @example
@@ -83,24 +86,23 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   const { sort } = parseTableQuery(searchParams, { sort: defaultSort });
   const offset = data.page * data.size;
-  const fillerRows = data.items.length > 0 ? data.size - data.items.length : 0;
   const colSpan = columns.length + 1;
   const noItems = data.totalItems === 0;
 
   return (
     <section
       className={cn(
-        "flex flex-col overflow-hidden rounded-[20px] border border-border bg-background shadow-table",
+        "flex min-h-0 flex-col overflow-hidden rounded-[20px] border border-border bg-background shadow-table",
         className,
       )}
     >
-      {heading && <div className="px-4 pt-5 pb-1">{heading}</div>}
+      {heading && <div className="shrink-0 px-4 pt-5 pb-1">{heading}</div>}
       {toolbar && (
-        <div className="flex flex-wrap items-center gap-2.5 border-b border-border px-4 py-3.5">{toolbar}</div>
+        <div className="flex shrink-0 flex-wrap items-center gap-2.5 border-b border-border px-4 py-3.5">{toolbar}</div>
       )}
 
-      <Table aria-label={label}>
-        <TableHeader className="border-b border-border">
+      <Table aria-label={label} containerClassName="min-h-0 grow">
+        <TableHeader className="sticky top-0 z-10 shadow-[inset_0_-1px_0_var(--color-border)]">
           <TableRow className="border-0">
             <TableHead className="h-auto w-[77px] py-3 pr-0 pl-[21px] leading-normal">No.</TableHead>
             {columns.map((column) => {
@@ -144,12 +146,6 @@ export function DataTable<T>({
               </TableRow>
             ))}
 
-            {Array.from({ length: fillerRows }, (_, i) => (
-              <TableRow key={`filler-${i}`} aria-hidden>
-                <TableCell colSpan={colSpan} />
-              </TableRow>
-            ))}
-
             {data.items.length === 0 && (
               <TableRow>
                 <TableCell colSpan={colSpan} className="h-64 text-center">
@@ -171,9 +167,8 @@ export function DataTable<T>({
           {empty ?? <p className="text-muted-foreground">No {itemLabel} yet.</p>}
         </div>
       )}
-      {!noItems && <div className="flex-1" />}
 
-      <div className="border-t border-border">
+      <div className="shrink-0 border-t border-border">
         <TablePagination
           data={data}
           searchParams={searchParams}

@@ -1,11 +1,10 @@
 import Image from "next/image";
-import Link from "next/link";
 import type { ReactNode } from "react";
 import { Check, Clock, Crown, Global, Lock1, Refresh2, ShieldTick } from "iconsax-reactjs";
 import { formatDayMonthYear, formatDayMonthYearTime, formatPrice } from "@/lib/format";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { PaidPlanCode, PaymentOrder } from "../types";
+import { RedirectAfterPaid } from "./redirect-after-paid";
 import { RegenerateCodeButton } from "./regenerate-code-button";
 
 const PLAN_BADGE: Record<PaidPlanCode, string> = {
@@ -224,7 +223,7 @@ export function PaymentSummary({ order }: { order: PaymentOrder }) {
 }
 
 /** Left side once the bank confirmed the payment. */
-export function PaymentSuccessPanel({ order }: { order: PaymentOrder }) {
+export function PaymentSuccessPanel({ order, next }: { order: PaymentOrder; next: { href: string } }) {
   const rows: [string, string][] = [
     ["Reference", order.reference],
     ["Plan", `${order.planName} · monthly`],
@@ -258,11 +257,7 @@ export function PaymentSuccessPanel({ order }: { order: PaymentOrder }) {
         <p className="flex items-center gap-2 text-xs leading-[18px] text-success">
           <Check aria-hidden className="size-3.5" /> Payment confirmed · setting up your plan…
         </p>
-        {order.websiteId && (
-          <Button asChild>
-            <Link href={`/websites/${order.websiteId}/edit`}>Back to editor to deploy {order.websiteName}</Link>
-          </Button>
-        )}
+        <RedirectAfterPaid href={next.href} />
       </div>
       <p className="flex items-center gap-2.5 rounded-[20px] px-3.5 py-3 text-xs leading-[18px] text-muted-foreground">
         <Lock1 aria-hidden className="size-[14px] shrink-0" />

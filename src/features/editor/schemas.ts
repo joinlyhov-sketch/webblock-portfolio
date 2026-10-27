@@ -141,7 +141,7 @@ export const siteRootSchema = z.object({
         number: z
           .string()
           .regex(
-            /^\+?[\d\s-]{6,20}$/,
+            /^[+()\d\s-]{6,20}$/,
             "Phone numbers use digits only, e.g. 012 345 678.",
           ),
       }),

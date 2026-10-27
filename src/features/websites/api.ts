@@ -96,7 +96,7 @@ export async function createWebsite(ownerId: string, body: CreateWebsiteBody): P
   };
   store.unshift(website);
   websiteOwners.push({ websiteId: website.id, ownerId });
-  websitePages.push(newWebsitePage(website.id, website.templateId, website.updatedAt));
+  websitePages.push(newWebsitePage(website.id, website.templateId, website.updatedAt, body.details));
   return website;
 }
 

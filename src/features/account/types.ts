@@ -84,9 +84,12 @@ export type PlanOrder = {
 };
 
 export type SidebarSummary = {
+  plan: PlanCode;
   planLabel: string;
   daysLeft: number;
-  /** 0–100, how much of the trial has passed. */
+  /** Next renewal date of a paid plan (ISO-8601 UTC), or `null` on the free trial. */
+  renewsAt: string | null;
+  /** 0–100, how much of the trial (free trial) or of the 30-day billing period (paid plan) has passed. */
   progress: number;
   /** Name of the website shown in the trial card, or `null` when the user has none live. */
   liveWebsiteName: string | null;

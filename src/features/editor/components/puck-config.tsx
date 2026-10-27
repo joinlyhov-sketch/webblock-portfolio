@@ -30,6 +30,8 @@ export type FieldMeta = {
   maxLength?: number;
   /** Adds a grey "(optional)" after the label. */
   optional?: boolean;
+  /** Filled in from the business details form: shown but not editable here. */
+  locked?: boolean;
   /** The schema rule for this field (set by `applyFieldRules`): drives the inline error. */
   rule?: ZodType;
 };
@@ -99,7 +101,12 @@ const columnsField: Field = {
   ...meta({ tab: "layout", group: "Layout" }),
 };
 
+/**
+ * Products are managed in the Owner Portal after the website is generated, so the editor does not offer
+ * them (`visible: false`): the blocks only show their sample products and categories.
+ */
 const productFields: Field = {
+  visible: false,
   type: "array",
   label: "Products",
   arrayFields: {
@@ -155,7 +162,7 @@ const ALL_LAYOUT = { align: "left", spacing: "normal" } as const;
 export const puckConfig: Config<BlockProps, SiteRootProps> = {
   root: {
     fields: {
-      businessName: text("Business name", { group: "Business" }),
+      businessName: text("Business name", { group: "Business", locked: true }),
       statusText: text(
         "Status badge",
         { group: "Business", optional: true },
@@ -163,20 +170,20 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
       ),
       hours: text(
         "Opening hours (short)",
-        { group: "Hours" },
+        { group: "Hours", locked: true },
         "e.g. 9:00 – 18:00",
       ),
-      hoursDetail: text("Opening hours (week)", { group: "Hours" }),
-      address: text("Address", { group: "Contact" }),
+      hoursDetail: text("Opening hours (week)", { group: "Hours", locked: true }),
+      address: text("Address", { group: "Contact", locked: true }),
       phones: {
         type: "array",
         label: "Phone numbers",
         arrayFields: { number: text("Number") },
         defaultItemProps: { number: "" },
         getItemSummary: (item: { number?: string }) => item.number || "Phone",
-        ...meta({ group: "Contact" }),
+        ...meta({ group: "Contact", locked: true }),
       },
-      email: text("Email", { group: "Contact" }),
+      email: text("Email", { group: "Contact", locked: true }),
       telegram: text(
         "Telegram username",
         { group: "Contact", optional: true },
@@ -192,15 +199,7 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
         { group: "Social", optional: true },
         "https://",
       ),
-      currency: {
-        type: "select",
-        label: "Currency",
-        options: [
-          { label: "US dollar ($)", value: "USD" },
-          { label: "Khmer riel (៛)", value: "KHR" },
-        ],
-        ...meta({ group: "Business" }),
-      },
+      // `currency` has no field: prices use the site's currency from the page data, not an editor setting.
       // Rendered as swatches in "Layout & Design · Visual style"; options are listed in the panel.
       palette: { type: "text", ...meta({ tab: "layout" }), visible: false },
       accentColor: { type: "text", ...meta({ tab: "layout" }), visible: false },
@@ -347,6 +346,7 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
         heading: textarea("Heading", { maxLength: 60 }),
         searchPlaceholder: text("Search placeholder"),
         categories: {
+          visible: false,
           type: "array",
           label: "Categories",
           arrayFields: { name: text("Name") },

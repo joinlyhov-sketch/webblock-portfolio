@@ -68,6 +68,13 @@ export function formatDayMonthYear(iso: string): string {
   return dayMonthYear.format(new Date(iso));
 }
 
+const dayMonth = new Intl.DateTimeFormat("en-GB", { timeZone: TIME_ZONE, month: "short", day: "numeric" });
+
+/** "2026-11-05T08:30:00Z" → "5 Nov" */
+export function formatDayMonth(iso: string): string {
+  return dayMonth.format(new Date(iso));
+}
+
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
 const DAY = 24 * HOUR;

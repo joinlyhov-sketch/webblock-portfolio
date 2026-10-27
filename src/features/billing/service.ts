@@ -148,6 +148,8 @@ export type PaymentView = {
   remainingMs: number;
   /** Full lifetime of the code, for the progress bar. */
   totalMs: number;
+  /** Where the owner goes once the payment is confirmed: back to where they chose the plan. */
+  next: { href: string };
 };
 
 const SUBTITLE: Record<PaymentOrder["kind"], (order: PaymentOrder) => string> = {
@@ -181,5 +183,13 @@ export async function getPaymentView(
     subtitle: SUBTITLE[order.kind](order),
     remainingMs: Math.max(0, new Date(order.expiresAt).getTime() - Date.now()),
     totalMs: Math.max(new Date(order.expiresAt).getTime() - new Date(order.createdAt).getTime(), TEN_MINUTES_MS),
+    next: nextAfterPayment(order, options.from),
   };
+}
+
+/** Settings → back to Settings › Billing; Deploy → back to that website's editor; the sidebar card → dashboard. */
+function nextAfterPayment(order: PaymentOrder, from: string | undefined): PaymentView["next"] {
+  if (from === "settings") return { href: "/settings/billing" };
+  if (order.websiteId) return { href: `/websites/${order.websiteId}/edit` };
+  return { href: "/websites" };
 }

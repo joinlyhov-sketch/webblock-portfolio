@@ -23,7 +23,7 @@ export function PaymentView({ view }: { view: PaymentData }) {
               <PaymentCardHeader order={order} aside={<StatePill tone="success">Paid</StatePill>} />
               <PaymentProgress percent={100} paid />
               <div className="flex items-start gap-3 bg-background p-4">
-                <PaymentSuccessPanel order={order} />
+                <PaymentSuccessPanel order={order} next={view.next} />
                 <PaymentSummary order={order} />
               </div>
             </>

@@ -60,7 +60,7 @@ export const subscriptions: Record<string, Subscription> = {
       { key: "redeploys", label: "Redeploys", cardLabel: "Redeploys this month", used: 2, limit: 5 },
       { key: "products", label: "Products", cardLabel: "Products", used: 18, limit: 30 },
     ],
-    includes: ["1 website", "5 redeploys a month", "Up to 30 products", "Status monitoring"],
+    includes: ["1 website", "5 redeploys a month", "Up to 30 products", "Basic status monitoring"],
   },
 };
 
@@ -89,7 +89,7 @@ export const planLimits = {
     websites: 1,
     redeploys: 5,
     products: 30,
-    includes: ["1 website", "5 redeploys a month", "Up to 30 products", "Status monitoring"],
+    includes: ["1 website", "5 redeploys a month", "Up to 30 products", "Basic status monitoring"],
   },
   PRO: {
     name: "Pro",
@@ -97,7 +97,7 @@ export const planLimits = {
     websites: 3,
     redeploys: 30,
     products: 200,
-    includes: ["Up to 3 websites", "30 redeploys a month", "Up to 200 products", "Logs"],
+    includes: ["Up to 3 websites", "30 redeploys a month", "Up to 200 products", "Basic status monitoring", "Logs"],
   },
   ULTRA: {
     name: "Ultra",
@@ -105,6 +105,6 @@ export const planLimits = {
     websites: 10,
     redeploys: 100,
     products: 1000,
-    includes: ["Up to 10 websites", "100 redeploys a month", "Up to 1,000 products", "Logs"],
+    includes: ["Up to 10 websites", "100 redeploys a month", "Up to 1,000 products", "Basic status monitoring", "Logs"],
   },
 } as const;

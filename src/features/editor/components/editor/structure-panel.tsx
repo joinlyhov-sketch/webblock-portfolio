@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Drawer } from "@puckeditor/core";
-import { Add, Copy, Menu, Setting2, Trash } from "iconsax-reactjs";
+import { Add, Copy, Menu, Trash } from "iconsax-reactjs";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { BlockName } from "../../types";
@@ -11,6 +11,20 @@ import { useEditorPuck } from "./use-editor-puck";
 
 /** Puck's zone for top-level blocks. */
 const ROOT_ZONE = "root:default-zone";
+
+/**
+ * Scrolls the canvas to the block at `index`, so choosing a section in the list takes you to it.
+ * Puck marks every block's element with `data-puck-component`; it can take a frame to appear after an insert.
+ */
+function scrollToBlock(index: number) {
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const go = () => {
+    const canvas = document.getElementById("website-canvas");
+    const block = canvas?.querySelectorAll<HTMLElement>("[data-puck-component]")[index];
+    block?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+  };
+  requestAnimationFrame(() => requestAnimationFrame(go));
+}
 
 /** Figma left panel: "Page structure" (select, duplicate, delete, drag to reorder) + "Add a block". */
 export function StructurePanel() {
@@ -21,8 +35,10 @@ export function StructurePanel() {
   const [dragOver, setDragOver] = useState<number | null>(null);
 
   const selectedIndex = itemSelector && (itemSelector.zone ?? ROOT_ZONE) === ROOT_ZONE ? itemSelector.index : -1;
-  const select = (index: number | null) =>
+  const select = (index: number | null) => {
     dispatch({ type: "setUi", ui: { itemSelector: index === null ? null : { index, zone: ROOT_ZONE } } });
+    if (index !== null) scrollToBlock(index);
+  };
 
   const insert = (type: BlockName) => {
     const index = selectedIndex >= 0 ? selectedIndex + 1 : content.length;
@@ -42,16 +58,6 @@ export function StructurePanel() {
         <div className="flex items-center gap-2.5">
           <h2 className="flex-1 font-sans text-[13px] font-semibold text-foreground">Page structure</h2>
           <span className="text-[11px] font-medium text-placeholder">Drag to reorder</span>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label="Site settings"
-            title="Site settings"
-            className="size-6"
-            onClick={() => select(null)}
-          >
-            <Setting2 />
-          </Button>
           <Button
             variant="ghost"
             size="icon-sm"

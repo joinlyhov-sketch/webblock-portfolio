@@ -22,6 +22,7 @@ export function CardHeader({
   title,
   description,
   action,
+  tileClassName,
 }: {
   icon: ReactNode;
   /** `soft` = pale tile (Choose plan), `brand` = tinted tile (Plan details). */
@@ -29,14 +30,16 @@ export function CardHeader({
   title: string;
   description: string;
   action?: ReactNode;
+  /** Replaces the tile colours, e.g. gold for the Pro plan. */
+  tileClassName?: string;
 }) {
   return (
     <div className="flex items-center gap-3">
       <span
         aria-hidden
         className={cn(
-          "flex size-10 shrink-0 items-center justify-center rounded-xl text-brand [&_svg]:size-5",
-          tone === "soft" ? "bg-tile" : "bg-primary/16",
+          "flex size-10 shrink-0 items-center justify-center rounded-xl [&_svg]:size-5",
+          tileClassName ?? cn("text-brand", tone === "soft" ? "bg-tile" : "bg-primary/16"),
         )}
       >
         {icon}

@@ -12,6 +12,7 @@ import type { BillingView as BillingData } from "../service";
 import type { PlanCode, Subscription } from "../types";
 import { BillingCard, CardHeader } from "./billing-card";
 import { PillTabs } from "./pill-tabs";
+import { PLAN_TONE, TONE_STYLE, type ToneStyle } from "./plan-tone";
 import { PlanDetailsCard } from "./plan-details-card";
 import { RowsSelect } from "./rows-select";
 
@@ -52,6 +53,7 @@ export function BillingView({ data, searchParams }: { data: BillingData; searchP
   const { subscription, daysLeft } = data;
   const paid = subscription.renewsAt !== null;
   const endDate = formatDayMonthYear(subscription.renewsAt ?? subscription.trialEndsAt);
+  const tone = TONE_STYLE[PLAN_TONE[subscription.plan]];
 
   const tab = (label: string, status: string | null, active: boolean) => ({
     label,
@@ -60,7 +62,7 @@ export function BillingView({ data, searchParams }: { data: BillingData; searchP
   });
 
   return (
-    <div className="flex flex-1 flex-col gap-[15px]">
+    <div data-fit-viewport className="flex min-h-0 flex-1 flex-col gap-[15px]">
       <div className="grid gap-[15px] xl:grid-cols-[465px_minmax(0,1fr)_minmax(0,1fr)] xl:grid-rows-[202px]">
         <CurrentPlanCard subscription={subscription} endDate={endDate} />
 
@@ -71,7 +73,7 @@ export function BillingView({ data, searchParams }: { data: BillingData; searchP
               icon={<Refresh2 />}
               title={paid ? "Renew plan" : "Choose a plan"}
               description={paid ? `Renews on ${endDate}` : `Trial ends on ${endDate}`}
-              action={<DaysRing daysLeft={daysLeft} totalDays={data.periodDays} />}
+              action={<DaysRing daysLeft={daysLeft} totalDays={data.periodDays} ring={tone.ring} />}
             />
             <p className="text-[13px] text-muted-foreground">
               {paid
@@ -96,7 +98,7 @@ export function BillingView({ data, searchParams }: { data: BillingData; searchP
                   <Link href="/billing/plans?from=settings">Change plan</Link>
                 </Button>
               )}
-              <Button asChild size="sm" className="bg-primary hover:bg-brand-strong">
+              <Button asChild size="sm" className={tone.button}>
                 <Link href="/billing/plans?from=settings">{paid ? "Renew now" : "Choose plan"}</Link>
               </Button>
             </div>
@@ -107,7 +109,7 @@ export function BillingView({ data, searchParams }: { data: BillingData; searchP
       </div>
 
       <DataTable
-        className="flex-1"
+        className="min-h-[360px] flex-1"
         label="Billing history"
         itemLabel="orders"
         itemLabelOne="order"
@@ -272,7 +274,7 @@ function CurrentPlanCard({ subscription, endDate }: { subscription: Subscription
 }
 
 /** Circular countdown (60px): the arc shows how much of the period is left. */
-function DaysRing({ daysLeft, totalDays }: { daysLeft: number; totalDays: number }) {
+function DaysRing({ daysLeft, totalDays, ring }: { daysLeft: number; totalDays: number; ring: ToneStyle["ring"] }) {
   const radius = 27.9;
   const circumference = 2 * Math.PI * radius;
   const left = Math.min(1, Math.max(0, daysLeft / totalDays));
@@ -282,12 +284,12 @@ function DaysRing({ daysLeft, totalDays }: { daysLeft: number; totalDays: number
       <svg viewBox="0 0 60 60" aria-hidden className="size-full -rotate-90">
         <defs>
           <linearGradient id="days-ring" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="var(--color-usage-from)" />
-            <stop offset="0.5" stopColor="var(--color-violet-border)" />
-            <stop offset="1" stopColor="var(--color-primary)" />
+            <stop offset="0" stopColor={ring.from} />
+            <stop offset="0.5" stopColor={ring.mid} />
+            <stop offset="1" stopColor={ring.to} />
           </linearGradient>
         </defs>
-        <circle cx="30" cy="30" r={radius} fill="none" strokeWidth="4.2" stroke="var(--color-primary)" strokeOpacity="0.14" />
+        <circle cx="30" cy="30" r={radius} fill="none" strokeWidth="4.2" stroke={ring.to} strokeOpacity="0.14" />
         <circle
           cx="30"
           cy="30"

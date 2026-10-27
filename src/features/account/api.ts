@@ -182,7 +182,13 @@ export async function activatePlan(
     renewsAt: nextPaymentAt,
     monthlyPrice: meta.price,
     usage: [
-      { key: "websites", label: "Websites", cardLabel: "Website", used: used("websites"), limit: meta.websites },
+      {
+        key: "websites",
+        label: meta.websites === 1 ? "Website" : "Websites",
+        cardLabel: meta.websites === 1 ? "Website" : "Websites",
+        used: used("websites"),
+        limit: meta.websites,
+      },
       {
         key: "redeploys",
         label: "Redeploys",
