@@ -8,7 +8,7 @@ export type ShowcaseTemplate = {
   /** Style label used by the template chips. */
   style: string;
   domain: string;
-  /** Full-page screenshot of the template site; mocks show its top. */
+  /** Screenshot of the template site's first screen; mocks show it from the top. */
   image: { src: string; width: number; height: number };
 };
 
@@ -19,28 +19,28 @@ export const showcaseTemplates = [
     name: "Petal & Stem",
     style: "Everyday store",
     domain: "petalandstem.webblock.com",
-    image: { src: "/landing/templates/petal-stem.webp", width: 1296, height: 3443 },
+    image: { src: "/landing/templates/petal-stem-home.webp", width: 2560, height: 1584 },
   },
   {
     slug: "sugar-crumb",
     name: "Sugar & Crumb",
     style: "Sweet pastel",
     domain: "sugarandcrumb.webblock.com",
-    image: { src: "/landing/templates/sugar-crumb.webp", width: 1296, height: 3891 },
+    image: { src: "/landing/templates/sugar-crumb-home.webp", width: 2560, height: 1584 },
   },
   {
     slug: "kiln-coffee",
     name: "Kiln Coffee",
     style: "Warm & bold",
     domain: "kilncoffee.webblock.com",
-    image: { src: "/landing/templates/kiln-coffee.webp", width: 1296, height: 3942 },
+    image: { src: "/landing/templates/kiln-coffee-home.webp", width: 2560, height: 1584 },
   },
   {
     slug: "northpoint-audio",
     name: "Northpoint Audio",
     style: "Clean mono",
     domain: "northpointaudio.webblock.com",
-    image: { src: "/landing/templates/northpoint-audio.webp", width: 1277, height: 4090 },
+    image: { src: "/landing/templates/northpoint-audio-home.webp", width: 2560, height: 1584 },
   },
 ] as const satisfies readonly ShowcaseTemplate[];
 
@@ -75,8 +75,10 @@ export function TemplateScreenshot({
         width={template.image.width}
         height={template.image.height}
         sizes={sizes}
+        // Screenshots are mostly small text, which the default quality (75) smears.
+        quality={90}
         alt={decorative ? "" : `${template.name} website built with the ${template.style} template`}
-        className="absolute inset-x-0 top-0 h-auto w-full max-w-none"
+        className="absolute inset-0 size-full max-w-none object-cover object-top"
       />
     </div>
   );
