@@ -10,10 +10,17 @@ import {
 import { useUrlParam } from "@/hooks/use-url-param";
 import { cn } from "@/lib/utils";
 
-const OPTIONS = ["10", "20", "50"];
-
 /** "Rows [10]" box: how many rows the table shows, stored in the URL as `?size=`. */
-export function RowsSelect({ value }: { value: number }) {
+export function RowsSelect({
+  value,
+  options = [10, 20, 50],
+  defaultSize = 10,
+}: {
+  value: number;
+  options?: number[];
+  /** Size the page uses without `?size=`; picking it removes the param. */
+  defaultSize?: number;
+}) {
   const { setParam, pending } = useUrlParam();
 
   return (
@@ -21,7 +28,7 @@ export function RowsSelect({ value }: { value: number }) {
       <span className="text-[13px] text-placeholder">Rows</span>
       <Select
         value={String(value)}
-        onValueChange={(next) => setParam("size", next === "10" ? null : next)}
+        onValueChange={(next) => setParam("size", next === String(defaultSize) ? null : next)}
       >
         <SelectTrigger
           aria-label="Rows per page"
@@ -30,8 +37,8 @@ export function RowsSelect({ value }: { value: number }) {
           <SelectValue />
         </SelectTrigger>
         <SelectContent align="end" className="min-w-[96px]">
-          {OPTIONS.map((option) => (
-            <SelectItem key={option} value={option}>
+          {options.map((option) => (
+            <SelectItem key={option} value={String(option)}>
               {option}
             </SelectItem>
           ))}

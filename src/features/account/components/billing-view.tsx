@@ -14,7 +14,7 @@ import { BillingCard, CardHeader } from "./billing-card";
 import { PillTabs } from "./pill-tabs";
 import { PLAN_TONE, TONE_STYLE, type ToneStyle } from "./plan-tone";
 import { PlanDetailsCard } from "./plan-details-card";
-import { RowsSelect } from "./rows-select";
+import { RowsSelect } from "@/components/common/rows-select";
 
 /** Panel colours of the "Current plan" card: Free trial is pale, paid plans are filled. */
 const PLAN_PANEL: Record<PlanCode, { panel: string; text: string; sub: string }> = {
