@@ -122,3 +122,17 @@ const dayMonthYearTime = new Intl.DateTimeFormat("en-GB", {
 export function formatDayMonthYearTime(iso: string): string {
   return dayMonthYearTime.format(new Date(iso)).replace(/^(.*?) at /, "$1, ");
 }
+
+/** "Petal & Stem" → "PS" · "Lantern Café" → "LC". Two letters for logo and avatar placeholders. */
+export function initials(name: string): string {
+  const words = name.match(/[\p{L}\p{N}]+/gu) ?? [];
+  return words.slice(0, 2).map((word) => word[0]).join("").toUpperCase();
+}
+
+/** 101 → "1m 41s" · 45 → "45s" · 3720 → "1h 2m" */
+export function formatDuration(seconds: number): string {
+  const s = Math.max(0, Math.round(seconds));
+  if (s < 60) return `${s}s`;
+  if (s < 3600) return `${Math.floor(s / 60)}m ${String(s % 60).padStart(2, "0")}s`;
+  return `${Math.floor(s / 3600)}h ${Math.floor((s % 3600) / 60)}m`;
+}

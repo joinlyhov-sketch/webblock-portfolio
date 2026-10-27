@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Element3, Global, MessageQuestion, Setting5 } from "iconsax-reactjs";
+import { Activity, Box, Element3, Global, MessageQuestion, Setting5, Shop } from "iconsax-reactjs";
 import type { ReactNode } from "react";
 import type { NavIcon, NavItem } from "@/config/nav";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,9 @@ const icons: Record<NavIcon, ReactNode> = {
   templates: <Element3 />,
   settings: <Setting5 />,
   support: <MessageQuestion />,
+  products: <Box />,
+  business: <Shop />,
+  monitor: <Activity />,
 };
 
 function isActive(pathname: string, item: NavItem) {

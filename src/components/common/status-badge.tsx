@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
 import { CloseCircle, Edit2, Global, PauseCircle, TickCircle } from "iconsax-reactjs";
 import type { OrderStatus } from "@/features/account";
+import type { DeployStatus } from "@/features/monitoring";
 import type { WebsiteStatus } from "@/features/websites";
 import { cn } from "@/lib/utils";
 
-export type BadgeStatus = WebsiteStatus | OrderStatus;
+export type BadgeStatus = WebsiteStatus | OrderStatus | DeployStatus;
 
 type StatusMeta = { label: string; icon: ReactNode; className: string };
 
@@ -18,6 +19,8 @@ const statusMeta = {
   },
   PAID: { label: "Paid", icon: <TickCircle />, className: "bg-success-soft text-success" },
   EXPIRED: { label: "Expired", icon: <CloseCircle />, className: "bg-danger-soft text-danger" },
+  SUCCEEDED: { label: "Succeeded", icon: <TickCircle />, className: "bg-success-soft text-success" },
+  FAILED: { label: "Failed", icon: <CloseCircle />, className: "bg-danger-soft text-danger" },
 } satisfies Record<BadgeStatus, StatusMeta>;
 
 /** Every status in the app: light tint pill with an icon (Figma "Status badge"). */
