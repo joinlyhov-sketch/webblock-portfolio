@@ -7,29 +7,35 @@ import { cn } from "@/lib/utils";
 export type SegmentedTab = {
   label: string;
   href: string;
-  /** Set for tabs that filter by a search param (`?release=FAILED`); otherwise matched by pathname. */
+  /** Number shown after the label (e.g. websites per status). */
+  count?: number;
+  /** Set when the active tab comes from the URL query instead of the path. */
   active?: boolean;
 };
 
-/** Pill segmented tabs. Each tab is a link, so the active tab lives in the URL. */
+/**
+ * Pill segmented tabs. Each tab is a link, so the active tab lives in the URL: the path by default,
+ * or the page decides with `active` when tabs are query filters (`?status=live`).
+ */
 export function SegmentedTabs({
   tabs,
+  label,
   className,
   size = "md",
 }: {
   tabs: SegmentedTab[];
+  /** Accessible name of the tab group. */
+  label?: string;
   className?: string;
-  /** "sm" for table toolbars (13px). */
+  /** "sm" for table toolbars (Admin Portal). */
   size?: "md" | "sm";
 }) {
   const pathname = usePathname();
 
   return (
     <nav
-      className={cn(
-        "mb-6 inline-flex rounded-full border border-border bg-surface p-1",
-        className,
-      )}
+      aria-label={label}
+      className={cn("inline-flex w-fit max-w-full items-center self-start rounded-full bg-segment-track p-1", className)}
     >
       {tabs.map((tab) => {
         const active = tab.active ?? pathname === tab.href;
@@ -40,14 +46,24 @@ export function SegmentedTabs({
             scroll={false}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "rounded-full font-medium whitespace-nowrap transition-colors",
-              size === "sm" ? "px-3 py-[3px] text-xs" : "px-4 py-1.5 text-sm",
+              "inline-flex items-center justify-center gap-2 rounded-full whitespace-nowrap transition-[background-color,color,box-shadow] outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
+              size === "sm" ? "h-7 px-3 text-xs" : "h-9 min-w-[100px] px-4 text-sm leading-[21px]",
               active
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground",
+                ? "bg-background font-semibold text-brand-deep shadow-tab"
+                : "font-medium text-muted-foreground hover:text-foreground",
             )}
           >
             {tab.label}
+            {tab.count !== undefined && (
+              <span
+                className={cn(
+                  "inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-semibold tabular-nums",
+                  active ? "bg-brand text-primary-foreground" : "bg-background text-muted-foreground",
+                )}
+              >
+                {tab.count}
+              </span>
+            )}
           </Link>
         );
       })}

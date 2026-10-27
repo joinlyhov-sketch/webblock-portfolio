@@ -237,6 +237,7 @@ function RecentDeploys({ deploys }: { deploys: Page<Deploy> }) {
       />
       {deploys.items.length === 0 ? (
         <EmptyState
+          variant="dashed"
           icon={<Send2 />}
           title="No deploys yet"
           description="Deploys show here as soon as an owner publishes a website."

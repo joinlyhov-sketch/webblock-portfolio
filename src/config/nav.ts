@@ -2,38 +2,44 @@
 
 /** Icon names, mapped to iconsax icons in components/layout/sidebar-nav.tsx. */
 export type NavIcon =
+  // Admin sidebar
   | "overview"
   | "users"
-  | "websites"
   | "subscriptions"
   | "monitoring"
+  // User and owner sidebars
+  | "websites"
   | "templates"
   | "settings"
+  | "support"
   | "products"
-  | "info";
+  | "business"
+  | "monitor";
 
 export type NavItem = {
   label: string;
   href: string;
+  /** Icon shown before the label. */
+  icon?: NavIcon;
   /** Only active on this exact path (for section roots like /admin). */
   exact?: boolean;
-  icon?: NavIcon;
   /** Sub-pages shown under the item; the item itself is then a group toggle, not a link. */
   children?: NavItem[];
 };
 
 export const userNav: NavItem[] = [
-  { label: "Websites", href: "/websites", icon: "websites" },
+  { label: "My Websites", href: "/websites", icon: "websites" },
   { label: "Templates", href: "/templates", icon: "templates" },
   { label: "Settings", href: "/settings", icon: "settings" },
+  { label: "Contact Support", href: "/support", icon: "support" },
 ];
 
 export function ownerNav(websiteId: string): NavItem[] {
   const base = `/portal/${websiteId}`;
   return [
     { label: "Products", href: `${base}/products`, icon: "products" },
-    { label: "Business info", href: `${base}/info`, icon: "info" },
-    { label: "Monitoring", href: `${base}/monitoring`, icon: "monitoring" },
+    { label: "Business information", href: `${base}/info`, icon: "business" },
+    { label: "Monitor", href: `${base}/monitoring`, icon: "monitor" },
   ];
 }
 

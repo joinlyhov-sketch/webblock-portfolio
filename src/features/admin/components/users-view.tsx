@@ -155,6 +155,7 @@ export function UsersView({
         empty={
           q || plan ? (
             <EmptyState
+              variant="dashed"
               icon={<SearchNormal1 />}
               title={
                 q
@@ -174,6 +175,7 @@ export function UsersView({
             />
           ) : (
             <EmptyState
+              variant="dashed"
               icon={<Profile2User />}
               title="No accounts yet"
               description="People who sign up show here."

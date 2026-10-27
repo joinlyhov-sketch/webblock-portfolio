@@ -1,0 +1,162 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import Link from "next/link";
+import {
+  ArrowRight,
+  Edit,
+  ExportSquare,
+  Global,
+  More,
+  PauseCircle,
+  PlayCircle,
+  Trash,
+} from "iconsax-reactjs";
+import { deleteWebsiteAction, reactivateWebsiteAction, suspendWebsiteAction } from "../actions";
+import { ConfirmDialog } from "@/components/common/confirm-dialog";
+import { toast } from "@/components/common/toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import type { WebsiteStatus } from "../types";
+
+/**
+ * "…" menu on a website card.
+ * Draft: Open editor, Delete. Live: Portal, Open editor, View live site, Suspend.
+ * Suspended: Open editor, View live site, Portal, Reactivate.
+ */
+export function WebsiteCardMenu({
+  websiteId,
+  websiteName,
+  status,
+  domain,
+}: {
+  websiteId: string;
+  websiteName: string;
+  status: WebsiteStatus;
+  domain: string | null;
+}) {
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [pending, startTransition] = useTransition();
+
+  function suspend() {
+    startTransition(async () => {
+      const result = await suspendWebsiteAction(websiteId);
+      setConfirmOpen(false);
+      if (result.ok) toast.success(result.message ?? "Website suspended");
+      else toast.error("Could not suspend the website", result.message);
+    });
+  }
+
+  function remove() {
+    startTransition(async () => {
+      const result = await deleteWebsiteAction(websiteId);
+      setDeleteOpen(false);
+      if (result.ok) toast.success(result.message ?? "Website deleted", `${websiteName} was deleted.`);
+      else toast.error("Could not delete the website", result.message);
+    });
+  }
+
+  function reactivate() {
+    startTransition(async () => {
+      const result = await reactivateWebsiteAction(websiteId);
+      if (result.ok) toast.success(result.message ?? "Website reactivated");
+      else toast.error("Could not reactivate the website", result.message);
+    });
+  }
+
+  const editor = (
+    <DropdownMenuItem asChild>
+      <Link href={`/websites/${websiteId}/edit`}>
+        <Edit aria-hidden /> <span className="flex-1">Open editor</span>
+      </Link>
+    </DropdownMenuItem>
+  );
+  const portal = (
+    <DropdownMenuItem asChild>
+      <Link href={`/portal/${websiteId}`}>
+        <ExportSquare aria-hidden /> <span className="flex-1">Portal</span>
+      </Link>
+    </DropdownMenuItem>
+  );
+  const liveSite = domain && (
+    <DropdownMenuItem asChild>
+      <a href={`https://${domain}`} target="_blank" rel="noopener noreferrer">
+        <Global aria-hidden /> <span className="flex-1">View live site</span>
+        <ArrowRight aria-hidden className="-rotate-45 text-foreground-soft" />
+      </a>
+    </DropdownMenuItem>
+  );
+
+  return (
+    <>
+      <DropdownMenu modal={false}>
+        <DropdownMenuTrigger
+          aria-label={`More actions for ${websiteName}`}
+          className="flex size-9 shrink-0 items-center justify-center rounded-[10px] text-foreground-soft outline-none transition-colors hover:bg-primary-soft focus-visible:ring-3 focus-visible:ring-ring/40 data-[state=open]:bg-primary-soft"
+        >
+          <More aria-hidden className="size-[17px]" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-[216px]">
+          {status === "DRAFT" && (
+            <>
+              {editor}
+              <DropdownMenuSeparator className="mx-1 my-[3px]" />
+              <DropdownMenuItem variant="destructive" onSelect={() => setDeleteOpen(true)}>
+                <Trash aria-hidden /> <span className="flex-1">Delete website</span>
+              </DropdownMenuItem>
+            </>
+          )}
+          {status === "LIVE" && (
+            <>
+              {portal}
+              {editor}
+              {liveSite}
+              <DropdownMenuSeparator className="mx-1 my-[3px]" />
+              <DropdownMenuItem variant="destructive" onSelect={() => setConfirmOpen(true)}>
+                <PauseCircle aria-hidden /> <span className="flex-1">Suspend website</span>
+              </DropdownMenuItem>
+            </>
+          )}
+          {status === "SUSPENDED" && (
+            <>
+              {editor}
+              {liveSite}
+              {portal}
+              <DropdownMenuSeparator className="mx-1 my-[3px]" />
+              <DropdownMenuItem disabled={pending} onSelect={reactivate}>
+                <PlayCircle aria-hidden /> <span className="flex-1">Reactivate website</span>
+              </DropdownMenuItem>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={suspend}
+        loading={pending}
+        icon={<PauseCircle />}
+        title="Suspend this website?"
+        description="It will be taken offline and visitors won’t be able to see it. Your pages and content are kept, so you can reactivate it any time."
+        confirmLabel="Suspend website"
+      />
+      <ConfirmDialog
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        onConfirm={remove}
+        loading={pending}
+        icon={<Trash />}
+        title={`Delete ${websiteName}?`}
+        description="This draft and everything in it will be removed for good. This can’t be undone."
+        confirmLabel="Delete website"
+      />
+    </>
+  );
+}

@@ -172,6 +172,7 @@ export function SubscriptionsView({
         empty={
           filtered ? (
             <EmptyState
+              variant="dashed"
               icon={<SearchNormal1 />}
               title="No subscriptions match these filters"
               action={
@@ -182,6 +183,7 @@ export function SubscriptionsView({
             />
           ) : (
             <EmptyState
+              variant="dashed"
               icon={<CardIcon />}
               title="No subscriptions yet"
               description="Trials and paid plans show here."

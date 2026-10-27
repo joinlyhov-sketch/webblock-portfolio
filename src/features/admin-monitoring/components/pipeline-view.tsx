@@ -78,6 +78,7 @@ export function PipelineView({
         }
         empty={
           <EmptyState
+            variant="dashed"
             icon={<SearchNormal1 />}
             title={
               stage

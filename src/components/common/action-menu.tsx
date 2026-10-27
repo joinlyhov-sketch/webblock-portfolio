@@ -49,7 +49,7 @@ export function ActionMenu({
           <More />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
+      <DropdownMenuContent align="end">
         {items.map((item, i) => {
           const className = cn(
             item.danger && "text-danger data-[highlighted]:bg-danger-soft",

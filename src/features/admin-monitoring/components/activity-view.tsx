@@ -116,6 +116,7 @@ export function ActivityView({
         }
         empty={
           <EmptyState
+            variant="dashed"
             icon={action || by ? <SearchNormal1 /> : <Activity />}
             title={
               action || by ? "No actions match these filters" : "No actions yet"

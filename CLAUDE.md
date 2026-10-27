@@ -25,19 +25,26 @@ every screen runs on mock data behind `features/*/api.ts`, ready to swap to the 
 | `src/mocks/` | Fake data (plain arrays). ONLY `features/*/api.ts` may import it |
 | `public/mock/` | Fake images. Referenced as URL strings in mocks |
 | `src/config/` | Sidebar nav items, site constants |
+| `src/hooks/` | Generic client hooks shared by features (e.g. `use-url-param`) |
 
-Feature shape:
+Feature shape (no top-level `src/actions`, `src/service` or `src/types` — everything lives in the feature):
 ```
 features/<name>/
   components/   UI only this feature uses
-  actions.ts    "use server" writes: require*() → zod → api → revalidatePath
+  actions.ts    "use server" writes: require*() → service (or api) → revalidatePath
+  service.ts    OPTIONAL logic between actions and api: reads/validates forms with schemas.ts,
+                combines several api calls into one screen's data. Never imports mocks.
+                Skip it when an action only validates and calls one api function.
   api.ts        data access: mock now, Spring later (the ONLY swap point)
-  schemas.ts    zod form schemas
-  types.ts      one type per entity, same shape as the API (no mappers, no view models)
-  index.ts      public exports — import a feature only through this
+  schemas.ts    form validation rules
+  types.ts      one type per entity, same shape as the API (no mappers)
+  index.ts      public exports — pages import a feature only through this
 ```
+Flow: `actions.ts` (who may do it) → `service.ts` (what to do) → `api.ts` (where the data is).
 
-**Reference feature: `src/features/products`.** When building any new feature, copy its patterns.
+**Reference feature: `src/features/websites`** (has every file: actions, service, api, schemas, types,
+components, index). When building any new feature, copy its patterns. For form validation copy the zod
+style of `src/features/auth/schemas.ts` (websites still uses hand-written checks).
 
 ## Import direction (never reverse)
 `app → features → components/common → components/ui → npm packages`
@@ -76,7 +83,10 @@ Details and component usage: `.claude/rules/components.md`.
 - Bugs: `/investigate` — no fix without a reproduction first.
 - Review before committing: ask the `code-reviewer` and `invariant-auditor` agents.
 - CI (`.github/workflows/ci.yml`) runs the invariant checks, their tests, lint, build and gitleaks
-  on pushes to `dev`/`master` and pull requests into them.
-- Branches: work on your own branch (any short, clear name, e.g. `products-page`) → pull request into `dev`.
-  Only the designated teammate merges `dev` into `master` for submission. Never commit to `master` yourself.
+  on pushes to `dev`/`Master` and pull requests into them.
+- Branches (names are case-sensitive):
+  - `Master` — submission only. Only the designated teammate merges `dev` into `Master`. Never commit to it.
+  - `dev` — integration. Never commit to it directly; changes arrive by pull request.
+  - `feature/<name>` — one per feature, created from `dev`, short kebab-case name
+    (e.g. `feature/products`, `feature/admin-users`) → pull request into `dev`.
 - Never edit `.claude/hooks/` to make a check pass; if a rule looks wrong, stop and ask.

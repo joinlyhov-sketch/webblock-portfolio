@@ -3,14 +3,15 @@ import { Global } from "iconsax-reactjs";
 import { cn } from "@/lib/utils";
 
 const SIZE = {
-  sm: { box: "size-7 text-[11px]", px: 28 },
-  md: { box: "size-9 text-[13px]", px: 36 },
-  lg: { box: "size-[72px] text-xl", px: 72 },
+  sm: "size-7 text-[11px]",
+  md: "size-9 text-[13px]",
+  lg: "size-[72px] text-xl",
 } as const;
 
 /** "Sokha Chan" → "SC" · "Admin" → "AD" */
-function initials(name: string): string {
+function initialsOf(name: string): string {
   const parts = name.split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "";
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return parts
     .slice(0, 2)
@@ -18,39 +19,37 @@ function initials(name: string): string {
     .join("");
 }
 
-/** Round photo, or the person's initials when `src` is null. */
+/** Round avatar: the photo, or the person's initials on the soft blue gradient when there is none. */
 export function Avatar({
   name,
+  initials,
   src,
   size = "md",
   className,
 }: {
   name: string;
+  /** Letters shown without a photo, e.g. "SV". Defaults to the first letters of `name`. */
+  initials?: string;
   src: string | null;
   size?: keyof typeof SIZE;
+  /** Extra classes, e.g. a custom size "size-[104px] text-2xl" or `planRing(plan)`. */
   className?: string;
 }) {
-  const s = SIZE[size];
   return (
     <span
       data-avatar
       className={cn(
-        "relative inline-grid shrink-0 place-items-center overflow-hidden rounded-full bg-brand font-bold text-primary-foreground ring-2 ring-background",
-        s.box,
+        "relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-linear-[140deg] from-brand-soft to-violet-border font-bold text-brand-deep",
+        SIZE[size],
         className,
       )}
     >
       {src ? (
-        <Image
-          src={src}
-          alt=""
-          width={s.px}
-          height={s.px}
-          className="size-full object-cover"
-        />
+        <Image src={src} alt="" fill unoptimized sizes="104px" className="object-cover" />
       ) : (
-        <span aria-hidden>{initials(name)}</span>
+        <span aria-hidden>{initials ?? initialsOf(name)}</span>
       )}
+      <span className="sr-only">{name}</span>
     </span>
   );
 }

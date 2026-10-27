@@ -70,6 +70,7 @@ export const TEXT_RULES = [
       rel.startsWith("src/mocks/") ||
       rel === "src/lib/auth/session.ts",
     msg: "Only features/<name>/api.ts (and lib/auth/session.ts) may import @/mocks. Call the feature's api.ts instead.",
+
   },
   {
     id: "boundary/wrapped-library",

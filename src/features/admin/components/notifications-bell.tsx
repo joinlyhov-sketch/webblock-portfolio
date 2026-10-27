@@ -43,7 +43,11 @@ export function NotificationsBell({
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[min(400px,calc(100vw-32px))] rounded-[22px]">
+      <PopoverContent
+        align="end"
+        sideOffset={8}
+        className="w-[min(400px,calc(100vw-32px))] overflow-hidden rounded-[22px] p-0 shadow-popover"
+      >
         <NotificationPanel
           notifications={notifications}
           onNavigate={() => setOpen(false)}

@@ -153,6 +153,7 @@ export function WebsitesView({
         empty={
           filtered ? (
             <EmptyState
+              variant="dashed"
               icon={<SearchNormal1 />}
               title="No websites match these filters"
               action={
@@ -163,6 +164,7 @@ export function WebsitesView({
             />
           ) : (
             <EmptyState
+              variant="dashed"
               icon={<Global />}
               title="No websites yet"
               description="Websites show here once owners create them."

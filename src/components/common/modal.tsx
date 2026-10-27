@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
@@ -8,6 +8,7 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { PortalContainerContext } from "@/components/ui/portal-container";
 import { cn } from "@/lib/utils";
 
 const SIZE = {
@@ -17,7 +18,8 @@ const SIZE = {
   xl: "max-w-[680px]",
 } as const;
 
-type ModalProps = {
+/** Admin style: titled Radix dialog, URL-driven (`closeHref`) or controlled (`open` + `onOpenChange`). */
+type TitledModalProps = {
   /** Accessible name. Shown as the heading unless `hideTitle` (when the body has its own heading). */
   title: string;
   description?: string;
@@ -28,6 +30,8 @@ type ModalProps = {
   children: ReactNode;
   footer?: ReactNode;
   className?: string;
+  label?: never;
+  onClose?: never;
 } & (
   | {
       /** URL-driven popup: always open, closing navigates here (e.g. the list without `?user=`). */
@@ -38,15 +42,33 @@ type ModalProps = {
   | { closeHref?: never; open: boolean; onOpenChange: (open: boolean) => void }
 );
 
+/** User and owner portal style: native `<dialog>` with `open` + `onClose`, the body brings its own heading. */
+type NativeModalProps = {
+  open: boolean;
+  onClose: () => void;
+  /** Accessible name of the dialog. */
+  label: string;
+  children: ReactNode;
+  /** Width and other layout classes, e.g. "max-w-lg". */
+  className?: string;
+  title?: never;
+};
+
 /**
- * Every popup (Figma "Plan details dialog" style): centered card, blurred backdrop, ✕ top right,
- * scrolls inside when taller than the screen. Admin row details are URL-driven (`closeHref`),
- * so a detail can be linked to and the back button closes it.
+ * Every popup. Two call styles (from merging the Admin Portal with the user/owner portals):
+ * - `title` + `closeHref` | `open`/`onOpenChange`: Radix dialog (Figma "Plan details dialog"), sizes, footer, side panel.
+ *   Admin row details are URL-driven, so a detail can be linked to and the back button closes it.
+ * - `label` + `open`/`onClose`: native `<dialog>`; menus inside portal into it.
  *
  * @example
  * {userId && <Modal title={user.fullName} hideTitle closeHref={tableHref(searchParams, { user: null })}>…</Modal>}
+ * <Modal open={open} onClose={() => setOpen(false)} label="Add product" className="max-w-lg">…</Modal>
  */
-export function Modal({
+export function Modal(props: TitledModalProps | NativeModalProps) {
+  return props.label !== undefined ? <NativeModal {...props} /> : <TitledModal {...props} />;
+}
+
+function TitledModal({
   title,
   description,
   hideTitle = false,
@@ -58,7 +80,7 @@ export function Modal({
   closeHref,
   open,
   onOpenChange,
-}: ModalProps) {
+}: TitledModalProps) {
   const router = useRouter();
   const routed = closeHref !== undefined;
   // URL-driven popups close locally first so the exit animation can play, then update the URL.
@@ -71,10 +93,7 @@ export function Modal({
         if (routed) {
           if (!next) {
             setRoutedOpen(false);
-            const exitMs = window.matchMedia("(prefers-reduced-motion: reduce)")
-              .matches
-              ? 0
-              : 150;
+            const exitMs = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 150;
             setTimeout(() => router.push(closeHref, { scroll: false }), exitMs);
           }
         } else {
@@ -85,34 +104,19 @@ export function Modal({
       <DialogContent
         className={cn(
           side === "right"
-            ? "top-0 right-0 left-auto h-dvh max-h-dvh w-[calc(100vw-16px)] max-w-[1220px] md:w-[70vw] translate-x-0 translate-y-0 rounded-l-3xl rounded-r-none motion-safe:animate-pop-in motion-safe:data-[state=closed]:animate-pop-out"
+            ? "top-0 right-0 left-auto h-dvh max-h-dvh w-[calc(100vw-16px)] max-w-[1220px] md:w-[70vw] translate-x-0 translate-y-0 rounded-l-3xl rounded-r-none motion-safe:animate-dialog-pop-in motion-safe:data-[state=closed]:animate-dialog-pop-out"
             : SIZE[size],
           className,
         )}
       >
-        <div
-          className={cn(
-            "min-h-0 flex-1 overflow-y-auto",
-            !hideTitle && "px-6 pt-6",
-          )}
-        >
+        <div className={cn("min-h-0 flex-1 overflow-y-auto", !hideTitle && "px-6 pt-6")}>
           <DialogTitle
-            className={cn(
-              hideTitle
-                ? "sr-only"
-                : "pr-10 text-[22px] leading-7 font-semibold text-foreground",
-            )}
+            className={cn(hideTitle ? "sr-only" : "pr-10 text-[22px] leading-7 font-semibold text-foreground")}
           >
             {title}
           </DialogTitle>
           {description ? (
-            <DialogDescription
-              className={cn(
-                hideTitle
-                  ? "sr-only"
-                  : "mt-1 text-[13px] text-muted-foreground",
-              )}
-            >
+            <DialogDescription className={cn(hideTitle ? "sr-only" : "mt-1 text-[13px] text-muted-foreground")}>
               {description}
             </DialogDescription>
           ) : (
@@ -120,12 +124,54 @@ export function Modal({
           )}
           {children}
         </div>
-        {footer && (
-          <div className="flex justify-end gap-2.5 border-t border-border px-6 py-4">
-            {footer}
-          </div>
-        )}
+        {footer && <div className="flex justify-end gap-2.5 border-t border-border px-6 py-4">{footer}</div>}
       </DialogContent>
     </Dialog>
+  );
+}
+
+/**
+ * Centered dialog on the native `<dialog>` element: focus trap, Escape and the blurred backdrop
+ * come from the browser. Children mount only while open, so forms reset every time.
+ */
+function NativeModal({ open, onClose, label, children, className }: NativeModalProps) {
+  const ref = useRef<HTMLDialogElement>(null);
+  // Dropdowns inside the modal portal into the <dialog>; in <body> they would sit under its top layer.
+  const [dialogEl, setDialogEl] = useState<HTMLDialogElement | null>(null);
+  // `close` events caused by `open` turning false are not the user closing the dialog.
+  const closedByProp = useRef(false);
+
+  useEffect(() => {
+    const dialog = ref.current;
+    if (!dialog) return;
+    if (open && !dialog.open) dialog.showModal();
+    if (!open && dialog.open) {
+      closedByProp.current = true;
+      dialog.close();
+    }
+  }, [open]);
+
+  return (
+    <dialog
+      ref={(el) => {
+        ref.current = el;
+        setDialogEl(el);
+      }}
+      aria-label={label}
+      onClose={() => {
+        if (closedByProp.current) closedByProp.current = false;
+        else onClose();
+      }}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+      className={cn(
+        "m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md overflow-hidden rounded-[18px] border border-border bg-background p-0 text-foreground shadow-dialog",
+        "backdrop:bg-scrim backdrop:backdrop-blur-[7px] open:animate-modal-in",
+        className,
+      )}
+    >
+      <PortalContainerContext value={dialogEl}>{open && children}</PortalContainerContext>
+    </dialog>
   );
 }

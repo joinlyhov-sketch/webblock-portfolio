@@ -45,7 +45,9 @@ export function AdminProfileMenu({ profile }: { profile: AdminProfile }) {
         aria-label="Admin profile"
         // Don't drop focus into the first read-only field (it would select its text).
         onOpenAutoFocus={(e) => e.preventDefault()}
-        className="w-[min(280px,calc(100vw-32px))] rounded-[22px] px-4 pt-5 pb-4"
+        align="end"
+        sideOffset={8}
+        className="w-[min(280px,calc(100vw-32px))] rounded-[22px] px-4 pt-5 pb-4 shadow-popover"
       >
         <h2 className="text-lg font-semibold text-foreground">Admin profile</h2>
 

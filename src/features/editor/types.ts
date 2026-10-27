@@ -1,0 +1,174 @@
+// Page document types. Same shape as the Spring API JSON (the backend stores the Puck data as JSON).
+import type { Data } from "@puckeditor/core";
+import type { Currency } from "@/lib/format";
+
+/** The four website designs. Each block renders a different design per template. */
+export type TemplateKey =
+  | "everyday-store"
+  | "sweet-pastel"
+  | "warm-bold"
+  | "clean-mono";
+
+/** Whole-site visual style, chosen in "Layout & Design · Visual style". `original` = the template's own. */
+export type PaletteKey = "original" | "lavender" | "bakery" | "sage";
+export type FontKey = "original" | "editorial" | "clean" | "rounded";
+export type ButtonStyleKey = "square" | "rounded" | "pill";
+
+/** Per-block layout options ("Layout & Design · Layout"). */
+export type Align = "left" | "center" | "right";
+export type Spacing = "tight" | "normal" | "roomy";
+export type Columns = "2" | "3" | "4";
+
+/**
+ * Where a website button goes. Zero-transaction: only page sections, phone, email or Google Maps.
+ * `site-links.ts` turns these into hrefs; there is no free-form URL.
+ */
+export type CtaAction = "shop" | "visit" | "call" | "email" | "directions";
+
+export type Product = {
+  name: string;
+  description: string;
+  /** Decimal string, e.g. "6.00". Formatted with `formatPrice` and the site currency. */
+  price: string;
+  category: string;
+  imageUrl: string | null;
+};
+
+export type Stat = { value: string; label: string };
+export type Highlight = { text: string };
+export type PhoneNumber = { number: string };
+export type Category = { name: string };
+
+/** Root props: business info and the whole-site style. The site header and Contact dialog read these. */
+export type SiteRootProps = {
+  templateId: TemplateKey;
+  businessName: string;
+  /** "Open now · until 18:00". Shown as a badge in the header. Empty hides it. */
+  statusText: string;
+  /** Short hours for info rows, e.g. "9:00 – 18:00". */
+  hours: string;
+  /** Full week, e.g. "Mon – Fri 9:00 – 18:00 · Sat 9:00 – 13:00 · Sun closed". */
+  hoursDetail: string;
+  address: string;
+  phones: PhoneNumber[];
+  email: string;
+  /** Telegram username without "@". Empty hides it. */
+  telegram: string;
+  facebookUrl: string;
+  instagramUrl: string;
+  currency: Currency;
+  palette: PaletteKey;
+  /** Owner-picked "#rrggbb" colours that override the palette/template. null = keep it. */
+  accentColor: string | null;
+  backgroundColor: string | null;
+  textColor: string | null;
+  font: FontKey;
+  buttonStyle: ButtonStyleKey;
+};
+
+type LayoutProps = { align: Align; spacing: Spacing };
+
+export type HeroProps = LayoutProps & {
+  /** Small label above the heading. Empty hides it. */
+  eyebrow: string;
+  heading: string;
+  description: string;
+  primaryLabel: string;
+  primaryAction: CtaAction;
+  /** Empty hides the second button. */
+  secondaryLabel: string;
+  secondaryAction: CtaAction;
+  imageUrl: string | null;
+  /** Extra images (Sweet pastel side photos). */
+  sideImages: { imageUrl: string | null }[];
+  /** Short facts (Warm & bold strip, Clean mono spec row, Sweet pastel stickers). */
+  highlights: Highlight[];
+  /** Badge text (Warm & bold round badge, Clean mono price tag). Empty hides it. */
+  badge: string;
+};
+
+export type ProductCardsProps = LayoutProps & {
+  columns: Columns;
+  eyebrow: string;
+  heading: string;
+  /** "View all products" link to the All products section. Empty hides it. */
+  viewAllLabel: string;
+  products: Product[];
+};
+
+export type AllProductsProps = LayoutProps & {
+  columns: Columns;
+  eyebrow: string;
+  heading: string;
+  searchPlaceholder: string;
+  categories: Category[];
+  products: Product[];
+  /** Products per page in the grid. */
+  pageSize: number;
+};
+
+export type AboutProps = LayoutProps & {
+  eyebrow: string;
+  heading: string;
+  body: string;
+  imageUrl: string | null;
+  /** Caption under the photo (Clean mono) or quote attribution (Warm & bold). */
+  caption: string;
+  stats: Stat[];
+};
+
+export type VisitUsProps = LayoutProps & {
+  eyebrow: string;
+  heading: string;
+};
+
+export type FooterProps = LayoutProps & {
+  tagline: string;
+};
+
+export type TextProps = LayoutProps & {
+  eyebrow: string;
+  heading: string;
+  body: string;
+};
+
+/** Block name → props. Keys are the Puck component names stored in the page JSON. */
+export type BlockProps = {
+  Hero: HeroProps;
+  ProductCards: ProductCardsProps;
+  AllProducts: AllProductsProps;
+  About: AboutProps;
+  VisitUs: VisitUsProps;
+  Footer: FooterProps;
+  Text: TextProps;
+};
+
+export type BlockName = keyof BlockProps;
+
+/** The Puck document of one page. Stored by the backend as JSON. */
+export type PageData = Data<BlockProps, SiteRootProps>;
+
+/** GET /websites/{websiteId}/page */
+export type WebsitePage = {
+  websiteId: string;
+  draft: PageData;
+  /** null until the first deploy. */
+  published: PageData | null;
+  updatedAt: string;
+  publishedAt: string | null;
+};
+
+/** An image the owner can put on the site (GET /websites/{websiteId}/media). */
+export type MediaAsset = {
+  id: string;
+  url: string;
+  name: string;
+};
+
+/** One message in the WebBlock AI chat (POST /websites/{websiteId}/ai/messages). */
+export type AiMessage = {
+  id: string;
+  role: "USER" | "ASSISTANT";
+  text: string;
+  createdAt: string;
+};

@@ -144,12 +144,14 @@ export function NotificationPanel({
           <li className="px-5 py-4">
             {tab === "unread" ? (
               <EmptyState
+                variant="dashed"
                 icon={<TickCircle />}
                 title="You're all caught up"
                 description="New activity will show here."
               />
             ) : (
               <EmptyState
+                variant="dashed"
                 icon={<NotificationBing />}
                 title="No notifications yet"
               />

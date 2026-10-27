@@ -23,7 +23,9 @@ Check `components/common/` first. Never create a second badge, modal, table, toa
   Sizes `sm | md | lg` and `icon-sm | icon | icon-lg`. Hover/press motion, `loading` and focus ring are
   built in — don't restyle them. Links that look like buttons: `<Button asChild><Link …/></Button>`.
 - Every table → `DataTable` from `common/data-table` ("Draft table style": "No." first column, sortable
-  headers, pinned footer "Showing …" + pagination + "Go to", full grid even with few rows).
+  headers, pinned footer "Showing …" + pagination + "Go to"; only real rows, no empty filler rows; the card keeps the
+  height its page gives it (`flex-1`) even with few rows, and when the rows run out of space only they scroll,
+  the toolbar, column headers and footer stay in place).
   It is a Server Component: pass the page's `searchParams`; page/size/sort live in the URL and
   `parseTableQuery()` from `lib/table-query` turns them into the query for `api.ts`.
   Mock `api.ts` builds its `Page<T>` with `toPage()`. Loading state: `DataTableSkeleton`.
