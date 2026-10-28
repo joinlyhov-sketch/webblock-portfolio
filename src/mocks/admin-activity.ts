@@ -41,8 +41,8 @@ export const activityLog: ActivityEntry[] = [
   {
     id: "4b6d8f0a-2c4e-4a6b-9d8f-1a3c5e7b0905",
     action: "CHANGE_PLAN",
-    targetName: "Dara Chan",
-    targetDetail: "dara@mapleandrye.com",
+    targetName: "Lihov Chiv",
+    targetDetail: "lihov@mapleandrye.com",
     actorEmail: "sokha@webblock.com",
     result: "SUCCEEDED",
     createdAt: "2026-10-21T10:45:00Z",
@@ -59,8 +59,8 @@ export const activityLog: ActivityEntry[] = [
   {
     id: "4b6d8f0a-2c4e-4a6b-9d8f-1a3c5e7b0907",
     action: "REACTIVATE_USER",
-    targetName: "Kosal Ruos",
-    targetDetail: "kosal@cornerchair.co",
+    targetName: "Endy Ong",
+    targetDetail: "endy@cornerchair.co",
     actorEmail: "sokha@webblock.com",
     result: "SUCCEEDED",
     createdAt: "2026-10-20T06:12:00Z",
@@ -86,8 +86,8 @@ export const activityLog: ActivityEntry[] = [
   {
     id: "4b6d8f0a-2c4e-4a6b-9d8f-1a3c5e7b0910",
     action: "CHANGE_PLAN",
-    targetName: "Anna Tran",
-    targetDetail: "anna@hollowandco.com",
+    targetName: "Chakriya Uy",
+    targetDetail: "chakriya@hollowandco.com",
     actorEmail: "admin@webblock.com",
     result: "SUCCEEDED",
     createdAt: "2026-10-15T02:05:00Z",
