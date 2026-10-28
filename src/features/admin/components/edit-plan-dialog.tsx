@@ -11,8 +11,13 @@ import type { ActionResult } from "@/lib/actions/result";
 import { formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { updatePlanAction } from "../actions";
+import { planInput } from "../schemas";
 import type { Plan } from "../types";
 import { PLAN_LABEL, PLAN_SURFACE } from "./plan-styles";
+
+type FieldName = keyof typeof planInput.shape;
+const FIELDS = Object.keys(planInput.shape) as FieldName[];
+const isField = (name: string): name is FieldName => name in planInput.shape;
 
 /** "Edit Pro plan" popup. Opened with `?edit=<planId>`; saving or closing goes back to the plans. */
 export function EditPlanDialog({
@@ -28,6 +33,19 @@ export function EditPlanDialog({
     FormData
   >(updatePlanAction.bind(null, plan.id), null);
   const [price, setPrice] = useState(plan.priceMonthly);
+  // Same rules as the server, checked as the admin types. A key that is present means
+  // "checked in the browser" and replaces the server's error for that field.
+  const [clientErrors, setClientErrors] = useState<
+    Partial<Record<FieldName, string[] | undefined>>
+  >({});
+
+  function checkField(name: FieldName, value: string) {
+    const result = planInput.shape[name].safeParse(value);
+    setClientErrors((prev) => ({
+      ...prev,
+      [name]: result.success ? undefined : [result.error.issues[0].message],
+    }));
+  }
 
   useEffect(() => {
     if (!state) return;
@@ -39,7 +57,13 @@ export function EditPlanDialog({
     }
   }, [state, plan.name, closeHref, router]);
 
-  const errors = state?.ok === false ? state.fieldErrors : undefined;
+  const serverErrors = state?.ok === false ? state.fieldErrors : undefined;
+  const errors = Object.fromEntries(
+    FIELDS.map((name) => [
+      name,
+      name in clientErrors ? clientErrors[name] : serverErrors?.[name],
+    ]),
+  ) as Partial<Record<FieldName, string[]>>;
   const values = state?.ok === false ? state.values : undefined;
   const diff = Number(price) - Number(plan.priceMonthly);
   const priceChanged =
@@ -80,6 +104,35 @@ export function EditPlanDialog({
         <form
           action={formAction}
           noValidate
+          onBlur={(e) => {
+            if (!(e.target instanceof HTMLInputElement)) return;
+            const { name, value } = e.target;
+            if (isField(name)) checkField(name, value);
+          }}
+          onChange={(e) => {
+            // Re-check while typing only once the field was checked (no errors mid-first-entry).
+            if (!(e.target instanceof HTMLInputElement)) return;
+            const { name, value } = e.target;
+            if (isField(name) && name in clientErrors) checkField(name, value);
+          }}
+          onSubmit={(e) => {
+            const raw = Object.fromEntries(new FormData(e.currentTarget));
+            const result = planInput.safeParse(raw);
+            if (result.success) {
+              setClientErrors({});
+              return;
+            }
+            e.preventDefault();
+            const next: Partial<Record<FieldName, string[] | undefined>> = {};
+            for (const name of FIELDS) next[name] = undefined;
+            for (const issue of result.error.issues) {
+              const name = String(issue.path[0]);
+              if (isField(name)) next[name] ??= [issue.message];
+            }
+            setClientErrors(next);
+            const first = FIELDS.find((name) => next[name]);
+            document.getElementById(`plan-${first}`)?.focus();
+          }}
           className="mt-4 space-y-3 border-t border-border pt-4"
         >
           <Field
@@ -98,6 +151,7 @@ export function EditPlanDialog({
                 <Input
                   {...props}
                   inputMode="decimal"
+                  maxLength={7}
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   className="h-9 rounded-lg pl-[22px] text-[13px]"
@@ -122,6 +176,7 @@ export function EditPlanDialog({
               <Input
                 {...props}
                 inputMode="numeric"
+                maxLength={6}
                 className="h-9 rounded-lg text-[13px]"
                 defaultValue={values?.websiteLimit ?? plan.websiteLimit}
               />
@@ -136,6 +191,7 @@ export function EditPlanDialog({
               <Input
                 {...props}
                 inputMode="numeric"
+                maxLength={6}
                 className="h-9 rounded-lg text-[13px]"
                 defaultValue={
                   values?.redeploysPerMonth ?? plan.redeploysPerMonth
@@ -152,6 +208,7 @@ export function EditPlanDialog({
               <Input
                 {...props}
                 inputMode="numeric"
+                maxLength={6}
                 className="h-9 rounded-lg text-[13px]"
                 defaultValue={values?.productLimit ?? plan.productLimit}
               />
@@ -165,6 +222,7 @@ export function EditPlanDialog({
             {(props) => (
               <Input
                 {...props}
+                maxLength={60}
                 className="h-9 rounded-lg text-[13px]"
                 defaultValue={values?.monitoring ?? plan.monitoring}
               />

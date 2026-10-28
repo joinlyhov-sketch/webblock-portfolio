@@ -7,7 +7,7 @@ export const profiles: Profile[] = [
     fullName: "Sovannarith Soeun",
     initials: "SV",
     email: "sovannarith@gmail.com",
-    avatarUrl: null,
+    avatarUrl: "/mock/avatars/sovannarith-soeun.jpg",
     plan: "FREE_TRIAL",
     memberSince: "2026-03-12T03:00:00Z",
     lastSignInAt: hoursAgo(1),

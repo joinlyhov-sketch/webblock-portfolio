@@ -36,6 +36,7 @@ export function TableSearch({
       <input
         type="search"
         name={param}
+        maxLength={100}
         aria-label={placeholder}
         placeholder={placeholder}
         defaultValue={Array.isArray(value) ? value[0] : value}

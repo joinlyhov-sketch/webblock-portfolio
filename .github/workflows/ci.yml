@@ -23,13 +23,16 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # Installs the pnpm version pinned in package.json "packageManager". Must run before setup-node.
+      - uses: pnpm/action-setup@v6
+
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-          cache: npm
+          cache: pnpm
 
-      - name: Install dependencies (exactly as in package-lock.json)
-        run: npm ci
+      - name: Install dependencies (exactly as in pnpm-lock.yaml)
+        run: pnpm install --frozen-lockfile
 
       - name: Invariant checks (zero-transaction, boundaries, secrets, Server Action auth)
         run: node .claude/hooks/invariants.mjs --all
@@ -38,10 +41,10 @@ jobs:
         run: node --test .claude/hooks/invariants.test.mjs
 
       - name: Lint
-        run: npm run lint
+        run: pnpm lint
 
       - name: Build (also type-checks)
-        run: npm run build
+        run: pnpm build
 
   secrets:
     # Runs the open-source gitleaks CLI directly on GitHub's runner (no license needed, nothing to install

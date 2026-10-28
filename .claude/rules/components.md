@@ -55,7 +55,7 @@ Check `components/common/` first. Never create a second badge, modal, table, toa
 Only `components/` may import `sonner`, `recharts`, `@radix-ui/*`. Puck only in `features/editor`.
 
 ## shadcn/ui and icons
-- New primitives: `npx shadcn@latest add <name>` (config in `components.json`) → lands in `components/ui/`.
+- New primitives: `pnpm dlx shadcn@latest add <name>` (config in `components.json`) → lands in `components/ui/`.
   Then replace its `lucide-react` imports with `iconsax-reactjs` and remove lucide if it was added,
   and swap any colours that don't exist in our tokens.
 - Icons: `iconsax-reactjs` only (NOT `iconsax-react`, which breaks on React 19), Linear variant

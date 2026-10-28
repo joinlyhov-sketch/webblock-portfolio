@@ -6,11 +6,13 @@ Next.js App Router + TypeScript + Tailwind. Backend is Spring Boot (not built ye
 every screen runs on mock data behind `features/*/api.ts`, ready to swap to the real API.
 
 ## Commands
-- `npm run dev` — dev server
-- `npm run typecheck` — `tsc --noEmit`
-- `npm run lint` — ESLint
-- `npm run build` — production build
-- Package manager is **npm** (commit `package-lock.json`). Never use pnpm or yarn here.
+- `pnpm dev` — dev server
+- `pnpm typecheck` — `tsc --noEmit`
+- `pnpm lint` — ESLint
+- `pnpm build` — production build
+- Package manager is **pnpm** (version pinned in `package.json` `packageManager`; commit `pnpm-lock.yaml`).
+  Never use npm or yarn here. Dependency build scripts must be approved (`pnpm approve-builds`,
+  stored in `pnpm-workspace.yaml`).
 - After each change: `/verify quick` (seconds). Before saying a task is done, committing or pushing: `/verify` (includes the build)
 
 ## Map
@@ -90,3 +92,5 @@ Details and component usage: `.claude/rules/components.md`.
   - `feature/<name>` — one per feature, created from `dev`, short kebab-case name
     (e.g. `feature/products`, `feature/admin-users`) → pull request into `dev`.
 - Never edit `.claude/hooks/` to make a check pass; if a rule looks wrong, stop and ask.
+- Commits and pull requests carry no Claude attribution: no `Co-Authored-By: Claude` trailer, no
+  "Generated with Claude Code" line, no session link (also turned off in `.claude/settings.json` `attribution`).

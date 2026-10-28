@@ -6,7 +6,7 @@ export const sessionUsers: SessionUser[] = [
     email: "sovannarith@gmail.com",
     fullName: "Sovannarith Soeun",
     role: "USER",
-    avatarUrl: null,
+    avatarUrl: "/mock/avatars/sovannarith-soeun.jpg",
   },
   {
     id: "5c2e7a91-3d4b-4f6e-8a1c-9b0d2e3f4a51",
