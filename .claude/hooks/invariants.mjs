@@ -358,9 +358,9 @@ function walk(dir, out = []) {
 }
 
 function formatFile(file, projectDir) {
-  // Never blocks Claude: lint errors are reported by /verify (npm run lint), not on every keystroke.
+    // Never blocks Claude: lint errors are reported by /verify (pnpm lint), not on every keystroke.
   const q = JSON.stringify(file);
-  for (const cmd of [`npx --no-install prettier --write ${q}`, `npx --no-install eslint --fix ${q}`]) {
+  for (const cmd of [`pnpm exec prettier --write ${q}`, `pnpm exec eslint --fix ${q}`]) {
     if (cmd.includes("eslint") && !/\.(ts|tsx|js|jsx|mjs)$/.test(file)) continue;
     try {
       execSync(cmd, { cwd: projectDir, stdio: "ignore", timeout: 60_000 });
