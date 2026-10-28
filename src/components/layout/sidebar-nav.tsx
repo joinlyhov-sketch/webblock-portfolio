@@ -144,22 +144,32 @@ function NavGroup({
           <ArrowRight2 aria-hidden className={cn("size-4 transition-transform duration-150", expanded && "rotate-90")} />
         )}
       </button>
-      {expanded && (
-        <div
-          id={listId}
-          className={cn("mt-1 flex flex-col gap-1", collapsed ? "" : "ml-[21px] border-l border-border pl-3")}
-        >
-          {item.children?.map((child) => (
-            <NavLink
-              key={child.href}
-              item={child}
-              active={isActive(pathname, child)}
-              compact={compact}
-              collapsed={collapsed}
-            />
-          ))}
+      {/* Slides open/closed (grid rows 0fr ⇄ 1fr) instead of popping; `inert` keeps hidden links out of Tab. */}
+      <div
+        inert={!expanded}
+        className={cn(
+          "grid transition-[grid-template-rows,opacity] duration-200 ease-out motion-reduce:transition-none",
+          expanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
+        )}
+      >
+        {/* Padding offset by negative margin: room for the links' focus ring inside the clip. */}
+        <div className="-mx-1 -mb-1 overflow-hidden px-1 pb-1">
+          <div
+            id={listId}
+            className={cn("mt-1 flex flex-col gap-1", collapsed ? "" : "ml-[21px] border-l border-border pl-3")}
+          >
+            {item.children?.map((child) => (
+              <NavLink
+                key={child.href}
+                item={child}
+                active={isActive(pathname, child)}
+                compact={compact}
+                collapsed={collapsed}
+              />
+            ))}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

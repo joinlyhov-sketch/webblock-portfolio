@@ -126,7 +126,7 @@ export function ProductRowActions({ product }: { product: Product }) {
         size="icon"
         aria-label={`Delete ${product.name}`}
         onClick={() => openDelete(product)}
-        className="hover:bg-danger-soft hover:text-danger"
+        className="hover:bg-danger-soft hover:text-danger active:bg-danger-soft"
       >
         <Trash aria-hidden />
       </Button>

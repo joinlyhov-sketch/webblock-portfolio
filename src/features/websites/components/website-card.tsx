@@ -38,7 +38,7 @@ export function WebsiteCard({ website, filtered = false }: { website: Website; f
   const reactivateFirst = suspended && !filtered;
 
   return (
-    <article className="flex flex-col gap-3.5 rounded-[20px] border border-border bg-background p-3 shadow-card">
+    <article className="flex flex-col gap-3.5 rounded-[20px] border border-border bg-background p-3 shadow-card transition-[border-color,box-shadow,translate] duration-200 ease-out hover:border-primary/30 hover:shadow-float motion-safe:hover:-translate-y-0.5">
       <div className="relative h-[200px] overflow-hidden rounded-[14px] bg-primary-soft">
         <div
           className={cn(

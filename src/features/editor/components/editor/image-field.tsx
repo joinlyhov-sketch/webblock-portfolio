@@ -2,33 +2,30 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Export, Gallery, GalleryEdit, Trash } from "iconsax-reactjs";
+import { Export, Gallery, Trash } from "iconsax-reactjs";
 import { toast } from "@/components/common/toast";
 import { UploadImageModal } from "@/components/common/upload-image-modal";
 import { Button } from "@/components/ui/button";
 import { SITE_IMAGE_RULE } from "@/lib/image-rules";
-import { cn } from "@/lib/utils";
 import { uploadMediaAction } from "../../actions";
 import { useMedia } from "./editor-context";
 
 /**
- * Figma "Content · Image": thumbnail + file name, "Replace image" (pick from the library),
- * "Upload" (a file from the owner's computer) and remove.
+ * Figma "Content · Image": thumbnail + file name, "Upload image" (a file from the owner's computer)
+ * and remove. One way to change an image, so there is no separate "Replace image" library picker.
  * Used as a Puck custom field, so it also works inside product rows.
  */
 export function ImageField({
-  id,
   value,
   onChange,
   readOnly,
 }: {
-  id: string;
+  id?: string;
   value: string | null;
   onChange: (value: string | null) => void;
   readOnly?: boolean;
 }) {
   const { websiteId, media, addMedia } = useMedia();
-  const [picking, setPicking] = useState(false);
   const [uploading, setUploading] = useState(false);
   // Uploaded images live at /api/mock-media/<id>, so show the original file name from the library.
   const name = media.find((asset) => asset.url === value)?.name ?? value?.split("/").pop() ?? "No image";
@@ -43,7 +40,6 @@ export function ImageField({
     }
     addMedia(result.data);
     onChange(result.data.url);
-    setPicking(false);
     return true;
   }
 
@@ -64,19 +60,8 @@ export function ImageField({
       </div>
 
       <div className="flex items-center gap-2">
-        <Button
-          variant="secondary"
-          size="sm"
-          className="flex-1"
-          disabled={readOnly}
-          aria-expanded={picking}
-          aria-controls={`${id}-library`}
-          onClick={() => setPicking((open) => !open)}
-        >
-          <GalleryEdit /> Replace image
-        </Button>
-        <Button variant="secondary" size="sm" disabled={readOnly} onClick={() => setUploading(true)}>
-          <Export /> Upload
+        <Button variant="secondary" size="sm" className="flex-1" disabled={readOnly} onClick={() => setUploading(true)}>
+          <Export /> Upload image
         </Button>
         <Button
           variant="secondary"
@@ -88,35 +73,6 @@ export function ImageField({
           <Trash />
         </Button>
       </div>
-
-      {picking && (
-        <div
-          id={`${id}-library`}
-          role="listbox"
-          aria-label="Image library"
-          className="grid max-h-56 grid-cols-3 gap-2 overflow-y-auto rounded-xl border border-border bg-muted p-2"
-        >
-          {media.map((asset) => (
-            <button
-              key={asset.id}
-              type="button"
-              role="option"
-              aria-selected={asset.url === value}
-              aria-label={asset.name}
-              onClick={() => {
-                onChange(asset.url);
-                setPicking(false);
-              }}
-              className={cn(
-                "relative aspect-[4/3] overflow-hidden rounded-lg border-2 outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
-                asset.url === value ? "border-brand" : "border-transparent hover:border-primary/40",
-              )}
-            >
-              <Image src={asset.url} alt="" fill sizes="96px" className="object-cover" />
-            </button>
-          ))}
-        </div>
-      )}
 
       <UploadImageModal open={uploading} onClose={() => setUploading(false)} rule={SITE_IMAGE_RULE} onUpload={upload} />
     </div>

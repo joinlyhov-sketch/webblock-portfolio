@@ -24,3 +24,8 @@ export function suggestSubdomain(siteName: string): string {
 }
 
 export const idempotencyKeySchema = z.uuid();
+
+/** The plans screen for a deploy the plan does not allow; `reason` lets it say why. */
+export function plansHref(websiteId: string, reason?: string): string {
+  return `/billing/plans?from=deploy&website=${websiteId}${reason ? `&reason=${reason}` : ""}`;
+}

@@ -8,8 +8,8 @@ type IconComponent = ComponentType<{ className?: string; "aria-hidden"?: boolean
 export const BLOCK_META = {
   Hero: { label: "Hero", hint: "Big heading, image, button", icon: RowVertical },
   Text: { label: "Text", hint: "Heading and paragraph", icon: Text },
-  ProductCards: { label: "Product Cards", hint: "Products with prices", icon: Grid1 },
-  AllProducts: { label: "All products", hint: "Search, grid & pagination", icon: Element3 },
+  ProductCards: { label: "Product Cards", hint: "A short row of featured picks", icon: Grid1 },
+  AllProducts: { label: "All products", hint: "Full catalogue: categories, search, pages", icon: Element3 },
   About: { label: "About", hint: "Your story", icon: Note },
   VisitUs: { label: "Visit us", hint: "Map, hours & contact", icon: Location },
   Footer: { label: "Footer", hint: "Contact and links", icon: Message },

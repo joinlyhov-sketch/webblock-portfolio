@@ -148,7 +148,7 @@ function ProductDetails({
       </div>
 
       <div className="flex items-center justify-between gap-2 pt-4">
-        <Button variant="ghost" size="sm" className="text-danger hover:bg-danger-soft hover:text-danger" onClick={onDelete}>
+        <Button variant="ghost" size="sm" className="text-danger hover:bg-danger-soft hover:text-danger active:bg-danger-soft" onClick={onDelete}>
           <Trash aria-hidden /> Delete
         </Button>
         <div className="flex items-center gap-2">

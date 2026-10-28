@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { PortalContainerContext } from "@/components/ui/portal-container";
+import { raiseToastsInto } from "@/components/common/toast";
 import { cn } from "@/lib/utils";
 
 const SIZE = {
@@ -65,7 +66,7 @@ export function Modal(props: ModalProps) {
 
 /**
  * Native `<dialog>`: focus trap, Escape and the blurred backdrop come from the browser.
- * Children mount only while open, so forms reset every time.
+ * Children mount while open and stay through the exit animation, then unmount, so forms reset every time.
  */
 function BareModal({ open, onClose, label, children, className }: BareModalProps) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -73,6 +74,9 @@ function BareModal({ open, onClose, label, children, className }: BareModalProps
   const [dialogEl, setDialogEl] = useState<HTMLDialogElement | null>(null);
   // `close` events caused by `open` turning false are not the user closing the dialog.
   const closedByProp = useRef(false);
+  // Keeps the content on screen while the card fades out (otherwise an empty card fades).
+  const [mounted, setMounted] = useState(open);
+  if (open && !mounted) setMounted(true);
 
   useEffect(() => {
     const dialog = ref.current;
@@ -82,6 +86,13 @@ function BareModal({ open, onClose, label, children, className }: BareModalProps
       closedByProp.current = true;
       dialog.close();
     }
+    if (!open) {
+      // Matches the `dialog-motion` exit in globals.css, plus a frame of slack.
+      const timer = setTimeout(() => setMounted(false), 160);
+      return () => clearTimeout(timer);
+    }
+    // Toasts shown while the dialog is open would sit behind it: move them into it.
+    return raiseToastsInto(dialog);
   }, [open]);
 
   return (
@@ -100,11 +111,11 @@ function BareModal({ open, onClose, label, children, className }: BareModalProps
       }}
       className={cn(
         "m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md overflow-hidden rounded-[18px] border border-border bg-background p-0 text-foreground shadow-dialog",
-        "backdrop:bg-scrim backdrop:backdrop-blur-[7px] open:animate-modal-in",
+        "dialog-motion backdrop:bg-scrim backdrop:backdrop-blur-[7px]",
         className,
       )}
     >
-      <PortalContainerContext value={dialogEl}>{open && children}</PortalContainerContext>
+      <PortalContainerContext value={dialogEl}>{(open || mounted) && children}</PortalContainerContext>
     </dialog>
   );
 }

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/common/toast";
 import { startDeployAction } from "@/features/deploy/actions";
+import { plansHref } from "@/features/deploy/schemas";
 
 /**
  * Shared "Deploy" behaviour for the editor and the preview. The draft must already be saved. The backend
@@ -23,8 +24,7 @@ export function useDeploy(websiteId: string): () => Promise<boolean> {
       return false;
     }
     const { data } = result;
-    if (data.next === "PLANS")
-      router.push(`/billing/plans?from=deploy&website=${websiteId}`);
+    if (data.next === "PLANS") router.push(plansHref(websiteId, data.reason));
     else if (data.next === "CHOOSE_DOMAIN")
       router.push(`/websites/${websiteId}/deploy`);
     else {

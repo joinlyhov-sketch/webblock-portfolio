@@ -59,18 +59,22 @@ export function Popover({
       >
         {trigger}
       </button>
-      {open && (
-        <div
-          id={panelId}
-          className={cn(
-            "absolute top-full z-30 mt-2 animate-pop-in rounded-2xl border border-border bg-background shadow-modal",
-            align === "right" ? "right-0" : "left-0",
-            panelClassName,
-          )}
-        >
-          {children(() => setOpen(false))}
-        </div>
-      )}
+      {/* Always rendered so it can fade out too; `invisible` + `inert` take it out of reach while closed. */}
+      <div
+        id={panelId}
+        inert={!open}
+        className={cn(
+          "absolute top-full z-30 mt-2 rounded-2xl border border-border bg-background shadow-modal",
+          "transition-[opacity,translate,scale,visibility] motion-reduce:transition-none",
+          align === "right" ? "right-0 origin-top-right" : "left-0 origin-top-left",
+          open
+            ? "visible translate-y-0 scale-100 opacity-100 duration-160 ease-out"
+            : "invisible -translate-y-1 scale-[0.98] opacity-0 duration-110 ease-in",
+          panelClassName,
+        )}
+      >
+        {children(() => setOpen(false))}
+      </div>
     </div>
   );
 }

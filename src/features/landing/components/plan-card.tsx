@@ -13,6 +13,8 @@ type PlanTheme = {
   divider: string;
   cta: string;
   icon: string;
+  /** Hover/focus emphasis: tier-coloured border and glow (the lift is shared, see `PlanCard`). */
+  hover: string;
 };
 
 /** Per-tier colours from Figma "Plan cards (4)". */
@@ -24,6 +26,7 @@ const themes = {
     divider: "bg-primary/15",
     cta: "border-[1.5px] border-primary bg-background text-primary shadow-none hover:bg-primary-soft hover:shadow-none active:bg-brand-soft",
     icon: "text-primary",
+    hover: "hover:shadow-[0_22px_40px_-14px_rgb(67_121_214/0.32)] focus-within:shadow-[0_22px_40px_-14px_rgb(67_121_214/0.32)]",
   },
   PLUS: {
     card: "border-plan-plus-border bg-linear-to-b from-plan-plus-tint to-background to-60%",
@@ -32,6 +35,8 @@ const themes = {
     divider: "bg-border",
     cta: "bg-linear-[172deg] from-plan-plus-light to-plan-plus to-70% hover:bg-plan-plus active:bg-plan-plus",
     icon: "text-plan-plus",
+    hover:
+      "hover:border-plan-plus-light focus-within:border-plan-plus-light hover:shadow-[0_22px_40px_-14px_rgb(45_87_166/0.3)] focus-within:shadow-[0_22px_40px_-14px_rgb(45_87_166/0.3)]",
   },
   PRO: {
     card: "border-[1.5px] border-plan-pro-border bg-linear-to-b from-plan-pro-tint to-background to-60%",
@@ -40,6 +45,8 @@ const themes = {
     divider: "bg-plan-pro-soft",
     cta: "bg-plan-pro hover:bg-plan-pro-strong active:bg-plan-pro-strong",
     icon: "text-plan-pro",
+    hover:
+      "hover:border-plan-pro focus-within:border-plan-pro hover:shadow-[0_22px_40px_-14px_rgb(179_131_42/0.36)] focus-within:shadow-[0_22px_40px_-14px_rgb(179_131_42/0.36)]",
   },
   ULTRA: {
     card: "border-plan-ultra-border bg-linear-to-b from-plan-ultra-tint to-background to-60%",
@@ -48,6 +55,8 @@ const themes = {
     divider: "bg-border",
     cta: "bg-plan-ultra hover:bg-plan-ultra-strong active:bg-plan-ultra-strong",
     icon: "text-plan-ultra",
+    hover:
+      "hover:border-plan-ultra focus-within:border-plan-ultra hover:shadow-[0_22px_40px_-14px_rgb(109_63_214/0.32)] focus-within:shadow-[0_22px_40px_-14px_rgb(109_63_214/0.32)]",
   },
 } satisfies Record<PlanCode, PlanTheme>;
 
@@ -94,7 +103,10 @@ export function PlanCard({ plan, lower }: { plan: Plan; lower?: Plan }) {
       aria-labelledby={`plan-${plan.code}`}
       className={cn(
         "flex h-full flex-col gap-5 rounded-[20px] border px-6 pt-6 pb-7 shadow-plan",
+        // Lifts a little and glows in its tier colour on hover/focus, so the card being considered stands out.
+        "transition-[translate,box-shadow,border-color] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-safe:hover:-translate-y-1.5 motion-safe:focus-within:-translate-y-1.5",
         theme.card,
+        theme.hover,
       )}
     >
       <div className="flex min-h-[25px] items-center justify-between gap-2">

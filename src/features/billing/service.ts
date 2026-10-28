@@ -13,7 +13,7 @@ import {
 import { listWebsites } from "@/features/websites/api";
 import { ApiError } from "@/lib/api/errors";
 import { daysUntil } from "@/lib/format";
-import type { PlanCode, Subscription } from "@/features/account/types";
+import type { DeployReason, PlanCode, Subscription } from "@/features/account/types";
 import type { BillingPlan, PaidPlanCode, PaymentOrder } from "./types";
 import type { Website } from "@/features/websites/types";
 
@@ -34,7 +34,15 @@ export type PlansView = {
   websiteId: string | null;
   /** "settings" when the user came from Settings → Billing. */
   from: string;
+  /** Why Deploy sent the owner here (`?reason=`, from the backend's deploy check), else `null`. */
+  reason: DeployReason | null;
 };
+
+const DEPLOY_REASONS: DeployReason[] = ["SUBSCRIPTION_REQUIRED", "PLAN_EXPIRED", "WEBSITE_LIMIT", "REDEPLOY_LIMIT"];
+
+function deployReason(value: string): DeployReason | null {
+  return DEPLOY_REASONS.find((r) => r === value) ?? null;
+}
 
 function first(value: string | string[] | undefined): string {
   return (Array.isArray(value) ? value[0] : value) ?? "";
@@ -83,6 +91,7 @@ export async function getPlansView(
     websiteName: website?.name ?? "your website",
     websiteId: variant === "deploy" || first(searchParams.from) === "deploy" ? (website?.id ?? null) : null,
     from: first(searchParams.from) === "settings" ? "settings" : "",
+    reason: first(searchParams.from) === "deploy" ? deployReason(first(searchParams.reason)) : null,
   };
 }
 
@@ -149,7 +158,7 @@ export type PaymentView = {
   /** Full lifetime of the code, for the progress bar. */
   totalMs: number;
   /** Where the owner goes once the payment is confirmed: back to where they chose the plan. */
-  next: { href: string };
+  next: { href: string; label: string };
 };
 
 const SUBTITLE: Record<PaymentOrder["kind"], (order: PaymentOrder) => string> = {
@@ -178,7 +187,11 @@ export async function getPaymentView(
   const toSettings = options.from === "settings" && order.status === "PENDING";
   return {
     order,
-    backHref: toSettings ? "/settings/billing" : "/billing/plans",
+    backHref: toSettings
+      ? "/settings/billing"
+      : order.websiteId
+        ? `/billing/plans?from=deploy&website=${order.websiteId}`
+        : "/billing/plans",
     backLabel: toSettings ? "Back to settings" : "Back to plans",
     subtitle: SUBTITLE[order.kind](order),
     remainingMs: Math.max(0, new Date(order.expiresAt).getTime() - Date.now()),
@@ -187,9 +200,13 @@ export async function getPaymentView(
   };
 }
 
-/** Settings → back to Settings › Billing; Deploy → back to that website's editor; the sidebar card → dashboard. */
+/**
+ * Settings → back to Settings › Billing; Deploy → straight on with that website's deploy (the backend
+ * generates and publishes it; a draft without an address picks one first); the sidebar card → dashboard.
+ * The payment id rides along as the deploy's idempotency key, so reopening this page never deploys twice.
+ */
 function nextAfterPayment(order: PaymentOrder, from: string | undefined): PaymentView["next"] {
-  if (from === "settings") return { href: "/settings/billing" };
-  if (order.websiteId) return { href: `/websites/${order.websiteId}/edit` };
-  return { href: "/websites" };
+  if (from === "settings") return { href: "/settings/billing", label: "setting up your plan…" };
+  if (order.websiteId) return { href: `/websites/${order.websiteId}/deploy?start=${order.id}`, label: "starting your deploy…" };
+  return { href: "/websites", label: "setting up your plan…" };
 }

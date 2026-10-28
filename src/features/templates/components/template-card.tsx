@@ -19,7 +19,7 @@ export function TemplateCard({
   previewClassName?: string;
 }) {
   return (
-    <article className="flex flex-col gap-[15px] rounded-[20px] border border-border bg-background p-3 shadow-card">
+    <article className="flex flex-col gap-[15px] rounded-[20px] border border-border bg-background p-3 shadow-card transition-[border-color,box-shadow,translate] duration-200 ease-out hover:border-primary/30 hover:shadow-float motion-safe:hover:-translate-y-0.5">
       <div className="relative overflow-hidden rounded-[14px] bg-[#f1f5fc]">
         <div className={cn("relative overflow-hidden rounded-t-lg bg-background shadow-[0_10px_30px_rgb(60_120_207/0.12),0_2px_6px_rgb(60_120_207/0.05)]", previewClassName)}>
           <Image
@@ -44,14 +44,14 @@ export function TemplateCard({
         <div className="flex gap-2.5">
           <Link
             href={`/templates/${template.id}/preview`}
-            className="flex min-h-[31px] flex-1 items-center justify-center rounded-full border border-border bg-background px-2.5 py-1.5 text-[13px] leading-none font-semibold whitespace-nowrap text-foreground shadow-[0_1px_2px_rgb(60_120_207/0.06),0_1px_1px_rgb(60_120_207/0.04)] outline-none transition-colors hover:bg-primary-soft focus-visible:ring-3 focus-visible:ring-ring/40"
+            className="flex min-h-[31px] flex-1 items-center justify-center rounded-full border border-border bg-background px-2.5 py-1.5 text-[13px] leading-none font-semibold whitespace-nowrap text-foreground shadow-[0_1px_2px_rgb(60_120_207/0.06),0_1px_1px_rgb(60_120_207/0.04)] outline-none transition-[background-color,scale] duration-150 hover:bg-primary-soft focus-visible:ring-3 focus-visible:ring-ring/40 motion-safe:active:scale-97"
           >
             Preview
           </Link>
           <button
             type="button"
             onClick={() => onUse(template)}
-            className="flex min-h-[31px] flex-1 items-center justify-center gap-1 rounded-full bg-primary px-2.5 py-1.5 text-[13px] leading-none font-semibold whitespace-nowrap text-primary-foreground outline-none transition-colors hover:bg-brand focus-visible:ring-3 focus-visible:ring-ring/40 focus-visible:ring-offset-2 [&_svg]:size-[18px] [&_svg]:shrink-0"
+            className="flex min-h-[31px] flex-1 items-center justify-center gap-1 rounded-full bg-primary px-2.5 py-1.5 text-[13px] leading-none font-semibold whitespace-nowrap text-primary-foreground outline-none transition-[background-color,scale] duration-150 hover:bg-brand motion-safe:active:scale-97 focus-visible:ring-3 focus-visible:ring-ring/40 focus-visible:ring-offset-2 [&_svg]:size-[18px] [&_svg]:shrink-0"
           >
             <Add aria-hidden /> Use template
           </button>

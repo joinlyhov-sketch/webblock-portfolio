@@ -1,0 +1,79 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Danger } from "iconsax-reactjs";
+import { Button } from "@/components/ui/button";
+import { startDeployAction } from "../actions";
+import { plansHref } from "../schemas";
+
+/**
+ * Right after the owner paid for this deploy: asks the backend to start it and moves on to the progress
+ * screen (or wherever the backend answers). `idempotencyKey` is the payment id, so a reload or a second
+ * mount sends the same request and gets the same deployment back.
+ */
+export function StartDeploy({
+  websiteId,
+  idempotencyKey,
+  editorHref,
+}: {
+  websiteId: string;
+  idempotencyKey: string;
+  editorHref: string;
+}) {
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+    startDeployAction(websiteId, null, idempotencyKey).then((result) => {
+      if (!active) return;
+      if (!result.ok) return setError(result.message);
+      const next = result.data;
+      if (next.next === "PLANS") router.replace(plansHref(websiteId, next.reason));
+      else if (next.next === "CHOOSE_DOMAIN") router.replace(`/websites/${websiteId}/deploy`);
+      else router.replace(`/websites/${websiteId}/deploy?deployment=${next.deploymentId}`);
+    });
+    return () => {
+      active = false;
+    };
+  }, [websiteId, idempotencyKey, attempt, router]);
+
+  if (error) {
+    return (
+      <div role="alert" className="flex flex-col items-center gap-3 text-center">
+        <span className="flex size-12 items-center justify-center rounded-full bg-danger-soft text-danger [&_svg]:size-6">
+          <Danger aria-hidden />
+        </span>
+        <h1 className="font-heading text-[28px] leading-9 font-semibold text-foreground">Couldn’t start the deploy</h1>
+        <p className="max-w-[460px] text-sm text-muted-foreground">{error}</p>
+        <div className="flex gap-2.5 pt-2">
+          <Button
+            onClick={() => {
+              setError(null);
+              setAttempt((n) => n + 1);
+            }}
+          >
+            Try again
+          </Button>
+          <Button asChild variant="secondary">
+            <Link href={editorHref}>Back to editor</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div role="status" className="flex flex-col items-center gap-4 text-center">
+      <span
+        aria-hidden
+        className="size-12 animate-spin rounded-full border-4 border-brand-soft border-t-primary"
+      />
+      <h1 className="font-heading text-[28px] leading-9 font-semibold text-primary">Starting your deploy…</h1>
+      <p className="text-sm text-muted-foreground">Payment confirmed. Your website is being generated and published.</p>
+    </div>
+  );
+}

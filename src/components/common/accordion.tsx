@@ -23,9 +23,10 @@ export function Accordion({
         return (
           <li
             key={item.id}
+            // The border is always there (transparent when closed) so opening doesn't shift the row by 1px.
             className={cn(
-              "overflow-clip rounded-xl transition-colors",
-              open ? "border border-faq-open-border bg-primary-soft pb-3" : "bg-faq-row hover:bg-primary-soft",
+              "overflow-clip rounded-xl border transition-colors duration-200",
+              open ? "border-faq-open-border bg-primary-soft" : "border-transparent bg-faq-row hover:bg-primary-soft",
             )}
           >
             <h3 className="font-sans">
@@ -43,20 +44,25 @@ export function Accordion({
                 <ArrowDown2
                   aria-hidden
                   className={cn(
-                    "size-[18px] shrink-0 transition-transform",
+                    "size-[18px] shrink-0 transition-[rotate,color] duration-200 ease-out",
                     open ? "rotate-180 text-primary" : "text-muted-foreground",
                   )}
                 />
               </button>
             </h3>
-            {open && (
-              <p
-                id={`faq-${item.id}`}
-                className="mt-1.5 pr-3.5 pl-10 text-[13px] leading-5 text-muted-foreground"
-              >
-                {item.answer}
-              </p>
-            )}
+            {/* Answer slides open/closed (grid rows 0fr ⇄ 1fr) instead of popping in. */}
+            <div
+              id={`faq-${item.id}`}
+              inert={!open}
+              className={cn(
+                "grid transition-[grid-template-rows,opacity] duration-200 ease-out motion-reduce:transition-none",
+                open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
+              )}
+            >
+              <div className="overflow-hidden">
+                <p className="mt-1.5 pr-3.5 pb-3 pl-10 text-[13px] leading-5 text-muted-foreground">{item.answer}</p>
+              </div>
+            </div>
           </li>
         );
       })}

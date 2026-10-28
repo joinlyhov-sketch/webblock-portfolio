@@ -14,6 +14,7 @@ import type {
   TemplateKey,
 } from "../types";
 import { ImageField } from "./editor/image-field";
+import { SAMPLE_CATALOGUE, SAMPLE_CATEGORIES, SAMPLE_FEATURED } from "./site/sample-products";
 import { SiteRoot } from "./site/site-root";
 import { useSite } from "./site/site-context";
 import { templateDesigns } from "./site/templates";
@@ -141,8 +142,24 @@ function TemplateBlock({
   const Design = templateDesigns[site.templateId][name] as ComponentType<{
     isEditing: boolean;
   }>;
+  // A product block without products (e.g. just dragged in) shows sample products in the editor, so the
+  // owner sees the real layout instead of an empty box. The preview and the live site stay as they are.
+  // Product Cards gets one featured row (as many as its columns); All products a full, paged catalogue.
+  if (isEditing && isProductBlock(name) && isEmptyProducts(props)) {
+    const sample =
+      name === "ProductCards"
+        ? { ...props, products: SAMPLE_FEATURED.slice(0, columnsOf(props)) }
+        : { ...props, products: SAMPLE_CATALOGUE, categories: SAMPLE_CATEGORIES };
+    return <Design {...sample} isEditing={isEditing} />;
+  }
   return <Design {...props} isEditing={isEditing} />;
 }
+
+const isProductBlock = (name: BlockName): name is "ProductCards" | "AllProducts" =>
+  name === "ProductCards" || name === "AllProducts";
+const isEmptyProducts = (props: object) =>
+  !("products" in props) || !Array.isArray(props.products) || props.products.length === 0;
+const columnsOf = (props: object) => ("columns" in props ? Number(props.columns) || 3 : 3);
 
 function render(name: BlockName) {
   return function BlockRender({

@@ -25,9 +25,9 @@ const SAVE_STATE = {
 } satisfies Record<SaveState, BadgeStatus>;
 
 /**
- * Figma "Editor top bar": site info + status, undo/redo, device toggle, Save draft / Preview / Deploy.
- * A website that has been deployed (`portalHref` set, Figma "17 Editor (live)") also shows its address
- * and a Portal button.
+ * Figma "Editor top bar": a flat full-width bar with site info, undo/redo + device toggle in the middle
+ * and Save draft / Preview / Deploy. A website that has been deployed (`portalHref` set, Figma
+ * "17 Editor (live)") also shows its address and a Portal button.
  */
 export function EditorTopBar({
   siteName,
@@ -58,7 +58,7 @@ export function EditorTopBar({
   const history = useEditorPuck((s) => s.history);
 
   return (
-    <header className="flex h-[60px] shrink-0 items-center gap-3.5 rounded-[18px] bg-background px-4 shadow-card">
+    <header className="flex h-16 shrink-0 items-center gap-3 border-b border-border bg-background px-5">
       <Button asChild variant="ghost" size="icon" aria-label="Back to my websites">
         <Link href="/websites" onClick={onBack}>
           <ArrowLeft />
@@ -81,15 +81,15 @@ export function EditorTopBar({
           <p className="text-xs leading-[18px] text-muted-foreground">Home page</p>
         )}
       </div>
-      <StatusBadge status={SAVE_STATE[saveState]} className="hidden xl:inline-flex" />
+      {saveState === "unsaved" && <StatusBadge status={SAVE_STATE[saveState]} className="hidden xl:inline-flex" />}
 
       <div className="flex-1" />
-      <div className="flex gap-1">
-        <Button variant="secondary" size="icon" aria-label="Undo" title="Undo (Ctrl+Z)" disabled={!history.hasPast} onClick={history.back}>
+      <div className="flex">
+        <Button variant="ghost" size="icon" aria-label="Undo" title="Undo (Ctrl+Z)" disabled={!history.hasPast} onClick={history.back}>
           <Undo />
         </Button>
         <Button
-          variant="secondary"
+          variant="ghost"
           size="icon"
           aria-label="Redo"
           title="Redo (Ctrl+Shift+Z)"

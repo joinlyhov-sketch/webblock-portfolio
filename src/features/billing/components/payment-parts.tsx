@@ -223,7 +223,7 @@ export function PaymentSummary({ order }: { order: PaymentOrder }) {
 }
 
 /** Left side once the bank confirmed the payment. */
-export function PaymentSuccessPanel({ order, next }: { order: PaymentOrder; next: { href: string } }) {
+export function PaymentSuccessPanel({ order, next }: { order: PaymentOrder; next: { href: string; label: string } }) {
   const rows: [string, string][] = [
     ["Reference", order.reference],
     ["Plan", `${order.planName} · monthly`],
@@ -255,7 +255,7 @@ export function PaymentSuccessPanel({ order, next }: { order: PaymentOrder; next
           ))}
         </dl>
         <p className="flex items-center gap-2 text-xs leading-[18px] text-success">
-          <Check aria-hidden className="size-3.5" /> Payment confirmed · setting up your plan…
+          <Check aria-hidden className="size-3.5" /> Payment confirmed · {next.label}
         </p>
         <RedirectAfterPaid href={next.href} />
       </div>

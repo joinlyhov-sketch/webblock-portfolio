@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { useUrlParam } from "@/hooks/use-url-param";
 import { cn } from "@/lib/utils";
 import { startDeployAction } from "../actions";
-import { DOMAIN_SUFFIX, SUBDOMAIN_MAX } from "../schemas";
+import { DOMAIN_SUFFIX, plansHref, SUBDOMAIN_MAX } from "../schemas";
 import type { DomainCheck } from "../types";
 
 const PERKS = [
@@ -79,8 +79,7 @@ export function ChooseDomainView({
         return;
       }
       const next = result.data;
-      if (next.next === "PLANS")
-        router.push(`/billing/plans?from=deploy&website=${websiteId}`);
+      if (next.next === "PLANS") router.push(plansHref(websiteId, next.reason));
       else if (next.next === "PROGRESS")
         router.push(
           `/websites/${websiteId}/deploy?deployment=${next.deploymentId}`,

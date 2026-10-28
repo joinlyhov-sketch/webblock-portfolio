@@ -1,4 +1,5 @@
 // Same shape as the Spring API JSON. The backend owns the deploy pipeline; the screens only read it.
+import type { DeployReason } from "@/features/account/types";
 
 export type DeployStepKey = "BUILD" | "PRODUCTS" | "PACKAGE" | "LAUNCH" | "SSL" | "LIVE";
 
@@ -49,6 +50,6 @@ export type StartDeploymentBody = {
 
 /** Where the owner goes after pressing Deploy. */
 export type DeployNext =
-  | { next: "PLANS" }
+  | { next: "PLANS"; reason?: DeployReason }
   | { next: "CHOOSE_DOMAIN" }
   | { next: "PROGRESS"; deploymentId: string; kind: DeploymentKind };

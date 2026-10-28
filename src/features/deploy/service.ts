@@ -13,7 +13,7 @@ import {
   mockFailDeployment,
   startDeployment,
 } from "./api";
-import { subdomainSchema, suggestSubdomain } from "./schemas";
+import { idempotencyKeySchema, plansHref, subdomainSchema, suggestSubdomain } from "./schemas";
 import type { DeployNext, Deployment, DomainCheck } from "./types";
 
 export type DeployView =
@@ -24,7 +24,9 @@ export type DeployView =
       name: string;
       check: DomainCheck;
     }
-  | { kind: "progress"; website: Website; deployment: Deployment };
+  | { kind: "progress"; website: Website; deployment: Deployment }
+  /** Back from paying for this deploy: the website already has its address, so it deploys straight away. */
+  | { kind: "start"; website: Website; idempotencyKey: string };
 
 function first(value: string | string[] | undefined): string {
   return (Array.isArray(value) ? value[0] : value) ?? "";
@@ -33,7 +35,9 @@ function first(value: string | string[] | undefined): string {
 /**
  * What the Deploy screen shows. A deploy in progress (or the one named in `?deployment=`) wins; otherwise
  * a first deploy picks its free address. Owners the plan does not allow are sent to the plans, and a
- * website with nothing to deploy goes back to the editor.
+ * website with nothing to deploy goes back to the editor. `?start=<paymentId>` (set after paying for this
+ * deploy) starts it at once when the website already has its address; the payment id is the
+ * idempotency key, so opening that link again never deploys twice.
  */
 export async function getDeployView(
   userId: string,
@@ -64,8 +68,11 @@ export async function getDeployView(
   if (running) return { kind: "progress", website, deployment: running };
 
   const access = await getDeployAccess(userId, websiteId);
-  if (!access.allowed)
-    redirect(`/billing/plans?from=deploy&website=${websiteId}`);
+  if (!access.allowed) redirect(plansHref(websiteId, access.reason));
+
+  const start = first(searchParams.start);
+  if (website.domain && idempotencyKeySchema.safeParse(start).success)
+    return { kind: "start", website, idempotencyKey: start };
   // A website that is already live on its address has nothing to pick: back to the editor.
   if (!access.firstDeploy && website.domain)
     redirect(`/websites/${websiteId}/edit`);
@@ -105,7 +112,8 @@ export async function startDeploy(
       };
 
     const access = await getDeployAccess(userId, websiteId);
-    if (!access.allowed) return { ok: true, data: { next: "PLANS" } };
+    if (!access.allowed)
+      return { ok: true, data: { next: "PLANS", reason: access.reason } };
 
     const website = await getWebsite(websiteId);
     if (!website.domain && !subdomain)

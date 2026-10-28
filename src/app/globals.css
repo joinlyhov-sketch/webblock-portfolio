@@ -744,3 +744,156 @@
     transform: rotate(var(--r0, 14deg));
   }
 }
+
+/*
+ * Enter/exit utilities used by the shadcn menus (dropdown-menu, select, popover):
+ * `data-[state=open]:animate-in fade-in-0 zoom-in-95 slide-in-from-top-2`, and `animate-out` on close.
+ * Same API as tw-animate-css. Radix waits for the exit animation before unmounting.
+ */
+@keyframes enter {
+  from {
+    opacity: var(--tw-enter-opacity, 1);
+    transform: translate3d(var(--tw-enter-translate-x, 0), var(--tw-enter-translate-y, 0), 0)
+      scale(var(--tw-enter-scale, 1));
+  }
+}
+
+@keyframes exit {
+  to {
+    opacity: var(--tw-exit-opacity, 1);
+    transform: translate3d(var(--tw-exit-translate-x, 0), var(--tw-exit-translate-y, 0), 0)
+      scale(var(--tw-exit-scale, 1));
+  }
+}
+
+@utility animate-in {
+  animation: enter 160ms cubic-bezier(0.22, 1, 0.36, 1);
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@utility animate-out {
+  animation: exit 110ms ease-in forwards;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@utility fade-in-* {
+  --tw-enter-opacity: calc(--value(integer) * 1%);
+}
+@utility fade-out-* {
+  --tw-exit-opacity: calc(--value(integer) * 1%);
+}
+@utility zoom-in-* {
+  --tw-enter-scale: calc(--value(integer) * 1%);
+}
+@utility zoom-out-* {
+  --tw-exit-scale: calc(--value(integer) * 1%);
+}
+@utility slide-in-from-top-* {
+  --tw-enter-translate-y: calc(--value(integer) * var(--spacing) * -1);
+}
+@utility slide-in-from-bottom-* {
+  --tw-enter-translate-y: calc(--value(integer) * var(--spacing));
+}
+@utility slide-in-from-left-* {
+  --tw-enter-translate-x: calc(--value(integer) * var(--spacing) * -1);
+}
+@utility slide-in-from-right-* {
+  --tw-enter-translate-x: calc(--value(integer) * var(--spacing));
+}
+
+/*
+ * Native <dialog> popups (common/modal): the card fades and rises in, fades out on close, and the
+ * blurred backdrop fades with it instead of snapping. `overlay`/`display` keep it in the top layer
+ * until the exit has played. Reduced motion keeps only the fade.
+ */
+@utility dialog-motion {
+  opacity: 0;
+  translate: 0 8px;
+  scale: 0.98;
+  transition-property: opacity, translate, scale, overlay, display;
+  transition-duration: 140ms;
+  transition-timing-function: ease-in;
+  transition-behavior: allow-discrete;
+
+  &[open] {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+    transition-duration: 220ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  @starting-style {
+    &[open] {
+      opacity: 0;
+      translate: 0 8px;
+      scale: 0.98;
+    }
+  }
+
+  &::backdrop {
+    opacity: 0;
+    transition-property: opacity, overlay, display;
+    transition-duration: 140ms;
+    transition-timing-function: ease-in;
+    transition-behavior: allow-discrete;
+  }
+
+  &[open]::backdrop {
+    opacity: 1;
+    transition-duration: 220ms;
+    transition-timing-function: ease-out;
+  }
+
+  @starting-style {
+    &[open]::backdrop {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    translate: none;
+    scale: none;
+    &[open] {
+      translate: none;
+      scale: none;
+    }
+  }
+}
+
+/*
+ * App shells' <main>: each page eases in when it replaces the previous one, so a click on the
+ * sidebar or a card doesn't hard-cut. Loading skeletons (`aria-busy`) wait 150ms first, so a fast
+ * load goes straight to the page without a skeleton flash. `backwards` leaves no transform behind
+ * (a lasting transform would break `position: fixed` children).
+ */
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@keyframes page-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@utility page-motion {
+  & > * {
+    animation: page-in 260ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+  & > [aria-busy] {
+    animation: page-fade 200ms ease-out 150ms backwards;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    & > * {
+      animation-name: page-fade;
+    }
+  }
+}

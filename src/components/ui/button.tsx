@@ -12,7 +12,9 @@ import { cn } from "@/lib/utils";
 export const buttonVariants = cva(
   [
     "relative inline-flex shrink-0 items-center justify-center rounded-full font-semibold whitespace-nowrap select-none",
-    "transition-[background-color,color,border-color,box-shadow,transform] duration-150 ease-out",
+    // Tailwind 4 moves buttons with the `translate`/`scale` properties (not `transform`), so list those,
+    // and `filter` for the plan-coloured buttons that darken with `brightness-*`.
+    "transition-[background-color,color,border-color,box-shadow,translate,scale,filter] duration-150 ease-out",
     "outline-none focus-visible:ring-3 focus-visible:ring-ring/40 focus-visible:ring-offset-2",
     "motion-safe:active:scale-97",
     "disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50",

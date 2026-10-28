@@ -7,9 +7,18 @@ import type { BillingPlan, PaidPlanCode } from "../types";
 import { BillingBackdrop, BillingContent, BillingScreen, BillingTitle, BillingTopBar } from "./billing-shell";
 import { ChoosePlanButton, type PlanMode } from "./choose-plan-button";
 import { PlanFeatureGlyph } from "./plan-feature-icon";
-import { TIER_THEME } from "./plan-theme";
+import { PLAN_CARD_MOTION, TIER_THEME } from "./plan-theme";
 
 const daysLabel = (days: number) => `${days} ${days === 1 ? "day" : "days"}`;
+
+/** Why Deploy sent a paying owner here: their plan is full or over, so they need a different one. */
+const DEPLOY_BLOCKED: Partial<Record<NonNullable<PlansData["reason"]>, (view: PlansData) => string>> = {
+  PLAN_EXPIRED: (v) => `Your ${v.currentPlanName} plan has expired. Renew it to deploy ${v.websiteName} again.`,
+  WEBSITE_LIMIT: (v) =>
+    `Your ${v.currentPlanName} plan has no room for another website. Choose a bigger plan to publish ${v.websiteName}.`,
+  REDEPLOY_LIMIT: (v) =>
+    `You’ve used this month’s redeploys on ${v.currentPlanName}. Choose a bigger plan to publish your changes now.`,
+};
 
 /**
  * Plans screen. One colourful card layout for everyone: four cards (free trial first) while the user is
@@ -19,14 +28,21 @@ const daysLabel = (days: number) => `${days} ${days === 1 ? "day" : "days"}`;
 export function PlansView({ view }: { view: PlansData }) {
   const paid = view.variant === "change";
   const back =
-    view.from === "settings" || paid
+    view.from === "settings"
       ? { href: "/settings/billing", label: "Back to settings" }
-      : view.variant === "deploy"
-        ? { href: view.websiteId ? `/websites/${view.websiteId}/edit` : "/websites", label: "Back to editor" }
-        : { href: "/websites", label: "Back to dashboard" };
+      : view.websiteId
+        ? { href: `/websites/${view.websiteId}/edit`, label: "Back to editor" }
+        : paid
+          ? { href: "/settings/billing", label: "Back to settings" }
+          : view.variant === "deploy"
+            ? { href: "/websites", label: "Back to editor" }
+            : { href: "/websites", label: "Back to dashboard" };
 
   const title = `Choose a plan for ${view.websiteName}`;
-  const copy = paid
+  const blocked = view.reason ? DEPLOY_BLOCKED[view.reason]?.(view) : undefined;
+  const copy = blocked
+    ? { eyebrow: "Keep deploying", icon: <Flash aria-hidden />, title, subtitle: blocked }
+    : paid
     ? {
         eyebrow: "Change your plan",
         icon: <Refresh2 aria-hidden />,
@@ -77,7 +93,10 @@ export function PlansView({ view }: { view: PlansData }) {
 
 const isPaid = (code: BillingPlan["code"]): code is PaidPlanCode => code !== "FREE_TRIAL";
 
-const CARD = "flex h-[410px] w-[300px] shrink-0 flex-col gap-5 rounded-[20px] border px-6 pt-6 pb-7 shadow-plan-card";
+const CARD = cn(
+  "flex h-[410px] w-[300px] shrink-0 flex-col gap-5 rounded-[20px] border px-6 pt-6 pb-7 shadow-plan-card",
+  PLAN_CARD_MOTION,
+);
 
 function CardLabel({ className, children }: { className: string; children: ReactNode }) {
   return <span className={cn("rounded-full px-2.5 py-1 text-xs font-medium", className)}>{children}</span>;
@@ -103,6 +122,7 @@ function TierCard({ plan, view }: { plan: BillingPlan; view: PlansData }) {
         CARD,
         "bg-linear-to-b from-0% to-white to-60%",
         theme.card,
+        theme.hover,
         code === "PRO" && "border-[1.5px]",
         current && theme.current.card,
       )}
@@ -143,7 +163,13 @@ function TierCard({ plan, view }: { plan: BillingPlan; view: PlansData }) {
 
 function TrialCard({ plan, daysLeft }: { plan: BillingPlan; daysLeft: number }) {
   return (
-    <li className={cn(CARD, "border-primary bg-linear-[126deg] from-primary-soft from-0% to-white to-71%")}>
+    <li
+      className={cn(
+        CARD,
+        "border-primary bg-linear-[126deg] from-primary-soft from-0% to-white to-71%",
+        "hover:shadow-[0_22px_40px_-14px_rgb(47_107_196/0.32)]",
+      )}
+    >
       <div className="flex h-[26px] items-center justify-between">
         <span className="rounded-full border border-primary/35 bg-primary-soft px-2.5 py-1 text-xs font-bold tracking-[0.72px] text-primary uppercase">
           {plan.name}

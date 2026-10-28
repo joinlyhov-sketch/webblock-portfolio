@@ -87,7 +87,7 @@ export const websitePages: WebsitePage[] = (store.__wbWebsitePages ??= [
   published(named(newWebsitePage(NORTHPOINT_AUDIO_ID, "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c04", hoursAgo(3)), "Northpoint Audio"), daysAgo(10)),
 ]);
 
-/** Image library shown under "Replace image": every template photo (stand-in for the owner's uploads). */
+/** The owner's image library (every template photo, standing in for their uploads): names the image in each image field. */
 const MEDIA_FILES: [folder: string, files: string[]][] = [
   ["everyday-store", ["hero", "gift-bouquet", "stone-vase", "lily-bunch", "table-arrangement", "spring-tulip-bunch"]],
   ["sweet-pastel", ["cupcake-stand", "strawberry-cupcake", "lemon-tart", "chocolate-fudge-cake", "birthday-box", "cinnamon-roll", "about-baker"]],
