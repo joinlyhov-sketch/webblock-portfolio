@@ -5,6 +5,7 @@ import {
   use,
   useEffect,
   useRef,
+  type CSSProperties,
   type ReactNode,
 } from "react";
 import {
@@ -83,17 +84,20 @@ export function RevealItem({
   children,
   className,
   y = 16,
+  scale = 1,
 }: {
   children: ReactNode;
   className?: string;
   y?: number;
+  /** Starting scale, e.g. 0.96 for cards that settle into place. */
+  scale?: number;
 }) {
   return (
     <motion.div
       className={className}
       variants={{
-        hidden: { opacity: 0, y },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE_OUT } },
+        hidden: { opacity: 0, y, scale },
+        visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.6, ease: EASE_OUT } },
       }}
     >
       {children}
@@ -101,33 +105,10 @@ export function RevealItem({
   );
 }
 
-/** Gentle endless vertical bob for decorative chips, bubbles and diamonds. */
-export function Float({
-  children,
-  className,
-  y = 6,
-  duration = 4,
-  delay = 0,
-}: {
-  children?: ReactNode;
-  className?: string;
-  y?: number;
-  duration?: number;
-  delay?: number;
-}) {
-  return (
-    <motion.div
-      aria-hidden
-      className={className}
-      animate={{ y: [0, -y, 0] }}
-      transition={{ duration, delay, ease: "easeInOut", repeat: Infinity }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-/** Springs in from 40% scale once in view (Figma "Bubble" entrance), then bobs gently. */
+/**
+ * Springs in from 40% scale once in view (Figma "Bubble" entrance), then bobs gently. The bob is the
+ * CSS `animate-landing-float`, so it costs no JavaScript while it loops.
+ */
 export function Pop({
   children,
   className,
@@ -148,12 +129,12 @@ export function Pop({
       viewport={{ once: true }}
       transition={{ type: "spring", stiffness: 260, damping: 14, delay }}
     >
-      <motion.div
-        animate={{ y: [0, -bob, 0] }}
-        transition={{ duration: 4, delay: delay + 0.6, ease: "easeInOut", repeat: Infinity }}
+      <div
+        className="animate-landing-float"
+        style={{ "--float-y": `${bob}px`, "--float-delay": `${delay + 0.6}s` } as CSSProperties}
       >
         {children}
-      </motion.div>
+      </div>
     </motion.div>
   );
 }

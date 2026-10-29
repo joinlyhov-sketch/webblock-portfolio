@@ -5,7 +5,7 @@ import { Tracked, tl } from "./how-it-works-timeline";
 const steps = [
   {
     title: "Choose a template",
-    text: "Four looks, one kind of site, with all seven blocks already in place.",
+    text: "Start from a ready-made design with all seven blocks already in place.",
   },
   {
     title: "Customize your website",

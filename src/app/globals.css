@@ -746,6 +746,49 @@
 }
 
 /*
+ * Landing diamonds and bubbles: gentle endless bob. Pure CSS so the ~30 pieces cost no JavaScript and
+ * run on the compositor. Tune with `--float-y`, `--float-duration`, `--float-delay`.
+ */
+@keyframes landing-float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 calc(var(--float-y, 6px) * -1);
+  }
+}
+
+@utility animate-landing-float {
+  animation: landing-float var(--float-duration, 4s) ease-in-out var(--float-delay, 0s) infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/*
+ * Landing "Most popular" plan card: a soft band sweeps across the card (first 40% of each 6s loop,
+ * then rests off-card). The band starts at `left: -60%` and is a third of the card wide.
+ */
+@keyframes plan-shine {
+  0% {
+    translate: 0 0;
+  }
+  40%,
+  100% {
+    translate: 520% 0;
+  }
+}
+
+@utility animate-plan-shine {
+  animation: plan-shine 6s ease-in-out 1.6s infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    display: none;
+  }
+}
+
+/*
  * Enter/exit utilities used by the shadcn menus (dropdown-menu, select, popover):
  * `data-[state=open]:animate-in fade-in-0 zoom-in-95 slide-in-from-top-2`, and `animate-out` on close.
  * Same API as tw-animate-css. Radix waits for the exit animation before unmounting.

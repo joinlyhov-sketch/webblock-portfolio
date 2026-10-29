@@ -1,5 +1,5 @@
+import type { CSSProperties } from "react";
 import Image from "next/image";
-import { Float } from "@/components/common/motion";
 import { cn } from "@/lib/utils";
 
 // Decorative background pieces shared by the landing sections. All aria-hidden, pointer-events-none.
@@ -19,7 +19,7 @@ export function DotGrid({ className }: { className?: string }) {
   );
 }
 
-/** Small rounded diamond that floats gently. Position it with `className` (absolute). */
+/** Small rounded diamond that floats gently (CSS, see `animate-landing-float`). Position it with `className` (absolute). */
 export function Diamond({
   className,
   size = 12,
@@ -30,12 +30,16 @@ export function Diamond({
   delay?: number;
 }) {
   return (
-    <Float className={cn("pointer-events-none absolute", className)} y={8} duration={5} delay={delay}>
+    <div
+      aria-hidden
+      className={cn("pointer-events-none absolute animate-landing-float", className)}
+      style={{ "--float-y": "8px", "--float-duration": "5s", "--float-delay": `${delay}s` } as CSSProperties}
+    >
       <span
         className="block rotate-45 rounded-[3px] bg-decor-diamond"
         style={{ width: size, height: size }}
       />
-    </Float>
+    </div>
   );
 }
 

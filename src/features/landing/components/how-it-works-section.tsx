@@ -37,7 +37,7 @@ export function HowItWorksSection() {
               </Button>
             </RevealItem>
             <RevealItem y={12}>
-              <p className="text-base text-muted-foreground">14 days free, then one simple plan.</p>
+              <p className="text-base text-muted-foreground">14 days free, then pick a plan.</p>
             </RevealItem>
           </RevealGroup>
         </div>

@@ -5,6 +5,9 @@ import type { Plan } from "../types";
 import { Diamond } from "./decor";
 import { PlanCard } from "./plan-card";
 
+/** Seconds between one plan card's entrance and the next. */
+const CARD_STAGGER = 0.1;
+
 /** "Simple pricing, 14 days free" (Figma "05 Pricing"). Plans come from `listPublicPlans()`. */
 export function PricingSection({ plans }: { plans: Plan[] }) {
   return (
@@ -23,10 +26,14 @@ export function PricingSection({ plans }: { plans: Plan[] }) {
             Plans are being updated. Start your free trial now and choose a plan later.
           </p>
         ) : (
-          <RevealGroup className="grid w-full max-w-[1260px] grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4" stagger={0.1}>
+          <RevealGroup
+            className="grid w-full max-w-[1260px] grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4"
+            stagger={CARD_STAGGER}
+          >
             {plans.map((plan, i) => (
-              <RevealItem key={plan.id} y={24} className="mx-auto w-full max-w-[400px] xl:max-w-none">
-                <PlanCard plan={plan} lower={plans[i - 1]} />
+              <RevealItem key={plan.id} y={32} scale={0.96} className="mx-auto w-full max-w-[400px] xl:max-w-none">
+                {/* Each card's feature list ticks in once its card has mostly settled. */}
+                <PlanCard plan={plan} lower={plans[i - 1]} featuresDelay={0.35 + i * CARD_STAGGER} />
               </RevealItem>
             ))}
           </RevealGroup>

@@ -27,11 +27,7 @@ export function FaqSection() {
             </span>
             <h3 className="text-lg font-semibold text-foreground">Still have a question?</h3>
             <p className="text-[15px] leading-7 text-foreground-soft">
-              Anything else?{" "}
-              <a href={supportHref} className="text-brand-strong underline underline-offset-2 hover:text-brand-dark">
-                Visit Support
-              </a>{" "}
-              or email{" "}
+              Anything else? Email us at{" "}
               <a href={supportHref} className="text-brand-strong underline underline-offset-2 hover:text-brand-dark">
                 {siteConfig.supportEmail}
               </a>

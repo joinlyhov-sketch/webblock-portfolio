@@ -18,13 +18,14 @@ export function HeroShowcase() {
       />
       <Marquee
         duration={40}
-        className="pt-4 mask-[linear-gradient(to_right,transparent_1.3%,black_12.7%,black_87.3%,transparent_98.7%)] md:pt-[98px]"
+        className="pt-4 motion-safe:animate-fade-up motion-safe:[animation-delay:320ms] mask-[linear-gradient(to_right,transparent_1.3%,black_12.7%,black_87.3%,transparent_98.7%)] md:pt-[98px]"
         trackClassName="gap-4 pr-4 md:gap-6 md:pr-6"
       >
         {marqueeTemplates.map((template, i) => (
           <TemplateThumb key={`${template.slug}-${i}`} template={template} />
         ))}
       </Marquee>
+      {/* Not animated: an opacity animation on an ancestor stops the frame's backdrop blur. */}
       <div className="relative z-10 mx-auto mt-6 w-full max-w-[820px] px-4 sm:px-6 md:-mt-[44px] md:px-0">
         <BrowserMock template={showcaseTemplates[0]} preload />
       </div>

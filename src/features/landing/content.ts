@@ -3,13 +3,13 @@ import { siteConfig } from "@/config/site";
 
 export type NavLink = { label: string; href: string };
 
-/** In-page anchors; section ids live on the section components. */
+/** Home-page anchors, prefixed with `/` so they also work from /privacy and /terms. Section ids live on the section components. */
 export const navLinks: NavLink[] = [
-  { label: "Templates", href: "#templates" },
-  { label: "How it works", href: "#how-it-works" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "FAQ", href: "#faq" },
-  { label: "Support", href: `mailto:${siteConfig.supportEmail}` },
+  { label: "Templates", href: "/#templates" },
+  { label: "How it works", href: "/#how-it-works" },
+  { label: "Pricing", href: "/#pricing" },
+  { label: "FAQ", href: "/#faq" },
+  { label: "Contact", href: `mailto:${siteConfig.supportEmail}` },
 ];
 
 export const builtFor = [
@@ -57,18 +57,17 @@ export const footerColumns: FooterColumn[] = [
   {
     title: "Product",
     links: [
-      { label: "How it works", href: "#how-it-works" },
-      { label: "Templates", href: "#templates" },
-      { label: "Blocks", href: "#blocks" },
-      { label: "Pricing", href: "#pricing" },
+      { label: "How it works", href: "/#how-it-works" },
+      { label: "Templates", href: "/#templates" },
+      { label: "Blocks", href: "/#blocks" },
+      { label: "Pricing", href: "/#pricing" },
     ],
   },
   {
     title: "Support",
     links: [
-      { label: "Help centre", href: `mailto:${siteConfig.supportEmail}` },
-      { label: "Contact support", href: `mailto:${siteConfig.supportEmail}` },
-      { label: "FAQ", href: "#faq" },
+      { label: "Email support", href: `mailto:${siteConfig.supportEmail}` },
+      { label: "FAQ", href: "/#faq" },
     ],
   },
   {
