@@ -40,9 +40,9 @@ export const faqItems: FaqItem[] = [
       "Choose a plan to keep your website online. If you don't, it goes offline but your content is kept, so you can pick up where you left off.",
   },
   {
-    question: "How do I connect my own domain?",
+    question: "Can I use my own domain?",
     answer:
-      "Every site starts on a free webblock.com address. You can connect a domain you own from your website settings, and we set up SSL for you.",
+      "Not at the moment. Every site gets a free webblock.com address, like kilncoffee.webblock.com. You choose the name when you first publish, can rename it any time from the editor, and SSL is included.",
   },
   {
     question: "Can I change my website after it's live?",

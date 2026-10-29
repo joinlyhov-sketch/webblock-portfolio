@@ -203,10 +203,10 @@ export const termsOfService: LegalDocument = {
     },
     {
       id: "domains",
-      heading: "Web addresses and domains",
+      heading: "Your web address",
       paragraphs: [
-        "Every website gets a free webblock.com address. We may change an address that is misleading or uses someone else's name or trademark.",
-        "If you connect your own domain, you are responsible for registering and renewing it with your domain provider. We set up SSL for it while it points to WebBlock.",
+        "Every website is published on a free webblock.com address (for example yourbusiness.webblock.com), with SSL included. You choose the name, and it must be one nobody else is using. Connecting a domain you own is not available.",
+        "The address belongs to WebBlock and is yours to use while your account is open. We may change an address that is misleading or uses someone else's name or trademark, and we will tell you if we do.",
       ],
     },
     {

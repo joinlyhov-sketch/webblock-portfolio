@@ -17,9 +17,9 @@ export const faqItems: FaqItem[] = [
   },
   {
     id: "own-domain",
-    question: "How do I connect my own domain?",
+    question: "Can I use my own domain?",
     answer:
-      "Open your website, go to Domain and enter the name you own. We show the DNS records to add, then check the connection for you.",
+      "Not at the moment. Your site uses a free webblock.com address. You choose the name when you first publish and can rename it any time from the editor.",
   },
   {
     id: "trial-ends",
