@@ -58,7 +58,7 @@ const PLAN_RING = {
 
 /** Coloured circle around an avatar, with a white gap: `<Avatar className={planRing(plan)} />`. */
 export function planRing(plan: PlanTier): string {
-  return cn("ring-2 ring-offset-2 ring-offset-background", PLAN_RING[plan]);
+  return cn("ring-[1.5px] ring-offset-[1.5px] ring-offset-background", PLAN_RING[plan]);
 }
 
 /** Classes to colour anything by plan (tiles, cards): `<div className={planTone(plan).surface}>`. */

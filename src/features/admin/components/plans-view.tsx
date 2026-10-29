@@ -8,6 +8,7 @@ import {
   DocumentText,
   Global,
   InfoCircle,
+  MagicStar,
   Send2,
   TickCircle,
 } from "iconsax-reactjs";
@@ -33,13 +34,19 @@ const CARD_BORDER = {
   ULTRA: "",
 } satisfies Record<PlanCode, string>;
 
-// "Edit plan" button: outlined for the free trial, filled in the plan colour otherwise.
+// "Edit plan" button, glass style: a see-through plan-coloured fill that deepens towards the
+// bottom, a bright inner rim, a soft glow under it, and a light that runs round its edge on hover
+// (`border-beam` in globals.css). GLASS_BUTTON is shared; BUTTON adds the plan colour.
+const GLASS_BUTTON =
+  "bg-transparent bg-linear-to-b text-primary-foreground ring-1 inset-ring-1 inset-ring-background/40 backdrop-blur-md hover:bg-transparent hover:brightness-110 active:bg-transparent active:brightness-95";
+
 const BUTTON = {
   FREE_TRIAL:
-    "bg-background text-primary ring-1 ring-primary shadow-none hover:bg-primary-soft hover:shadow-none active:bg-brand-soft",
-  PLUS: "",
-  PRO: "bg-gold-strong hover:bg-gold active:bg-gold",
-  ULTRA: "bg-violet hover:bg-violet/90 active:bg-violet",
+    "from-primary/70 to-primary ring-primary/30 shadow-[0_8px_18px_-8px_var(--color-primary)] [--beam-color:var(--color-primary)]",
+  PLUS: "from-brand/70 to-brand ring-brand/30 shadow-[0_8px_18px_-8px_var(--color-brand)] [--beam-color:var(--color-brand)]",
+  PRO: "from-gold-strong/70 to-gold-strong ring-gold-strong/30 shadow-[0_8px_18px_-8px_var(--color-gold-strong)] [--beam-color:var(--color-gold-strong)]",
+  ULTRA:
+    "from-violet/70 to-violet ring-violet/30 shadow-[0_8px_18px_-8px_var(--color-violet)] [--beam-color:var(--color-violet)]",
 } satisfies Record<PlanCode, string>;
 
 const PRICE = {
@@ -128,11 +135,22 @@ export function PlansView({
             <li
               key={plan.id}
               className={cn(
-                "flex flex-col gap-4 rounded-[20px] border p-5 shadow-card transition-[border-color,box-shadow,transform] duration-200 ease-out hover:shadow-kpi motion-safe:hover:-translate-y-1 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.99] motion-safe:active:duration-100",
+                "relative isolate flex flex-col gap-4 overflow-hidden rounded-[20px] border p-5 shadow-card inset-ring-1 inset-ring-background/80 transition-[border-color,box-shadow,transform] duration-200 ease-out hover:shadow-kpi motion-safe:hover:-translate-y-1 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.99] motion-safe:active:duration-100",
                 PLAN_SURFACE[plan.code],
                 CARD_BORDER[plan.code],
               )}
             >
+              {/* Glass glint: a soft white streak sweeps across every few seconds, each card a beat after the last. */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-y-0 left-0 -z-10 w-1/3 bg-linear-to-r from-transparent via-background/90 to-transparent opacity-0 motion-safe:animate-glass-shine"
+                style={{ animationDelay: `${index * 0.6}s` }}
+              />
+              {/* Glass sheen on the top edge. */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-1/3 bg-linear-to-b from-background/70 to-transparent"
+              />
               <div className="flex items-center justify-between gap-2">
                 <PlanBadge
                   plan={plan.code}
@@ -143,7 +161,12 @@ export function PlansView({
                   )}
                 />
                 {plan.mostPopular && (
-                  <span className="rounded-full bg-gold-strong px-2.5 py-0.5 text-xs font-medium text-primary-foreground">
+                  <span className="relative isolate overflow-hidden rounded-full bg-gold-strong px-2.5 py-0.5 text-xs font-medium text-primary-foreground">
+                    {/* Same glint, quicker and brighter, on the badge. */}
+                    <span
+                      aria-hidden
+                      className="absolute inset-y-0 left-0 -z-10 w-1/2 bg-linear-to-r from-transparent via-background/60 to-transparent opacity-0 motion-safe:animate-glass-shine [animation-duration:3s]"
+                    />
                     Most popular
                   </span>
                 )}
@@ -170,13 +193,23 @@ export function PlansView({
               </div>
               <Button
                 asChild
-                size="sm"
-                className={cn("w-full", BUTTON[plan.code])}
+                size="md"
+                className={cn(
+                  "w-full border-beam",
+                  GLASS_BUTTON,
+                  BUTTON[plan.code],
+                )}
               >
                 <Link
                   href={tableHref(searchParams, { edit: plan.id })}
                   scroll={false}
                 >
+                  {/* Glass sheen on the top half. */}
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-x-2 top-0.5 h-1/2 rounded-full bg-linear-to-b from-background/40 to-transparent"
+                  />
+                  <MagicStar aria-hidden variant="Bold" className="opacity-90" />
                   Edit plan
                 </Link>
               </Button>

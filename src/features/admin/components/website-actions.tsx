@@ -22,6 +22,7 @@ import {
   suspendWebsiteAction,
 } from "../actions";
 import type { AdminWebsite } from "../types";
+import { ContactOwnerDialog } from "./contact-owner-dialog";
 import { useAdminAction } from "./use-admin-action";
 
 type WebsiteRef = Pick<
@@ -29,6 +30,7 @@ type WebsiteRef = Pick<
   | "id"
   | "name"
   | "domain"
+  | "ownerName"
   | "ownerEmail"
   | "siteStatus"
   | "releaseStatus"
@@ -57,6 +59,7 @@ export function WebsiteRowMenu({
   detailHref: string;
 }) {
   const [confirm, setConfirm] = useState(false);
+  const [contact, setContact] = useState(false);
   const [pending, run] = useAdminAction();
   const suspended = website.siteStatus === "SUSPENDED";
 
@@ -80,7 +83,7 @@ export function WebsiteRowMenu({
     {
       label: "Contact owner",
       icon: <Sms />,
-      externalHref: `mailto:${website.ownerEmail}`,
+      onSelect: () => setContact(true),
     },
     suspended
       ? {
@@ -103,6 +106,7 @@ export function WebsiteRowMenu({
   return (
     <>
       <ActionMenu label={`Actions for ${website.name}`} items={items} />
+      <ContactOwnerDialog website={website} open={contact} onOpenChange={setContact} />
       <ConfirmDialog
         open={confirm}
         onOpenChange={setConfirm}
@@ -111,6 +115,7 @@ export function WebsiteRowMenu({
         title="Suspend this website?"
         description="It will be taken offline and visitors won't be able to see it. Its pages and content are kept, so you can resume hosting any time."
         confirmLabel="Suspend website"
+        look="soft"
         onConfirm={() =>
           run(
             () => suspendWebsiteAction(website.id),
@@ -126,16 +131,16 @@ export function WebsiteRowMenu({
 /** Footer of the website detail popup: Contact owner · Redeploy. */
 export function WebsiteDetailActions({ website }: { website: WebsiteRef }) {
   const [pending, run] = useAdminAction();
+  const [contact, setContact] = useState(false);
   const blocked = redeployBlocked(website);
 
   return (
     <>
-      <Button asChild variant="secondary" size="sm" className="flex-1">
-        <a href={`mailto:${website.ownerEmail}`}>
-          <Profile />
-          Contact owner
-        </a>
+      <Button variant="secondary" size="sm" className="flex-1" onClick={() => setContact(true)}>
+        <Profile />
+        Contact owner
       </Button>
+      <ContactOwnerDialog website={website} open={contact} onOpenChange={setContact} />
       <Button
         size="sm"
         className="flex-1"

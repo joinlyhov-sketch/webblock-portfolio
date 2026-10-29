@@ -8,6 +8,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import type { AdminNotification } from "../types";
 import { NotificationPanel } from "./notification-panel";
 
@@ -34,12 +35,18 @@ export function NotificationsBell({
               : "Notifications"
           }
         >
-          <Notification />
+          {/* Swings from its top every few seconds while something is unread. */}
+          <Notification
+            className={cn(
+              "origin-[50%_8%]",
+              unreadCount > 0 && "motion-safe:animate-bell-ring",
+            )}
+          />
           {unreadCount > 0 && (
-            <span
-              aria-hidden
-              className="absolute top-2 right-2.5 size-2 rounded-full bg-primary ring-2 ring-background"
-            />
+            <span aria-hidden className="absolute top-2 right-2.5 grid size-2">
+              <span className="absolute inset-0 rounded-full bg-primary motion-safe:animate-dot-ping" />
+              <span className="relative size-2 rounded-full bg-primary ring-2 ring-background" />
+            </span>
           )}
         </Button>
       </PopoverTrigger>

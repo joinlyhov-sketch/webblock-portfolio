@@ -23,3 +23,11 @@ export const planInput = z.object({
 });
 
 export type PlanFormValues = z.input<typeof planInput>;
+
+/** "Email owner" form. The backend sends the email; the owner's address comes from the website. */
+export const contactOwnerInput = z.object({
+  subject: z.string().trim().min(1, "Add a subject.").max(120, "Keep the subject under 120 characters."),
+  message: z.string().trim().min(1, "Write a message.").max(2000, "Keep the message under 2,000 characters."),
+});
+
+export type ContactOwnerValues = z.input<typeof contactOwnerInput>;

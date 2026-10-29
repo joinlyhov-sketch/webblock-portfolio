@@ -146,6 +146,7 @@ export function WebsiteCardMenu({
         title="Suspend this website?"
         description="It will be taken offline and visitors won’t be able to see it. Your pages and content are kept, so you can reactivate it any time."
         confirmLabel="Suspend website"
+        look="soft"
       />
       <ConfirmDialog
         open={deleteOpen}

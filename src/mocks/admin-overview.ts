@@ -34,7 +34,7 @@ export const adminOverview: AdminOverview = {
       count: 1,
       latestName: "Hollow & Co.",
       latestAt: "2026-09-02T08:45:00Z",
-      latestOwnerName: "Chakriya Uy",
+      latestOwnerName: "Sreyleak Chan",
       amountAtRisk: null,
       retryInDays: null,
     },
