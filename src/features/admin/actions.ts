@@ -6,6 +6,7 @@ import type { ActionResult } from "@/lib/actions/result";
 import { ApiError } from "@/lib/api/errors";
 import { requireAdmin } from "@/lib/auth/session";
 import {
+  contactWebsiteOwner,
   markAllNotificationsRead,
   markNotificationRead,
   reactivateUser,
@@ -15,7 +16,7 @@ import {
   suspendWebsite,
   updatePlan,
 } from "./api";
-import { idInput, planInput } from "./schemas";
+import { contactOwnerInput, idInput, planInput } from "./schemas";
 
 const INVALID_ID: ActionResult = { ok: false, message: "That item no longer exists. Refresh the page." };
 
@@ -114,4 +115,33 @@ export async function markNotificationReadAction(notificationId: string): Promis
 export async function markAllNotificationsReadAction(): Promise<ActionResult> {
   await requireAdmin();
   return run(() => markAllNotificationsRead(), "All notifications marked as read.");
+}
+
+/** "Email owner" popup on User Websites. */
+export async function contactOwnerAction(
+  websiteId: string,
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
+  await requireAdmin();
+  const raw = Object.fromEntries(formData) as Record<string, string>;
+  const id = idInput.safeParse(websiteId);
+  if (!id.success) return { ok: false, message: "That website no longer exists. Refresh the page.", values: raw };
+
+  const parsed = contactOwnerInput.safeParse(raw);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      message: "Please fix the highlighted fields.",
+      fieldErrors: z.flattenError(parsed.error).fieldErrors,
+      values: raw,
+    };
+  }
+  try {
+    await contactWebsiteOwner(id.data, parsed.data);
+    return { ok: true, data: undefined, message: "They'll get it in their inbox in a moment." };
+  } catch (e) {
+    if (e instanceof ApiError) return { ok: false, message: e.message, values: raw };
+    throw e;
+  }
 }

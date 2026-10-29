@@ -137,6 +137,7 @@ export function OwnerSidebarShell({
         title="Log out of WebBlock?"
         description="You’ll need to sign in again to manage and publish your websites."
         confirmLabel="Log out"
+        look="soft"
       />
     </aside>
   );

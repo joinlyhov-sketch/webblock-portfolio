@@ -156,20 +156,24 @@ export function NotificationPanel({
             )}
           </li>
         )}
-        {shown.map((n) => {
+        {shown.map((n, index) => {
           const isUnread = n.readAt === null;
           const row = (
             <>
-              <span className="relative shrink-0">
+              {/* Exactly the avatar's box (grid, no text line), so the dot lands in the same spot
+                  on photos and initials alike. */}
+              <span className="relative grid size-10 shrink-0">
                 <Avatar variant="solid"
                   name={n.actorName}
                   src={n.actorAvatarUrl}
                   className="size-10 text-xs ring-0"
                 />
+                {/* Centred on the avatar's edge at the bottom-right (45°), so half sits on the photo
+                    and half outside it: the edge is ~5.9px in from the box corner, minus the 5px radius. */}
                 <span
                   aria-hidden
                   className={cn(
-                    "absolute right-0 bottom-0 size-2.5 rounded-full ring-2 ring-background",
+                    "absolute right-px bottom-px size-2.5 rounded-full ring-[1.5px] ring-background",
                     KIND_DOT[n.kind],
                   )}
                 />
@@ -187,7 +191,9 @@ export function NotificationPanel({
                   aria-hidden
                   className={cn(
                     "size-2 rounded-full",
-                    isUnread ? "bg-primary" : "bg-transparent",
+                    isUnread
+                      ? "bg-primary motion-safe:animate-pulse"
+                      : "bg-transparent",
                   )}
                 />
                 <time
@@ -206,7 +212,12 @@ export function NotificationPanel({
             isUnread && "bg-primary-soft/70",
           );
           return (
-            <li key={n.id}>
+            // Rows slide in one after another when the panel opens or the tab changes.
+            <li
+              key={n.id}
+              className="motion-safe:animate-row-in"
+              style={{ animationDelay: `${Math.min(index, 8) * 35}ms` }}
+            >
               {n.link ? (
                 <Link
                   href={n.link}

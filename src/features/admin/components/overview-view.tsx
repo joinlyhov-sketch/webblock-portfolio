@@ -114,28 +114,24 @@ export function OverviewView({
           value={overview.newAccounts}
           tone="brand"
           icon={<Profile2User />}
-          href="/admin/users?sort=joinedAt,desc"
         />
         <KpiCard
           label="Websites published"
           value={overview.websitesPublished}
           tone="teal"
           icon={<Global />}
-          href="/admin/websites?release=LIVE"
         />
         <KpiCard
           label="Monthly revenue"
           value={formatPriceShort(overview.monthlyRevenue, "USD")}
           tone="success"
           icon={<DollarCircle />}
-          href="/admin/subscriptions"
         />
         <KpiCard
           label="Failed deploys"
           value={overview.failedDeploys}
           tone="danger"
           icon={<Danger />}
-          href="/admin/websites?release=FAILED"
         />
       </KpiGrid>
 

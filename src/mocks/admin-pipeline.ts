@@ -486,7 +486,7 @@ export const pipelineRuns: PipelineRun[] = [
     websiteId: "9b2d4f6a-1c3e-4a5b-8d7f-2e4c6a8b0206",
     websiteName: "Hollow & Co.",
     domain: "hollowandco.webblock.com",
-    ownerName: "Chakriya Uy",
+    ownerName: "Sreyleak Chan",
     stage: "RELEASE",
     requestStatus: "PUBLISHED",
     requestStuckMinutes: null,

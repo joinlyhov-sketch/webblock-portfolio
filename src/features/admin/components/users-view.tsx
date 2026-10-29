@@ -77,28 +77,24 @@ export function UsersView({
           value={count.format(stats.totalAccounts)}
           tone="brand"
           icon={<Profile2User />}
-          href="/admin/users"
         />
         <KpiCard
           label="On free trial"
           value={count.format(stats.onFreeTrial)}
           tone="violet"
           icon={<Timer1 />}
-          href="/admin/subscriptions?plan=FREE_TRIAL"
         />
         <KpiCard
           label="Paying"
           value={count.format(stats.paying)}
           tone="success"
           icon={<CardIcon />}
-          href="/admin/subscriptions?status=ACTIVE"
         />
         <KpiCard
           label="Live websites"
           value={count.format(stats.liveWebsites)}
           tone="teal"
           icon={<Global />}
-          href="/admin/websites?release=LIVE"
         />
       </KpiGrid>
 

@@ -1,7 +1,6 @@
 import { Fragment, type ComponentType } from "react";
 import Link from "next/link";
 import {
-  ArrowRight,
   Box,
   Danger,
   DirectInbox,
@@ -15,6 +14,7 @@ import {
   TickCircle,
 } from "iconsax-reactjs";
 import { Modal } from "@/components/common/modal";
+import { ScrollStrip } from "@/components/common/scroll-strip";
 import { StatusBadge } from "@/components/common/status-badge";
 import type { Page } from "@/lib/api/types";
 import { formatLogTime, formatRelative, formatTime } from "@/lib/format";
@@ -27,6 +27,7 @@ import type {
   PipelineStep,
   StepCheck,
   StepFact,
+  StepStatus,
 } from "../types";
 import { STEP_TONE } from "./stage";
 
@@ -126,9 +127,9 @@ export function PublishFlowSheet({
 /** The dotted canvas with the step cards, grouped by stage; scrolls sideways on small screens. */
 function FlowStrip({ steps }: { steps: PipelineStep[] }) {
   return (
-    <div className="rounded-[22px] border border-border bg-primary-soft/40 bg-[radial-gradient(var(--color-placeholder)_1px,transparent_1.2px)] bg-size-[14px_14px] px-4 pt-3 pb-3">
-      {/* Always-visible thin scrollbar (Figma shows the track under the steps). */}
-      <div className="overflow-x-auto pt-3 pb-3 [scrollbar-color:var(--color-placeholder)_var(--color-border)] [scrollbar-width:thin]">
+    <div className="rounded-[22px] border border-border bg-primary-soft/50 bg-[radial-gradient(var(--color-canvas-dot)_1.2px,transparent_1.4px)] bg-size-[16px_16px] px-5 pt-1 pb-4">
+      {/* Own thin scrollbar, on one row with "Scroll →" (Figma shows the track under the steps). */}
+      <ScrollStrip label="Publish steps" className="pt-5 pb-3">
         <ol className="flex w-max items-stretch pr-1">
           {GROUPS.map((group, g) => {
             const groupSteps = group.steps
@@ -136,9 +137,15 @@ function FlowStrip({ steps }: { steps: PipelineStep[] }) {
               .filter(Boolean);
             return (
               <Fragment key={group.label}>
-                {g > 0 && <Connector from={steps[group.steps[0] - 2]} />}
-                <li className="relative rounded-2xl border border-border bg-background/70 p-3.5 pt-6">
-                  <span className="absolute -top-3 left-3 rounded-full border border-border bg-background px-2.5 py-0.5 text-xs font-semibold text-foreground">
+                {g > 0 && (
+                  <Connector
+                    between="groups"
+                    from={steps[group.steps[0] - 2]}
+                    to={steps[group.steps[0] - 1]}
+                  />
+                )}
+                <li className="relative rounded-[20px] border border-border bg-background px-4 pt-7 pb-4">
+                  <span className="absolute -top-3.5 left-4 rounded-full border border-border bg-background px-3 py-1 text-[13px] leading-4 font-semibold text-foreground">
                     {group.label}{" "}
                     <span className="font-normal text-muted-foreground">
                       {group.range}
@@ -147,7 +154,9 @@ function FlowStrip({ steps }: { steps: PipelineStep[] }) {
                   <ol className="flex items-center">
                     {groupSteps.map((step, i) => (
                       <Fragment key={step.number}>
-                        {i > 0 && <Connector from={groupSteps[i - 1]} />}
+                        {i > 0 && (
+                          <Connector from={groupSteps[i - 1]} to={step} />
+                        )}
                         <li>
                           <StepCard step={step} />
                         </li>
@@ -159,39 +168,60 @@ function FlowStrip({ steps }: { steps: PipelineStep[] }) {
             );
           })}
         </ol>
-      </div>
-      <p
-        aria-hidden
-        className="mt-1 flex items-center justify-end gap-1 text-xs text-muted-foreground"
-      >
-        Scroll <ArrowRight className="size-3.5" />
-      </p>
+      </ScrollStrip>
     </div>
   );
 }
 
-function Connector({ from }: { from: PipelineStep | undefined }) {
+/** End-dot colour of a connector: the colour of the card it is pinned to. */
+const JOINT = {
+  DONE: "border-success",
+  RUNNING: "border-primary",
+  FAILED: "border-danger",
+  STUCK: "border-warning",
+  WAITING: "border-warning",
+  NOT_STARTED: "border-placeholder/50",
+} satisfies Record<StepStatus, string>;
+
+/**
+ * Line between two step cards. Its hollow end dots sit on the cards' edges (negative margins pull
+ * them over the gap, and over the group padding and borders when `between="groups"`). Solid green
+ * once the step before is done (green → blue into a running step), otherwise a dotted grey line.
+ */
+function Connector({
+  from,
+  to,
+  between = "steps",
+}: {
+  from: PipelineStep | undefined;
+  to: PipelineStep | undefined;
+  between?: "steps" | "groups";
+}) {
   const done = from?.status === "DONE";
+  const intoRunning = done && to?.status === "RUNNING";
+  const joint = "size-2.5 shrink-0 rounded-full border-2 bg-background";
   return (
-    <span aria-hidden className="flex w-8 shrink-0 items-center self-center">
+    <span
+      aria-hidden
+      className={cn(
+        "relative z-10 flex shrink-0 items-center self-center",
+        between === "groups"
+          ? // 10px gap + 2 × (16px padding + 1px border + 5px half dot); the card sits 6px below the group's middle.
+            "-mx-[27px] w-[64px] translate-y-1.5"
+          : // 40px gap + 2 × 5px half dot.
+            "-mx-[5px] w-[50px]",
+      )}
+    >
+      <span className={cn(joint, from ? JOINT[from.status] : JOINT.NOT_STARTED)} />
       <span
         className={cn(
-          "size-2 shrink-0 rounded-full border-2 bg-background",
-          done ? "border-success" : "border-border",
+          "flex-1",
+          done
+            ? cn("h-0.5", intoRunning ? "bg-linear-to-r from-success to-primary" : "bg-success")
+            : "h-[3px] bg-[radial-gradient(circle,var(--color-placeholder)_1.1px,transparent_1.5px)] bg-size-[6px_3px] bg-repeat-x opacity-50",
         )}
       />
-      <span
-        className={cn(
-          "h-0 flex-1 border-t-2",
-          done ? "border-success" : "border-dashed border-border",
-        )}
-      />
-      <span
-        className={cn(
-          "size-2 shrink-0 rounded-full border-2 bg-background",
-          done ? "border-success" : "border-border",
-        )}
-      />
+      <span className={cn(joint, to ? JOINT[to.status] : JOINT.NOT_STARTED)} />
     </span>
   );
 }
@@ -203,35 +233,34 @@ function StepCard({ step }: { step: PipelineStep }) {
   return (
     <div
       className={cn(
-        "flex h-[140px] w-[136px] flex-col rounded-2xl border bg-background p-3",
+        "flex size-[148px] flex-col rounded-[18px] border bg-background p-3.5",
         tone.border,
-        notStarted && "bg-surface/80",
       )}
     >
       <div className="flex items-start justify-between">
         <span
           aria-hidden
           className={cn(
-            "grid size-8 place-items-center rounded-lg [&_svg]:size-4",
+            "grid size-9 place-items-center rounded-xl [&_svg]:size-[18px]",
             tone.chip,
           )}
         >
           <Icon />
         </span>
-        <span className="text-xs text-muted-foreground tabular-nums">
+        <span className="pt-0.5 text-xs font-medium text-muted-foreground tabular-nums">
           {String(step.number).padStart(2, "0")}
         </span>
       </div>
       <p
         className={cn(
-          "mt-2.5 text-[13px] font-semibold",
+          "mt-3 truncate text-sm leading-5 font-semibold",
           notStarted ? "text-foreground-soft" : "text-foreground",
         )}
       >
         {step.title}
       </p>
       <p
-        className="truncate text-xs text-muted-foreground"
+        className="truncate text-xs leading-5 text-muted-foreground"
         title={step.subtitle}
       >
         {step.subtitle}

@@ -246,6 +246,19 @@ export async function suspendWebsite(websiteId: string): Promise<AdminWebsite> {
   return website;
 }
 
+/** POST /api/admin/websites/{websiteId}/contact-owner — the backend emails the website's owner. */
+export async function contactWebsiteOwner(
+  websiteId: string,
+  email: { subject: string; message: string },
+): Promise<void> {
+  await delay();
+  const website = adminWebsites.find((w) => w.id === websiteId) ?? notFound("Website");
+  // Mock outbox (resets on restart); Spring sends the real email.
+  ownerEmailOutbox.push({ to: website.ownerEmail, ...email, sentAt: new Date().toISOString() });
+}
+
+const ownerEmailOutbox: { to: string; subject: string; message: string; sentAt: string }[] = [];
+
 /** POST /api/admin/websites/{websiteId}/resume */
 export async function resumeWebsite(websiteId: string): Promise<AdminWebsite> {
   await delay();

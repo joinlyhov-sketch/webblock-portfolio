@@ -154,7 +154,7 @@ export type AttentionItem = {
   /** Most recent example, e.g. the latest failed website. */
   latestName: string | null;
   latestAt: string | null;
-  /** Owner of the latest example, e.g. "Chakriya Uy". */
+  /** Owner of the latest example, e.g. "Sreyleak Chan". */
   latestOwnerName: string | null;
   /** Payments past due only: total amount at risk. */
   amountAtRisk: string | null;

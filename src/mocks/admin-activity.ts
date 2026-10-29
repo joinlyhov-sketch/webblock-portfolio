@@ -86,8 +86,8 @@ export const activityLog: ActivityEntry[] = [
   {
     id: "4b6d8f0a-2c4e-4a6b-9d8f-1a3c5e7b0910",
     action: "CHANGE_PLAN",
-    targetName: "Chakriya Uy",
-    targetDetail: "chakriya@hollowandco.com",
+    targetName: "Sreyleak Chan",
+    targetDetail: "sreyleak@hollowandco.com",
     actorEmail: "admin@webblock.com",
     result: "SUCCEEDED",
     createdAt: "2026-10-15T02:05:00Z",

@@ -24,17 +24,17 @@ export const STEP_TONE = {
   },
   RUNNING: {
     dot: "bg-primary border-primary",
-    border: "border-primary ring-2 ring-primary/15",
-    chip: "bg-info-soft text-info",
+    border: "border-2 border-primary shadow-card",
+    chip: "bg-primary-soft text-primary",
   },
   FAILED: {
     dot: "bg-danger border-danger",
-    border: "border-danger ring-2 ring-danger/10",
+    border: "border-2 border-danger shadow-card",
     chip: "bg-danger-soft text-danger",
   },
   STUCK: {
     dot: "bg-warning border-warning",
-    border: "border-warning ring-2 ring-warning/10",
+    border: "border-2 border-warning shadow-card",
     chip: "bg-warning-soft text-warning",
   },
   WAITING: {
@@ -44,7 +44,7 @@ export const STEP_TONE = {
   },
   NOT_STARTED: {
     dot: "bg-background border-border",
-    border: "border-dashed border-border",
-    chip: "bg-neutral-soft text-muted-foreground",
+    border: "border-dashed border-placeholder/35 bg-muted/70",
+    chip: "bg-background text-foreground-soft shadow-button",
   },
 } satisfies Record<StepStatus, { dot: string; border: string; chip: string }>;

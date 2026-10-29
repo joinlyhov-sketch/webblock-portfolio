@@ -13,7 +13,21 @@ export async function GET(request: Request) {
   return new Response(csv, {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": 'attachment; filename="webblock-accounts.csv"',
+      "Content-Disposition": `attachment; filename="${fileName(plan, q)}"`,
     },
   });
+}
+
+/** "webblock-user-accounts-pro-search-sokha-2026-10-29.csv": what was exported and when (UTC date). */
+function fileName(plan: PlanCode | undefined, q: string | undefined): string {
+  const slug = (text: string) =>
+    text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 30);
+  const search = q && slug(q);
+  const parts = [
+    "webblock-user-accounts",
+    plan ? slug(plan) : "all",
+    search && `search-${search}`,
+    new Date().toISOString().slice(0, 10),
+  ];
+  return `${parts.filter(Boolean).join("-")}.csv`;
 }

@@ -92,21 +92,18 @@ export function SubscriptionsView({
           value={stats.activePlans}
           tone="brand"
           icon={<CardIcon />}
-          href={tableHref({}, { status: "ACTIVE" })}
         />
         <KpiCard
           label="Trials ending ≤ 3 days"
           value={stats.trialsEndingSoon}
           tone="violet"
           icon={<Timer1 />}
-          href={tableHref({}, { plan: "FREE_TRIAL" })}
         />
         <KpiCard
           label="Pending"
           value={stats.pending}
           tone="warning"
           icon={<Danger />}
-          href={tableHref({}, { status: "PENDING" })}
         />
       </KpiGrid>
 

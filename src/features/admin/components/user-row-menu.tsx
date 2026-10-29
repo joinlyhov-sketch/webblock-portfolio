@@ -52,6 +52,7 @@ export function UserRowMenu({
         title={`Suspend ${user.fullName}?`}
         description="They won't be able to sign in or edit their websites. Their websites and data are kept, so you can reactivate them any time."
         confirmLabel="Suspend user"
+        look="soft"
         onConfirm={() =>
           run(
             () => suspendUserAction(user.id),

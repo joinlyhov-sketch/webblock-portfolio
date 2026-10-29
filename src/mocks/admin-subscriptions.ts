@@ -91,9 +91,9 @@ export const subscriptions: Subscription[] = [
   {
     id: "e4a6c8f0-3b5d-4f7a-8c9e-0a2c4e6a0406",
     userId: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0107",
-    userName: "Chakriya Uy",
-    userEmail: "chakriya@hollowandco.com",
-    userAvatarUrl: "/mock/avatars/chakriya-uy.jpg",
+    userName: "Sreyleak Chan",
+    userEmail: "sreyleak@hollowandco.com",
+    userAvatarUrl: null,
     websiteId: "9b2d4f6a-1c3e-4a5b-8d7f-2e4c6a8b0206",
     websiteName: "Hollow & Co.",
     websiteDomain: "hollowandco.webblock.com",

@@ -83,9 +83,9 @@ export const userAccounts: UserAccount[] = [
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0107",
     accountCode: "usr_5f2b63",
-    fullName: "Chakriya Uy",
-    email: "chakriya@hollowandco.com",
-    avatarUrl: "/mock/avatars/chakriya-uy.jpg",
+    fullName: "Sreyleak Chan",
+    email: "sreyleak@hollowandco.com",
+    avatarUrl: null,
     plan: "ULTRA",
     status: "ACTIVE",
     signInMethod: "EMAIL",
