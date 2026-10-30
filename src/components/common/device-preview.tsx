@@ -199,7 +199,7 @@ function PhoneFrame({ children }: { children: ReactNode }) {
         width={120}
         height={31}
         unoptimized
-        className="absolute top-[25.61px] left-1/2 -translate-x-1/2"
+        className="absolute top-[25.61px] left-1/2 z-20 -translate-x-1/2"
       />
       <span
         aria-hidden
@@ -317,7 +317,7 @@ export function DevicePreview({
         </div>
       </header>
 
-      {device === "desktop" ? (
+      {
         <div className="relative flex min-h-0 flex-1 flex-col bg-page">
           <div
             aria-hidden
@@ -359,8 +359,14 @@ export function DevicePreview({
               {badge}
             </p>
           </div>
-          <DeviceStage device="desktop" padBottom={64}>
-            <MonitorFrame>{screen}</MonitorFrame>
+          <DeviceStage device={device} padBottom={64}>
+            {device === "desktop" ? (
+              <MonitorFrame>{screen}</MonitorFrame>
+            ) : device === "tablet" ? (
+              <TabletFrame>{screen}</TabletFrame>
+            ) : (
+              <PhoneFrame>{screen}</PhoneFrame>
+            )}
           </DeviceStage>
           <div
             className="pv-float pointer-events-none absolute inset-x-0 bottom-4 flex justify-center"
@@ -372,17 +378,7 @@ export function DevicePreview({
             </p>
           </div>
         </div>
-      ) : (
-        <div className="relative flex min-h-0 flex-1 flex-col bg-background">
-          <DeviceStage device={device} padBottom={20}>
-            {device === "tablet" ? (
-              <TabletFrame>{screen}</TabletFrame>
-            ) : (
-              <PhoneFrame>{screen}</PhoneFrame>
-            )}
-          </DeviceStage>
-        </div>
-      )}
+      }
     </div>
   );
 }
