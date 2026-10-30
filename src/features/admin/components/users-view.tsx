@@ -25,7 +25,7 @@ import {
   planRing,
   planTone,
 } from "@/components/common/plan-badge";
-import { RowsInput } from "@/components/common/rows-input";
+import { RowsSelect } from "@/components/common/rows-select";
 import { StatusBadge } from "@/components/common/status-badge";
 import { TableSearch } from "@/components/common/table-search";
 import { Button } from "@/components/ui/button";
@@ -33,26 +33,33 @@ import type { Page } from "@/lib/api/types";
 import { formatDate } from "@/lib/format";
 import { tableHref, type SearchParams } from "@/lib/table-query";
 import { cn } from "@/lib/utils";
-import type { AdminWebsite, PlanCode, UserAccount, UserStats } from "../types";
+import type {
+  AdminWebsite,
+  Deploy,
+  PlanCode,
+  UserAccount,
+  UserStats,
+} from "../types";
 import { AdminPageHeader } from "./admin-page-header";
 import { DetailCard, HeroDecor } from "./detail-hero";
 import { UserRowMenu } from "./user-row-menu";
-
+import { WebsiteDetail } from "./websites-view";
 const count = new Intl.NumberFormat("en-US");
-
 const PLANS: PlanCode[] = ["FREE_TRIAL", "PLUS", "PRO", "ULTRA"];
-
 export function UsersView({
   users,
   stats,
   searchParams,
   detail,
+  websiteDetail,
 }: {
   users: Page<UserAccount>;
   stats: UserStats;
   searchParams: SearchParams;
   /** The account opened with `?user=<id>`, with its websites. */
   detail: { user: UserAccount; websites: Page<AdminWebsite> } | null;
+  /** A website of that account opened with `?website=<id>`: its popup replaces the account popup. */
+  websiteDetail: { website: AdminWebsite; deploys: Page<Deploy> } | null;
 }) {
   const q = typeof searchParams.q === "string" ? searchParams.q : "";
   const plan =
@@ -63,14 +70,12 @@ export function UsersView({
     ...(plan && { plan }),
   }).toString();
   const detailHref = (id: string) => tableHref(searchParams, { user: id });
-
   return (
     <>
       <AdminPageHeader
         title="User Accounts"
         description="Search accounts and see each owner's websites."
       />
-
       <KpiGrid>
         <KpiCard
           label="Total accounts"
@@ -97,13 +102,11 @@ export function UsersView({
           icon={<Global />}
         />
       </KpiGrid>
-
       <DataTable
         fill
         rowClassName="relative cursor-pointer"
         label="User accounts"
         minWidth="min-w-[960px]"
-        compact
         itemLabel="accounts"
         data={users}
         searchParams={searchParams}
@@ -129,13 +132,8 @@ export function UsersView({
                 })),
               ]}
             />
-            {/* key: reset the box when the URL size changes (e.g. back button). */}
             <div className="ml-auto">
-              <RowsInput
-                key={users.size}
-                searchParams={searchParams}
-                size={users.size}
-              />
+              <RowsSelect value={users.size} className="h-8" />
             </div>
             <Button asChild size="sm">
               <a
@@ -150,15 +148,17 @@ export function UsersView({
         }
         empty={
           q || plan ? (
-            <EmptyState variant="box"
+            <EmptyState
               icon={<SearchNormal1 />}
               title={
                 q
                   ? `No accounts match “${q}”`
-                  : "No accounts match these filters"
+                  : "No accounts found"
               }
               description={
-                q ? "Check the spelling or search by email instead." : undefined
+                q
+                  ? "Check the spelling or search by email instead."
+                  : "Nothing matches this filter. Try another plan."
               }
               action={
                 <Button asChild variant="soft" size="sm">
@@ -169,7 +169,7 @@ export function UsersView({
               }
             />
           ) : (
-            <EmptyState variant="box"
+            <EmptyState
               icon={<Profile2User />}
               title="No accounts yet"
               description="People who sign up show here."
@@ -197,7 +197,7 @@ export function UsersView({
                   <span className="block max-w-[260px] truncate font-semibold text-foreground group-hover:text-primary">
                     {u.fullName}
                   </span>
-                  <span className="block max-w-[260px] truncate text-xs text-muted-foreground">
+                  <span className="block max-w-[260px] truncate text-[13px] text-muted-foreground">
                     {u.email}
                   </span>
                 </span>
@@ -245,34 +245,41 @@ export function UsersView({
           },
         ]}
       />
-
-      {detail && (
-        <UserDetail
-          user={detail.user}
-          websites={detail.websites}
-          closeHref={tableHref(searchParams, { user: null })}
+      {websiteDetail ? (
+        // Closing it goes back to the account popup.
+        <WebsiteDetail
+          website={websiteDetail.website}
+          deploys={websiteDetail.deploys}
+          closeHref={tableHref(searchParams, { website: null })}
         />
+      ) : (
+        detail && (
+          <UserDetail
+            user={detail.user}
+            websites={detail.websites}
+            closeHref={tableHref(searchParams, { user: null })}
+            websiteHref={(id) => tableHref(searchParams, { website: id })}
+          />
+        )
       )}
     </>
   );
 }
-
 function UserDetail({
   user,
   websites,
   closeHref,
+  websiteHref,
 }: {
   user: UserAccount;
   websites: Page<AdminWebsite>;
   closeHref: string;
+  websiteHref: (websiteId: string) => string;
 }) {
-  const suspended = user.status === "SUSPENDED";
-
   return (
     <Modal title={user.fullName} hideTitle size="xl" closeHref={closeHref}>
       <div className="relative isolate space-y-4 px-6 pt-7 pb-6">
         <HeroDecor layout="card" />
-
         <div className="flex items-center gap-[22px] pr-11 pl-2">
           <span className="relative shrink-0">
             <Avatar variant="solid"
@@ -286,14 +293,7 @@ function UserDetail({
                 "ring-[3px] ring-offset-0",
               )}
             />
-            <span
-              aria-hidden
-              className={cn(
-                "absolute top-1 right-1 size-3.5 rounded-full ring-[3px] ring-background",
-                suspended ? "bg-danger" : "bg-primary",
-              )}
-            />
-          </span>
+</span>
           <div className="min-w-0">
             <h2 className="truncate text-[22px] leading-[30px] font-semibold tracking-[-0.17px] text-foreground">
               {user.fullName}
@@ -312,7 +312,6 @@ function UserDetail({
             </div>
           </div>
         </div>
-
         <DetailCard title="Account details" icon={<Profile />}>
           <dl className="grid gap-3 px-4 pt-3.5 pb-4 sm:grid-cols-3">
             <InfoTile
@@ -337,7 +336,6 @@ function UserDetail({
             />
           </dl>
         </DetailCard>
-
         <DetailCard
           title="Projects & website status"
           icon={<Global />}
@@ -350,7 +348,8 @@ function UserDetail({
                 return (
                   <li key={w.id}>
                     <Link
-                      href={`/admin/websites?website=${w.id}`}
+                      href={websiteHref(w.id)}
+                      scroll={false}
                       className="flex h-16 items-center gap-3 px-4 transition-colors outline-none hover:bg-muted focus-visible:bg-muted"
                     >
                       <Thumbnail
@@ -361,7 +360,7 @@ function UserDetail({
                         <span className="block truncate text-[13px] font-bold text-foreground">
                           {w.name}
                         </span>
-                        <span className="block truncate text-xs text-muted-foreground">
+                        <span className="block truncate text-[13px] text-muted-foreground">
                           {published ? w.domain : "Not published"}
                         </span>
                       </span>
@@ -381,7 +380,6 @@ function UserDetail({
             </p>
           )}
         </DetailCard>
-
         <div className="flex gap-3 pt-1">
           <Button asChild variant="secondary" size="sm" className="flex-1">
             <Link
@@ -402,7 +400,6 @@ function UserDetail({
     </Modal>
   );
 }
-
 function InfoTile({
   icon,
   label,

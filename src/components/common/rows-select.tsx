@@ -15,11 +15,14 @@ export function RowsSelect({
   value,
   options = [10, 20, 50],
   defaultSize = 10,
+  className,
 }: {
   value: number;
   options?: number[];
   /** Size the page uses without `?size=`; picking it removes the param. */
   defaultSize?: number;
+  /** Extra classes for the select box (e.g. `h-11` to match a taller toolbar). */
+  className?: string;
 }) {
   const { setParam, pending } = useUrlParam();
 
@@ -32,12 +35,12 @@ export function RowsSelect({
       >
         <SelectTrigger
           aria-label="Rows per page"
-          className="h-[34px] w-[70px] cursor-pointer gap-1 rounded-full border border-border bg-background pr-2.5 pl-3.5 text-sm font-medium text-foreground transition-[border-color,box-shadow] focus-visible:border-primary focus-visible:ring-3 focus-visible:ring-ring/25 data-[state=open]:border-primary [&_svg]:size-3.5"
+          className={cn("h-[34px] w-[70px] cursor-pointer gap-1 rounded-full border border-border bg-background pr-2.5 pl-3.5 text-sm font-medium text-foreground transition-[border-color,box-shadow] focus-visible:border-primary focus-visible:ring-3 focus-visible:ring-ring/25 data-[state=open]:border-primary [&_svg]:size-3.5", className)}
         >
           <SelectValue />
         </SelectTrigger>
         <SelectContent align="end" className="min-w-[96px]">
-          {options.map((option) => (
+          {(options.includes(value) ? options : [...options, value].sort((a, b) => a - b)).map((option) => (
             <SelectItem key={option} value={String(option)}>
               {option}
             </SelectItem>

@@ -74,12 +74,18 @@ export function WebsiteRowMenu({
           },
         ]
       : []),
-    {
-      label: "Redeploy",
-      icon: <Refresh2 />,
-      disabled: redeployBlocked(website) !== null || pending,
-      onSelect: () => run(redeploy(website), `Redeploying ${website.name}`),
-    },
+    // A live site needs no redeploy: it is only offered after a failed release.
+    ...(website.releaseStatus === "FAILED"
+      ? [
+          {
+            label: "Redeploy",
+            icon: <Refresh2 />,
+            disabled: redeployBlocked(website) !== null || pending,
+            onSelect: () =>
+              run(redeploy(website), `Redeploying ${website.name}`),
+          },
+        ]
+      : []),
     {
       label: "Contact owner",
       icon: <Sms />,

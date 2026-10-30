@@ -18,11 +18,11 @@ import { Callout } from "@/components/common/callout";
 import { DetailList } from "@/components/common/card";
 import { DataTable } from "@/components/common/data-table";
 import { EmptyState } from "@/components/common/empty-state";
-import { FilterMenu } from "@/components/common/filter-menu";
 import { KpiCard, KpiGrid } from "@/components/common/kpi-card";
+import { FilterMenu } from "@/components/common/filter-menu";
 import { Modal } from "@/components/common/modal";
 import { PlanBadge, planLabel, planRing } from "@/components/common/plan-badge";
-import { RowsInput } from "@/components/common/rows-input";
+import { RowsSelect } from "@/components/common/rows-select";
 import { StatusBadge, statusLabel } from "@/components/common/status-badge";
 import { TableSearch } from "@/components/common/table-search";
 import { Button } from "@/components/ui/button";
@@ -44,7 +44,6 @@ import type {
 } from "../types";
 import { AdminPageHeader } from "./admin-page-header";
 import { DetailHero, DetailSection, HeroChip } from "./detail-hero";
-
 const STATUSES: SubscriptionStatus[] = [
   "ACTIVE",
   "PENDING",
@@ -52,7 +51,6 @@ const STATUSES: SubscriptionStatus[] = [
   "EXPIRED",
 ];
 const PLANS: PlanCode[] = ["FREE_TRIAL", "PLUS", "PRO", "ULTRA"];
-
 export function SubscriptionsView({
   subscriptions,
   stats,
@@ -72,14 +70,12 @@ export function SubscriptionsView({
   const filtered = Boolean(searchParams.q || status || plan);
   const detailHref = (id: string) =>
     tableHref(searchParams, { subscription: id });
-
   return (
     <>
       <AdminPageHeader
         title="Subscriptions"
         description="Plans, trials and payments for every project."
       />
-
       <KpiGrid>
         <KpiCard
           label="Monthly revenue"
@@ -106,13 +102,11 @@ export function SubscriptionsView({
           icon={<Danger />}
         />
       </KpiGrid>
-
       <DataTable
         fill
         rowClassName="relative cursor-pointer"
         label="Subscriptions"
         minWidth="min-w-[960px]"
-        compact
         itemLabel="subscriptions"
         data={subscriptions}
         searchParams={searchParams}
@@ -153,13 +147,8 @@ export function SubscriptionsView({
                 })),
               ]}
             />
-            {/* key: reset the box when the URL size changes (e.g. back button). */}
             <div className="ml-auto">
-              <RowsInput
-                key={subscriptions.size}
-                searchParams={searchParams}
-                size={subscriptions.size}
-              />
+              <RowsSelect value={subscriptions.size} className="h-8" />
             </div>
             <Button asChild size="sm">
               <Link href="/admin/subscriptions/plans">Manage plans</Link>
@@ -168,9 +157,10 @@ export function SubscriptionsView({
         }
         empty={
           filtered ? (
-            <EmptyState variant="box"
+            <EmptyState
               icon={<SearchNormal1 />}
-              title="No subscriptions match these filters"
+              title="No subscriptions found"
+              description="Nothing matches this filter. Try another plan or status."
               action={
                 <Button asChild variant="soft" size="sm">
                   <Link href="/admin/subscriptions">Clear filters</Link>
@@ -178,7 +168,7 @@ export function SubscriptionsView({
               }
             />
           ) : (
-            <EmptyState variant="box"
+            <EmptyState
               icon={<CardIcon />}
               title="No subscriptions yet"
               description="Trials and paid plans show here."
@@ -206,7 +196,7 @@ export function SubscriptionsView({
                   <span className="block max-w-[240px] truncate font-semibold text-foreground group-hover:text-primary">
                     {s.userName}
                   </span>
-                  <span className="block max-w-[240px] truncate text-xs text-muted-foreground">
+                  <span className="block max-w-[240px] truncate text-[13px] text-muted-foreground">
                     {s.websiteName}
                   </span>
                 </span>
@@ -262,7 +252,6 @@ export function SubscriptionsView({
           },
         ]}
       />
-
       {detail && (
         <SubscriptionDetail
           subscription={detail.subscription}
@@ -273,7 +262,6 @@ export function SubscriptionsView({
     </>
   );
 }
-
 function statusCallout(s: Subscription) {
   const plan = `${planLabel(s.plan)} plan`;
   switch (s.status) {
@@ -314,7 +302,6 @@ function statusCallout(s: Subscription) {
       );
   }
 }
-
 function SubscriptionDetail({
   subscription: s,
   payments,
@@ -352,7 +339,6 @@ function SubscriptionDetail({
       />
       <div className="space-y-5 px-6 py-5">
         {statusCallout(s)}
-
         <DetailSection title="Subscription details" icon={<DocumentText />}>
           <DetailList
             items={[
@@ -368,7 +354,6 @@ function SubscriptionDetail({
             ]}
           />
         </DetailSection>
-
         <DetailSection title="Payment history" icon={<Wallet2 />}>
           {payments.items.length ? (
             <ul className="divide-y divide-border rounded-2xl border border-border text-[13px]">
