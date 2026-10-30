@@ -9,7 +9,7 @@ const steps = [
   },
   {
     title: "Customize your website",
-    text: "Change text, images, colors and layout, and see the page update as you go.",
+    text: "Change text, images, colors and layout, or ask WebBlock AI to do it for you.",
   },
   {
     title: "Publish",

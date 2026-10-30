@@ -12,17 +12,17 @@ import { Tracked, tl } from "./how-it-works-timeline";
 const PANEL_RADIUS = "rounded-[4.167%/6.154%]";
 
 /**
- * The looping product demo (Figma 5574:226145, 768 × 520): choose a template → switch the palette
- * → deploy → live. Rendered at design size and scaled down to fit. The shadow sits on an underlay
+ * The looping product demo (Figma 5574:226145, 768 × 520): choose a template → restyle it in site
+ * settings → deploy → live. Rendered at design size and scaled down to fit. The shadow sits on an underlay
  * because `ScaleToFit` clips. Must sit inside the section's `LoopStage`.
  */
 export function HowItWorksDemo() {
   return (
     <div className="relative">
       <p className="sr-only">
-        Demo: a template is picked in the “Start a new website” dialog, the editor switches the site’s
-        colour palette from Lavender to Bakery, Deploy publishes it step by step, and a “Your website
-        is live!” message appears.
+        Demo: a template is picked in the “Start a new website” dialog, the editor’s site settings
+        switch the colour palette to Bakery and the headings to the Editorial font, Deploy publishes the
+        site step by step, and a “Your website is live!” message appears.
       </p>
       <div aria-hidden className={`absolute inset-0 ${PANEL_RADIUS} shadow-hiw-panel`} />
       <ScaleToFit width={768} height={520} className={PANEL_RADIUS}>
@@ -34,8 +34,9 @@ export function HowItWorksDemo() {
               <PublishingScreen />
               <LiveScreen />
               <Ripple tracks={tl.ripples.useTemplate} left={135.8} top={330.1} />
-              <Ripple tracks={tl.ripples.bakery} left={624.5} top={238.9} />
-              <Ripple tracks={tl.ripples.deploy} left={664.3} top={1.8} />
+              <Ripple tracks={tl.ripples.palette} left={610.5} top={197.5} />
+              <Ripple tracks={tl.ripples.font} left={563.5} top={283.5} />
+              <Ripple tracks={tl.ripples.deploy} left={649.5} top={12.5} />
               <Tracked tracks={tl.cursor} className="absolute top-[328.5px] left-[558.5px] h-[22px] w-[18px]">
                 <Image
                   src="/landing/how-it-works/cursor.svg" width={32} height={32}

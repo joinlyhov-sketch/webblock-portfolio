@@ -7,6 +7,7 @@ import { signOutAction } from "@/features/auth/actions";
 import { Avatar } from "@/components/common/avatar";
 import { ConfirmDialog } from "@/components/common/confirm-dialog";
 import { ownerNav } from "@/config/nav";
+import { liveSiteHref } from "@/config/site";
 import { initials } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { Profile } from "@/features/account";
@@ -69,8 +70,8 @@ export function OwnerSidebarShell({
 
       <div className="pt-5 pb-5">
         {website.domain ? (
-          <a
-            href={`https://${website.domain}`}
+          <Link
+            href={liveSiteHref(website.id)}
             target="_blank"
             rel="noopener noreferrer"
             title={collapsed ? website.name : undefined}
@@ -78,7 +79,7 @@ export function OwnerSidebarShell({
           >
             {shopMark}
             {collapsed ? <span className="sr-only">{website.name}</span> : shopText}
-          </a>
+          </Link>
         ) : (
           <div className={shopClasses}>
             {shopMark}

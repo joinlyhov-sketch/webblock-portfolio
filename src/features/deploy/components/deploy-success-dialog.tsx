@@ -13,6 +13,7 @@ export function DeploySuccessDialog({
   kind,
   siteName,
   domain,
+  siteHref,
   editorHref,
   onClose,
 }: {
@@ -20,6 +21,8 @@ export function DeploySuccessDialog({
   kind: DeploymentKind;
   siteName: string;
   domain: string;
+  /** Where "Visit your website" opens, in a new tab. */
+  siteHref: string;
   editorHref: string;
   onClose: () => void;
 }) {
@@ -71,13 +74,9 @@ export function DeploySuccessDialog({
         </div>
         <div className="flex items-center gap-2 pt-2">
           <Button asChild>
-            <a
-              href={`https://${domain}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <Link href={siteHref} target="_blank" rel="noopener noreferrer">
               <ExportSquare aria-hidden /> Visit your website
-            </a>
+            </Link>
           </Button>
           <Button asChild variant="ghost" className="shadow-button">
             <Link href={editorHref}>

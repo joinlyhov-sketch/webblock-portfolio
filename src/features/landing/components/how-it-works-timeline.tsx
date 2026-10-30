@@ -5,6 +5,9 @@ import { motion, useLoopPlaying, useReducedMotion } from "@/components/common/mo
 
 // Keyframe tracks for the "How it works" demo, copied from Figma's 14s prototype timeline
 // (get_motion_context on 5574:226037). Every track shares one clock, so they stay in sync.
+// Step 2 now shows the current editor (site settings, WebBlock AI folded on top), which has no
+// prototype yet: its tracks are timed by hand to fit the same window (editor in at 0.2786, Deploy
+// clicked at 0.5857).
 
 const LOOP_SECONDS = 14;
 /** Frame held for viewers who prefer reduced motion: the site is live and step 3 is active. */
@@ -14,7 +17,7 @@ type Cubic = readonly [number, number, number, number];
 type Ease = "linear" | "easeIn" | "easeOut" | "easeInOut" | Cubic;
 type Value = number | string;
 export type Track = { values: Value[]; times: number[]; ease?: Ease | Ease[] };
-type Tracks = Record<string, Track>;
+export type Tracks = Record<string, Track>;
 
 const IN_OUT: Cubic = [0.5, 0, 0.5, 1];
 const POP: Cubic = [0.45, 1.45, 0.8, 1];
@@ -89,8 +92,6 @@ export function RealSize({
 const fadeInOut =(times: number[], ease: Ease[]) => track([0, 0, 1, 1, 0, 0], times, ease);
 const SCREEN_EASE: Ease[] = ["linear", "easeInOut", IN_OUT, "easeInOut", "linear"];
 const DIALOG_EASE: Ease[] = ["linear", "easeOut", IN_OUT, "linear", "linear"];
-const PALETTE_TIMES = [0, 0.4286, 0.4464, 0.8571, 0.8606, 0.8607, 1];
-const PALETTE_EASE: Ease[] = ["linear", "easeInOut", IN_OUT, "linear", "linear", "linear"];
 const ENTER_EASE: Ease[] = ["linear", "easeOut", "linear"];
 const DIAMOND_EASE: Ease[] = ["linear", "easeInOut", "easeInOut", "easeInOut", "linear"];
 
@@ -114,6 +115,20 @@ const diamondBlink = (start: number): Tracks => ({
 
 const appear = (start: number, end: number, to = 1): Tracks => ({
   opacity: track([0, 0, to, to], [0, start, end, 1], ENTER_EASE),
+});
+
+/** Option card losing its selected look as another one is picked. */
+const deselect = (start: number, end: number): Tracks => ({
+  opacity: track([1, 1, 0, 0], [0, start, end, 1], ENTER_EASE),
+});
+
+/** Outline flashed on what an edit changed, so the eye goes from the panel to the site. */
+const changeFlash = (start: number): Tracks => ({
+  opacity: track(
+    [0, 0, 1, 1, 0, 0],
+    [0, start, start + 0.01, start + 0.05, start + 0.07, 1],
+    ["linear", "easeOut", "linear", "easeInOut", "linear"],
+  ),
 });
 
 /** Units: panel px for panel-level layers; real (unscaled) px inside each scaled screen. */
@@ -152,17 +167,26 @@ export const tl = {
   },
   pickedRing: { opacity: fadeInOut([0, 0.1429, 0.1643, 0.8606, 0.8607, 1], DIALOG_EASE) },
 
-  // Screen 02 · customize
+  // Screen 02 · customize in site settings. The editor is hidden from 0.8607, so its layers simply
+  // reset when the loop restarts.
   editor: {
     opacity: fadeInOut([0, 0.2429, 0.2786, 0.8606, 0.8607, 1], ["linear", "easeInOut", IN_OUT, "linear", "linear"]),
     scale: track([0.98, 0.98, 1, 1], [0, 0.2429, 0.2786, 1], ENTER_EASE),
   },
-  /** Bakery accent fading over the blue one (buttons, link, swatch). */
+  /** Color palette: Original → Bakery. The site's buttons and the Accent swatch take the new colour. */
+  paletteOriginal: deselect(0.3857, 0.4036),
+  paletteBakery: appear(0.3857, 0.4036),
   bakeryAccent: {
-    opacity: track([0, 0, 1, 1, 1, 0, 0], [0, 0.4357, 0.4714, 0.8571, 0.8606, 0.8607, 1], PALETTE_EASE),
+    opacity: track([0, 0, 1, 1], [0, 0.3857, 0.4107, 1], ["linear", "easeInOut", "linear"]),
   },
-  lavenderSelected: { opacity: track([1, 1, 0, 0, 0, 1, 1], PALETTE_TIMES, PALETTE_EASE) },
-  bakerySelected: { opacity: track([0, 0, 1, 1, 1, 0, 0], PALETTE_TIMES, PALETTE_EASE) },
+  paletteFlash: changeFlash(0.3893),
+  /** Font: Original → Editorial. Every site heading turns serif at once (a slow crossfade doubles the text). */
+  fontOriginal: deselect(0.4821, 0.5),
+  fontEditorial: appear(0.4821, 0.5),
+  editorialHeadings: {
+    opacity: track([0, 0, 1, 1], [0, 0.4836, 0.4857, 1]),
+  },
+  fontFlash: changeFlash(0.4857),
 
   // Screen 03 · publishing
   publishing: { opacity: fadeInOut([0, 0.6036, 0.6321, 0.9643, 0.9964, 1], SCREEN_EASE) },
@@ -207,23 +231,31 @@ export const tl = {
   // Pointer
   ripples: {
     useTemplate: ripple(0.1821, 0.1857, 0.2179),
-    bakery: ripple(0.4179, 0.4214, 0.4536),
+    palette: ripple(0.3821, 0.3857, 0.4179),
+    font: ripple(0.4786, 0.4821, 0.5143),
     deploy: ripple(0.5821, 0.5857, 0.6179),
   },
+  /** Stops: Use template → (hidden) → Bakery palette → Editorial font → Deploy. Offsets from its resting spot. */
   cursor: (() => {
-    const pathTimes = [0, 0.1, 0.175, 0.3213, 0.3214, 0.4107, 0.5143, 0.575, 0.9928, 0.9929, 1];
-    const pathEase: Ease[] = ["linear", "easeInOut", IN_OUT, "linear", "easeInOut", IN_OUT, "easeInOut", "linear", "linear", "linear"];
-    const pressTimes = [0, 0.1786, 0.1857, 0.1964, 0.4143, 0.4214, 0.4321, 0.5786, 0.5857, 0.5964, 1];
-    const pressEase: Ease[] = ["linear", "easeOut", "easeOut", IN_OUT, "easeOut", "easeOut", IN_OUT, "easeOut", "easeOut", "linear"];
+    const pathTimes = [0, 0.1, 0.175, 0.3213, 0.3214, 0.3786, 0.4286, 0.475, 0.525, 0.575, 0.9928, 0.9929, 1];
+    const pathEase: Ease[] = [
+      "linear", "easeInOut", IN_OUT, "linear", "easeInOut", "linear",
+      "easeInOut", "linear", "easeInOut", "linear", "linear", "linear",
+    ];
+    const pressTimes = [0, 0.1786, 0.1857, 0.1964, 0.3821, 0.3857, 0.3964, 0.4786, 0.4821, 0.4929, 0.5786, 0.5857, 0.5964, 1];
+    const pressEase: Ease[] = [
+      "linear", "easeOut", "easeOut", IN_OUT, "easeOut", "easeOut", IN_OUT,
+      "easeOut", "easeOut", IN_OUT, "easeOut", "easeOut", "linear",
+    ];
     return {
       opacity: track(
         [0, 0, 1, 1, 0, 0, 1, 1, 0, 0],
         [0, 0.0929, 0.1143, 0.2286, 0.25, 0.3286, 0.3464, 0.6143, 0.6357, 1],
         ["linear", "easeOut", IN_OUT, "easeInOut", IN_OUT, "easeOut", IN_OUT, "easeInOut", "linear"],
       ),
-      scale: track([1, 1, 0.82, 1, 1, 0.82, 1, 1, 0.82, 1, 1], pressTimes, pressEase),
-      x: track([0, 0, -413.19, -413.19, -130, 75.51, 75.51, 115.26, 115.26, 0, 0], pathTimes, pathEase),
-      y: track([0, 0, 11.14, 11.14, -10, -80.13, -80.13, -317.17, -317.17, 0, 0], pathTimes, pathEase),
+      scale: track([1, 1, 0.82, 1, 1, 0.82, 1, 1, 0.82, 1, 1, 0.82, 1, 1], pressTimes, pressEase),
+      x: track([0, 0, -413.19, -413.19, -138.5, 61.5, 61.5, 14.5, 14.5, 100.5, 100.5, 0, 0], pathTimes, pathEase),
+      y: track([0, 0, 11.14, 11.14, -78.5, -121.5, -121.5, -35.5, -35.5, -306.5, -306.5, 0, 0], pathTimes, pathEase),
     };
   })(),
 } satisfies Record<string, Tracks | Tracks[] | Record<string, Tracks>>;

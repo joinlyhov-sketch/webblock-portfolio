@@ -1,13 +1,17 @@
 import { z } from "zod";
 
+/** Character limits, shared by the schema and the form inputs (`maxLength`). */
+export const PRODUCT_LIMITS = { name: 120, category: 40, description: 300 };
+const LIMITS = PRODUCT_LIMITS;
+
 export const productInput = z.object({
-  name: z.string().trim().min(2, "Enter a product name.").max(120, "Use 120 characters or fewer."),
-  category: z.string().trim().min(1, "Choose a category."),
+  name: z.string().trim().min(2, "Enter a product name.").max(LIMITS.name, `Use ${LIMITS.name} characters or fewer.`),
+  category: z.string().trim().min(1, "Choose a category.").max(LIMITS.category),
   description: z
     .string()
     .trim()
     .min(10, "Describe the product in at least 10 characters.")
-    .max(300, "Use 300 characters or fewer."),
+    .max(LIMITS.description, `Use ${LIMITS.description} characters or fewer.`),
   price: z
     .string()
     .trim()

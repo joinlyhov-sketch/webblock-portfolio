@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { SelectField } from "@/components/common/select-field";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { SUPPORT_LIMITS as LIMITS } from "../schemas";
 import type { SupportView } from "../service";
 import { SentArt } from "./envelope-art";
 
@@ -122,6 +123,7 @@ export function SupportForm({ view }: { view: Pick<SupportView, "email" | "websi
           <Input
             id="subject"
             name="subject"
+            maxLength={LIMITS.subject}
             icon={<Tag />}
             iconClassName={fieldIconClass}
             className={fieldClass}
@@ -136,6 +138,7 @@ export function SupportForm({ view }: { view: Pick<SupportView, "email" | "websi
           <Textarea
             id="message"
             name="message"
+            maxLength={LIMITS.message}
             defaultValue={kept("message")}
             placeholder="Tell us what happened and what you expected."
             className="min-h-[150px] rounded-xl px-3.5 py-3 text-sm leading-[21.7px]"

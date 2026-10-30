@@ -49,7 +49,7 @@ const tint = (index: number) => TINTS[index % TINTS.length];
 const FOCUS = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-site-accent";
 
 const BUTTON_BASE = cn(
-  "inline-flex items-center justify-center gap-2 rounded-site-button font-site-body font-semibold whitespace-nowrap transition-transform hover:-translate-y-px",
+  "inline-flex max-w-full items-center justify-center gap-2 rounded-site-button text-center font-site-body font-semibold transition-transform hover:-translate-y-px",
   "px-5 py-3 text-[14px] @3xl:px-6 @3xl:text-[15px] @5xl:px-[26px] @5xl:py-[14px] @5xl:text-[16px]",
   FOCUS,
 );

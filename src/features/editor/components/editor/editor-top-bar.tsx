@@ -11,6 +11,7 @@ import {
   Global,
   Send2 as Rocket,
 } from "iconsax-reactjs";
+import { LogoMark } from "@/components/common/logo";
 import { StatusBadge, type BadgeStatus } from "@/components/common/status-badge";
 import { Button } from "@/components/ui/button";
 import { DeviceSwitcher, type Device } from "../preview/devices";
@@ -64,12 +65,7 @@ export function EditorTopBar({
           <ArrowLeft />
         </Link>
       </Button>
-      <span aria-hidden className="grid size-[30px] shrink-0 grid-cols-2 gap-[3px] rounded-[9px] bg-brand p-[7px] shadow-page-active">
-        <span className="rounded-[2.5px] bg-background" />
-        <span className="rounded-[2.5px] bg-background/65" />
-        <span className="rounded-[2.5px] bg-background/80" />
-        <span className="rounded-[2.5px] bg-background" />
-      </span>
+      <LogoMark className="h-[30px]" />
       <div className="min-w-0">
         <p className="truncate text-[13px] leading-[19.5px] font-semibold text-foreground">{siteName}</p>
         {portalHref && domain ? (
@@ -109,7 +105,8 @@ export function EditorTopBar({
         <>
           <span aria-hidden className="h-7 w-px shrink-0 bg-border" />
           <Button asChild variant="secondary">
-            <Link href={portalHref} onClick={onBack}>
+            {/* The portal opens in its own tab, so the editor (and any unsaved work) stays open here. */}
+            <Link href={portalHref} target="_blank" rel="noopener noreferrer">
               <ExportSquare /> Portal
             </Link>
           </Button>

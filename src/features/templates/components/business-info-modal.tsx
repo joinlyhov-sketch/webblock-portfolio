@@ -25,8 +25,9 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { formatClock } from "@/lib/format";
 import { checkImage, LOGO_RULE } from "@/lib/image-rules";
-import type { FieldErrors } from "@/lib/validation/fields";
+import { EMAIL_MAX, type FieldErrors } from "@/lib/validation/fields";
 import {
+  BUSINESS_LIMITS,
   defaultOpeningHours,
   TIME_OPTIONS,
   validateBusinessContact,
@@ -254,6 +255,7 @@ function BusinessInfoForm({
                 <Input
                   id="businessName"
                   value={values.businessName}
+                  maxLength={BUSINESS_LIMITS.businessName}
                   onChange={(e) => set("businessName")(e.target.value)}
                   placeholder="e.g. Petal & Stem"
                   className={fieldClass}
@@ -289,6 +291,7 @@ function BusinessInfoForm({
               <Textarea
                 id="description"
                 value={values.description}
+                maxLength={BUSINESS_LIMITS.description}
                 onChange={(e) => set("description")(e.target.value)}
                 placeholder="Tell visitors what you do, in a sentence or two."
                 className="min-h-24 rounded-[14px] px-3.5 py-3 text-sm leading-[21.7px] shadow-[0_1px_1px_rgb(60_120_207/0.04)]"
@@ -397,6 +400,7 @@ function BusinessInfoForm({
                   iconClassName={fieldIconClass}
                   className={cn(fieldClass, iconFieldClass)}
                   value={values.email}
+                  maxLength={EMAIL_MAX}
                   onChange={(e) => set("email")(e.target.value)}
                   placeholder="hello@yourbusiness.com"
                   aria-invalid={!!err("email")}
@@ -416,6 +420,7 @@ function BusinessInfoForm({
                 iconClassName={fieldIconClass}
                 className={cn(fieldClass, iconFieldClass)}
                 value={values.address}
+                maxLength={BUSINESS_LIMITS.address}
                 onChange={(e) => set("address")(e.target.value)}
                 placeholder="18 Garden Lane, Phnom Penh"
                 aria-invalid={!!err("address")}

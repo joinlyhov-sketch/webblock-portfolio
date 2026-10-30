@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { SidebarLeft } from "iconsax-reactjs";
+import { LOGO_WORDMARK_INSET, Logo, LogoMark } from "@/components/common/logo";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 
@@ -40,10 +41,9 @@ export function SidebarShell({
         <Link
           href={homeHref}
           aria-label={collapsed ? siteConfig.name : undefined}
-          className="flex min-w-0 items-center gap-2.5 rounded-lg px-2 outline-none focus-visible:ring-3 focus-visible:ring-ring/40"
+          className="flex min-w-0 items-center rounded-lg px-2 outline-none focus-visible:ring-3 focus-visible:ring-ring/40"
         >
-          <LogoMark />
-          {!collapsed && <Brand label={label} compact={compact} />}
+          {collapsed ? <LogoMark className="h-8" /> : <Brand label={label} compact={compact} />}
         </Link>
         {onToggleCollapsed && (
           <button
@@ -65,38 +65,20 @@ export function SidebarShell({
   );
 }
 
-/** Wordmark and the portal name under it. */
+/** Logo and the portal name under it, lined up with the wordmark. */
 function Brand({ label, compact }: { label?: string; compact: boolean }) {
+  const logoHeight = compact ? 28 : 32;
   return (
-    <span className="min-w-0">
-      <span
-        className={cn(
-          "block font-heading font-bold tracking-[-0.4px] text-foreground",
-          compact ? "text-lg leading-7" : "text-xl leading-[30px]",
-        )}
-      >
-        {siteConfig.name}
-      </span>
+    <span className="flex min-w-0 flex-col">
+      <Logo className={compact ? "h-7" : undefined} />
       {label && (
-        <span className="-mt-1 block text-xs text-muted-foreground">
+        <span
+          className="-mt-0.5 block text-xs text-muted-foreground"
+          style={{ paddingLeft: logoHeight * LOGO_WORDMARK_INSET }}
+        >
           {label}
         </span>
       )}
-    </span>
-  );
-}
-
-/** WebBlock app icon: four rounded blocks on the brand colour. */
-function LogoMark() {
-  return (
-    <span
-      aria-hidden
-      className="grid size-8 shrink-0 grid-cols-2 gap-[3px] rounded-[9px] bg-brand p-[7px] shadow-page-active"
-    >
-      <span className="rounded-[2.5px] bg-background" />
-      <span className="rounded-[2.5px] bg-background/65" />
-      <span className="rounded-[2.5px] bg-background/80" />
-      <span className="rounded-[2.5px] bg-background" />
     </span>
   );
 }

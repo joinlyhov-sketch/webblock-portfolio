@@ -13,6 +13,7 @@ import { UploadImageModal } from "@/components/common/upload-image-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AVATAR_RULE } from "@/lib/image-rules";
+import { FULL_NAME_MAX } from "@/lib/validation/fields";
 import type { Profile } from "../types";
 import { Field, SETTINGS_FIELD, SettingsCard } from "./settings-card";
 
@@ -128,6 +129,7 @@ export function ProfileCard({
             <Input
               id="fullName"
               name="fullName"
+              maxLength={FULL_NAME_MAX}
               defaultValue={state && !state.ok ? (state.values?.fullName ?? profile.fullName) : profile.fullName}
               autoComplete="name"
               aria-invalid={!!nameError}
