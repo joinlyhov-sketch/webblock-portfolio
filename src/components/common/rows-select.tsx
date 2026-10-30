@@ -15,11 +15,14 @@ export function RowsSelect({
   value,
   options = [10, 20, 50],
   defaultSize = 10,
+  onChange,
 }: {
   value: number;
   options?: number[];
   /** Size the page uses without `?size=`; picking it removes the param. */
   defaultSize?: number;
+  /** Browser mode: called with the new size instead of changing the URL. */
+  onChange?: (size: number) => void;
 }) {
   const { setParam, pending } = useUrlParam();
 
@@ -28,7 +31,9 @@ export function RowsSelect({
       <span className="text-[13px] text-placeholder">Rows</span>
       <Select
         value={String(value)}
-        onValueChange={(next) => setParam("size", next === String(defaultSize) ? null : next)}
+        onValueChange={(next) =>
+          onChange ? onChange(Number(next)) : setParam("size", next === String(defaultSize) ? null : next)
+        }
       >
         <SelectTrigger
           aria-label="Rows per page"

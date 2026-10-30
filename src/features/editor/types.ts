@@ -158,6 +158,15 @@ export type WebsitePage = {
   publishedAt: string | null;
 };
 
+/** One deployed version of the page (GET /websites/{websiteId}/page/versions). */
+export type PageVersion = {
+  id: string;
+  /** ISO-8601 UTC. When this version went live. */
+  publishedAt: string;
+  /** True for the version visitors see right now. */
+  current: boolean;
+};
+
 /** An image the owner can put on the site (GET /websites/{websiteId}/media). */
 export type MediaAsset = {
   id: string;

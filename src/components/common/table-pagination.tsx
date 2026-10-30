@@ -1,3 +1,4 @@
+import type { FormEvent } from "react";
 import Form from "next/form";
 import { Button } from "@/components/ui/button";
 import {
@@ -5,6 +6,7 @@ import {
   PaginationContent,
   PaginationEllipsis,
   PaginationItem,
+  PaginationButton,
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
@@ -20,12 +22,16 @@ import { cn } from "@/lib/utils";
  */
 export function TablePagination({
   data,
-  searchParams,
+  searchParams = {},
+  onPageChange,
   itemLabel,
   itemLabelOne,
 }: {
   data: Page<unknown>;
-  searchParams: SearchParams;
+  /** URL mode: pages are links that keep these params. */
+  searchParams?: SearchParams;
+  /** Browser mode: pages are buttons and nothing navigates. Receives the zero-based page. */
+  onPageChange?: (page: number) => void;
   itemLabel: string;
   itemLabelOne?: string;
 }) {
@@ -36,6 +42,41 @@ export function TablePagination({
   const range = from === to ? String(to) : `${from}–${to}`;
   const hrefFor = (page: number) => tableHref(searchParams, { page: page === 0 ? null : page + 1 });
   const keep = Object.entries(searchParams).filter(([key]) => key !== "page");
+
+  const goTo = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const target = Number(new FormData(event.currentTarget).get("page"));
+    if (Number.isInteger(target) && target >= 1 && target <= totalPages) onPageChange?.(target - 1);
+  };
+  const goToFields = (
+    <>
+      {keep.flatMap(([key, value]) =>
+        (Array.isArray(value) ? value : [value]).map((v, i) =>
+          v === undefined ? null : <input key={`${key}-${i}`} type="hidden" name={key} value={v} />,
+        ),
+      )}
+      <label htmlFor="table-go-to-page" className="text-sm text-placeholder">
+        Go to
+      </label>
+      <input
+        key={data.page}
+        id="table-go-to-page"
+        name="page"
+        type="number"
+        inputMode="numeric"
+        min={1}
+        max={totalPages}
+        required
+        disabled={single}
+        defaultValue={data.page + 1}
+        className="h-9 w-[52px] [appearance:textfield] rounded-full border border-input bg-background text-center text-[15px] font-medium text-foreground transition-[border-color,box-shadow] outline-none focus-visible:border-primary focus-visible:ring-3 focus-visible:ring-ring/25 [&::-webkit-inner-spin-button]:appearance-none"
+      />
+      <Button type="submit" variant="soft" size="sm" className="text-sm" disabled={single}>
+        Go
+      </Button>
+    </>
+  );
+  const goToClass = cn("flex items-center gap-2 pl-3", single && "opacity-50");
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
@@ -49,50 +90,46 @@ export function TablePagination({
         <Pagination>
           <PaginationContent>
             <PaginationItem>
-              <PaginationPrevious href={data.page > 0 ? hrefFor(data.page - 1) : undefined} />
+              <PaginationPrevious
+                href={!onPageChange && data.page > 0 ? hrefFor(data.page - 1) : undefined}
+                onClick={onPageChange && data.page > 0 ? () => onPageChange(data.page - 1) : undefined}
+              />
             </PaginationItem>
             {pageRange(data.page, totalPages).map((page, i) => (
               <PaginationItem key={page === "ellipsis" ? `gap-${i}` : page}>
                 {page === "ellipsis" ? (
                   <PaginationEllipsis />
                 ) : (
-                  <PaginationLink href={hrefFor(page)} isActive={page === data.page}>
-                    {page + 1}
-                  </PaginationLink>
+                  onPageChange ? (
+                    <PaginationButton onClick={() => onPageChange(page)} isActive={page === data.page}>
+                      {page + 1}
+                    </PaginationButton>
+                  ) : (
+                    <PaginationLink href={hrefFor(page)} isActive={page === data.page}>
+                      {page + 1}
+                    </PaginationLink>
+                  )
                 )}
               </PaginationItem>
             ))}
             <PaginationItem>
-              <PaginationNext href={data.page < totalPages - 1 ? hrefFor(data.page + 1) : undefined} />
+              <PaginationNext
+                href={!onPageChange && data.page < totalPages - 1 ? hrefFor(data.page + 1) : undefined}
+                onClick={onPageChange && data.page < totalPages - 1 ? () => onPageChange(data.page + 1) : undefined}
+              />
             </PaginationItem>
           </PaginationContent>
         </Pagination>
 
-        <Form action="" className={cn("flex items-center gap-2 pl-3", single && "opacity-50")}>
-          {keep.flatMap(([key, value]) =>
-            (Array.isArray(value) ? value : [value]).map((v, i) =>
-              v === undefined ? null : <input key={`${key}-${i}`} type="hidden" name={key} value={v} />,
-            ),
-          )}
-          <label htmlFor="table-go-to-page" className="text-sm text-placeholder">
-            Go to
-          </label>
-          <input
-            id="table-go-to-page"
-            name="page"
-            type="number"
-            inputMode="numeric"
-            min={1}
-            max={totalPages}
-            required
-            disabled={single}
-            defaultValue={data.page + 1}
-            className="h-9 w-[52px] [appearance:textfield] rounded-full border border-input bg-background text-center text-[15px] font-medium text-foreground transition-[border-color,box-shadow] outline-none focus-visible:border-primary focus-visible:ring-3 focus-visible:ring-ring/25 [&::-webkit-inner-spin-button]:appearance-none"
-          />
-          <Button type="submit" variant="soft" size="sm" className="text-sm" disabled={single}>
-            Go
-          </Button>
-        </Form>
+        {onPageChange ? (
+          <form onSubmit={goTo} className={goToClass}>
+            {goToFields}
+          </form>
+        ) : (
+          <Form action="" className={goToClass}>
+            {goToFields}
+          </Form>
+        )}
       </div>
     </div>
   );

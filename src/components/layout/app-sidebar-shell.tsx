@@ -6,6 +6,7 @@ import { signOutAction } from "@/features/auth/actions";
 import { Avatar } from "@/components/common/avatar";
 import { ConfirmDialog } from "@/components/common/confirm-dialog";
 import { userNav } from "@/config/nav";
+import { useProfileUpdates } from "@/hooks/use-profile-updates";
 import { cn } from "@/lib/utils";
 import type { Profile, SidebarSummary } from "@/features/account";
 import { BrandLogo } from "./brand-logo";
@@ -14,12 +15,13 @@ import { TrialCard } from "./trial-card";
 
 /** Interactive part of the user sidebar: collapse toggle and the log out confirmation. */
 export function AppSidebarShell({
-  profile,
+  profile: serverProfile,
   summary,
 }: {
   profile: Pick<Profile, "fullName" | "initials" | "email" | "avatarUrl">;
   summary: SidebarSummary;
 }) {
+  const profile = useProfileUpdates(serverProfile);
   const [collapsed, setCollapsed] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [signingOut, startSignOut] = useTransition();

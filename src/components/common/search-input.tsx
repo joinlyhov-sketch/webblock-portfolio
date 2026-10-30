@@ -6,8 +6,14 @@ import { useUrlParam } from "@/hooks/use-url-param";
 import { cn } from "@/lib/utils";
 
 type SearchInputProps = {
-  /** Value currently applied in the URL (from the page's searchParams). */
-  defaultValue: string;
+  /** Value currently applied in the URL (from the page's searchParams). Unused in controlled mode. */
+  defaultValue?: string;
+  /**
+   * Controlled mode: the parent owns the text and filters its own list in state. Nothing touches the
+   * URL or the server, so typing never reloads the page.
+   */
+  value?: string;
+  onValueChange?: (value: string) => void;
   placeholder: string;
   /** Accessible name. */
   label: string;
@@ -18,21 +24,27 @@ type SearchInputProps = {
 
 /** Search box that keeps its text in the URL (`?q=`), so results are shareable and survive refresh. */
 export function SearchInput({
-  defaultValue,
+  defaultValue = "",
+  value: controlledValue,
+  onValueChange,
   placeholder,
   label,
   variant = "pill",
   className,
 }: SearchInputProps) {
   const { setParam, pending } = useUrlParam();
-  const [value, setValue] = useState(defaultValue);
+  const [localValue, setLocalValue] = useState(defaultValue);
+  const controlled = onValueChange !== undefined;
+  const value = controlled ? (controlledValue ?? "") : localValue;
+  const setValue = controlled ? onValueChange : setLocalValue;
 
   useEffect(() => {
+    if (controlled) return;
     const next = value.trim();
     if (next === defaultValue) return;
     const timer = setTimeout(() => setParam("q", next), 300);
     return () => clearTimeout(timer);
-  }, [value, defaultValue, setParam]);
+  }, [controlled, value, defaultValue, setParam]);
 
   const hero = variant === "hero";
 
@@ -41,14 +53,14 @@ export function SearchInput({
       role="search"
       onSubmit={(event) => {
         event.preventDefault();
-        setParam("q", value.trim());
+        if (!controlled) setParam("q", value.trim());
       }}
       className={cn(
         "relative flex items-center rounded-full border border-border bg-background transition-[border-color,box-shadow] focus-within:border-primary focus-within:ring-3 focus-within:ring-ring/25",
         hero
           ? "h-14 w-full max-w-[560px] gap-2.5 pr-1.5 pl-[22px] shadow-[0_1px_1px_rgb(60_120_207/0.04),0_12px_14px_rgb(60_120_207/0.12)]"
           : "h-11 w-[360px] max-w-full gap-2.5 px-[14px]",
-        pending && "opacity-80",
+        !controlled && pending && "opacity-80",
         className,
       )}
     >

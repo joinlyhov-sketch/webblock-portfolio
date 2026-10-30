@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth/session";
 import {
   changePassword,
@@ -9,18 +8,17 @@ import {
   saveProfile,
 } from "./service";
 import type { ActionResult } from "@/lib/actions/result";
+import type { ProfileIdentity } from "./types";
 
-// The sidebar (in the shared layout) shows the name and photo, so every change refreshes the layout.
-const refreshAccount = () => revalidatePath("/", "layout");
+// No revalidatePath: each action returns the new name / photo. The profile card shows it at once and
+// tells the sidebar through `announceProfile`, so changing settings never re-renders the layout.
 
 export async function updateProfileAction(
-  _prev: ActionResult | null,
+  _prev: ActionResult<ProfileIdentity> | null,
   formData: FormData,
-): Promise<ActionResult> {
+): Promise<ActionResult<ProfileIdentity>> {
   const user = await requireUser();
-  const result = await saveProfile(user.id, formData);
-  if (result.ok) refreshAccount();
-  return result;
+  return saveProfile(user.id, formData);
 }
 
 export async function setPasswordAction(
@@ -28,21 +26,15 @@ export async function setPasswordAction(
   formData: FormData,
 ): Promise<ActionResult> {
   const user = await requireUser();
-  const result = await changePassword(user.id, formData);
-  if (result.ok) refreshAccount();
-  return result;
+  return changePassword(user.id, formData);
 }
 
-export async function uploadAvatarAction(formData: FormData): Promise<ActionResult> {
+export async function uploadAvatarAction(formData: FormData): Promise<ActionResult<ProfileIdentity>> {
   const user = await requireUser();
-  const result = await saveAvatar(user.id, formData);
-  if (result.ok) refreshAccount();
-  return result;
+  return saveAvatar(user.id, formData);
 }
 
-export async function removeAvatarAction(): Promise<ActionResult> {
+export async function removeAvatarAction(): Promise<ActionResult<ProfileIdentity>> {
   const user = await requireUser();
-  const result = await removeAvatar(user.id);
-  if (result.ok) refreshAccount();
-  return result;
+  return removeAvatar(user.id);
 }

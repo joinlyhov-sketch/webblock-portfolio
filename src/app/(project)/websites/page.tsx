@@ -2,7 +2,7 @@ import { requireUser } from "@/lib/auth/session";
 import type { SearchParams } from "@/lib/table-query";
 import { getNotificationsView } from "@/features/notifications";
 import { getTemplatesView } from "@/features/templates";
-import { getBusinessTypes, getWebsitesView, WebsitesView } from "@/features/websites";
+import { getAllWebsites, getBusinessTypes, parseInitialFilter, WebsitesView } from "@/features/websites";
 
 export const metadata = { title: "My Websites" };
 
@@ -13,8 +13,8 @@ export default async function WebsitesPage({
 }) {
   const query = await searchParams;
   const user = await requireUser();
-  const [data, notifications, templates, businessTypes] = await Promise.all([
-    getWebsitesView(user.id, query),
+  const [websites, notifications, templates, businessTypes] = await Promise.all([
+    getAllWebsites(user.id),
     getNotificationsView(user.id),
     getTemplatesView({}),
     getBusinessTypes(),
@@ -22,11 +22,11 @@ export default async function WebsitesPage({
 
   return (
     <WebsitesView
-      data={data}
+      websites={websites}
       notifications={notifications}
       templates={templates.templates}
       businessTypes={businessTypes}
-      searchParams={query}
+      initialFilter={parseInitialFilter(query)}
     />
   );
 }

@@ -32,7 +32,18 @@ function activityText(website: Website): string {
  * One website: screenshot with status, name, address, last change and the main actions.
  * `filtered` is the status-tab view, which drops the category pill (Figma filter screens).
  */
-export function WebsiteCard({ website, filtered = false }: { website: Website; filtered?: boolean }) {
+export function WebsiteCard({
+  website,
+  filtered = false,
+  onPatch,
+  onRemove,
+}: {
+  website: Website;
+  filtered?: boolean;
+  /** Called after an action worked, with the fields that changed, so the list updates at once. */
+  onPatch: (patch: Partial<Website>) => void;
+  onRemove: () => void;
+}) {
   const suspended = website.status === "SUSPENDED";
   const hasMenu = website.status === "DRAFT" || (website.domain !== null && (filtered || !suspended));
   // Suspended in "All": Reactivate is the main action. In the Suspended tab it is the neutral one.
@@ -76,6 +87,8 @@ export function WebsiteCard({ website, filtered = false }: { website: Website; f
               websiteName={website.name}
               status={website.status}
               domain={website.domain}
+              onPatch={onPatch}
+              onRemove={onRemove}
             />
           )}
         </div>
@@ -91,7 +104,7 @@ export function WebsiteCard({ website, filtered = false }: { website: Website; f
           <div className="flex items-center gap-1.5">
             {suspended ? (
               <>
-                <ReactivateButton websiteId={website.id} variant={reactivateFirst ? "primary" : "secondary"} />
+                <ReactivateButton websiteId={website.id} variant={reactivateFirst ? "primary" : "secondary"} onPatch={onPatch} />
                 <EditButton websiteId={website.id} primary={!reactivateFirst} />
               </>
             ) : (

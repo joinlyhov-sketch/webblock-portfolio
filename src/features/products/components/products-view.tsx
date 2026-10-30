@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
-import Link from "next/link";
+"use client";
+
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Box, Element4, Menu, SearchStatus } from "iconsax-reactjs";
 import { DataTable } from "@/components/common/data-table";
 import { EmptyState } from "@/components/common/empty-state";
@@ -9,18 +10,98 @@ import { SearchInput } from "@/components/common/search-input";
 import { SegmentedTabs } from "@/components/common/segmented-tabs";
 import { TablePagination } from "@/components/common/table-pagination";
 import { formatPrice } from "@/lib/format";
-import { tableHref, type SearchParams } from "@/lib/table-query";
+import { toPage } from "@/lib/table-query";
 import { cn } from "@/lib/utils";
-import { DEFAULT_PRODUCT_PAGE_SIZE, PRODUCT_PAGE_SIZES, type ProductsView as ProductsData } from "../service";
+import { DEFAULT_PRODUCT_PAGE_SIZE, PRODUCT_PAGE_SIZES } from "../page-sizes";
+import type { ProductsData, ProductsFilter, ProductsLayout } from "../service";
+import type { Product } from "../types";
 import { ProductDialogsProvider } from "./product-dialogs";
 import { CategoryChip } from "./product-parts";
 import { AddProductButton, ProductCard, ProductCellButton, ProductRowActions } from "./product-triggers";
 
-/** Owner Portal → Products: grid or list (`?view=list`), search, category tabs and the product popups. */
-export function ProductsView({ data, searchParams }: { data: ProductsData; searchParams: SearchParams }) {
-  const { products, counts, layout } = data;
+type Sort = ProductsFilter["sort"];
+
+/** Same ordering rules as the API: price, name, or newest first. */
+function sortProducts(items: Product[], sort: Sort): Product[] {
+  const { field, direction } = sort ?? { field: "createdAt", direction: "desc" as const };
+  const sign = direction === "asc" ? 1 : -1;
+  return [...items].sort((a, b) => {
+    if (field === "price") return sign * (Number(a.price) - Number(b.price));
+    if (field === "name") return sign * a.name.localeCompare(b.name);
+    return sign * a.createdAt.localeCompare(b.createdAt);
+  });
+}
+
+/**
+ * Owner Portal → Products, rendered in the browser. The product list, search, category tabs, sort,
+ * page, rows per page and grid/list switch all live in state, so none of them reloads the page, and
+ * add / edit / delete update the list from the saved product. The URL is kept in sync with
+ * `history.replaceState` (no navigation) so a refresh or a shared link opens on the same view.
+ */
+export function ProductsView({ data, initialFilter }: { data: ProductsData; initialFilter: ProductsFilter }) {
+  const [products, setProducts] = useState(data.products);
+  const [q, setQ] = useState(initialFilter.q);
+  const [category, setCategory] = useState(
+    initialFilter.category && data.categories.includes(initialFilter.category) ? initialFilter.category : null,
+  );
+  const [layout, setLayout] = useState<ProductsLayout>(initialFilter.layout);
+  const [size, setSize] = useState(initialFilter.size);
+  const [pageIndex, setPageIndex] = useState(initialFilter.page);
+  const [sort, setSort] = useState<Sort>(initialFilter.sort);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (q.trim()) params.set("q", q.trim());
+    if (category) params.set("category", category);
+    if (layout === "list") params.set("view", "list");
+    if (size !== DEFAULT_PRODUCT_PAGE_SIZE) params.set("size", String(size));
+    if (pageIndex > 0) params.set("page", String(pageIndex + 1));
+    if (sort) params.set("sort", `${sort.field},${sort.direction}`);
+    const search = params.toString();
+    window.history.replaceState(window.history.state, "", search ? `?${search}` : window.location.pathname);
+  }, [q, category, layout, size, pageIndex, sort]);
+
+  const needle = q.trim().toLowerCase();
+  const matches = useMemo(
+    () =>
+      sortProducts(
+        products
+          .filter((p) => !category || p.category === category)
+          .filter((p) => !needle || p.name.toLowerCase().includes(needle) || p.description.toLowerCase().includes(needle)),
+        sort,
+      ),
+    [products, category, needle, sort],
+  );
+  // A search or delete can leave the current page past the end: show the last page that exists.
+  const lastPage = Math.max(0, Math.ceil(matches.length / size) - 1);
+  const page = toPage(matches, { page: Math.min(pageIndex, lastPage), size });
+
+  const counts = {
+    total: products.length,
+    categories: data.categories.map((name) => ({
+      category: name,
+      count: products.filter((p) => p.category === name).length,
+    })),
+  };
   const noProducts = counts.total === 0;
-  const filtered = Boolean(data.q || data.category);
+  const filtered = Boolean(needle || category);
+
+  function showAll() {
+    setQ("");
+    setCategory(null);
+    setPageIndex(0);
+  }
+
+  function saveProduct(product: Product) {
+    setProducts((current) =>
+      current.some((p) => p.id === product.id)
+        ? current.map((p) => (p.id === product.id ? product : p))
+        : [product, ...current],
+    );
+  }
+  function removeProduct(productId: string) {
+    setProducts((current) => current.filter((p) => p.id !== productId));
+  }
 
   const heading = (
     <h2 className="flex items-center gap-3 text-lg font-semibold">
@@ -30,26 +111,49 @@ export function ProductsView({ data, searchParams }: { data: ProductsData; searc
 
   const toolbar = (
     <>
-      <SearchInput defaultValue={data.q} placeholder="Search products" label="Search products" className="h-9" />
+      <SearchInput
+        value={q}
+        onValueChange={(next) => {
+          setQ(next);
+          setPageIndex(0);
+        }}
+        placeholder="Search products"
+        label="Search products"
+        className="h-9"
+      />
       <SegmentedTabs
         label="Filter by category"
         className="p-[3px]"
         tabs={[
           {
             label: `All ${counts.total}`,
-            href: tableHref(searchParams, { category: null, page: null }),
-            active: data.category === null,
+            onSelect: () => {
+              setCategory(null);
+              setPageIndex(0);
+            },
+            active: category === null,
           },
-          ...counts.categories.map(({ category }) => ({
-            label: category,
-            href: tableHref(searchParams, { category, page: null }),
-            active: data.category === category,
+          ...counts.categories.map(({ category: name }) => ({
+            label: name,
+            onSelect: () => {
+              setCategory(name);
+              setPageIndex(0);
+            },
+            active: category === name,
           })),
         ]}
       />
       <div className="ml-auto flex items-center gap-2.5">
-        <LayoutToggle layout={layout} searchParams={searchParams} />
-        <RowsSelect value={products.size} options={PRODUCT_PAGE_SIZES} defaultSize={DEFAULT_PRODUCT_PAGE_SIZE} />
+        <LayoutToggle layout={layout} onChange={setLayout} />
+        <RowsSelect
+          value={size}
+          options={PRODUCT_PAGE_SIZES}
+          defaultSize={DEFAULT_PRODUCT_PAGE_SIZE}
+          onChange={(next) => {
+            setSize(next);
+            setPageIndex(0);
+          }}
+        />
       </div>
     </>
   );
@@ -64,25 +168,28 @@ export function ProductsView({ data, searchParams }: { data: ProductsData; searc
   ) : (
     <EmptyState
       icon={<SearchStatus />}
-      title="No products found"
+      title="No results found"
       description={
         filtered
-          ? "Nothing matches your search or category. Try another word or show all products."
+          ? "Try a different keyword, or show all products."
           : "There are no products on this page."
       }
       action={
-        <Link
-          href={tableHref(searchParams, { q: null, category: null, page: null })}
-          className="text-sm font-semibold text-primary hover:underline"
-        >
+        <button type="button" onClick={showAll} className="text-sm font-semibold text-primary hover:underline">
           Show all products
-        </Link>
+        </button>
       }
     />
   );
 
   return (
-    <ProductDialogsProvider websiteId={data.websiteId} domain={data.domain} categories={data.categories}>
+    <ProductDialogsProvider
+      websiteId={data.websiteId}
+      domain={data.domain}
+      categories={data.categories}
+      onSaved={saveProduct}
+      onDeleted={removeProduct}
+    >
       <PageHeader
         className="mb-0 items-center"
         title="Products"
@@ -98,8 +205,15 @@ export function ProductsView({ data, searchParams }: { data: ProductsData; searc
           label="Products"
           itemLabel="products"
           itemLabelOne="product"
-          data={products}
-          searchParams={searchParams}
+          data={page}
+          controls={{
+            sort,
+            onSort: (field, direction) => {
+              setSort({ field, direction });
+              setPageIndex(0);
+            },
+            onPageChange: setPageIndex,
+          }}
           rowKey={(product) => product.id}
           heading={heading}
           toolbar={toolbar}
@@ -136,11 +250,11 @@ export function ProductsView({ data, searchParams }: { data: ProductsData; searc
         />
       ) : (
         <ProductGridFrame heading={heading} toolbar={toolbar}>
-          {products.items.length === 0 ? (
+          {page.items.length === 0 ? (
             <div className="flex min-h-[300px] flex-1 items-center justify-center">{empty}</div>
           ) : (
             <ul className="grid flex-1 content-start gap-6 p-6 [grid-template-columns:repeat(auto-fill,minmax(250px,1fr))]">
-              {products.items.map((product, i) => (
+              {page.items.map((product, i) => (
                 <li key={product.id} className="motion-safe:animate-row-in" style={{ animationDelay: `${i * 30}ms` }}>
                   <ProductCard product={product} />
                 </li>
@@ -149,8 +263,8 @@ export function ProductsView({ data, searchParams }: { data: ProductsData; searc
           )}
           <div className="border-t border-border">
             <TablePagination
-              data={products}
-              searchParams={searchParams}
+              data={page}
+              onPageChange={setPageIndex}
               itemLabel="products"
               itemLabelOne="product"
             />
@@ -183,11 +297,11 @@ function ProductGridFrame({
   );
 }
 
-/** Grid / list switch. Links, so the choice lives in the URL (`?view=list`). */
-function LayoutToggle({ layout, searchParams }: { layout: "grid" | "list"; searchParams: SearchParams }) {
+/** Grid / list switch. */
+function LayoutToggle({ layout, onChange }: { layout: ProductsLayout; onChange: (layout: ProductsLayout) => void }) {
   const options = [
-    { value: "grid", label: "Grid view", icon: <Element4 />, href: tableHref(searchParams, { view: null }) },
-    { value: "list", label: "List view", icon: <Menu />, href: tableHref(searchParams, { view: "list" }) },
+    { value: "grid", label: "Grid view", icon: <Element4 /> },
+    { value: "list", label: "List view", icon: <Menu /> },
   ] as const;
 
   return (
@@ -195,19 +309,19 @@ function LayoutToggle({ layout, searchParams }: { layout: "grid" | "list"; searc
       {options.map((option) => {
         const active = option.value === layout;
         return (
-          <Link
+          <button
             key={option.value}
-            href={option.href}
-            scroll={false}
+            type="button"
+            onClick={() => onChange(option.value)}
             aria-label={option.label}
-            aria-current={active ? "true" : undefined}
+            aria-pressed={active}
             className={cn(
               "flex size-9 items-center justify-center rounded-full outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/40 [&_svg]:size-[18px]",
               active ? "bg-background text-brand-strong shadow-tab" : "text-muted-foreground hover:text-foreground",
             )}
           >
             {option.icon}
-          </Link>
+          </button>
         );
       })}
     </div>

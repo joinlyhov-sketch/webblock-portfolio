@@ -23,12 +23,15 @@ export function ProductForm({
   websiteId,
   categories,
   product,
+  onSaved,
   onDone,
 }: {
   websiteId: string;
   categories: string[];
   /** `null` adds a new product. */
   product: Product | null;
+  /** Called with the saved product before the popup closes, so the list can show it at once. */
+  onSaved: (product: Product) => void;
   onDone: () => void;
 }) {
   const action = product
@@ -46,12 +49,13 @@ export function ProductForm({
     if (!state || handled.current === state) return;
     handled.current = state;
     if (state.ok) {
+      onSaved(state.data);
       toast.success(product ? "Changes saved" : "Product added", state.message);
       onDone();
     } else if (!state.fieldErrors) {
       toast.error("Could not save the product", state.message);
     }
-  }, [state, product, onDone]);
+  }, [state, product, onSaved, onDone]);
 
   // Free the object URL of a picked photo when it is replaced or the popup closes.
   useEffect(() => {
