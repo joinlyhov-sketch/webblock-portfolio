@@ -80,13 +80,14 @@ export function EditorTopBar({
       {saveState === "unsaved" && <StatusBadge status={SAVE_STATE[saveState]} className="hidden xl:inline-flex" />}
 
       <div className="flex-1" />
-      <div className="flex">
-        <Button variant="ghost" size="icon" aria-label="Undo" title="Undo (Ctrl+Z)" disabled={!history.hasPast} onClick={history.back}>
+      <div className="flex gap-2">
+        <Button variant="secondary" size="icon" className="rounded-full" aria-label="Undo" title="Undo (Ctrl+Z)" disabled={!history.hasPast} onClick={history.back}>
           <Undo />
         </Button>
         <Button
-          variant="ghost"
+          variant="secondary"
           size="icon"
+          className="rounded-full"
           aria-label="Redo"
           title="Redo (Ctrl+Shift+Z)"
           disabled={!history.hasFuture}

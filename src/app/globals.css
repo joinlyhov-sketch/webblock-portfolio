@@ -927,6 +927,13 @@
   --tw-enter-translate-x: calc(--value(integer) * var(--spacing));
 }
 
+/* A native modal <dialog> doesn't lock page scroll (Radix dialogs do): freeze the page behind it. */
+html:has(dialog[open]:modal),
+body:has(dialog[open]:modal),
+main:has(dialog[open]:modal) {
+  overflow: hidden;
+}
+
 /*
  * Native <dialog> popups (common/modal): the card fades and rises in, fades out on close, and the
  * blurred backdrop fades with it instead of snapping. `overlay`/`display` keep it in the top layer

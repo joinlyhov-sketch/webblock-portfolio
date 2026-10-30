@@ -9,20 +9,29 @@ export type Device = "desktop" | "tablet" | "mobile";
 /** Width the website is laid out at (the editor label reads "Desktop 1280"). */
 export const DEVICE_WIDTH = { desktop: 1280, tablet: 820, mobile: 390 } satisfies Record<Device, number>;
 
-// iconsax has no tablet glyph: the tablet option uses the phone icon drawn larger.
+// iconsax has no tablet glyph: a small outline tablet in the same 1.5px linear style.
+function TabletIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className={className}>
+      <rect x="4.5" y="2.5" width="15" height="19" rx="3" />
+      <path d="M11 18.5h2" />
+    </svg>
+  );
+}
+
 const DEVICES = [
-  { value: "desktop", label: "Desktop", icon: Monitor, iconClass: "size-4" },
-  { value: "tablet", label: "Tablet", icon: Mobile, iconClass: "size-[18px]" },
-  { value: "mobile", label: "Mobile", icon: Mobile, iconClass: "size-3.5" },
+  { value: "desktop", label: "Desktop", icon: Monitor, iconClass: "size-[18px]" },
+  { value: "tablet", label: "Tablet", icon: TabletIcon, iconClass: "size-[18px]" },
+  { value: "mobile", label: "Mobile", icon: Mobile, iconClass: "size-[18px]" },
 ] as const;
 
-/** Figma device toggle in the editor top bar: icon-only pill segments. */
+/** Figma device toggle in the editor top bar: icon-only segments in a soft blue rounded tray. */
 export function DeviceSwitcher({ value, onChange }: { value: Device; onChange: (device: Device) => void }) {
   return (
     <div
       role="radiogroup"
       aria-label="Device"
-      className="flex gap-0.5 rounded-full border border-border bg-primary-soft p-1"
+      className="flex gap-1 rounded-xl border border-border bg-switcher p-1"
     >
       {DEVICES.map((d) => {
         const active = d.value === value;
@@ -37,8 +46,8 @@ export function DeviceSwitcher({ value, onChange }: { value: Device; onChange: (
             onClick={() => onChange(d.value)}
             className={cn(
               "flex h-8 items-center justify-center gap-2 text-[13px] font-medium transition-[background-color,color,box-shadow] outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
-              "w-10 rounded-full",
-              active ? "bg-background text-brand-strong shadow-button" : "text-foreground-soft hover:text-foreground",
+              "w-12 rounded-lg",
+              active ? "bg-background text-brand-deep shadow-button" : "text-foreground-soft hover:bg-background/60 hover:text-foreground",
             )}
           >
             <d.icon aria-hidden className={d.iconClass} />
