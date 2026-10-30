@@ -20,3 +20,4 @@ export default async function EditPage({ params }: { params: Promise<{ websiteId
     />
   );
 }
+
