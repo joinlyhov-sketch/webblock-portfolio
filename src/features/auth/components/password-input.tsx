@@ -4,6 +4,7 @@ import { useState, type ComponentProps, type ReactNode } from "react";
 import { Eye, EyeSlash } from "iconsax-reactjs";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { PASSWORD_MAX } from "@/lib/validation/fields";
 
 /** Password field with a show/hide toggle. `trailing` replaces the toggle (e.g. a "matches" tick). */
 export function PasswordInput({
@@ -16,6 +17,7 @@ export function PasswordInput({
     <div className="relative">
       <Input
         size="lg"
+        maxLength={PASSWORD_MAX}
         {...props}
         type={visible ? "text" : "password"}
         className={cn("pr-11 tracking-wide placeholder-shown:tracking-normal", className)}

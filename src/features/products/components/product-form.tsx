@@ -11,6 +11,7 @@ import { SelectField } from "@/components/common/select-field";
 import { Textarea } from "@/components/ui/textarea";
 import { checkImage, PRODUCT_IMAGE_RULE } from "@/lib/image-rules";
 import { cn } from "@/lib/utils";
+import { PRODUCT_LIMITS as LIMITS } from "../schemas";
 import type { Product } from "../types";
 import { ProductDialogHeader } from "./product-parts";
 
@@ -146,6 +147,7 @@ export function ProductForm({
             <Input
               id="product-name"
               name="name"
+              maxLength={LIMITS.name}
               autoFocus
               placeholder="e.g. Sunflower bunch"
               defaultValue={values?.name ?? product?.name}
@@ -180,6 +182,7 @@ export function ProductForm({
             <Textarea
               id="product-description"
               name="description"
+              maxLength={LIMITS.description}
               rows={3}
               placeholder="Tell customers what it is, what’s included and how to care for it."
               defaultValue={values?.description ?? product?.description}

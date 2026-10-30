@@ -15,6 +15,7 @@ import { formatClock } from "@/lib/format";
 import { checkImage, LOGO_RULE } from "@/lib/image-rules";
 import { cn } from "@/lib/utils";
 import { TIME_OPTIONS } from "@/features/websites/schemas";
+import { BUSINESS_INFO_LIMITS as LIMITS } from "../schemas";
 import type { OpeningHour } from "@/features/websites/types";
 import type { BusinessInfoView } from "../service";
 import type { BusinessInfo } from "../types";
@@ -128,7 +129,7 @@ export function BusinessInfoForm({ info, website }: { info: BusinessInfo; websit
               onChange={(event) => chooseLogo(event.target.files?.[0])}
             />
           </div>
-          <div className="flex-1">
+          <div className="min-w-0 flex-1">
             <BusinessIdentity website={website}>
               <p className="flex items-center gap-1.5 pt-1 text-xs text-muted-foreground">
                 <Lock aria-hidden className="size-3.5" />
@@ -154,7 +155,7 @@ export function BusinessInfoForm({ info, website }: { info: BusinessInfo; websit
         </div>
       </InfoCard>
 
-      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">
+      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">
         <InfoCard>
           <InfoCardTitle>Business details</InfoCardTitle>
           <SectionLabel>About</SectionLabel>
@@ -162,6 +163,7 @@ export function BusinessInfoForm({ info, website }: { info: BusinessInfo; websit
             <Textarea
               id="info-description"
               name="description"
+              maxLength={LIMITS.description}
               rows={3}
               defaultValue={values?.description ?? info.description}
               aria-invalid={!!error("description")}
@@ -189,6 +191,7 @@ export function BusinessInfoForm({ info, website }: { info: BusinessInfo; websit
               <Input
                 id="info-email"
                 name="email"
+                maxLength={LIMITS.email}
                 type="email"
                 icon={<Sms />}
                 iconClassName="left-3"
@@ -206,6 +209,7 @@ export function BusinessInfoForm({ info, website }: { info: BusinessInfo; websit
               <Input
                 id="info-address"
                 name="address"
+                maxLength={LIMITS.address}
                 icon={<Location />}
                 iconClassName="left-3"
                 defaultValue={values?.address ?? info.address}
@@ -218,6 +222,7 @@ export function BusinessInfoForm({ info, website }: { info: BusinessInfo; websit
               <Input
                 id="info-maps"
                 name="mapsUrl"
+                maxLength={LIMITS.mapsUrl}
                 type="url"
                 inputMode="url"
                 placeholder="https://maps.app.goo.gl/…"

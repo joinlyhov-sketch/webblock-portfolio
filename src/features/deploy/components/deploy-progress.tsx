@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Danger, Notification, Sms } from "iconsax-reactjs";
 import { Button } from "@/components/ui/button";
+import { liveSiteHref } from "@/config/site";
 import { cn } from "@/lib/utils";
 import type { Deployment } from "../types";
 import { DeploySteps } from "./deploy-steps";
@@ -187,6 +188,7 @@ export function DeployProgress({
         kind={deployment.kind}
         siteName={siteName}
         domain={deployment.domain}
+        siteHref={liveSiteHref(deployment.websiteId)}
         editorHref={editorHref}
         onClose={() => router.push(editorHref)}
       />

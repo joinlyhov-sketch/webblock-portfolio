@@ -4,6 +4,7 @@ import { listFaq, listTopics, sendSupportMessage } from "./api";
 import { listWebsites } from "@/features/websites/api";
 import { ApiError } from "@/lib/api/errors";
 import { createCollector, formText } from "@/lib/validation/fields";
+import { SUPPORT_LIMITS } from "./schemas";
 import type { FaqItem, SupportTopic } from "./types";
 
 export type SupportView = {
@@ -48,8 +49,8 @@ export async function submitSupport(
   };
 
   const c = createCollector();
-  c.text("subject", values.subject, "Subject", { min: 3, max: 100 });
-  c.text("message", values.message, "Message", { min: 10, max: 2000 });
+  c.text("subject", values.subject, "Subject", { min: 3, max: SUPPORT_LIMITS.subject });
+  c.text("message", values.message, "Message", { min: 10, max: SUPPORT_LIMITS.message });
   if (!values.topic) c.add("topic", "Pick a topic.");
   if (c.hasErrors) {
     return { ok: false, message: "Please fix the highlighted fields.", fieldErrors: c.errors, values };

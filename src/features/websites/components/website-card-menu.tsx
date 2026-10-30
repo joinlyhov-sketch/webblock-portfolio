@@ -22,6 +22,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { liveSiteHref } from "@/config/site";
 import type { WebsiteStatus } from "../types";
 
 /**
@@ -77,19 +78,20 @@ export function WebsiteCardMenu({
       </Link>
     </DropdownMenuItem>
   );
+  // The Owner Portal and the live site each open in their own tab, apart from the dashboard.
   const portal = (
     <DropdownMenuItem asChild>
-      <Link href={`/portal/${websiteId}`}>
+      <Link href={`/portal/${websiteId}`} target="_blank" rel="noopener noreferrer">
         <ExportSquare aria-hidden /> <span className="flex-1">Portal</span>
       </Link>
     </DropdownMenuItem>
   );
   const liveSite = domain && (
     <DropdownMenuItem asChild>
-      <a href={`https://${domain}`} target="_blank" rel="noopener noreferrer">
+      <Link href={liveSiteHref(websiteId)} target="_blank" rel="noopener noreferrer">
         <Global aria-hidden /> <span className="flex-1">View live site</span>
         <ArrowRight aria-hidden className="-rotate-45 text-foreground-soft" />
-      </a>
+      </Link>
     </DropdownMenuItem>
   );
 

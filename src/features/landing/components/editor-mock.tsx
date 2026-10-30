@@ -40,7 +40,7 @@ export function EditorTopBar() {
       <span className="flex size-[25.333px] items-center justify-center rounded-full text-foreground">
         <ArrowLeft className="size-[12.667px]" />
       </span>
-      <LogoMark className="size-[21.111px] gap-[3px] rounded-[6.333px] p-[4.926px]" />
+      <LogoMark className="h-[21.111px]" />
       <div className="w-[56.736px]">
         <p className="text-[9.15px] leading-[13.722px] font-semibold text-foreground">Petal &amp; Stem</p>
         <p className="text-[8.44px] leading-[12.667px] text-muted-foreground">Home page</p>
@@ -208,7 +208,21 @@ export function CanvasDots() {
 const siteBlock = "w-[534.815px] bg-background px-[16.889px] py-[19.704px]";
 const siteHeading = "font-heading text-[14.07px] font-medium text-foreground";
 
-export function SiteNav() {
+/**
+ * The site's main button and headings. The "How it works" demo passes its own, which restyle with
+ * the Visual style edits (palette, font).
+ */
+export type SitePart = (props: { className: string; children: ReactNode }) => ReactNode;
+
+function PlainButton({ className, children }: { className: string; children: ReactNode }) {
+  return <span className={cn("rounded-[8px] bg-foreground text-primary-foreground", className)}>{children}</span>;
+}
+
+function PlainHeading({ className, children }: { className: string; children: ReactNode }) {
+  return <p className={className}>{children}</p>;
+}
+
+export function SiteNav({ Button = PlainButton }: { Button?: SitePart }) {
   return (
     <div className="flex h-[39.407px] w-[534.815px] items-center gap-[11.259px] overflow-hidden border-b-[0.704px] border-border bg-background px-[16.889px]">
       <p className="text-[9.85px] font-semibold whitespace-nowrap text-foreground">❀ Petal &amp; Stem</p>
@@ -222,26 +236,30 @@ export function SiteNav() {
         <span className="size-[4.222px] rounded-full bg-editor-open" />
         <span className="text-[7.74px] font-medium whitespace-nowrap text-editor-open">Open now · until 18:00</span>
       </span>
-      <span className="rounded-[8px] bg-foreground px-[9.852px] py-[5.63px] text-[8.44px] font-semibold text-primary-foreground">
-        Contact
-      </span>
+      <Button className="px-[9.852px] py-[5.63px] text-[8.44px] font-semibold">Contact</Button>
     </div>
   );
 }
 
-export function SiteHero({ heading }: { heading: string }) {
+export function SiteHero({
+  heading,
+  Button = PlainButton,
+  Heading = PlainHeading,
+}: {
+  heading: string;
+  Button?: SitePart;
+  Heading?: SitePart;
+}) {
   return (
     <div className={cn(siteBlock, "flex items-center gap-[16.889px]")}>
       <div className="flex min-w-0 flex-1 flex-col gap-[8.444px]">
-        <p className="font-heading text-[21.11px] leading-[23.926px] font-semibold text-foreground">{heading}</p>
+        <Heading className="font-heading text-[21.11px] leading-[23.926px] font-semibold text-foreground">{heading}</Heading>
         <p className="text-[8.44px] leading-[12.667px] text-muted-foreground">
           Hand-tied bouquets, single stems and event flowers, arranged in our studio and delivered across
           town.
         </p>
         <div className="flex items-center gap-[9.852px]">
-          <span className="rounded-[8px] bg-foreground px-[11.259px] py-[6.333px] text-[8.44px] font-semibold text-primary-foreground">
-            Shop flowers
-          </span>
+          <Button className="px-[11.259px] py-[6.333px] text-[8.44px] font-semibold">Shop flowers</Button>
           <span className="text-[8.44px] font-medium text-foreground underline">Visit the studio</span>
         </div>
       </div>
@@ -302,11 +320,11 @@ function ProductRow({ products }: { products: Product[] }) {
   );
 }
 
-export function SiteProductCards() {
+export function SiteProductCards({ Heading = PlainHeading }: { Heading?: SitePart }) {
   return (
     <div className={cn(siteBlock, "flex flex-col gap-[9.852px]")}>
       <div className="flex items-center gap-[8.444px] text-foreground">
-        <p className={cn(siteHeading, "flex-1")}>Fresh picks, hand-tied today</p>
+        <Heading className={cn(siteHeading, "flex-1")}>Fresh picks, hand-tied today</Heading>
         <p className="text-[7.74px] font-medium whitespace-nowrap">View all products →</p>
       </div>
       <ProductRow products={featured} />
@@ -314,10 +332,10 @@ export function SiteProductCards() {
   );
 }
 
-export function SiteAllProducts() {
+export function SiteAllProducts({ Heading = PlainHeading }: { Heading?: SitePart }) {
   return (
     <div className={cn(siteBlock, "flex flex-col gap-[9.852px]")}>
-      <p className={siteHeading}>Everything in the studio</p>
+      <Heading className={siteHeading}>Everything in the studio</Heading>
       <div className="flex w-full items-center gap-[11.259px]">
         <span className="flex h-[22.519px] w-[154.815px] items-center gap-[5.63px] rounded-[8px] border-[0.704px] border-border-strong bg-muted px-[7.037px]">
           <SearchNormal1 className="size-[8.444px] text-muted-foreground" />

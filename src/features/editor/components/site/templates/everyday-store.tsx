@@ -61,7 +61,7 @@ const TEXT_LINK = cn(
 function Brand({ className }: { className?: string }) {
   const site = useSite();
   return (
-    <span className={cn("font-site-heading font-bold whitespace-nowrap text-site-ink", className)}>
+    <span className={cn("block min-w-0 truncate font-site-heading font-bold text-site-ink", className)}>
       <span aria-hidden>❀ </span>
       {site.businessName}
     </span>
@@ -100,12 +100,12 @@ function StatusBadge({ text, className }: { text: string; className?: string }) 
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full bg-site-success-soft px-2.5 py-1 text-[12px] font-medium whitespace-nowrap text-site-success",
+        "inline-flex max-w-full items-center gap-1.5 rounded-full bg-site-success-soft px-2.5 py-1 text-[12px] font-medium text-site-success",
         className,
       )}
     >
-      <span aria-hidden className="size-1.5 rounded-full bg-site-success" />
-      {text}
+      <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-site-success" />
+      <span className="truncate">{text}</span>
     </span>
   );
 }
@@ -587,7 +587,7 @@ function VisitUs(props: BlockRenderProps<VisitUsProps>) {
           {props.eyebrow && <Eyebrow>{props.eyebrow}</Eyebrow>}
           <SectionHeading>{props.heading}</SectionHeading>
         </div>
-        <div className="mt-8 grid gap-5 @5xl:mt-10 @5xl:grid-cols-[minmax(0,1fr)_380px]">
+        <div className="mt-8 grid grid-cols-1 gap-5 @5xl:mt-10 @5xl:grid-cols-[minmax(0,1fr)_380px]">
           <div className="flex flex-col gap-5">
             <SiteMap pin="end" className="h-[240px] rounded-site-card @3xl:h-[320px] @5xl:h-full @5xl:min-h-[520px]">
               <InfoCard className="absolute bottom-5 left-5 hidden w-[320px] @5xl:block" />

@@ -46,7 +46,7 @@ export function BusinessInfoView({ data }: { data: BusinessInfoData }) {
         <SiteBanner website={website} />
         <div className="flex flex-wrap items-center gap-4 px-4 pt-4 pb-3">
           <BusinessMark name={website.name} logoUrl={info.logoUrl} />
-          <div className="flex-1">
+          <div className="min-w-0 flex-1">
             <BusinessIdentity website={website} />
           </div>
           <Button asChild>
@@ -57,7 +57,7 @@ export function BusinessInfoView({ data }: { data: BusinessInfoData }) {
         </div>
       </InfoCard>
 
-      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">
+      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">
         <InfoCard>
           <InfoCardTitle>Business details</InfoCardTitle>
           <dl>

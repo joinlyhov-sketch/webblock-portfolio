@@ -41,7 +41,7 @@ const WRAP = "mx-auto w-full max-w-[1440px] px-5 @3xl:px-10 @5xl:px-16";
 const FOCUS = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-site-accent";
 
 const BUTTON_BASE = cn(
-  "inline-flex items-center justify-center gap-2 rounded-site-button px-5 py-3 text-[14px] font-semibold whitespace-nowrap transition-colors",
+  "inline-flex max-w-full items-center justify-center gap-2 rounded-site-button px-5 py-3 text-center text-[14px] font-semibold transition-colors",
   "@3xl:px-[22px] @3xl:text-[15px] @5xl:px-[26px] @5xl:py-[14px] @5xl:text-[16px]",
   FOCUS,
 );
@@ -101,12 +101,12 @@ function StatusPill({ text, className }: { text: string; className?: string }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2 rounded-full bg-site-success-soft px-3 py-1.5 text-[12px] font-medium whitespace-nowrap text-site-success @5xl:py-2 @5xl:text-[13px]",
+        "inline-flex max-w-full items-center gap-2 rounded-full bg-site-success-soft px-3 py-1.5 text-[12px] font-medium text-site-success @5xl:py-2 @5xl:text-[13px]",
         className,
       )}
     >
-      <span aria-hidden className="size-2 rounded-full bg-site-success" />
-      {text}
+      <span aria-hidden className="size-2 shrink-0 rounded-full bg-site-success" />
+      <span className="truncate">{text}</span>
     </span>
   );
 }
@@ -133,7 +133,7 @@ const NAV_LINKS = [
 
 function Brand({ name, className }: { name: string; className?: string }) {
   return (
-    <span className={cn("font-site-heading font-black whitespace-nowrap text-site-ink", className)}>
+    <span className={cn("block min-w-0 truncate font-site-heading font-black text-site-ink", className)}>
       <span aria-hidden>◉ </span>
       {name}
     </span>
@@ -335,7 +335,7 @@ function ViewAllLink({ label, className }: { label: string; className?: string }
     <a
       href={`#${SECTION_ID.shop}`}
       className={cn(
-        "rounded-sm text-[15px] font-medium whitespace-nowrap text-site-accent underline underline-offset-4 hover:no-underline @5xl:text-[16px]",
+        "rounded-sm text-[15px] font-medium text-site-accent underline underline-offset-4 hover:no-underline @5xl:text-[16px]",
         FOCUS,
         className,
       )}

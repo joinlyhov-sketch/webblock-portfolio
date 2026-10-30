@@ -25,7 +25,7 @@ export function PublishingScreen() {
             </span>
             <span className="flex-1" />
             <span className="flex items-center gap-2.5 rounded-full bg-background py-1.5 pr-4 pl-1.5 shadow-hiw-pill">
-              <LogoMark className="size-[34px] rounded-[9px] p-[7px]" />
+              <LogoMark className="h-[34px]" />
               <span className="flex flex-col">
                 <span className="text-[13px] leading-[19.5px] font-semibold text-foreground">Petal &amp; Stem</span>
                 <span className="text-xs leading-[18px] text-muted-foreground">Home page</span>

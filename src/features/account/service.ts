@@ -18,7 +18,7 @@ import { formFile, imageToDataUrl } from "@/lib/files";
 import { AVATAR_RULE, checkImage } from "@/lib/image-rules";
 import { daysUntil } from "@/lib/format";
 import { parseTableQuery, type SearchParams } from "@/lib/table-query";
-import { createCollector, formText } from "@/lib/validation/fields";
+import { createCollector, FULL_NAME_MAX, formText } from "@/lib/validation/fields";
 import type {
   OrderStatus,
   PlanOrder,
@@ -136,7 +136,7 @@ export async function getBillingView(
 export async function saveProfile(userId: string, formData: FormData): Promise<ActionResult> {
   const fullName = formText(formData, "fullName");
   const c = createCollector();
-  c.text("fullName", fullName, "Full name", { min: 2, max: 60 });
+  c.text("fullName", fullName, "Full name", { min: 2, max: FULL_NAME_MAX });
   if (c.hasErrors) {
     return {
       ok: false,

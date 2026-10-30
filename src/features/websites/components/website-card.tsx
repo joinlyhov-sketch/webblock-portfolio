@@ -4,6 +4,7 @@ import { Edit2, Global } from "iconsax-reactjs";
 import { CategoryBadge } from "@/components/common/category-badge";
 import { StatusBadge } from "@/components/common/status-badge";
 import { Button } from "@/components/ui/button";
+import { liveSiteHref } from "@/config/site";
 import { formatRelativeTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { Website } from "../types";
@@ -97,9 +98,9 @@ export function WebsiteCard({ website, filtered = false }: { website: Website; f
               <>
                 {website.status === "LIVE" && website.domain ? (
                   <Button asChild variant="secondary" size="sm" className="flex-1">
-                    <a href={`https://${website.domain}`} target="_blank" rel="noopener noreferrer">
+                    <Link href={liveSiteHref(website.id)} target="_blank" rel="noopener noreferrer">
                       Visit site
-                    </a>
+                    </Link>
                   </Button>
                 ) : (
                   <Button asChild variant="secondary" size="sm" className="flex-1">

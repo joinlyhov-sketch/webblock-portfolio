@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { EMAIL_MAX } from "@/lib/validation/fields";
 import { parseForm, signInInput, type FieldErrors } from "../schemas";
 import { Field, FormFooter, OrDivider } from "./field";
 import { GoogleButton } from "./google-button";
@@ -44,6 +45,7 @@ export function SignInForm({ defaultEmail }: { defaultEmail?: string }) {
             size="lg"
             id="email"
             name="email"
+            maxLength={EMAIL_MAX}
             type="email"
             autoComplete="email"
             placeholder="you@example.com"

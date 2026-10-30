@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight } from "iconsax-reactjs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { EMAIL_MAX, FULL_NAME_MAX } from "@/lib/validation/fields";
 import { emailInput, parseForm, registerInput, type FieldErrors } from "../schemas";
 import { Field, FormFooter, OrDivider } from "./field";
 import { GoogleButton } from "./google-button";
@@ -44,6 +45,7 @@ export function EmailStepForm({ mode }: { mode: "register" | "forgot-password" }
               size="lg"
               id="fullName"
               name="fullName"
+              maxLength={FULL_NAME_MAX}
               autoComplete="name"
               placeholder="Your full name"
               aria-invalid={!!errors.fullName || undefined}
@@ -65,6 +67,7 @@ export function EmailStepForm({ mode }: { mode: "register" | "forgot-password" }
             size="lg"
             id="email"
             name="email"
+            maxLength={EMAIL_MAX}
             type="email"
             autoComplete="email"
             placeholder="you@example.com"

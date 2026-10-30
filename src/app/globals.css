@@ -37,11 +37,9 @@
   --color-canvas: #f4f7fc; /* editor/preview canvas behind the page */
   --color-canvas-dot: #c9d5ea; /* canvas dot grid */
   --color-brand-deep: #1f4fb5; /* Figma text-brand-deep: active nav, avatar initials */
-  --color-heading: #1f3c6e; /* hero headings, logo wordmark */
+  --color-heading: #1f3c6e; /* hero headings */
   --color-violet-border: #cfe0f8; /* trial card border, avatar gradient end */
   --color-trial-from: #e7effd; /* trial card gradient start */
-
-  /* Logo mark gradient (Figma "Logo · WebBlock icon") */
 
   /* Landing · decor (dot grid, diamonds) */
   --color-decor-dot: #b9cbea;
@@ -84,24 +82,9 @@
   --color-hiw-stage: #eaeff6; /* behind the choose-template dialog */
   --color-hiw-chip: #eaf0f9;
   --color-hiw-preview: #f1f5fc; /* template thumbnail well */
-  --color-hiw-sky-from: #dfe7fe; /* editor / deploy page gradient */
-  --color-hiw-sky-via: #eef2ff;
-  --color-hiw-sky-to: #f8f9fc;
-  --color-hiw-draft: #e6eefa;
-  --color-hiw-canvas: #f4f8ff;
-  --color-hiw-drag: #5b8fd9; /* dragged block outline, deploy dot fields */
-  --color-hiw-info: #eaf2fd;
-  --color-hiw-button-preview: #9dbdeb;
+  --color-hiw-drag: #5b8fd9; /* deploy dot fields */
   --color-hiw-diamond: #cfe0f8;
   --color-hiw-scrim: #0b1530;
-  /* The sample "Petal & Stem" site and its palettes */
-  --color-site-rose: #c2417a;
-  --color-site-bakery: #b4601e;
-  --color-site-bakery-light: #fbf5e8;
-  --color-site-bakery-dark: #4a2c12;
-  --color-site-sage: #3e6b45;
-  --color-site-sage-light: #eef1ea;
-  --color-site-sage-dark: #24331f;
   --shadow-hiw-panel: 0 2px 8px rgb(60 120 207 / 0.06), 0 28px 56px -18px rgb(60 120 207 / 0.12);
   --shadow-hiw-screen: 0 51px 128px -26px rgb(41 84 191 / 0.16);
   --shadow-hiw-step: 0 12px 30px -10px rgb(60 120 207 / 0.1);
@@ -611,6 +594,15 @@
   --site-space: 1;
 }
 
+/*
+ * Everything on a customer site is text the owner typed, and one long word (a pasted link,
+ * "aaaa…") must never push past its block at any device width. `anywhere` still wraps at spaces
+ * first; it only splits a word that can't fit, and it lets flex and grid items shrink to do so.
+ */
+[data-site-template] {
+  overflow-wrap: anywhere;
+}
+
 /* @site-templates:start — one block per template */
 [data-site-template="everyday-store"] {
   --site-bg: #ffffff;
@@ -788,6 +780,9 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
+    /* Long unbroken text (a pasted link, "aaaa…") wraps inside its box instead of pushing out of it.
+       `break-word` only splits a word that would overflow, so normal text is unaffected. */
+    overflow-wrap: break-word;
   }
 
   h1,

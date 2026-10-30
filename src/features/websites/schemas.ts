@@ -27,6 +27,10 @@ export const TIME_OPTIONS: string[] = Array.from({ length: 38 }, (_, i) => {
   return `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
 });
 
+/** Character limits, shared by the validators and the form inputs (`maxLength`). */
+export const BUSINESS_LIMITS = { businessName: 60, businessType: 60, description: 300, address: 150 };
+const LIMITS = BUSINESS_LIMITS;
+
 export type BusinessDetailsInput = {
   businessName: string;
   businessType: string;
@@ -42,9 +46,9 @@ export type BusinessContactInput = {
 
 export function validateBusinessDetails(input: BusinessDetailsInput): Validated<BusinessDetailsInput> {
   const c = createCollector();
-  c.text("businessName", input.businessName, "Business name", { min: 2, max: 60 });
-  c.text("businessType", input.businessType, "Business type");
-  c.text("description", input.description, "Description", { min: 10, max: 300 });
+  c.text("businessName", input.businessName, "Business name", { min: 2, max: LIMITS.businessName });
+  c.text("businessType", input.businessType, "Business type", { max: LIMITS.businessType });
+  c.text("description", input.description, "Description", { min: 10, max: LIMITS.description });
   return c.result(input);
 }
 
@@ -52,7 +56,7 @@ export function validateBusinessContact(input: BusinessContactInput): Validated<
   const c = createCollector();
   c.phone("phone", input.phone);
   c.email("email", input.email);
-  c.text("address", input.address, "Address", { max: 150 });
+  c.text("address", input.address, "Address", { max: LIMITS.address });
   if (!input.hours.some((h) => h.open)) c.add("hours", "Turn on at least one day you are open.");
   if (input.hours.some((h) => h.open && h.opensAt >= h.closesAt)) {
     c.add("hours", "Closing time must be later than opening time.");

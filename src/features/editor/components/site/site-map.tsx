@@ -29,16 +29,16 @@ export function SiteMap({
 
       <div
         className={cn(
-          "absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-3",
+          "absolute top-1/2 left-1/2 flex w-max max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 items-center gap-3",
           pin === "end" && "@5xl:left-[70%]",
         )}
       >
         <span aria-hidden className="relative flex size-11 shrink-0 items-center justify-center rounded-full bg-site-map-pin/20">
           <span className="size-4 rounded-full border-[3px] border-site-surface bg-site-map-pin shadow" />
         </span>
-        <span className="rounded-xl bg-site-surface px-3.5 py-2 font-site-body shadow-md">
-          <span className="block text-[13px] font-semibold whitespace-nowrap text-site-ink">{site.businessName}</span>
-          <span className="block text-[11px] whitespace-nowrap text-site-muted">{site.address}</span>
+        <span className="min-w-0 rounded-xl bg-site-surface px-3.5 py-2 font-site-body shadow-md">
+          <span className="block truncate text-[13px] font-semibold text-site-ink">{site.businessName}</span>
+          <span className="block truncate text-[11px] text-site-muted">{site.address}</span>
         </span>
       </div>
 
