@@ -184,8 +184,8 @@ const JOINT = {
 } satisfies Record<StepStatus, string>;
 
 /**
- * Line between two step cards. Its hollow end dots sit on the cards' edges (negative margins pull
- * them over the gap, and over the group padding and borders when `between="groups"`). Solid green
+ * Line between two step cards. Its hollow end dots are centred on the cards' border lines (negative
+ * margins pull them over the gap, and over the group padding and borders when `between="groups"`). Solid green
  * once the step before is done (green → blue into a running step), otherwise a dotted grey line.
  */
 function Connector({
@@ -206,10 +206,12 @@ function Connector({
       className={cn(
         "relative z-10 flex shrink-0 items-center self-center",
         between === "groups"
-          ? // 10px gap + 2 × (16px padding + 1px border + 5px half dot); the card sits 6px below the group's middle.
-            "-mx-[27px] w-[64px] translate-y-1.5"
-          : // 40px gap + 2 × 5px half dot.
-            "-mx-[5px] w-[50px]",
+          ? // 10px gap between the groups; each dot is centred on the card's border line, which is
+            // 17px (16px padding + 1px group border) inside the group, so 17.5 − 0.5 + 5px half dot = 22.5px
+            // to pull in on each side. The card sits 6px below the group's middle.
+            "-mx-[22.5px] w-[55px] translate-y-1.5"
+          : // 40px gap between cards; each dot is centred on the card's 1px border (5px half dot + 0.5px).
+            "-mx-[5.5px] w-[51px]",
       )}
     >
       <span className={cn(joint, from ? JOINT[from.status] : JOINT.NOT_STARTED)} />

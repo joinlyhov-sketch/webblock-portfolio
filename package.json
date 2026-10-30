@@ -7,6 +7,7 @@
     "node": ">=24.22.1 <25"
   },
   "scripts": {
+    "preinstall": "node -e \"if(!/^pnpm\\//.test(process.env.npm_config_user_agent||'')){console.error('This project uses pnpm. Run: pnpm install');process.exit(1)}\"",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

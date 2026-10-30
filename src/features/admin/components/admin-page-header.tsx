@@ -31,7 +31,6 @@ export async function AdminPageHeader({
     <PageHeader
       title={title}
       description={description}
-      compact
       actions={
         <>
           {children}

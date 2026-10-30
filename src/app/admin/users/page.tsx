@@ -1,5 +1,7 @@
 import {
   getUser,
+  getWebsite,
+  listDeploys,
   getUserStats,
   listUsers,
   listWebsites,
@@ -23,8 +25,9 @@ export default async function AdminUsersPage({
   await requireAdmin();
   const query = await searchParams;
   const userId = param(query.user);
+  const websiteId = userId ? param(query.website) : undefined;
 
-  const [users, stats, detail] = await Promise.all([
+  const [users, stats, detail, websiteDetail] = await Promise.all([
     listUsers(
       { q: param(query.q), plan: PLANS.find((p) => p === query.plan) },
       parseTableQuery(query, {
@@ -39,6 +42,12 @@ export default async function AdminUsersPage({
           listWebsites({ ownerId: userId }, { page: 0, size: 20 }),
         ]).then(([user, websites]) => ({ user, websites }))
       : null,
+    websiteId
+      ? Promise.all([
+          getWebsite(websiteId),
+          listDeploys({ websiteId }, { page: 0, size: 3 }),
+        ]).then(([website, deploys]) => ({ website, deploys }))
+      : null,
   ]);
 
   return (
@@ -47,6 +56,7 @@ export default async function AdminUsersPage({
       stats={stats}
       searchParams={query}
       detail={detail}
+      websiteDetail={websiteDetail}
     />
   );
 }

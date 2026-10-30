@@ -30,7 +30,7 @@ export function AdminSidebar({ user }: { user: SidebarUser }) {
           <Avatar variant="solid" name={user.fullName} src={user.avatarUrl} />
           {!collapsed && (
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[13px] font-semibold text-foreground">
+              <p className="truncate text-[13px] leading-[19.5px] font-semibold text-foreground">
                 {user.fullName}
               </p>
               <p className="truncate text-xs text-muted-foreground">
@@ -42,7 +42,7 @@ export function AdminSidebar({ user }: { user: SidebarUser }) {
         </div>
       }
     >
-      <SidebarNav items={adminNav} compact collapsed={collapsed} />
+      <SidebarNav items={adminNav} collapsed={collapsed} />
     </SidebarShell>
   );
 }

@@ -15,10 +15,10 @@ import { Callout } from "@/components/common/callout";
 import { DetailList } from "@/components/common/card";
 import { DataTable } from "@/components/common/data-table";
 import { EmptyState } from "@/components/common/empty-state";
-import { Modal } from "@/components/common/modal";
 import { FilterMenu } from "@/components/common/filter-menu";
+import { Modal } from "@/components/common/modal";
 import { planLabel } from "@/components/common/plan-badge";
-import { RowsInput } from "@/components/common/rows-input";
+import { RowsSelect } from "@/components/common/rows-select";
 import { SegmentedTabs } from "@/components/common/segmented-tabs";
 import { StatusBadge } from "@/components/common/status-badge";
 import { TableSearch } from "@/components/common/table-search";
@@ -26,7 +26,7 @@ import { Button } from "@/components/ui/button";
 import type { Page } from "@/lib/api/types";
 import {
   formatDate,
-  formatDayMonth,
+  formatDayMonthYear,
   formatDuration,
   formatRelative,
 } from "@/lib/format";
@@ -35,22 +35,22 @@ import type { AdminWebsite, Deploy, PlanCode, SiteStatus } from "../types";
 import { AdminPageHeader } from "./admin-page-header";
 import { DetailHero, DetailSection, HeroChip } from "./detail-hero";
 import { WebsiteDetailActions, WebsiteRowMenu } from "./website-actions";
-
 const OFFLINE_REASON = {
   ONLINE: { reason: "None", hint: "site is reachable" },
   NOT_DEPLOYED: { reason: "Not deployed", hint: "no release yet" },
   OFFLINE_BILLING: { reason: "Plan expired", hint: "renew to go back online" },
   SUSPENDED: { reason: "Suspended", hint: "by an admin" },
 } satisfies Record<SiteStatus, { reason: string; hint: string }>;
-
 const PLANS: PlanCode[] = ["FREE_TRIAL", "PLUS", "PRO", "ULTRA"];
-
 export function WebsitesView({
   websites,
+  releaseCounts,
   searchParams,
   detail,
 }: {
   websites: Page<AdminWebsite>;
+  /** Websites per release tab, under the current search, plan and owner filters. */
+  releaseCounts: { all: number; live: number; failed: number };
   searchParams: SearchParams;
   /** The website opened with `?website=<id>`, with its recent deploys. */
   detail: { website: AdminWebsite; deploys: Page<Deploy> } | null;
@@ -64,20 +64,17 @@ export function WebsitesView({
   const plan =
     typeof searchParams.plan === "string" ? searchParams.plan : undefined;
   const filtered = Boolean(q || release || plan || owner);
-
   return (
     <>
       <AdminPageHeader
         title="User Websites"
         description="Search websites, check deploy results and redeploy when needed."
       />
-
       <DataTable
         fill
         rowClassName="relative cursor-pointer"
         label="User websites"
         minWidth="min-w-[1000px]"
-        compact
         itemLabel="websites"
         data={websites}
         searchParams={searchParams}
@@ -115,17 +112,19 @@ export function WebsitesView({
                 />
               </Link>
             )}
-            <SegmentedTabs variant="filled"
+            <SegmentedTabs
               size="sm"
               className="mb-0 ml-auto"
               tabs={[
                 {
                   label: "All",
+                  count: releaseCounts.all,
                   href: tableHref(searchParams, { release: null, page: null }),
                   active: !release,
                 },
                 {
                   label: "Live",
+                  count: releaseCounts.live,
                   href: tableHref(searchParams, {
                     release: "LIVE",
                     page: null,
@@ -134,6 +133,7 @@ export function WebsitesView({
                 },
                 {
                   label: "Failed",
+                  count: releaseCounts.failed,
                   href: tableHref(searchParams, {
                     release: "FAILED",
                     page: null,
@@ -142,19 +142,15 @@ export function WebsitesView({
                 },
               ]}
             />
-            {/* key: reset the box when the URL size changes (e.g. back button). */}
-            <RowsInput
-              key={websites.size}
-              searchParams={searchParams}
-              size={websites.size}
-            />
+            <RowsSelect value={websites.size} className="h-8" />
           </>
         }
         empty={
           filtered ? (
-            <EmptyState variant="box"
+            <EmptyState
               icon={<SearchNormal1 />}
-              title="No websites match these filters"
+              title="No websites found"
+              description="Nothing matches this filter. Try another status or clear your search."
               action={
                 <Button asChild variant="soft" size="sm">
                   <Link href="/admin/websites">Show all websites</Link>
@@ -162,7 +158,7 @@ export function WebsitesView({
               }
             />
           ) : (
-            <EmptyState variant="box"
+            <EmptyState
               icon={<Global />}
               title="No websites yet"
               description="Websites show here once owners create them."
@@ -186,7 +182,7 @@ export function WebsitesView({
                   <span className="block max-w-[260px] truncate font-semibold text-foreground group-hover:text-primary">
                     {w.name}
                   </span>
-                  <span className="block max-w-[260px] truncate text-xs text-muted-foreground">
+                  <span className="block max-w-[260px] truncate text-[13px] text-muted-foreground">
                     {w.domain}
                   </span>
                 </span>
@@ -238,7 +234,6 @@ export function WebsitesView({
           },
         ]}
       />
-
       {detail && (
         <WebsiteDetail
           website={detail.website}
@@ -249,7 +244,6 @@ export function WebsitesView({
     </>
   );
 }
-
 function deployCallout(latest: Deploy | undefined) {
   if (!latest) {
     return (
@@ -295,8 +289,8 @@ function deployCallout(latest: Deploy | undefined) {
       );
   }
 }
-
-function WebsiteDetail({
+/** Website popup. Also used on User Accounts, so an owner's website opens without leaving that page. */
+export function WebsiteDetail({
   website,
   deploys,
   closeHref,
@@ -308,7 +302,6 @@ function WebsiteDetail({
   const latest = deploys.items[0];
   const liveDeploy = deploys.items.find((d) => d.status === "LIVE");
   const offline = OFFLINE_REASON[website.siteStatus];
-
   return (
     <Modal
       title={website.name}
@@ -354,16 +347,14 @@ function WebsiteDetail({
             </HeroChip>
             {latest && (
               <HeroChip icon={<Calendar1 />}>
-                Deploy #{latest.number} · {formatDayMonth(latest.startedAt)}
+                Deploy #{latest.number} · {formatDayMonthYear(latest.startedAt)}
               </HeroChip>
             )}
           </>
         }
       />
-
       <div className="space-y-5 px-6 py-5">
         {deployCallout(latest)}
-
         <DetailSection title="Recent deploys">
           {deploys.items.length ? (
             <ul className="divide-y divide-border rounded-2xl border border-border text-sm">
@@ -374,7 +365,7 @@ function WebsiteDetail({
                 >
                   <span className="font-semibold text-brand">#{d.number}</span>
                   <span className="text-foreground-soft">
-                    {formatDayMonth(d.startedAt)}
+                    {formatDayMonthYear(d.startedAt)}
                   </span>
                   <span>
                     <StatusBadge status={d.status} />
@@ -393,7 +384,6 @@ function WebsiteDetail({
             </p>
           )}
         </DetailSection>
-
         <DetailSection title="Site details">
           <DetailList
             className="[&>div]:px-5 [&>div]:py-3"
@@ -416,7 +406,7 @@ function WebsiteDetail({
                 label: "Plan",
                 value:
                   website.plan === "FREE_TRIAL"
-                    ? `Free trial · ends ${formatDayMonth(website.planEndsAt)}`
+                    ? `Free trial · ends ${formatDayMonthYear(website.planEndsAt)}`
                     : `${planLabel(website.plan)} · monthly`,
               },
               {
@@ -430,7 +420,6 @@ function WebsiteDetail({
             ]}
           />
         </DetailSection>
-
         <DetailSection title="Hosting & routing">
           <dl className="grid grid-cols-2 divide-border rounded-2xl border border-border sm:grid-cols-4 sm:divide-x">
             <HostingTile
@@ -473,7 +462,6 @@ function WebsiteDetail({
     </Modal>
   );
 }
-
 function HostingTile({
   label,
   value,
@@ -484,9 +472,9 @@ function HostingTile({
   hint?: string;
 }) {
   return (
-    <div className="space-y-1.5 px-4 py-3">
+    <div className="min-w-0 space-y-1.5 px-3.5 py-3">
       <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className="text-[13px] font-semibold text-foreground">{value}</dd>
+      <dd className="text-sm font-semibold break-words text-foreground">{value}</dd>
       {hint && <dd className="text-[11px] text-placeholder">{hint}</dd>}
     </div>
   );

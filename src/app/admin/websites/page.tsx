@@ -26,17 +26,26 @@ export default async function AdminWebsitesPage({
   const release = RELEASES.find((r) => r === query.release);
   const websiteId = param(query.website);
 
-  const [websites, detail] = await Promise.all([
+  // The tabs' numbers follow the search, plan and owner filters, but not the tab itself.
+  const base = {
+    q: param(query.q),
+    plan: PLANS.find((p) => p === query.plan),
+    ownerId: param(query.owner),
+  };
+  const count = (r?: ReleaseStatus) =>
+    listWebsites({ ...base, release: r }, { page: 0, size: 1 }).then(
+      (page) => page.totalItems,
+    );
+
+  const [websites, releaseCounts, detail] = await Promise.all([
     listWebsites(
-      {
-        q: param(query.q),
-        release,
-        plan: PLANS.find((p) => p === query.plan),
-        ownerId: param(query.owner),
-      },
+      { ...base, release },
       parseTableQuery(query, {
         sort: { field: "lastDeployAt", direction: "desc" },
       }),
+    ),
+    Promise.all([count(), count("LIVE"), count("FAILED")]).then(
+      ([all, live, failed]) => ({ all, live, failed }),
     ),
     websiteId
       ? Promise.all([
@@ -47,6 +56,11 @@ export default async function AdminWebsitesPage({
   ]);
 
   return (
-    <WebsitesView websites={websites} searchParams={query} detail={detail} />
+    <WebsitesView
+      websites={websites}
+      releaseCounts={releaseCounts}
+      searchParams={query}
+      detail={detail}
+    />
   );
 }

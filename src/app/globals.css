@@ -208,10 +208,6 @@
 
   /* Admin portal: chart segments, info state, plan tones */
   --color-danger-muted: #eba3a3; /* chart segment next to danger */
-  --color-chart-red: #d4736b;
-  --color-chart-pink: #ebaaa6;
-  --color-chart-yellow: #e9c45e;
-  --color-chart-blue: #7fa6e6;
   --color-info: #3c78cf; /* in-progress states: deploying, updating */
   --color-info-soft: #e3eefc;
   --color-neutral-soft: #eef2f7; /* not deployed, free trial */
@@ -534,6 +530,15 @@
 }
 
 /* Font variables are set by next/font on <html> in the root layout. */
+/* `static`: always written to :root. Charts read these as var(--color-<name>) built at runtime, which
+   Tailwind can't see, so a plain @theme would drop them and the chart would paint black. */
+@theme static {
+  --color-chart-red: #d4736b;
+  --color-chart-pink: #ebaaa6;
+  --color-chart-yellow: #e9c45e;
+  --color-chart-blue: #7fa6e6;
+}
+
 @theme inline {
   --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-familjen-grotesk), ui-sans-serif, system-ui, sans-serif;

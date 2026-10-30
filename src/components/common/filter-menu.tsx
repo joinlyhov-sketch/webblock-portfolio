@@ -28,15 +28,18 @@ export type FilterOption = {
 export function FilterMenu({
   label,
   options,
+  className,
 }: {
   label: string;
   options: FilterOption[];
+  /** Extra classes for the button (e.g. `h-11` to match a taller toolbar). */
+  className?: string;
 }) {
   const current = options.find((o) => o.active)?.label ?? "All";
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
-        <Button variant="secondary" size="sm" className="font-medium">
+        <Button variant="secondary" size="sm" className={cn("font-medium", className)}>
           <ArrowDown2 aria-hidden />
           {label}: {current}
         </Button>
