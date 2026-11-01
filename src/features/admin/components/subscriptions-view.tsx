@@ -179,6 +179,7 @@ export function SubscriptionsView({
           {
             key: "user",
             header: "User · project",
+            className: "w-[28%]",
             sortField: "userName",
             cell: (s) => (
               // Stretched link: the whole row opens the popup.

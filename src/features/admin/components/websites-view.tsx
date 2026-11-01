@@ -169,6 +169,7 @@ export function WebsitesView({
           {
             key: "website",
             header: "Website",
+            className: "w-[26%]",
             sortField: "name",
             cell: (w) => (
               // Stretched link: the whole row opens the popup.

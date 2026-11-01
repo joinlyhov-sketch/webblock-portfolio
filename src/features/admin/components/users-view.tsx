@@ -180,6 +180,7 @@ export function UsersView({
           {
             key: "account",
             header: "Account",
+            className: "w-[28%]",
             sortField: "fullName",
             cell: (u) => (
               // Stretched link: the whole row opens the popup.

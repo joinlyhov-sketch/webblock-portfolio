@@ -99,6 +99,7 @@ export function PipelineView({
           {
             key: "website",
             header: "Website",
+            className: "w-[22%]",
             sortField: "websiteName",
             cell: (r) => (
               // Stretched link: the whole row opens the publish flow.
