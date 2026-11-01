@@ -16,6 +16,7 @@ import { announceProfile } from "@/hooks/use-profile-updates";
 import { AVATAR_RULE } from "@/lib/image-rules";
 import { FULL_NAME_MAX } from "@/lib/validation/fields";
 import type { Profile } from "../types";
+import { PLAN_TONE, TONE_STYLE } from "./plan-tone";
 import { Field, SETTINGS_FIELD, SettingsCard } from "./settings-card";
 
 /** Profile card: photo, member dates and the editable full name. `memberSince` / `lastSignIn` are preformatted. */
@@ -39,6 +40,7 @@ export function ProfileCard({
   const saved = state?.ok ? state.data : null;
   const fullName = saved?.fullName ?? profile.fullName;
   const initials = saved?.initials ?? profile.initials;
+  const planStyle = TONE_STYLE[PLAN_TONE[profile.plan]];
 
   // Tell the sidebar (a different part of the page) about the new name or photo.
   useEffect(() => {
@@ -104,8 +106,17 @@ export function ProfileCard({
             <div className="flex min-w-0 flex-1 flex-col gap-1.5">
               <div className="flex items-center gap-2">
                 <p className="truncate font-heading text-lg font-semibold">{fullName}</p>
-                <span className="inline-flex h-[22px] items-center rounded-md bg-badge-soft px-2 text-[11px] font-semibold tracking-[0.66px] whitespace-nowrap text-brand uppercase">
-                  {planLabel}
+                {/* Same colours as the plan card: blue for Free trial and Plus, gold for Pro, violet for Ultra. */}
+                <span
+                  className={`relative inline-flex h-[22px] items-center overflow-hidden rounded-md px-2 text-[11px] font-semibold tracking-[0.66px] whitespace-nowrap text-primary-foreground uppercase ${planStyle.badge}`}
+                >
+                  {PLAN_TONE[profile.plan] !== "brand" && (
+                    <span
+                      aria-hidden
+                      className="absolute inset-0 bg-linear-[115deg] from-transparent from-50% via-primary-foreground/35 via-62% to-transparent to-75%"
+                    />
+                  )}
+                  <span className="relative">{planLabel}</span>
                 </span>
               </div>
               <div aria-hidden className="h-[17px]" />

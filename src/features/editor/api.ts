@@ -3,6 +3,7 @@ import { ApiError } from "@/lib/api/errors";
 import { delay } from "@/lib/api/delay";
 import type { Page } from "@/lib/api/types";
 import { toPage } from "@/lib/table-query";
+import { touchWebsite } from "@/features/websites/api";
 import { mediaAssets, uploadedMedia, websitePages } from "@/mocks/website-pages";
 import type { AiMessage, MediaAsset, PageData, PageVersion, WebsitePage } from "./types";
 
@@ -56,6 +57,7 @@ export async function savePageData(websiteId: string, data: PageData): Promise<W
   const now = new Date().toISOString();
   page.draft = structuredClone(data);
   page.updatedAt = now;
+  touchWebsite(websiteId, now);
   return structuredClone(page);
 }
 

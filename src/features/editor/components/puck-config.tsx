@@ -258,15 +258,20 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
             "sweet-pastel",
             "warm-bold",
             "clean-mono",
+            "jackets",
+            "keyboards",
           ],
         }),
         sideImages: {
           type: "array",
           label: "Side photos",
-          arrayFields: { imageUrl: imageField("Photo") },
+          arrayFields: {
+            imageUrl: imageField("Photo"),
+            label: text("Label", { optional: true }) as unknown as Field<string | undefined>,
+          },
           defaultItemProps: { imageUrl: null },
-          max: 2,
-          ...meta({ group: "Image", templates: ["sweet-pastel"] }),
+          max: 4,
+          ...meta({ group: "Image", templates: ["sweet-pastel", "jackets", "iced-coffee"] }),
         },
         highlights: {
           type: "array",
@@ -277,13 +282,13 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
           max: 3,
           ...meta({
             group: "Extras",
-            templates: ["sweet-pastel", "warm-bold", "clean-mono"],
+            templates: ["sweet-pastel", "warm-bold", "clean-mono", "jackets", "iced-coffee"],
           }),
         },
         badge: text("Badge", {
           group: "Extras",
           optional: true,
-          templates: ["warm-bold", "clean-mono"],
+          templates: ["warm-bold", "clean-mono", "jackets", "iced-coffee"],
         }),
         ...layoutFields,
       },
@@ -315,6 +320,8 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
         ),
         heading: textarea("Heading", { maxLength: 80 }),
         body: textarea("Paragraph"),
+        // Optional on older pages, so Puck sees `string | null | undefined`.
+        imageUrl: imageField("Image", { templates: ["keyboards"] }) as unknown as Field<string | null | undefined>,
         ...layoutFields,
       },
       defaultProps: {
@@ -407,7 +414,7 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
         body: textarea("Your story"),
         caption: text("Caption", {
           optional: true,
-          templates: ["warm-bold", "clean-mono"],
+          templates: ["warm-bold", "clean-mono", "jackets", "keyboards", "iced-coffee"],
         }),
         stats: {
           type: "array",
@@ -423,6 +430,7 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
           }),
         },
         imageUrl: imageField("Image"),
+        secondImageUrl: imageField("Second image", { templates: ["keyboards"] }) as unknown as Field<string | null | undefined>,
         ...layoutFields,
       },
       defaultProps: {

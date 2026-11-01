@@ -21,7 +21,7 @@ export const billingPlans: BillingPlan[] = [
     popular: false,
     features: [
       { icon: "globe", text: "1 website" },
-      { icon: "rocket", text: "5 redeploys a month" },
+      { icon: "rocket", text: "3 redeploys a month" },
       { icon: "box", text: "Up to 30 products" },
       { icon: "pulse", text: "Basic status monitoring" },
     ],

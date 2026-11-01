@@ -2,11 +2,13 @@
 // The backend owns the deploy pipeline (steps, retries, SSL, going live). The frontend starts a deploy and
 // then only reads its status; it never decides that a step finished.
 import { getDeployAccess, recordDeploy } from "@/features/account/api";
-import { publishPage } from "@/features/editor/api";
+import { getPageData, publishPage } from "@/features/editor/api";
+import { recordDeployResult } from "@/features/monitoring/api";
 import { isDomainTaken, markWebsiteLive } from "@/features/websites/api";
 import { ApiError } from "@/lib/api/errors";
 import { delay } from "@/lib/api/delay";
-import { websiteOwners } from "@/mocks/session";
+import { initials } from "@/lib/format";
+import { websiteOwners, sessionUsers } from "@/mocks/session";
 import { DOMAIN_SUFFIX, subdomainSchema } from "./schemas";
 import type {
   DeployStepKey,
@@ -118,6 +120,13 @@ function stepsAt(elapsed: number, failAtStep: number | null): DeploymentStep[] {
   });
 }
 
+/** Who pressed Deploy: the website's owner (MOCK ONLY, Spring knows the signed-in user). */
+function starter(websiteId: string): { fullName: string; initials: string } {
+  const user = sessionUsers.find((u) => u.id === ownerOf(websiteId));
+  const fullName = user?.fullName ?? "Owner";
+  return { fullName, initials: initials(fullName) };
+}
+
 /** Moves a deployment forward by the clock, like the real pipeline would have by now. */
 async function settle(entry: StoredDeployment): Promise<void> {
   const { deployment } = entry;
@@ -140,6 +149,17 @@ async function settle(entry: StoredDeployment): Promise<void> {
     deployment.percent = Math.round((failTime / TOTAL_MS) * 100);
     deployment.secondsLeft = null;
     deployment.finishedAt = new Date().toISOString();
+    if (!entry.settled) {
+      entry.settled = true;
+      recordDeployResult(deployment.websiteId, {
+        status: "FAILED",
+        startedBy: starter(deployment.websiteId),
+        startedAt: deployment.startedAt,
+        finishedAt: deployment.finishedAt,
+        durationSeconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000)),
+        errorMessage: "The deploy stopped before the website went live. Try again.",
+      });
+    }
     return;
   }
 
@@ -160,7 +180,33 @@ async function settle(entry: StoredDeployment): Promise<void> {
     await recordDeploy(ownerOf(deployment.websiteId), deployment.websiteId);
     await publishPage(deployment.websiteId, entry.idempotencyKey);
     await markWebsiteLive(deployment.websiteId, deployment.domain);
+    recordDeployResult(deployment.websiteId, {
+      status: "SUCCEEDED",
+      startedBy: starter(deployment.websiteId),
+      startedAt: deployment.startedAt,
+      finishedAt: deployment.finishedAt ?? new Date().toISOString(),
+      durationSeconds: Math.round(TOTAL_MS / 1000),
+      errorMessage: null,
+    });
   }
+}
+
+/** Same value whatever the order its object keys were written in. */
+function stable(value: unknown): string {
+  return JSON.stringify(value, (_key, v: unknown) =>
+    v && typeof v === "object" && !Array.isArray(v)
+      ? Object.fromEntries(Object.entries(v).sort(([a], [b]) => a.localeCompare(b)))
+      : v,
+  );
+}
+
+/**
+ * Does the saved draft differ from what visitors see? A website that was never deployed always has
+ * something to deploy. Spring answers this inside the deployments endpoint (409 when nothing changed).
+ */
+export async function hasUndeployedChanges(websiteId: string): Promise<boolean> {
+  const page = await getPageData(websiteId);
+  return !page.published || stable(page.draft) !== stable(page.published);
 }
 
 /**

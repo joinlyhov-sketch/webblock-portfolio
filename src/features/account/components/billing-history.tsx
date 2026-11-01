@@ -189,12 +189,14 @@ export function BillingHistory({
             className: "w-[200px] pr-4 pl-0 text-right",
             cell: (order) =>
               order.status === "PAID" ? (
-                <button
-                  type="button"
+                <a
+                  href={`/api/receipts/${order.id}`}
+                  download
+                  aria-label={`Download receipt for ${order.planName}, ${formatDayMonthYear(order.createdAt)}`}
                   className="inline-flex items-center gap-1.5 rounded-full text-sm font-medium text-primary outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/40"
                 >
                   <DocumentDownload aria-hidden className="size-3.5" /> Receipt
-                </button>
+                </a>
               ) : (
                 <span className="text-sm text-placeholder">QR code expired</span>
               ),

@@ -48,8 +48,8 @@ export function StartDeploy({
         <span className="flex size-12 items-center justify-center rounded-full bg-danger-soft text-danger [&_svg]:size-6">
           <Danger aria-hidden />
         </span>
-        <h1 className="font-heading text-[30px] leading-[38px] font-semibold text-foreground">Couldn’t start the deploy</h1>
-        <p className="max-w-[460px] text-base text-muted-foreground">{error}</p>
+        <h1 className="font-heading text-[30px] leading-[34.5px] font-semibold tracking-[-0.6px] text-foreground">Couldn’t start the deploy</h1>
+        <p className="max-w-[460px] text-[15px] leading-[22.5px] text-muted-foreground">{error}</p>
         <div className="flex gap-2.5 pt-2">
           <Button
             onClick={() => {
@@ -79,8 +79,8 @@ export function StartDeploy({
           <LogoMark className="h-8" />
         </span>
       </span>
-      <h1 className="font-heading text-[30px] leading-[38px] font-semibold text-primary">Starting your deploy…</h1>
-      <p className="text-base text-muted-foreground">Payment confirmed. Your website is being generated and published.</p>
+      <h1 className="font-heading text-[30px] leading-[34.5px] font-semibold tracking-[-0.6px] text-primary">Starting your deploy…</h1>
+      <p className="text-[15px] leading-[22.5px] text-muted-foreground">Payment confirmed. Your website is being generated and published.</p>
     </div>
   );
 }

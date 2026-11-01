@@ -83,8 +83,8 @@ function published(page: WebsitePage, publishedAt: string): WebsitePage {
 export const websitePages: WebsitePage[] = (store.__wbWebsitePages ??= [
   published(named(newWebsitePage(PETAL_AND_STEM_ID, "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c01", hoursAgo(2)), "Petal & Stem"), hoursAgo(2)),
   named(newWebsitePage(MAPLE_AND_RYE_ID, "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c02", hoursAgo(26)), "Maple & Rye Bakery"),
-  named(newWebsitePage(LANTERN_CAFE_ID, "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c03", daysAgo(5)), "Lantern Café"),
-  published(named(newWebsitePage(NORTHPOINT_AUDIO_ID, "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c04", hoursAgo(3)), "Northpoint Audio"), daysAgo(10)),
+  named(newWebsitePage(LANTERN_CAFE_ID, "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c03", daysAgo(4)), "Lantern Café"),
+  published(named(newWebsitePage(NORTHPOINT_AUDIO_ID, "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c04", hoursAgo(3)), "Northpoint Audio"), daysAgo(4)),
 ]);
 
 /** The owner's image library (every template photo, standing in for their uploads): names the image in each image field. */

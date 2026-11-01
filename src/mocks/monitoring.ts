@@ -1,8 +1,11 @@
-import type { ActivityEvent, Deploy, DeployStatus, PlanUsage, SiteStatus } from "@/features/monitoring/types";
+import type { ActivityEvent, Deploy, DeployStatus, SiteStatus } from "@/features/monitoring/types";
 import { NORTHPOINT_AUDIO_ID, PETAL_AND_STEM_ID } from "./session";
-import { daysAgo, daysFromNow, hoursAgo } from "./time";
+import { daysAgo, hoursAgo } from "./time";
 
 const HOUR = 3_600_000;
+
+// Kept on globalThis (like the websites) so a deploy made while the dev server runs survives hot reload.
+const globalForMonitoring = globalThis as typeof globalThis & { __wbDeploys?: Deploy[]; __wbSiteStatus?: SiteStatus[] };
 
 const maya = { fullName: "Maya Sok", initials: "MS" };
 const sovannarith = { fullName: "Sovannarith Soeun", initials: "SV" };
@@ -26,58 +29,22 @@ function toDeploys(websiteId: string, prefix: string, seeds: DeploySeed[]): Depl
   });
 }
 
-/** Oldest first. Petal & Stem: 10 deploys, 2 failed (the Figma "Monitor" numbers). */
-export const deploys: Deploy[] = [
+/**
+ * Oldest first. The owner's free trial started 5 days ago, so every deploy is newer than that:
+ * Petal & Stem failed once (missing email), then went live; Northpoint Audio went live, then was suspended.
+ */
+export const deploys: Deploy[] = (globalForMonitoring.__wbDeploys ??= [
   ...toDeploys(PETAL_AND_STEM_ID, "d3a1e5c2-7b4f-4e8a-9c01", [
-    [38, "SUCCEEDED", 112],
-    [33, "SUCCEEDED", 97],
-    [27, "FAILED", 64, "Image “hero-banner.png” is over 10 MB"],
-    [22, "SUCCEEDED", 104],
-    [19, "FAILED", 58, "Business email is missing"],
-    [16, "SUCCEEDED", 112],
-    [9, "SUCCEEDED", 104],
-    [6, "FAILED", 69, "Image “spring-tulips.jpg” is over 10 MB"],
-    [5, "SUCCEEDED", 98],
-    [2, "SUCCEEDED", 101],
+    [4, "FAILED", 64, "Business email is missing"],
+    [0.08, "SUCCEEDED", 101],
   ]),
-  ...toDeploys(NORTHPOINT_AUDIO_ID, "e4b2f6d3-8c5a-4f9b-8d02", [
-    [61, "SUCCEEDED", 121],
-    [44, "SUCCEEDED", 95],
-    [30, "FAILED", 41, "The build timed out. Try again in a few minutes."],
-    [29, "SUCCEEDED", 99],
-  ]),
-];
+  ...toDeploys(NORTHPOINT_AUDIO_ID, "e4b2f6d3-8c5a-4f9b-8d02", [[4, "SUCCEEDED", 121]]),
+]);
 
-export const siteStatus: SiteStatus[] = [
+export const siteStatus: SiteStatus[] = (globalForMonitoring.__wbSiteStatus ??= [
   { websiteId: PETAL_AND_STEM_ID, online: true, uptimePercent: "99.98", checkedAt: hoursAgo(0.05) },
   { websiteId: NORTHPOINT_AUDIO_ID, online: false, uptimePercent: "86.40", checkedAt: hoursAgo(0.05) },
-];
-
-/** Plan limits per website. "products" usage is counted live from the products store. */
-export const planUsage: (PlanUsage & { websiteId: string })[] = [
-  {
-    websiteId: PETAL_AND_STEM_ID,
-    plan: "PLUS",
-    planName: "Plus",
-    resetsAt: daysFromNow(5),
-    metrics: [
-      { key: "products", label: "Products", cardLabel: "Products", used: 0, limit: 30 },
-      { key: "redeploys", label: "Redeploys", cardLabel: "Redeploys this month", used: 5, limit: 5 },
-      { key: "websites", label: "Websites", cardLabel: "Websites", used: 1, limit: 1 },
-    ],
-  },
-  {
-    websiteId: NORTHPOINT_AUDIO_ID,
-    plan: "PRO",
-    planName: "Pro",
-    resetsAt: daysFromNow(5),
-    metrics: [
-      { key: "products", label: "Products", cardLabel: "Products", used: 0, limit: 200 },
-      { key: "redeploys", label: "Redeploys", cardLabel: "Redeploys this month", used: 5, limit: 30 },
-      { key: "websites", label: "Websites", cardLabel: "Websites", used: 1, limit: 3 },
-    ],
-  },
-];
+]);
 
 let n = 0;
 const event = (
@@ -92,13 +59,9 @@ const event = (
   return { id: `f5c3a7e4-9d6b-4a0c-8e03-${String(n).padStart(12, "0")}`, websiteId, type, outcome, title, detail, occurredAt };
 };
 
-/** Newest first. Only Pro and Ultra websites have an activity log. */
+/** Newest first. Shown only on Pro and Ultra plans (the owner is on the free trial, so it stays hidden for now). */
 export const activity: ActivityEvent[] = [
-  event(NORTHPOINT_AUDIO_ID, "DEPLOY", "SUCCEEDED", "Deploy 4 succeeded", daysAgo(29)),
-  event(NORTHPOINT_AUDIO_ID, "PRODUCT", "CHANGED", "Product “Studio monitor pair” added", daysAgo(29.2)),
-  event(NORTHPOINT_AUDIO_ID, "DEPLOY", "FAILED", "Deploy 3 failed", daysAgo(30), "The build timed out. Try again in a few minutes."),
-  event(NORTHPOINT_AUDIO_ID, "BUSINESS_INFO", "CHANGED", "Opening hours updated", daysAgo(31)),
-  event(NORTHPOINT_AUDIO_ID, "DEPLOY", "SUCCEEDED", "Deploy 2 succeeded", daysAgo(44)),
-  event(NORTHPOINT_AUDIO_ID, "PRODUCT", "CHANGED", "Product “Wireless headphones” price changed", daysAgo(45)),
-  event(NORTHPOINT_AUDIO_ID, "DEPLOY", "SUCCEEDED", "Deploy 1 succeeded", daysAgo(61)),
+  event(NORTHPOINT_AUDIO_ID, "DEPLOY", "SUCCEEDED", "Deploy 1 succeeded", daysAgo(4)),
+  event(NORTHPOINT_AUDIO_ID, "BUSINESS_INFO", "CHANGED", "Opening hours updated", daysAgo(4.1)),
+  event(NORTHPOINT_AUDIO_ID, "PRODUCT", "CHANGED", "Product “Studio monitor pair” added", daysAgo(4.2)),
 ];

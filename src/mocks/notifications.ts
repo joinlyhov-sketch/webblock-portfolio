@@ -1,8 +1,6 @@
 import type { AppNotification } from "@/features/notifications/types";
 import { daysAgo, hoursAgo } from "./time";
 
-const minutesAgo = (m: number) => new Date(Date.now() - m * 60_000).toISOString();
-
 export const notifications: AppNotification[] = [
   {
     id: "a1f0c2d4-1111-4a5b-8c6d-0e1f2a3b4c01",
@@ -10,7 +8,7 @@ export const notifications: AppNotification[] = [
     message: "Your latest changes are live.",
     kind: "SUCCESS",
     imageUrl: "/mock/templates/everyday-store.png",
-    createdAt: minutesAgo(2),
+    createdAt: hoursAgo(2),
     read: false,
   },
   {
@@ -19,7 +17,7 @@ export const notifications: AppNotification[] = [
     message: "Website suspended · reactivate it any time.",
     kind: "WARNING",
     imageUrl: "/mock/templates/clean-mono.png",
-    createdAt: hoursAgo(1),
+    createdAt: hoursAgo(3),
     read: false,
   },
   {
@@ -28,7 +26,7 @@ export const notifications: AppNotification[] = [
     message: "Your free trial ends in 9 days. Pick a plan.",
     kind: "WARNING",
     imageUrl: null,
-    createdAt: hoursAgo(3),
+    createdAt: hoursAgo(4),
     read: false,
   },
   {
@@ -46,7 +44,7 @@ export const notifications: AppNotification[] = [
     message: "Draft saved · publish when you’re ready.",
     kind: "INFO",
     imageUrl: "/mock/templates/warm-bold.png",
-    createdAt: daysAgo(1),
+    createdAt: daysAgo(4),
     read: true,
   },
   {
@@ -73,7 +71,7 @@ export const notifications: AppNotification[] = [
     message: "Welcome to WebBlock, Sovannarith!",
     kind: "INFO",
     imageUrl: null,
-    createdAt: daysAgo(3),
+    createdAt: daysAgo(5),
     read: true,
   },
 ];

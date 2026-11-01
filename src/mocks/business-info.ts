@@ -43,7 +43,7 @@ export const businessInfo: BusinessInfo[] = [
     address: "7 Riverside Walk, Siem Reap",
     mapsUrl: "https://maps.app.goo.gl/LanternCafeSR",
     hours: weekdays("07:00", "21:30", { open: true }),
-    updatedAt: daysAgo(5),
+    updatedAt: daysAgo(4),
   },
   {
     websiteId: NORTHPOINT_AUDIO_ID,
@@ -54,6 +54,6 @@ export const businessInfo: BusinessInfo[] = [
     address: "Unit 3, 92 Norodom Boulevard, Phnom Penh",
     mapsUrl: null,
     hours: weekdays("10:00", "19:00", { open: false }),
-    updatedAt: daysAgo(40),
+    updatedAt: daysAgo(4.1),
   },
 ];

@@ -2,6 +2,7 @@
 import { ApiError } from "@/lib/api/errors";
 import { delay } from "@/lib/api/delay";
 import type { Page } from "@/lib/api/types";
+import { setSiteOnline } from "@/features/monitoring/api";
 import { toPage } from "@/lib/table-query";
 import { businessTypes, websites as seed } from "@/mocks/websites";
 import { websiteOwners } from "@/mocks/session";
@@ -63,6 +64,12 @@ export async function getWebsite(websiteId: string): Promise<Website> {
   return website;
 }
 
+/** MOCK ONLY: Spring bumps the project's `updatedAt` itself whenever its page draft is saved. */
+export function touchWebsite(websiteId: string, at: string): void {
+  const website = store.find((w) => w.id === websiteId);
+  if (website) website.updatedAt = at;
+}
+
 export type CreateWebsiteBody = {
   templateId: string;
   name: string;
@@ -122,6 +129,7 @@ export async function reactivateWebsite(websiteId: string): Promise<Website> {
   const website = await getWebsite(websiteId);
   await delay(300);
   website.status = "LIVE";
+  setSiteOnline(websiteId, true);
   website.suspendedAt = null;
   website.reactivatedAt = new Date().toISOString();
   website.updatedAt = website.reactivatedAt;
@@ -132,6 +140,7 @@ export async function suspendWebsite(websiteId: string): Promise<Website> {
   const website = await getWebsite(websiteId);
   await delay(300);
   website.status = "SUSPENDED";
+  setSiteOnline(websiteId, false);
   website.reactivatedAt = null;
   website.suspendedAt = new Date().toISOString();
   website.updatedAt = website.suspendedAt;

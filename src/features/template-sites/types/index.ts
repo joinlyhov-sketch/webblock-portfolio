@@ -1,9 +1,10 @@
+import type { PageData } from "@/features/editor/types";
 import type { CleanMonoContent } from "./clean-mono";
 import type { EverydayStoreContent } from "./everyday-store";
 import type { SweetPastelContent } from "./sweet-pastel";
 import type { WarmBoldContent } from "./warm-bold";
 
-export type TemplateSiteSlug = "everyday-store" | "sweet-pastel" | "warm-bold" | "clean-mono";
+export type TemplateSiteSlug = "everyday-store" | "sweet-pastel" | "warm-bold" | "clean-mono" | "jackets" | "keyboards" | "iced-coffee";
 
 /** A product as shown on a template website: name, price, image, category only. */
 export type SiteProduct = {
@@ -34,4 +35,8 @@ export type TemplateSite =
   | { slug: "everyday-store"; content: EverydayStoreContent }
   | { slug: "sweet-pastel"; content: SweetPastelContent }
   | { slug: "warm-bold"; content: WarmBoldContent }
-  | { slug: "clean-mono"; content: CleanMonoContent };
+  | { slug: "clean-mono"; content: CleanMonoContent }
+  /** Built on the editor's own site blocks, so its content is the template's starting page. */
+  | { slug: "jackets"; content: PageData }
+  | { slug: "keyboards"; content: PageData }
+  | { slug: "iced-coffee"; content: PageData };

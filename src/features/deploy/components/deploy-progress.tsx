@@ -132,13 +132,13 @@ export function DeployProgress({
         </span>
         <h1
           className={cn(
-            "font-heading text-[36px] leading-[42px] font-semibold tracking-[-0.8px]",
+            "font-heading text-[30px] leading-[34.5px] font-semibold tracking-[-0.6px]",
             failed ? "text-danger" : "text-brand-strong",
           )}
         >
           {title}
         </h1>
-        <p className="max-w-[520px] text-base leading-[22px] text-muted-foreground">
+        <p className="max-w-[520px] text-[15px] leading-[22.5px] text-muted-foreground">
           {subtitle}
         </p>
       </div>

@@ -9,7 +9,8 @@ export const profiles: Profile[] = [
     email: "sovannarith@gmail.com",
     avatarUrl: "/mock/avatars/sovannarith-soeun.jpg",
     plan: "FREE_TRIAL",
-    memberSince: "2026-03-12T03:00:00Z",
+    // Signed up the day the 14-day trial started (5 days ago, see `subscriptions`).
+    memberSince: daysAgo(5),
     lastSignInAt: hoursAgo(1),
     hasPassword: false,
     googleEmail: "sovannarith@gmail.com",
@@ -20,8 +21,8 @@ export const profiles: Profile[] = [
     initials: "DA",
     email: "admin@webblock.app",
     avatarUrl: null,
-    plan: "ULTRA",
-    memberSince: "2026-01-05T03:00:00Z",
+    plan: "PLUS",
+    memberSince: daysAgo(66),
     lastSignInAt: daysAgo(1),
     hasPassword: true,
     googleEmail: null,
@@ -49,18 +50,18 @@ export const subscriptions: Record<string, Subscription> = {
   "5c2e7a91-3d4b-4f6e-8a1c-9b0d2e3f4a51": {
     plan: "PLUS",
     planName: "Plus",
-    trialStartsAt: daysAgo(60),
-    trialEndsAt: daysAgo(46),
+    trialStartsAt: daysAgo(66),
+    trialEndsAt: daysAgo(52),
     trialDays: 14,
     renewsAt: daysFromNow(16),
     monthlyPrice: "9.99",
     startingPrice: "9.99",
     usage: [
       { key: "websites", label: "Websites", cardLabel: "Website", used: 1, limit: 1 },
-      { key: "redeploys", label: "Redeploys", cardLabel: "Redeploys this month", used: 2, limit: 5 },
+      { key: "redeploys", label: "Redeploys", cardLabel: "Redeploys this month", used: 2, limit: 3 },
       { key: "products", label: "Products", cardLabel: "Products", used: 18, limit: 30 },
     ],
-    includes: ["1 website", "5 redeploys a month", "Up to 30 products", "Basic status monitoring"],
+    includes: ["1 website", "3 redeploys a month", "Up to 30 products", "Basic status monitoring"],
   },
 };
 
@@ -68,9 +69,11 @@ export const subscriptions: Record<string, Subscription> = {
 export const planOrders: Record<string, PlanOrder[]> = {
   "0f8a2c4e-5b1d-4e7a-9c3f-2d6b8e1a7c90": [],
   "5c2e7a91-3d4b-4f6e-8a1c-9b0d2e3f4a51": [
-    { id: "a1f0c2d4-0001-4a10-9b01-000000000001", plan: "PRO", planName: "Pro plan", websiteName: "Petal & Stem", period: null, createdAt: daysAgo(21), amount: "19.99", currency: "USD", status: "EXPIRED" },
-    { id: "a1f0c2d4-0001-4a10-9b01-000000000002", plan: "PLUS", planName: "Plus plan", websiteName: "Still Point Studio", period: null, createdAt: daysAgo(51), amount: "9.99", currency: "USD", status: "PAID" },
-    { id: "a1f0c2d4-0001-4a10-9b01-000000000003", plan: "PLUS", planName: "Plus plan", websiteName: "Petal & Stem", period: "Monthly", createdAt: daysAgo(14), amount: "9.99", currency: "USD", status: "PAID" },
+    // One website (Plus allows one): Still Point Studio. Paid after the trial ended, a Pro upgrade QR
+    // that was never paid, then the renewal 14 days ago (renews in 16 = 30-day period).
+    { id: "a1f0c2d4-0001-4a10-9b01-000000000001", plan: "PRO", planName: "Pro plan", websiteName: "Still Point Studio", period: "Monthly", createdAt: daysAgo(21), amount: "19.99", currency: "USD", status: "EXPIRED" },
+    { id: "a1f0c2d4-0001-4a10-9b01-000000000002", plan: "PLUS", planName: "Plus plan", websiteName: "Still Point Studio", period: "Monthly", createdAt: daysAgo(51), amount: "9.99", currency: "USD", status: "PAID" },
+    { id: "a1f0c2d4-0001-4a10-9b01-000000000003", plan: "PLUS", planName: "Plus plan", websiteName: "Still Point Studio", period: "Monthly · renewal", createdAt: daysAgo(14), amount: "9.99", currency: "USD", status: "PAID" },
   ],
 };
 
@@ -87,9 +90,9 @@ export const planLimits = {
     name: "Plus",
     price: "9.99",
     websites: 1,
-    redeploys: 5,
+    redeploys: 3,
     products: 30,
-    includes: ["1 website", "5 redeploys a month", "Up to 30 products", "Basic status monitoring"],
+    includes: ["1 website", "3 redeploys a month", "Up to 30 products", "Basic status monitoring"],
   },
   PRO: {
     name: "Pro",

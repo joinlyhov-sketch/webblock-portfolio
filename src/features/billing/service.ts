@@ -1,7 +1,7 @@
 // Plans and KHQR payment logic. The backend owns the payment status; this layer reads it.
 import { notFound } from "next/navigation";
 import type { ActionResult } from "@/lib/actions/result";
-import { getSubscription } from "@/features/account/api";
+import { getSubscription, websiteLimitOf } from "@/features/account/api";
 import {
   createPayment,
   getPayment,
@@ -115,6 +115,18 @@ export async function startPayment(
   }
 }
 
+/**
+ * A plan only helps if it has room for the website being added: Plus allows 1 website online, Pro 3, Ultra 10.
+ * Paying for a plan that is already full would charge the owner and then refuse the deploy.
+ */
+async function roomProblem(userId: string, plan: PaidPlanCode, website: Website | null): Promise<string | null> {
+  if (!website || website.status === "LIVE") return null;
+  const online = (await listWebsites(userId, { status: "LIVE" })).items.length;
+  const limit = websiteLimitOf(plan);
+  if (online < limit) return null;
+  return `${plan === "PLUS" ? "Plus" : plan === "PRO" ? "Pro" : "Ultra"} allows ${limit} ${limit === 1 ? "website" : "websites"} online and you already have ${online}. Choose a bigger plan to add ${website.name}.`;
+}
+
 async function createFor(
   userId: string,
   plan: PaidPlanCode,
@@ -122,6 +134,8 @@ async function createFor(
   website: Website | null,
   deployingId: string | null,
 ): Promise<ActionResult<{ orderId: string }>> {
+  const problem = await roomProblem(userId, plan, website);
+  if (problem) return { ok: false, message: problem };
   const name = website?.name ?? "Your website";
   const order = await createPayment(userId, {
     plan,

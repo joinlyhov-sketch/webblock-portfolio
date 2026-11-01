@@ -10,7 +10,9 @@ import {
   profiles as seed,
   subscriptions as subscriptionsSeed,
 } from "@/mocks/account";
+import { buildReceiptPdf } from "@/mocks/receipt-pdf";
 import { websitePages } from "@/mocks/website-pages";
+import { formatDayMonthYear, formatPrice } from "@/lib/format";
 import type { DeployAccess, DeployReason, OrderStatus, PlanCode, PlanOrder, Profile, Subscription } from "./types";
 import type { PaidPlanCode } from "@/features/billing/types";
 
@@ -18,10 +20,7 @@ const globalForStore = globalThis as typeof globalThis & {
   __wbProfiles?: Profile[];
   __wbSubscriptions?: Record<string, Subscription>;
   __wbPlanOrders?: Record<string, PlanOrder[]>;
-  __wbPaidWebsites?: Set<string>;
 };
-/** MOCK ONLY: websites a confirmed payment was made for. Spring ties the paid plan to that website. */
-const paidWebsites: Set<string> = (globalForStore.__wbPaidWebsites ??= new Set());
 const store: Profile[] = (globalForStore.__wbProfiles ??= structuredClone(seed));
 const subscriptions: Record<string, Subscription> = (globalForStore.__wbSubscriptions ??=
   structuredClone(subscriptionsSeed));
@@ -104,9 +103,6 @@ export async function getDeployAccess(userId: string, websiteId: string): Promis
     reason = firstDeploy && (deploys?.used ?? 0) < (deploys?.limit ?? 1) ? "FIRST_FREE_DEPLOY" : "SUBSCRIPTION_REQUIRED";
   } else if (new Date(subscription.renewsAt as string).getTime() < Date.now()) {
     reason = "PLAN_EXPIRED";
-  } else if (firstDeploy && paidWebsites.has(websiteId)) {
-    // The owner just paid for this very website: it is covered by the plan, not counted against the limit again.
-    reason = "WITHIN_PLAN";
   } else {
     const metric = usageOf(subscription, firstDeploy ? "websites" : "redeploys");
     const full = metric !== undefined && metric.used >= metric.limit;
@@ -132,7 +128,7 @@ export async function recordDeploy(userId: string, websiteId: string): Promise<v
     const metric = usageOf(subscription, key);
     if (metric) metric.used += 1;
   };
-  if (firstDeploy && !paidWebsites.has(websiteId)) bump("websites");
+  if (firstDeploy) bump("websites");
   if (subscription.renewsAt === null) bump("deploys");
   else if (!firstDeploy) bump("redeploys");
 }
@@ -162,6 +158,46 @@ export async function listOrders(
   return toPage(sorted, query);
 }
 
+/**
+ * GET /me/orders/{orderId}/receipt — the receipt file of a paid order. Spring returns the real PDF;
+ * the mock builds a simple one. Only paid orders have a receipt.
+ */
+export async function getOrderReceipt(
+  userId: string,
+  orderId: string,
+): Promise<{ filename: string; type: "application/pdf"; bytes: Uint8Array }> {
+  await delay(150);
+  const order = (planOrders[userId] ?? []).find((o) => o.id === orderId);
+  if (!order) {
+    throw new ApiError({ title: "Order not found", status: 404, detail: "We could not find that order." });
+  }
+  if (order.status !== "PAID") {
+    throw new ApiError({ title: "No receipt", status: 409, detail: "Only paid orders have a receipt." });
+  }
+  const number = order.id.slice(0, 8).toUpperCase();
+  const bytes = buildReceiptPdf(
+    `Receipt ${number}`,
+    [
+      { label: "Receipt no.", value: number },
+      { label: "Billed to", value: find(userId).fullName },
+      { label: "Email", value: find(userId).email },
+      { label: "Plan", value: order.planName },
+      { label: "Website", value: order.websiteName },
+      { label: "Period", value: order.period ?? "-" },
+      { label: "Date", value: formatDayMonthYear(order.createdAt) },
+      { label: "Amount paid", value: formatPrice(order.amount, order.currency) },
+      { label: "Status", value: "Paid" },
+    ],
+    "Thank you for choosing WebBlock. Questions? Contact support from Settings.",
+  );
+  return { filename: `webblock-receipt-${number}.pdf`, type: "application/pdf", bytes };
+}
+
+/** How many websites a paid plan may have online at once. */
+export function websiteLimitOf(plan: PaidPlanCode): number {
+  return planLimits[plan].websites;
+}
+
 export async function listPlanOptions(): Promise<{ value: PlanCode; label: string }[]> {
   return planFilterOptions as { value: PlanCode; label: string }[];
 }
@@ -174,9 +210,7 @@ export async function activatePlan(
   userId: string,
   plan: PaidPlanCode,
   nextPaymentAt: string,
-  websiteId: string | null = null,
 ): Promise<Subscription> {
-  if (websiteId) paidWebsites.add(websiteId);
   const current = subscriptions[userId];
   if (!current) {
     throw new ApiError({ title: "No subscription", status: 404, detail: "This account has no plan yet." });

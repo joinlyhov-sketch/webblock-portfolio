@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { Add, Export } from "iconsax-reactjs";
 import { Button } from "@/components/ui/button";
 import { checkImage, type ImageRule } from "@/lib/image-rules";
@@ -30,6 +31,13 @@ function UploadForm({ rule, onClose, onUpload }: Pick<UploadImageModalProps, "ru
   const [error, setError] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
+
+  // A temporary local URL so the chosen image can be shown before it is uploaded.
+  const previewUrl = useMemo(() => (file ? URL.createObjectURL(file) : null), [file]);
+  useEffect(() => {
+    if (!previewUrl) return;
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [previewUrl]);
 
   function choose(next: File | undefined) {
     if (!next) return;
@@ -83,22 +91,27 @@ function UploadForm({ rule, onClose, onUpload }: Pick<UploadImageModalProps, "ru
             choose(event.dataTransfer.files[0]);
           }}
           className={cn(
-            "group flex cursor-pointer flex-col items-center gap-2 rounded-[14px] border border-dashed p-[26px] text-center outline-none transition-colors hover:border-primary hover:bg-brand-soft focus-visible:ring-3 focus-visible:ring-ring/40",
-            dragging ? "border-primary bg-brand-soft" : "border-dropzone-border bg-primary-soft",
+            "group flex cursor-pointer flex-col items-center gap-2 rounded-[14px] border border-dashed text-center outline-none transition-colors hover:border-primary hover:bg-brand-soft focus-visible:ring-3 focus-visible:ring-ring/40",
+            file ? "bg-background p-3 hover:bg-background" : "p-[26px]",
+            dragging ? "border-primary bg-brand-soft" : file ? "border-dropzone-border" : "border-dropzone-border bg-primary-soft",
           )}
         >
-          <span aria-hidden className="flex size-10 items-center justify-center rounded-xl bg-brand-soft text-brand">
-            <Export className="size-[19px]" />
-          </span>
-          {file ? (
-            <>
-              <p className="max-w-full truncate text-[13px] leading-[19.5px] font-bold">{file.name}</p>
-              <p className="text-xs leading-[18px] text-hint-strong">
-                {(file.size / 1024).toFixed(0)} KB · ready to upload
-              </p>
-            </>
+          {file && previewUrl ? (
+            // The whole image, at its own proportions (no name or size text). Click or drop to replace it.
+            <Image
+              src={previewUrl}
+              alt={`Preview of ${file.name}`}
+              width={0}
+              height={0}
+              unoptimized
+              sizes="380px"
+              className="h-auto max-h-[300px] w-auto max-w-full rounded-[8px] object-contain"
+            />
           ) : (
             <>
+              <span aria-hidden className="flex size-10 items-center justify-center rounded-xl bg-brand-soft text-brand">
+                <Export className="size-[19px]" />
+              </span>
               <p className="text-[13px] leading-[19.5px] font-bold">Drag a photo here</p>
               <p className="text-xs leading-[18px] text-hint-strong">
                 or{" "}

@@ -10,6 +10,7 @@ import {
   checkDomain,
   getDeployment,
   getRunningDeployment,
+  hasUndeployedChanges,
   mockFailDeployment,
   startDeployment,
 } from "./api";
@@ -110,6 +111,13 @@ export async function startDeploy(
           deploymentId: running.id,
           kind: running.kind,
         },
+      };
+
+    if (!(await hasUndeployedChanges(websiteId)))
+      return {
+        ok: false,
+        message:
+          "You haven’t made any changes since your last deploy, so there’s nothing new to publish. Edit your website, then deploy again.",
       };
 
     const access = await getDeployAccess(userId, websiteId);

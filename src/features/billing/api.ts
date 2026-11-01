@@ -95,7 +95,7 @@ async function settle(entry: StoredOrder): Promise<void> {
     order.status = "PAID";
     order.paidAt = new Date(entry.payAt).toISOString();
     order.nextPaymentAt = await nextPeriodStart(entry.userId, order.kind, entry.payAt);
-    await activatePlan(entry.userId, order.plan, order.nextPaymentAt, order.websiteId);
+    await activatePlan(entry.userId, order.plan, order.nextPaymentAt);
     await recordPlanOrder(entry.userId, { ...history, status: "PAID" });
   } else if (now >= new Date(order.expiresAt).getTime()) {
     order.status = "EXPIRED";

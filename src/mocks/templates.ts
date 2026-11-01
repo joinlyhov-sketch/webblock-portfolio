@@ -42,4 +42,34 @@ export const templates: Template[] = [
       desktop: { url: "/mock/templates/clean-mono-desktop.png", width: 1277, height: 4090 },
     },
   },
+  {
+    id: "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c05",
+    name: "Jackets",
+    description: "Dark page, bold type, cream product cards",
+    category: "CLOTHES",
+    thumbnailUrl: "/mock/templates/jackets.png",
+    previews: {
+      desktop: { url: "/mock/templates/jackets-desktop.png", width: 604, height: 2000 },
+    },
+  },
+  {
+    id: "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c06",
+    name: "Keyboards",
+    description: "Dark page, glowing photos, one violet accent",
+    category: "TECHNOLOGY",
+    thumbnailUrl: "/mock/templates/keyboards.png",
+    previews: {
+      desktop: { url: "/mock/templates/keyboards-desktop.png", width: 567, height: 1999 },
+    },
+  },
+  {
+    id: "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c07",
+    name: "Iced coffee",
+    description: "Warm cream page, rounded cards, drink photos",
+    category: "FOOD_BEVERAGES",
+    thumbnailUrl: "/mock/templates/iced-coffee.png",
+    previews: {
+      desktop: { url: "/mock/templates/iced-coffee-desktop.png", width: 636, height: 2000 },
+    },
+  },
 ];

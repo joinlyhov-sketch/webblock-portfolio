@@ -167,10 +167,15 @@ export function PaymentSummary({ order, trialDaysLeft }: { order: PaymentOrder; 
   const price = formatPrice(order.amount, "USD");
   const [lineLabel, defaultPill] = LINE_COPY[order.kind];
   // Before paying, the trial line shows the same days the sidebar shows, not a made-up "ends today".
+  // Once paid the trial did not run out: the plan replaced it, so say that instead of "Ended".
   const linePill =
-    order.kind === "SUBSCRIBE" && !paid && trialDaysLeft
-      ? `${trialDaysLeft} ${trialDaysLeft === 1 ? "day" : "days"} left`
-      : defaultPill;
+    order.kind !== "SUBSCRIBE"
+      ? defaultPill
+      : paid
+        ? "Upgraded"
+        : trialDaysLeft
+          ? `${trialDaysLeft} ${trialDaysLeft === 1 ? "day" : "days"} left`
+          : defaultPill;
   return (
     <div className="flex w-full flex-1 flex-col gap-5 rounded-3xl bg-muted p-5 motion-safe:animate-fade-up sm:p-6">
       <div className="flex items-center gap-3 rounded-[18px] bg-background p-3">

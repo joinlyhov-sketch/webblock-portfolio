@@ -93,10 +93,10 @@ export function ChooseDomainView({
         <span className="inline-flex h-[26px] items-center rounded-full border border-eyebrow-border bg-primary-soft px-3 text-xs font-medium text-primary">
           First deploy
         </span>
-        <h1 className="font-heading text-[38px] leading-[44px] font-semibold tracking-[-1px] text-primary">
+        <h1 className="font-heading text-[30px] leading-[34.5px] font-semibold tracking-[-0.6px] text-primary">
           Pick your free web address
         </h1>
-        <p className="max-w-[560px] text-sm leading-5 text-muted-foreground">
+        <p className="max-w-[560px] text-[15px] leading-[22.5px] text-muted-foreground">
           This is where customers will find {siteName}. You can rename it any
           time from the editor.
         </p>
