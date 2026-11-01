@@ -251,7 +251,7 @@ function deployCallout(latest: Deploy | undefined) {
         tone="neutral"
         icon={<Edit2 />}
         title="Not deployed yet"
-        description="The owner hasn't published this website."
+        description="The owner hasn't deployed this website."
       />
     );
   }

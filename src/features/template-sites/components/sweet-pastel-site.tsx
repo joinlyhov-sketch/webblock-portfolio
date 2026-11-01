@@ -5,6 +5,7 @@ import type { SweetPastelContent } from "../types/sweet-pastel";
 import { SweetPastelCatalog } from "./sweet-pastel-catalog";
 import { SweetPastelContact } from "./sweet-pastel-contact";
 import { SweetPastelNav } from "./sweet-pastel-nav";
+import { telHref } from "@/lib/tel";
 
 const fredoka = Fredoka({ subsets: ["latin"], variable: "--font-fredoka", weight: ["500", "600", "700"] });
 const caveat = Caveat({ subsets: ["latin"], variable: "--font-caveat", weight: ["700"] });
@@ -42,9 +43,6 @@ const ghostBtn =
 const solidBtn =
   "inline-flex items-center justify-center rounded-full bg-(--sp-pink) px-[26px] py-3.5 text-[16px] font-semibold text-white border-2 border-(--sp-pink) transition-colors hover:bg-(--sp-pink-dark) hover:border-(--sp-pink-dark) focus-visible:ring-2 focus-visible:ring-(--sp-ink) focus-visible:ring-offset-2 focus-visible:outline-none";
 
-function telHref(phone: string) {
-  return `tel:${phone.replace(/\D/g, "")}`;
-}
 
 export function SweetPastelSite({ content }: { content: SweetPastelContent }) {
   const { business, hero, popular, catalog, about, visit, products, socials } = content;

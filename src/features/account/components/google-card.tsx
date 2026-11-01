@@ -27,14 +27,15 @@ export function GoogleCard({
             </p>
           </div>
           {!googleEmail && (
-            <Button variant="secondary" size="sm" className="border-[1.2px] border-primary text-primary hover:border-primary">
-              Connect
+            // Same as the Google button on sign-in: not connected to Google yet.
+            <Button variant="secondary" size="sm" disabled title="Google sign-in is coming soon">
+              Coming soon
             </Button>
           )}
         </div>
         {googleEmail && !hasPassword && (
           <p className="text-xs text-hint">
-            Set a password first, so you can still sign in after you disconnect Google.
+            Set a password too, so you can still sign in if you ever lose access to your Google account.
           </p>
         )}
       </div>

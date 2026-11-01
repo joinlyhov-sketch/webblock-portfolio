@@ -2,12 +2,15 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Sms } from "iconsax-reactjs";
 import { AuthHeader, AuthShell, OtpForm, emailFromSearchParams } from "@/features/auth";
+import { safeNextPath } from "@/lib/auth/next-path";
 import type { SearchParams } from "@/lib/table-query";
 
 export const metadata: Metadata = { title: "Check your email" };
 
 export default async function VerifyOtpPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  const email = emailFromSearchParams(await searchParams);
+  const query = await searchParams;
+  const email = emailFromSearchParams(query);
+  const next = safeNextPath(query.next);
   if (!email) redirect("/register");
   return (
     <AuthShell headline={{ line1: "One quick check,", line2: "then", accent: "you’re in." }}>
@@ -22,7 +25,7 @@ export default async function VerifyOtpPage({ searchParams }: { searchParams: Pr
           </>
         }
       />
-      <OtpForm email={email} submitLabel="Verify email" nextHref="/create-password" changeEmailHref="/register" />
+      <OtpForm email={email} submitLabel="Verify email" nextHref="/create-password" changeEmailHref="/register" next={next} />
     </AuthShell>
   );
 }

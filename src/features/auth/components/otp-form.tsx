@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Clock, InfoCircle } from "iconsax-reactjs";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/common/toast";
+import { withNext } from "@/lib/auth/next-path";
 import { otpInput, parseForm, type FieldErrors } from "../schemas";
 import { OtpInput } from "./otp-input";
 
@@ -18,11 +19,14 @@ export function OtpForm({
   submitLabel,
   nextHref,
   changeEmailHref,
+  next = null,
 }: {
   email: string;
   submitLabel: string;
   nextHref: string;
   changeEmailHref: string;
+  /** Where to go after signing in; passed on to the next step. */
+  next?: string | null;
 }) {
   const router = useRouter();
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -34,7 +38,7 @@ export function OtpForm({
     if (!result.ok) return setErrors(result.fieldErrors);
     setErrors({});
     // TODO(auth): call the verify-code action; the backend checks the code, attempts and expiry.
-    router.push(`${nextHref}?email=${encodeURIComponent(email)}`);
+    router.push(withNext(`${nextHref}?email=${encodeURIComponent(email)}`, next));
   }
 
   const expired = secondsLeft === 0;

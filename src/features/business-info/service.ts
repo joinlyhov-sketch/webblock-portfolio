@@ -10,6 +10,7 @@ import { formText } from "@/lib/validation/fields";
 import { getPageData } from "@/features/editor/api";
 import type { PageData } from "@/features/editor/types";
 import { getWebsite } from "@/features/websites/api";
+import { defaultOpeningHours } from "@/features/websites/schemas";
 import type { Website } from "@/features/websites/types";
 import { getBusinessInfo, updateBusinessInfo } from "./api";
 import { businessInfoInput } from "./schemas";
@@ -28,9 +29,27 @@ export type BusinessInfoView = {
   editing: boolean;
 };
 
+function emptyBusinessInfo(websiteId: string): BusinessInfo {
+  return {
+    websiteId,
+    description: "",
+    logoUrl: null,
+    phone: "",
+    email: "",
+    address: "",
+    mapsUrl: null,
+    hours: defaultOpeningHours(),
+    updatedAt: new Date().toISOString(),
+  };
+}
+
 export async function getBusinessInfoView(websiteId: string, searchParams: SearchParams): Promise<BusinessInfoView> {
   const [info, website, page] = await Promise.all([
-    getBusinessInfo(websiteId),
+    // A website without a record yet opens with empty details; saving the form creates it.
+    getBusinessInfo(websiteId).catch((e: unknown): BusinessInfo => {
+      if (e instanceof ApiError && e.status === 404) return emptyBusinessInfo(websiteId);
+      throw e;
+    }),
     getWebsite(websiteId),
     getPageData(websiteId).catch((e: unknown) => {
       if (e instanceof ApiError && e.status === 404) return null;

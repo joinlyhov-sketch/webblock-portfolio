@@ -21,8 +21,7 @@ const SUGGESTION_ICON = {
 
 /**
  * Empty chat: a centred welcome and three ideas for the selected section (or the whole site), so the
- * panel isn't a tall blank space before the first message. Picking an idea fills the prompt box; the
- * owner can adjust it before sending, because the AI changes the site.
+ * panel isn't a tall blank space before the first message. Picking an idea sends it straight away.
  */
 function Welcome({ onPick }: { onPick: (prompt: string) => void }) {
   const selectedType = useEditorPuck((s) => s.selectedItem?.type) as BlockName | undefined;
@@ -75,29 +74,20 @@ export function AiChat() {
   const [prompt, setPrompt] = useState("");
   const [pending, startTransition] = useTransition();
   const endRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  function pickSuggestion(text: string) {
-    setPrompt(text);
-    const input = inputRef.current;
-    if (!input) return;
-    input.focus();
-    // Cursor at the end, ready to add to the idea or press Enter.
-    requestAnimationFrame(() => input.setSelectionRange(text.length, text.length));
-  }
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
   }, [messages, pending]);
 
-  function send() {
-    const text = prompt.trim();
+  /** Sends the typed prompt, or `idea` when a suggestion is picked. */
+  function send(idea?: string) {
+    const text = (idea ?? prompt).trim();
     if (!text || pending) return;
     setMessages((current) => [
       ...current,
       { id: crypto.randomUUID(), role: "USER", text, createdAt: new Date().toISOString() },
     ]);
-    setPrompt("");
+    if (idea === undefined) setPrompt("");
     startTransition(async () => {
       const result = await askAiAction(websiteId, text);
       if (!result.ok) {
@@ -112,7 +102,7 @@ export function AiChat() {
     <div className="flex min-h-0 flex-1 flex-col">
       <div role="log" aria-label="WebBlock AI chat" aria-live="polite" className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pt-3 pb-2">
         {messages.length === 0 ? (
-          <Welcome onPick={pickSuggestion} />
+          <Welcome onPick={send} />
         ) : (
           // Pushes the conversation to the bottom, next to the prompt, like a messaging app.
           <div aria-hidden className="flex-1" />
@@ -193,7 +183,6 @@ export function AiChat() {
       >
         <div className="flex items-center gap-2 rounded-full border border-border bg-background py-1.5 pr-1.5 pl-[18px] shadow-card focus-within:border-brand">
           <input
-            ref={inputRef}
             aria-label="Ask WebBlock AI"
             placeholder="Make the heading warmer…"
             value={prompt}

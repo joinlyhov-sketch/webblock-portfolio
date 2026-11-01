@@ -1,6 +1,6 @@
 import type { PageData, Product } from "@/features/editor/types";
 
-// "Iced coffee" demo page: a small iced-drink shop in Phnom Penh. Showcase content only: call, message and
+// Café cream demo page: Cold Brew Co, a small iced-drink shop in Phnom Penh. Showcase content only: call, message and
 // directions, no ordering.
 const IMG = "/mock/templates/iced-coffee";
 
@@ -39,16 +39,16 @@ export const icedCoffeePage: PageData = {
   root: {
     props: {
       templateId: "iced-coffee",
-      businessName: "Iced Coffee",
+      businessName: "Cold Brew Co",
       statusText: "Open today · 9:00 AM – 6:00 PM",
       hours: "9:00 AM – 6:00 PM",
       hoursDetail: "Mon – Fri 9:00 AM – 6:00 PM · Sat 9:00 AM – 4:00 PM · Sun closed",
       address: "14 Street 51, Daun Penh, Phnom Penh",
       phones: [{ number: "012 345 987" }],
-      email: "hello@icedcoffeeshop.com",
-      telegram: "icedcoffee_kh",
-      facebookUrl: "https://facebook.com/icedcoffeeshop",
-      instagramUrl: "https://instagram.com/icedcoffeeshop",
+      email: "hello@coldbrewco.com",
+      telegram: "coldbrewco",
+      facebookUrl: "https://facebook.com/coldbrewco",
+      instagramUrl: "https://instagram.com/coldbrewco",
       currency: "USD",
       palette: "original",
       accentColor: null,

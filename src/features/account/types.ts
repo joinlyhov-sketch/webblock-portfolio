@@ -96,4 +96,8 @@ export type SidebarSummary = {
   progress: number;
   /** Name of the website shown in the trial card, or `null` when the user has none live. */
   liveWebsiteName: string | null;
+  /** How many of the user's websites are online on this plan. */
+  liveWebsiteCount: number;
+  /** How many websites the plan allows online at once (the free trial: 1). */
+  websiteLimit: number;
 };

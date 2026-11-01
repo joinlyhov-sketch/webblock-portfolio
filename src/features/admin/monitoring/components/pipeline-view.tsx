@@ -37,12 +37,12 @@ export function PipelineView({
     <>
       <AdminPageHeader
         title="Pipeline & Generation"
-        description="Every website's latest publish: generation request and release side by side. Click a row to open its publish flow."
+        description="Every website's latest deploy: generation request and release side by side. Click a row to open its deploy flow."
       />
 
       <DataTable
         fill
-        label="Latest publishes"
+        label="Latest deploys"
         itemLabel="websites"
         data={runs}
         searchParams={searchParams}
@@ -51,7 +51,7 @@ export function PipelineView({
         rowClassName="relative cursor-pointer"
         toolbar={
           <div className="w-full space-y-3">
-            <CardHeader title="Latest publishes" icon={<Hierarchy />} />
+            <CardHeader title="Latest deploys" icon={<Hierarchy />} />
             <div className="flex flex-wrap items-center gap-3">
               <SegmentedTabs
                 size="sm"
@@ -81,7 +81,7 @@ export function PipelineView({
             title={
               stage
                 ? `No websites in ${STAGE_LABEL[stage as PipelineStage] ?? "this stage"} right now`
-                : "No publishes yet"
+                : "No deploys yet"
             }
             description={
               stage ? "Nothing matches this filter. Try another stage." : undefined
@@ -145,7 +145,7 @@ export function PipelineView({
           },
           {
             key: "flow",
-            header: "Publish flow",
+            header: "Deploy flow",
             sortField: "currentStep",
             cell: (r) => <PublishProgress run={r} />,
           },

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Danger, Notification, Sms } from "iconsax-reactjs";
+import { PageHeader } from "@/components/common/page-header";
+import { Pill } from "@/components/common/status-badge";
 import { Button } from "@/components/ui/button";
 import { liveSiteHref } from "@/config/site";
 import { cn } from "@/lib/utils";
@@ -106,7 +108,7 @@ export function DeployProgress({
       : "Deploying your changes";
   const subtitle = failed
     ? first
-      ? "Nothing went live. You can deploy again from the editor once this is fixed."
+      ? "Nothing went live. Go back to the editor to deploy again once this is fixed."
       : "Your current website stays online, so visitors won’t notice anything."
     : first
       ? "You can close this page. We’ll email you when your website is live."
@@ -116,31 +118,22 @@ export function DeployProgress({
     <>
       <div className="flex flex-col items-center gap-3 text-center motion-safe:animate-fade-up">
         <Ring percent={deployment.percent} failed={failed} />
-        <span
-          className={cn(
-            "inline-flex h-6 items-center rounded-full px-3 text-[14px] font-medium",
-            failed
-              ? "bg-danger-soft text-danger"
-              : "bg-brand-soft text-brand-strong",
-          )}
-        >
-          {failed
-            ? `Deploy failed · stopped at step ${failedAt + 1} of ${deployment.steps.length}`
-            : running
-              ? `Publishing · ${timeLeft(deployment.secondsLeft)}`
-              : "Published"}
-        </span>
-        <h1
-          className={cn(
-            "font-heading text-[30px] leading-[34.5px] font-semibold tracking-[-0.6px]",
-            failed ? "text-danger" : "text-brand-strong",
-          )}
-        >
-          {title}
-        </h1>
-        <p className="max-w-[520px] text-[15px] leading-[22.5px] text-muted-foreground">
-          {subtitle}
-        </p>
+        <PageHeader
+          align="center"
+          tone={failed ? "danger" : "primary"}
+          className="mb-0"
+          eyebrow={
+            <Pill tone={failed ? "danger" : "brand"}>
+              {failed
+                ? `Deploy failed · stopped at step ${failedAt + 1} of ${deployment.steps.length}`
+                : running
+                  ? `Deploying · ${timeLeft(deployment.secondsLeft)}`
+                  : "Deployed"}
+            </Pill>
+          }
+          title={title}
+          description={subtitle}
+        />
       </div>
 
       <div className="mt-6 flex w-full justify-center">

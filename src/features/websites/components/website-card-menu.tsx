@@ -3,11 +3,9 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import {
-  ArrowRight,
   Clock,
   Edit,
   ExportSquare,
-  Global,
   More,
   PauseCircle,
   PlayCircle,
@@ -23,14 +21,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { liveSiteHref } from "@/config/site";
 import { VersionHistoryDialog } from "@/features/editor/components/version-history-dialog";
 import type { Website, WebsiteStatus } from "../types";
 
 /**
  * "…" menu on a website card.
  * Draft: Open editor, Delete. Live: Portal, Open editor, Version history, Suspend (the card has its own "Visit site" button).
- * Suspended: Open editor (disabled), View live site, Portal, Reactivate.
+ * Suspended: Open editor (disabled), Portal, Version history, Reactivate (visitors can't see it, so no
+ * "View live site").
  */
 export function WebsiteCardMenu({
   websiteId,
@@ -109,15 +107,6 @@ export function WebsiteCardMenu({
       </Link>
     </DropdownMenuItem>
   );
-  const liveSite = domain && (
-    <DropdownMenuItem asChild>
-      <Link href={liveSiteHref(websiteId)} target="_blank" rel="noopener noreferrer">
-        <Global aria-hidden /> <span className="flex-1">View live site</span>
-        <ArrowRight aria-hidden className="-rotate-45 text-foreground-soft" />
-      </Link>
-    </DropdownMenuItem>
-  );
-
   const history = domain && (
     <DropdownMenuItem onSelect={() => setHistoryOpen(true)}>
       <Clock aria-hidden /> <span className="flex-1">Version history</span>
@@ -157,7 +146,6 @@ export function WebsiteCardMenu({
           {status === "SUSPENDED" && (
             <>
               {editor}
-              {liveSite}
               {portal}
               {history}
               <DropdownMenuSeparator className="mx-1 my-[3px]" />

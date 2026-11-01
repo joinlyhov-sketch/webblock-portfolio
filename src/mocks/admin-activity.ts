@@ -1,4 +1,5 @@
 import type { ActivityEntry } from "@/features/admin/monitoring/types";
+import { at } from "./time";
 
 /** Admin and system actions, newest first. null actor = done by the system. */
 export const activityLog: ActivityEntry[] = [
@@ -9,16 +10,7 @@ export const activityLog: ActivityEntry[] = [
     targetDetail: "riverfish.webblock.com",
     actorEmail: "admin@webblock.com",
     result: "QUEUED",
-    createdAt: "2026-10-22T03:41:00Z",
-  },
-  {
-    id: "4b6d8f0a-2c4e-4a6b-9d8f-1a3c5e7b0902",
-    action: "RESUME_HOSTING",
-    targetName: "Northpoint Audio",
-    targetDetail: "northpointaudio.webblock.com",
-    actorEmail: "sokha@webblock.com",
-    result: "RUNNING",
-    createdAt: "2026-10-22T03:38:00Z",
+    createdAt: at("2026-11-01T10:41:00Z"),
   },
   {
     id: "4b6d8f0a-2c4e-4a6b-9d8f-1a3c5e7b0903",
@@ -27,7 +19,7 @@ export const activityLog: ActivityEntry[] = [
     targetDetail: "visal@cheahardware.com",
     actorEmail: "admin@webblock.com",
     result: "SUCCEEDED",
-    createdAt: "2026-10-22T03:21:00Z",
+    createdAt: at("2026-11-01T10:21:00Z"),
   },
   {
     id: "4b6d8f0a-2c4e-4a6b-9d8f-1a3c5e7b0904",
@@ -36,7 +28,7 @@ export const activityLog: ActivityEntry[] = [
     targetDetail: "hollowandco.webblock.com",
     actorEmail: null,
     result: "SUCCEEDED",
-    createdAt: "2026-10-22T02:36:00Z",
+    createdAt: at("2026-11-01T09:36:00Z"),
   },
   {
     id: "4b6d8f0a-2c4e-4a6b-9d8f-1a3c5e7b0905",
@@ -45,7 +37,7 @@ export const activityLog: ActivityEntry[] = [
     targetDetail: "srey@neangtailoring.com",
     actorEmail: "sokha@webblock.com",
     result: "SUCCEEDED",
-    createdAt: "2026-10-21T10:45:00Z",
+    createdAt: at("2026-10-21T10:45:00Z"),
   },
   {
     id: "4b6d8f0a-2c4e-4a6b-9d8f-1a3c5e7b0906",
@@ -54,7 +46,7 @@ export const activityLog: ActivityEntry[] = [
     targetDetail: "cornerchair.webblock.com",
     actorEmail: "admin@webblock.com",
     result: "FAILED",
-    createdAt: "2026-10-21T08:30:00Z",
+    createdAt: at("2026-10-21T08:30:00Z"),
   },
   {
     id: "4b6d8f0a-2c4e-4a6b-9d8f-1a3c5e7b0911",
@@ -63,7 +55,7 @@ export const activityLog: ActivityEntry[] = [
     targetDetail: "hollowandco.webblock.com",
     actorEmail: null,
     result: "SUCCEEDED",
-    createdAt: "2026-10-20T08:46:00Z",
+    createdAt: at("2026-10-20T08:46:00Z"),
   },
   {
     id: "4b6d8f0a-2c4e-4a6b-9d8f-1a3c5e7b0907",
@@ -72,7 +64,7 @@ export const activityLog: ActivityEntry[] = [
     targetDetail: "endy@cornerchair.co",
     actorEmail: "sokha@webblock.com",
     result: "SUCCEEDED",
-    createdAt: "2026-10-20T06:12:00Z",
+    createdAt: at("2026-10-20T06:12:00Z"),
   },
   {
     id: "4b6d8f0a-2c4e-4a6b-9d8f-1a3c5e7b0908",
@@ -81,7 +73,7 @@ export const activityLog: ActivityEntry[] = [
     targetDetail: "fixright.webblock.com",
     actorEmail: "admin@webblock.com",
     result: "SUCCEEDED",
-    createdAt: "2026-10-17T04:20:00Z",
+    createdAt: at("2026-10-17T04:20:00Z"),
   },
   {
     id: "4b6d8f0a-2c4e-4a6b-9d8f-1a3c5e7b0909",
@@ -90,7 +82,7 @@ export const activityLog: ActivityEntry[] = [
     targetDetail: "maoprint.webblock.com",
     actorEmail: "sokha@webblock.com",
     result: "SUCCEEDED",
-    createdAt: "2026-10-16T07:22:00Z",
+    createdAt: at("2026-10-16T07:22:00Z"),
   },
   {
     id: "4b6d8f0a-2c4e-4a6b-9d8f-1a3c5e7b0910",
@@ -99,16 +91,7 @@ export const activityLog: ActivityEntry[] = [
     targetDetail: "sreyleak@hollowandco.com",
     actorEmail: "admin@webblock.com",
     result: "SUCCEEDED",
-    createdAt: "2026-10-15T02:05:00Z",
-  },
-  {
-    id: "4b6d8f0a-2c4e-4a6b-9d8f-1a3c5e7b0913",
-    action: "SUSPEND_HOSTING",
-    targetName: "Northpoint Audio",
-    targetDetail: "northpointaudio.webblock.com",
-    actorEmail: "sokha@webblock.com",
-    result: "SUCCEEDED",
-    createdAt: "2026-09-14T09:40:00Z",
+    createdAt: at("2026-10-15T02:05:00Z"),
   },
   {
     id: "4b6d8f0a-2c4e-4a6b-9d8f-1a3c5e7b0912",
@@ -117,7 +100,7 @@ export const activityLog: ActivityEntry[] = [
     targetDetail: "chenda@houtceramics.com",
     actorEmail: "admin@webblock.com",
     result: "SUCCEEDED",
-    createdAt: "2026-08-30T03:00:00Z",
+    createdAt: at("2026-08-30T03:00:00Z"),
   },
   {
     id: "4b6d8f0a-2c4e-4a6b-9d8f-1a3c5e7b0914",
@@ -126,6 +109,6 @@ export const activityLog: ActivityEntry[] = [
     targetDetail: "tola@maoprint.kh",
     actorEmail: "admin@webblock.com",
     result: "FAILED",
-    createdAt: "2026-08-12T05:15:00Z",
+    createdAt: at("2026-08-12T05:15:00Z"),
   },
 ];

@@ -91,7 +91,7 @@ export function BusinessIdentity({ website, children }: { website: BusinessInfoV
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-0.5 text-[13px] leading-5 text-muted-foreground">
         <span className="inline-flex items-center gap-1.5 text-foreground-soft">
           <Global aria-hidden className="size-3.5" />
-          {website.domain ?? "Not published yet"}
+          {website.domain ?? "Not deployed yet"}
         </span>
         <span className="inline-flex items-center gap-1.5">
           <Shop aria-hidden className="size-3.5" />

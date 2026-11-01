@@ -18,6 +18,9 @@ export const subdomainSchema = z
 /** "Petal & Stem" becomes "petalstem": the address suggested on the first deploy. */
 export function suggestSubdomain(siteName: string): string {
   return siteName
+    // "Café" → "cafe": split accented letters and drop the accent before removing everything else.
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "")
     .slice(0, SUBDOMAIN_MAX);

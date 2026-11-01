@@ -3,9 +3,10 @@ import type { Template } from "@/features/templates/types";
 export const templates: Template[] = [
   {
     id: "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c01",
-    name: "Everyday store",
+    name: "Fresh & simple",
     description: "Products, categories and clear prices",
-    category: "CLOTHES",
+    // Its demo is a florist (Petal & Stem, a HANDMADE business in websites.ts).
+    category: "HANDMADE",
     thumbnailUrl: "/mock/templates/everyday-store.png",
     badge: "Popular",
     previews: {
@@ -14,7 +15,7 @@ export const templates: Template[] = [
   },
   {
     id: "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c02",
-    name: "Sweet pastel",
+    name: "Candy pastel",
     description: "Round photos, stickers, candy colours",
     category: "FOOD_BEVERAGES",
     thumbnailUrl: "/mock/templates/sweet-pastel.png",
@@ -24,7 +25,7 @@ export const templates: Template[] = [
   },
   {
     id: "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c03",
-    name: "Warm & bold",
+    name: "Rustic roast",
     description: "Full-bleed hero, serif, menu-board grid",
     category: "FOOD_BEVERAGES",
     thumbnailUrl: "/mock/templates/warm-bold.png",
@@ -34,7 +35,7 @@ export const templates: Template[] = [
   },
   {
     id: "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c04",
-    name: "Clean mono",
+    name: "Studio mono",
     description: "Hairlines, big type, catalogue layout",
     category: "TECHNOLOGY",
     thumbnailUrl: "/mock/templates/clean-mono.png",
@@ -44,7 +45,7 @@ export const templates: Template[] = [
   },
   {
     id: "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c05",
-    name: "Jackets",
+    name: "Street pop",
     description: "Dark page, bold type, cream product cards",
     category: "CLOTHES",
     thumbnailUrl: "/mock/templates/jackets.png",
@@ -54,7 +55,7 @@ export const templates: Template[] = [
   },
   {
     id: "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c06",
-    name: "Keyboards",
+    name: "Midnight glow",
     description: "Dark page, glowing photos, one violet accent",
     category: "TECHNOLOGY",
     thumbnailUrl: "/mock/templates/keyboards.png",
@@ -64,7 +65,7 @@ export const templates: Template[] = [
   },
   {
     id: "c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c07",
-    name: "Iced coffee",
+    name: "Café cream",
     description: "Warm cream page, rounded cards, drink photos",
     category: "FOOD_BEVERAGES",
     thumbnailUrl: "/mock/templates/iced-coffee.png",

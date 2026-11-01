@@ -12,7 +12,7 @@ export type ContactMessage = {
   createdAt: string;
 };
 
-export type PlanCode = "TRIAL" | "PLUS" | "PRO" | "ULTRA";
+export type PlanCode = "FREE_TRIAL" | "PLUS" | "PRO" | "ULTRA";
 
 /**
  * Subscription plan as returned by `GET /plans` (public, no auth). Proposed contract: the backend

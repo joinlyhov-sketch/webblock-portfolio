@@ -4,7 +4,7 @@ import { Lock } from "iconsax-reactjs";
 const STEPS = [
   { title: "Pick a template", detail: "Ready-made designs" },
   { title: "Add your details", detail: "Name, hours, contact" },
-  { title: "Publish", detail: "Live on webblock.com" },
+  { title: "Deploy", detail: "Live on webblock.com" },
 ];
 
 /** Two-line headline; line 2 is `line2` (optional) followed by the blue `accent`. */

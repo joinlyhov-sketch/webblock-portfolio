@@ -205,7 +205,7 @@ export const termsOfService: LegalDocument = {
       id: "domains",
       heading: "Your web address",
       paragraphs: [
-        "Every website is published on a free webblock.com address (for example yourbusiness.webblock.com), with SSL included. You choose the name, and it must be one nobody else is using. Connecting a domain you own is not available.",
+        "Every website is deployed on a free webblock.com address (for example yourbusiness.webblock.com), with SSL included. You choose the name, and it must be one nobody else is using.",
         "The address belongs to WebBlock and is yours to use while your account is open. We may change an address that is misleading or uses someone else's name or trademark, and we will tell you if we do.",
       ],
     },

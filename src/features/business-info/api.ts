@@ -28,8 +28,13 @@ export type BusinessInfoBody = Pick<BusinessInfo, "description" | "phone" | "ema
 
 /** PUT /projects/{projectId}/business-info */
 export async function updateBusinessInfo(websiteId: string, body: BusinessInfoBody): Promise<BusinessInfo> {
-  const info = await getBusinessInfo(websiteId);
   await delay(300);
+  // PUT creates the record when the website has none yet.
+  let info = store.find((b) => b.websiteId === websiteId);
+  if (!info) {
+    info = { websiteId, description: "", logoUrl: null, phone: "", email: "", address: "", mapsUrl: null, hours: [], updatedAt: "" };
+    store.push(info);
+  }
   Object.assign(info, {
     description: body.description,
     phone: body.phone,
@@ -41,4 +46,14 @@ export async function updateBusinessInfo(websiteId: string, body: BusinessInfoBo
     updatedAt: new Date().toISOString(),
   });
   return info;
+}
+
+/**
+ * Mock only: Spring creates this record inside POST /projects ("Use template") from the business
+ * details form, so a new website opens Business information with what the owner typed.
+ */
+export function createBusinessInfo(info: Omit<BusinessInfo, "updatedAt">): BusinessInfo {
+  const record: BusinessInfo = { ...info, updatedAt: new Date().toISOString() };
+  store.push(record);
+  return record;
 }

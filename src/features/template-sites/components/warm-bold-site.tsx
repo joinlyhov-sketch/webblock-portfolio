@@ -5,6 +5,7 @@ import type { WarmBoldContent } from "../types/warm-bold";
 import { WarmBoldContactForm } from "./warm-bold-contact-form";
 import { WarmBoldNav } from "./warm-bold-nav";
 import { WarmBoldShop } from "./warm-bold-shop";
+import { telHref } from "@/lib/tel";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -43,10 +44,6 @@ const pad = "px-5 md:px-10 lg:px-24";
 
 function mapsUrl(address: string) {
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
-}
-
-function digits(phone: string) {
-  return phone.replace(/[^\d+]/g, "");
 }
 
 function ClockIcon() {
@@ -322,7 +319,7 @@ export function WarmBoldSite({ content }: { content: WarmBoldContent }) {
                   </div>
                 </a>
                 <div className="h-px bg-[var(--wb-line)]" />
-                <a href={`tel:${digits(business.phone)}`} className={`group flex items-center gap-3.5 pt-3.5 lg:gap-[18px] lg:pt-5 ${focusRing}`}>
+                <a href={telHref(business.phone)} className={`group flex items-center gap-3.5 pt-3.5 lg:gap-[18px] lg:pt-5 ${focusRing}`}>
                   <PhoneIcon />
                   <div className="flex flex-col gap-1 lg:gap-1.5">
                     <span className="wb-mono text-[10px] tracking-[1px] text-[var(--wb-muted)] lg:text-[11px] lg:tracking-[1.1px]">CALL</span>
@@ -396,7 +393,7 @@ export function WarmBoldSite({ content }: { content: WarmBoldContent }) {
               {business.email}
             </a>
             {" · "}
-            <a href={`tel:${digits(business.phone)}`} className={`transition-colors hover:text-[var(--wb-amber)] ${focusRing}`}>
+            <a href={telHref(business.phone)} className={`transition-colors hover:text-[var(--wb-amber)] ${focusRing}`}>
               {business.phone}
             </a>
           </span>

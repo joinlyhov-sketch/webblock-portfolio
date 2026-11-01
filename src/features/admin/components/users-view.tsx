@@ -26,7 +26,7 @@ import {
   planTone,
 } from "@/components/common/plan-badge";
 import { RowsSelect } from "@/components/common/rows-select";
-import { StatusBadge } from "@/components/common/status-badge";
+import { Pill, StatusBadge } from "@/components/common/status-badge";
 import { TableSearch } from "@/components/common/table-search";
 import { Button } from "@/components/ui/button";
 import type { Page } from "@/lib/api/types";
@@ -303,12 +303,9 @@ function UserDetail({
             </p>
             <div className="flex flex-wrap items-center gap-1.5 pt-2">
               <StatusBadge status={user.status} />
-              <span className="inline-flex h-6 items-center gap-1.5 rounded-full bg-brand-soft px-2.5 text-xs font-semibold text-info">
-                <Sms aria-hidden className="size-3.5" />
-                {user.signInMethod === "GOOGLE"
-                  ? "Google sign-in"
-                  : "Email sign-in"}
-              </span>
+              <Pill tone="info" icon={<Sms aria-hidden />}>
+                {user.signInMethod === "GOOGLE" ? "Google sign-in" : "Email sign-in"}
+              </Pill>
             </div>
           </div>
         </div>
@@ -337,7 +334,7 @@ function UserDetail({
           </dl>
         </DetailCard>
         <DetailCard
-          title="Projects & website status"
+          title="Websites & status"
           icon={<Global />}
           aside={`${websites.totalItems} ${websites.totalItems === 1 ? "website" : "websites"}`}
         >
@@ -361,7 +358,7 @@ function UserDetail({
                           {w.name}
                         </span>
                         <span className="block truncate text-[13px] text-muted-foreground">
-                          {published ? w.domain : "Not published"}
+                          {published ? w.domain : "Not deployed"}
                         </span>
                       </span>
                       <StatusBadge

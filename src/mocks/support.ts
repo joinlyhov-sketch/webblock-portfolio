@@ -17,9 +17,9 @@ export const faqItems: FaqItem[] = [
   },
   {
     id: "own-domain",
-    question: "Can I use my own domain?",
+    question: "What will my website’s address be?",
     answer:
-      "Not at the moment. Your site uses a free webblock.com address. You choose the name when you first publish and can rename it any time from the editor.",
+      "Your website gets a free address on webblock.com, like yourbusiness.webblock.com, with SSL included. You choose the name when you first deploy.",
   },
   {
     id: "trial-ends",

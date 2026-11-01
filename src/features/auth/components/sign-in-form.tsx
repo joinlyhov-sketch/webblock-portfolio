@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toast } from "@/components/common/toast";
+import { withNext } from "@/lib/auth/next-path";
 import { EMAIL_MAX } from "@/lib/validation/fields";
 import { parseForm, signInInput, type FieldErrors } from "../schemas";
 import { Field, FormFooter, OrDivider } from "./field";
@@ -12,7 +14,7 @@ import { GoogleButton } from "./google-button";
 import { MockRoleButtons } from "./mock-role-buttons";
 import { PasswordInput } from "./password-input";
 
-export function SignInForm({ defaultEmail }: { defaultEmail?: string }) {
+export function SignInForm({ defaultEmail, next = null }: { defaultEmail?: string; next?: string | null }) {
   const router = useRouter();
   const [errors, setErrors] = useState<FieldErrors>({});
   const [pending, setPending] = useState(false);
@@ -31,8 +33,16 @@ export function SignInForm({ defaultEmail }: { defaultEmail?: string }) {
     const body = new FormData();
     body.set("role", role);
     setPending(true);
-    await fetch("/api/mock-auth", { method: "POST", body });
-    router.push(role === "ADMIN" ? "/admin" : "/websites");
+    try {
+      const response = await fetch("/api/mock-auth", { method: "POST", body });
+      if (!response.ok) throw new Error(`Sign-in failed (${response.status})`);
+    } catch {
+      setPending(false);
+      toast.error("Couldn't sign you in", "Check your connection and try again.");
+      return;
+    }
+    // Back to the page that asked for sign-in (e.g. the template catalogue), else home for the role.
+    router.push(next ?? (role === "ADMIN" ? "/admin" : "/websites"));
   }
 
   return (
@@ -79,11 +89,11 @@ export function SignInForm({ defaultEmail }: { defaultEmail?: string }) {
       </form>
       <FormFooter>
         New to WebBlock?{" "}
-        <Link href="/register" className="font-semibold text-primary hover:underline">
+        <Link href={withNext("/register", next)} className="font-semibold text-primary hover:underline">
           Create an account
         </Link>
       </FormFooter>
-      <MockRoleButtons />
+      <MockRoleButtons next={next} />
     </>
   );
 }

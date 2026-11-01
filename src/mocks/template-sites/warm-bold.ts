@@ -9,9 +9,9 @@ export const warmBoldContent: WarmBoldContent = {
     phone: "012 345 678",
     email: "hello@kilncoffee.com",
     address: "8 Street 308, Phnom Penh",
-    hours: [{ days: "Mon – Sun", hours: "6:30 – 17:00" }],
+    hours: [{ days: "Mon – Sun", hours: "6:30 AM – 5:00 PM" }],
   },
-  openNowLabel: "Open now · until 17:00",
+  openNowLabel: "Open now · until 5:00 PM",
   hero: {
     imageUrl: img("hero"),
     eyebrow: "EST. 2019 — STREET 308, PHNOM PENH",
@@ -22,7 +22,7 @@ export const warmBoldContent: WarmBoldContent = {
     secondaryCta: "Visit the roastery",
     stampLines: ["SMALL", "BATCH", "2× WEEKLY"],
   },
-  facts: ["Small batch, roasted here", "Beans from farms we visited", "Bar open 6:30 – 17:00 daily"],
+  facts: ["Small batch, roasted here", "Beans from farms we visited", "Bar open 6:30 AM – 5:00 PM daily"],
   popular: {
     eyebrow: "№ 01 — POPULAR THIS WEEK",
     title: "What's pouring this week",

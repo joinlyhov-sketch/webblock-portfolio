@@ -1,8 +1,11 @@
 import type { SessionUser } from "@/lib/auth/roles";
 
+/** The demo owner (USER role): his id is the same in the owner screens and in the admin data. */
+export const SOVANNARITH_ID = "0f8a2c4e-5b1d-4e7a-9c3f-2d6b8e1a7c90";
+
 export const sessionUsers: SessionUser[] = [
   {
-    id: "0f8a2c4e-5b1d-4e7a-9c3f-2d6b8e1a7c90",
+    id: SOVANNARITH_ID,
     email: "sovannarith@gmail.com",
     fullName: "Sovannarith Soeun",
     role: "USER",
@@ -10,10 +13,10 @@ export const sessionUsers: SessionUser[] = [
   },
   {
     id: "5c2e7a91-3d4b-4f6e-8a1c-9b0d2e3f4a51",
-    email: "admin@webblock.app",
-    fullName: "Dara Admin",
+    email: "admin@webblock.com",
+    fullName: "Uy Chakriya",
     role: "ADMIN",
-    avatarUrl: null,
+    avatarUrl: "/mock/avatars/chakriya-uy.jpg",
   },
 ];
 
@@ -31,7 +34,7 @@ const ownerSeed: WebsiteOwner[] = [
   NORTHPOINT_AUDIO_ID,
 ].map((websiteId) => ({
   websiteId,
-  ownerId: "0f8a2c4e-5b1d-4e7a-9c3f-2d6b8e1a7c90",
+  ownerId: SOVANNARITH_ID,
 }));
 
 /**

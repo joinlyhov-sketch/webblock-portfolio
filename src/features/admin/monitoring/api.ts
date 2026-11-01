@@ -53,7 +53,7 @@ export async function getPipelineRun(websiteId: string): Promise<PipelineRun> {
     throw new ApiError({
       title: "Not found",
       status: 404,
-      detail: "No publish found for this website.",
+      detail: "No deploy found for this website.",
     });
   return run;
 }

@@ -1,5 +1,5 @@
 import type { ActivityEvent, Deploy, DeployStatus, SiteStatus } from "@/features/monitoring/types";
-import { NORTHPOINT_AUDIO_ID, PETAL_AND_STEM_ID } from "./session";
+import { PETAL_AND_STEM_ID } from "./session";
 import { daysAgo, hoursAgo } from "./time";
 
 const HOUR = 3_600_000;
@@ -7,8 +7,8 @@ const HOUR = 3_600_000;
 // Kept on globalThis (like the websites) so a deploy made while the dev server runs survives hot reload.
 const globalForMonitoring = globalThis as typeof globalThis & { __wbDeploys?: Deploy[]; __wbSiteStatus?: SiteStatus[] };
 
-const maya = { fullName: "Maya Sok", initials: "MS" };
-const sovannarith = { fullName: "Sovannarith Soeun", initials: "SV" };
+/** The owner (session.ts / account.ts): the only person who deploys his websites. */
+const sovannarith = { fullName: "Sovannarith Soeun", initials: "SS" };
 
 type DeploySeed = [daysAgo: number, status: DeployStatus, durationSeconds: number, error?: string];
 
@@ -19,7 +19,7 @@ function toDeploys(websiteId: string, prefix: string, seeds: DeploySeed[]): Depl
       id: `${prefix}-${String(i + 1).padStart(12, "0")}`,
       websiteId,
       number: i + 1,
-      startedBy: i % 3 === 2 ? sovannarith : maya,
+      startedBy: sovannarith,
       startedAt: new Date(new Date(finishedAt).getTime() - durationSeconds * 1000).toISOString(),
       finishedAt,
       durationSeconds,
@@ -31,19 +31,18 @@ function toDeploys(websiteId: string, prefix: string, seeds: DeploySeed[]): Depl
 
 /**
  * Oldest first. The owner's free trial started 5 days ago, so every deploy is newer than that:
- * Petal & Stem failed once (missing email), then went live; Northpoint Audio went live, then was suspended.
+ * Petal & Stem failed once (missing email), then went live. That was the trial's first deploy; the
+ * other websites are drafts that were never deployed.
  */
 export const deploys: Deploy[] = (globalForMonitoring.__wbDeploys ??= [
   ...toDeploys(PETAL_AND_STEM_ID, "d3a1e5c2-7b4f-4e8a-9c01", [
     [4, "FAILED", 64, "Business email is missing"],
     [0.08, "SUCCEEDED", 101],
   ]),
-  ...toDeploys(NORTHPOINT_AUDIO_ID, "e4b2f6d3-8c5a-4f9b-8d02", [[4, "SUCCEEDED", 121]]),
 ]);
 
 export const siteStatus: SiteStatus[] = (globalForMonitoring.__wbSiteStatus ??= [
   { websiteId: PETAL_AND_STEM_ID, online: true, uptimePercent: "99.98", checkedAt: hoursAgo(0.05) },
-  { websiteId: NORTHPOINT_AUDIO_ID, online: false, uptimePercent: "86.40", checkedAt: hoursAgo(0.05) },
 ]);
 
 let n = 0;
@@ -61,7 +60,8 @@ const event = (
 
 /** Newest first. Shown only on Pro and Ultra plans (the owner is on the free trial, so it stays hidden for now). */
 export const activity: ActivityEvent[] = [
-  event(NORTHPOINT_AUDIO_ID, "DEPLOY", "SUCCEEDED", "Deploy 1 succeeded", daysAgo(4)),
-  event(NORTHPOINT_AUDIO_ID, "BUSINESS_INFO", "CHANGED", "Opening hours updated", daysAgo(4.1)),
-  event(NORTHPOINT_AUDIO_ID, "PRODUCT", "CHANGED", "Product “Studio monitor pair” added", daysAgo(4.2)),
+  event(PETAL_AND_STEM_ID, "DEPLOY", "SUCCEEDED", "Deploy 2 succeeded", hoursAgo(2)),
+  event(PETAL_AND_STEM_ID, "PRODUCT", "CHANGED", "Product “Blue lily stem” updated", hoursAgo(2)),
+  event(PETAL_AND_STEM_ID, "BUSINESS_INFO", "CHANGED", "Business email added", daysAgo(3.9)),
+  event(PETAL_AND_STEM_ID, "DEPLOY", "FAILED", "Deploy 1 failed", daysAgo(4), "Business email is missing"),
 ];

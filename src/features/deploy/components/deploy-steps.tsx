@@ -100,7 +100,7 @@ function StepBadge({ step }: { step: DeploymentStep }) {
   );
 }
 
-/** "Publishing steps" card: the six stages of a deploy and where the backend is now. Display only. */
+/** "Deploy steps" card: the six stages of a deploy and where the backend is now. Display only. */
 export function DeploySteps({ deployment }: { deployment: Deployment }) {
   const { steps } = deployment;
   const failedAt = steps.findIndex((s) => s.status === "FAILED");
@@ -109,13 +109,13 @@ export function DeploySteps({ deployment }: { deployment: Deployment }) {
 
   return (
     <section
-      aria-label="Publishing steps"
+      aria-label="Deploy steps"
       className="w-full max-w-[960px] overflow-hidden rounded-2xl border border-border bg-background shadow-card"
     >
       <header className="flex items-center justify-between border-b border-border px-6 py-3.5">
         <div className="flex items-center gap-3">
           <h2 className="text-sm font-semibold text-foreground">
-            Publishing steps
+            Deploy steps
           </h2>
           <span aria-hidden className="flex gap-1">
             {steps.map((s) => (

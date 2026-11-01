@@ -10,6 +10,8 @@ import {
   TickCircle,
   Wallet,
 } from "iconsax-reactjs";
+import { PageHeader } from "@/components/common/page-header";
+import { Pill } from "@/components/common/status-badge";
 import { toast } from "@/components/common/toast";
 import { Button } from "@/components/ui/button";
 import { useUrlParam } from "@/hooks/use-url-param";
@@ -89,18 +91,13 @@ export function ChooseDomainView({
 
   return (
     <>
-      <div className="flex flex-col items-center gap-3 text-center">
-        <span className="inline-flex h-[26px] items-center rounded-full border border-eyebrow-border bg-primary-soft px-3 text-xs font-medium text-primary">
-          First deploy
-        </span>
-        <h1 className="font-heading text-[30px] leading-[34.5px] font-semibold tracking-[-0.6px] text-primary">
-          Pick your free web address
-        </h1>
-        <p className="max-w-[560px] text-[15px] leading-[22.5px] text-muted-foreground">
-          This is where customers will find {siteName}. You can rename it any
-          time from the editor.
-        </p>
-      </div>
+      <PageHeader
+        align="center"
+        className="mb-0"
+        eyebrow="First deploy"
+        title="Pick your free web address"
+        description={`This is where customers will find ${siteName}. Pick it carefully: it stays the same after this first deploy.`}
+      />
 
       <form
         className="mt-8 flex w-full max-w-[540px] flex-col gap-5 rounded-3xl border border-border bg-background p-7 shadow-card"
@@ -140,9 +137,9 @@ export function ChooseDomainView({
               {DOMAIN_SUFFIX}
             </span>
             {available && (
-              <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-success-soft px-2.5 py-0.5 text-xs font-medium text-success">
-                <TickCircle aria-hidden className="size-3.5" /> Available
-              </span>
+              <Pill tone="success" icon={<TickCircle aria-hidden />} className="ml-2">
+                Available
+              </Pill>
             )}
           </div>
           <p

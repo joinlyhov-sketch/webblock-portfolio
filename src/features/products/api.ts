@@ -139,3 +139,27 @@ export async function deleteProduct(websiteId: string, productId: string): Promi
   store.splice(store.indexOf(product), 1);
   return product;
 }
+
+/**
+ * Mock only: Spring copies the template's sample products and categories into a new website's product
+ * list inside POST /projects ("Use template"), so the site and the Owner Portal start out the same.
+ */
+export function addTemplateProducts(websiteId: string, body: { products: ProductBody[]; categories: string[] }): void {
+  categoryStore[websiteId] = [...body.categories];
+  const now = Date.now();
+  // Oldest last, a second apart, so "newest first" keeps the template's order.
+  body.products.forEach((product, i) => {
+    const at = new Date(now - i * 1000).toISOString();
+    store.push({
+      id: crypto.randomUUID(),
+      websiteId,
+      name: product.name,
+      category: product.category,
+      description: product.description,
+      price: product.price,
+      imageUrl: product.imageUrl ?? null,
+      createdAt: at,
+      updatedAt: at,
+    });
+  });
+}

@@ -1,10 +1,12 @@
 import type { AdminOverview } from "@/features/admin/types";
+import { at } from "./time";
 
 export const adminOverview: AdminOverview = {
   newAccounts: 64,
   websitesPublished: 41,
   monthlyRevenue: "15051.64",
-  failedDeploys: 3,
+  // Needs-attention counts match the admin lists they open (admin-websites.ts, admin-subscriptions.ts).
+  failedDeploys: 2,
   revenueByMonth: [
     { month: "2025-11-01T00:00:00Z", amount: "8240.00" },
     { month: "2025-12-01T00:00:00Z", amount: "8910.00" },
@@ -22,9 +24,9 @@ export const adminOverview: AdminOverview = {
   attention: [
     {
       kind: "FAILED_DEPLOYS",
-      count: 3,
+      count: 2,
       latestName: "Still Point Studio",
-      latestAt: "2026-10-03T07:27:00Z",
+      latestAt: at("2026-10-03T07:27:00Z"),
       latestOwnerName: "David Lim",
       amountAtRisk: null,
       retryInDays: null,
@@ -33,25 +35,25 @@ export const adminOverview: AdminOverview = {
       kind: "PLAN_EXPIRED",
       count: 1,
       latestName: "Hollow & Co.",
-      latestAt: "2026-10-20T08:45:00Z",
+      latestAt: at("2026-10-20T08:45:00Z"),
       latestOwnerName: "Sreyleak Chan",
       amountAtRisk: null,
       retryInDays: null,
     },
     {
       kind: "PAYMENTS_PAST_DUE",
-      count: 14,
+      count: 1,
       latestName: "Corner Chair",
-      latestAt: "2026-10-30T03:30:00Z",
+      latestAt: at("2026-10-30T03:30:00Z"),
       latestOwnerName: "Endy Ong",
-      amountAtRisk: "269.86",
+      amountAtRisk: "19.99",
       retryInDays: 2,
     },
     {
       kind: "TRIALS_ENDING",
-      count: 38,
+      count: 2,
       latestName: "Bloom Bakery",
-      latestAt: "2026-11-03T11:20:00Z",
+      latestAt: at("2026-11-03T11:20:00Z"),
       latestOwnerName: "Vanda Ros",
       amountAtRisk: null,
       retryInDays: null,

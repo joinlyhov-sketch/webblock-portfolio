@@ -13,9 +13,10 @@ import {
   Status,
   TickCircle,
 } from "iconsax-reactjs";
+import { CompactTable } from "@/components/common/compact-table";
 import { Modal } from "@/components/common/modal";
 import { ScrollStrip } from "@/components/common/scroll-strip";
-import { StatusBadge } from "@/components/common/status-badge";
+import { Pill, StatusBadge } from "@/components/common/status-badge";
 import type { Page } from "@/lib/api/types";
 import { formatLogTime, formatRelative, formatTime } from "@/lib/format";
 import { tableHref, type SearchParams } from "@/lib/table-query";
@@ -113,7 +114,7 @@ export function PublishFlowSheet({
             id="publish-flow-title"
             className="mb-3 text-base font-semibold text-foreground"
           >
-            Publish flow
+            Deploy flow
           </h3>
           <FlowStrip steps={run.steps} />
         </section>
@@ -453,95 +454,84 @@ function LiveLogs({
               </Link>
             ))}
           </nav>
-          <span className="inline-flex h-8 items-center gap-1.5 rounded-full bg-success-soft px-3 text-[13px] font-semibold text-success">
-            <span
-              aria-hidden
-              className="size-1.5 rounded-full bg-success motion-safe:animate-pulse"
-            />
+          <Pill
+            tone="success"
+            icon={<span aria-hidden className="size-1.5 rounded-full bg-success motion-safe:animate-pulse" />}
+          >
             Streaming
-          </span>
+          </Pill>
         </div>
       </header>
 
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[640px] text-[13px]">
-          <thead className="bg-muted text-left text-[11px] font-semibold tracking-wide text-placeholder uppercase">
-            <tr>
-              <th className="px-4 py-2.5">Time</th>
-              <th className="px-4 py-2.5">Level</th>
-              <th className="px-4 py-2.5">Request</th>
-              <th className="px-4 py-2.5">Status</th>
-              <th className="px-4 py-2.5 text-right">Duration</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {logs.items.length === 0 && (
-              <tr>
-                <td
-                  colSpan={5}
-                  className="px-4 py-6 text-center text-muted-foreground"
-                >
-                  No{" "}
-                  {active === "ALL"
-                    ? ""
-                    : `${LEVEL_LABEL[active as LogLevel].toLowerCase()} `}
-                  lines in the last 15 minutes.
-                </td>
-              </tr>
-            )}
-            {logs.items.map((line) => (
-              <tr
-                key={line.id}
-                className={cn(
-                  line.level === "WARN" && "bg-warning-soft/40",
-                  line.level === "ERROR" && "bg-danger-soft/40",
-                )}
-              >
-                <td className="px-4 py-2.5 text-muted-foreground tabular-nums">
-                  {formatLogTime(line.at)}
-                </td>
-                <td className="px-4 py-2.5">
-                  <span
-                    className={cn(
-                      "rounded-md px-1.5 py-0.5 font-mono text-xs",
-                      LEVEL_STYLE[line.level],
-                    )}
-                  >
-                    {line.level.toLowerCase()}
-                  </span>
-                </td>
-                <td className="px-4 py-2.5 text-foreground">
+      <div className="px-4 pt-3 pb-2">
+        <CompactTable
+          dense
+          label="Log lines"
+          rows={logs.items}
+          rowKey={(line) => line.id}
+          rowClassName={(line) =>
+            cn(line.level === "WARN" && "bg-warning-soft/40", line.level === "ERROR" && "bg-danger-soft/40")
+          }
+          empty={
+            <p className="py-2 text-center text-muted-foreground">
+              No {active === "ALL" ? "" : `${LEVEL_LABEL[active as LogLevel].toLowerCase()} `}lines in the last 15
+              minutes.
+            </p>
+          }
+          columns={[
+            {
+              key: "time",
+              header: "Time",
+              cell: (line) => formatLogTime(line.at),
+              className: "text-muted-foreground tabular-nums",
+            },
+            {
+              key: "level",
+              header: "Level",
+              cell: (line) => (
+                <span className={cn("rounded-md px-1.5 py-0.5 font-mono text-xs", LEVEL_STYLE[line.level])}>
+                  {line.level.toLowerCase()}
+                </span>
+              ),
+            },
+            {
+              key: "request",
+              header: "Request",
+              className: "text-foreground",
+              cell: (line) => (
+                <>
                   {line.method} &nbsp;{line.path}
                   {line.note && (
-                    <span
-                      className={cn(
-                        "ml-3",
-                        line.level === "ERROR" ? "text-danger" : "text-warning",
-                      )}
-                    >
+                    <span className={cn("ml-3", line.level === "ERROR" ? "text-danger" : "text-warning")}>
                       {line.note}
                     </span>
                   )}
-                </td>
-                <td
+                </>
+              ),
+            },
+            {
+              key: "status",
+              header: "Status",
+              cell: (line) => (
+                <span
                   className={cn(
-                    "px-4 py-2.5 tabular-nums",
-                    line.statusCode >= 500
-                      ? "text-danger"
-                      : line.statusCode >= 400
-                        ? "text-warning"
-                        : "text-success",
+                    "tabular-nums",
+                    line.statusCode >= 500 ? "text-danger" : line.statusCode >= 400 ? "text-warning" : "text-success",
                   )}
                 >
                   {line.statusCode}
-                </td>
-                <td className="px-4 py-2.5 text-right text-muted-foreground tabular-nums">
-                  {line.durationMs} ms
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </span>
+              ),
+            },
+            {
+              key: "duration",
+              header: "Duration",
+              align: "end",
+              cell: (line) => `${line.durationMs} ms`,
+              className: "text-muted-foreground tabular-nums",
+            },
+          ]}
+        />
       </div>
       <p className="border-t border-border bg-surface px-4 py-2.5 text-xs text-muted-foreground">
         Showing the latest {logs.items.length} lines · updates every 2 seconds ·

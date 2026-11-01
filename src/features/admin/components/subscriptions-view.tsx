@@ -44,6 +44,10 @@ import type {
 } from "../types";
 import { AdminPageHeader } from "./admin-page-header";
 import { DetailHero, DetailSection, HeroChip } from "./detail-hero";
+
+/** "3 of 30", or "First deploy only" on the free trial (it has no redeploys). */
+const redeploysText = (s: { redeploysLeft: number; redeployLimit: number }) =>
+  s.redeployLimit === 0 ? "First deploy only" : `${s.redeploysLeft} of ${s.redeployLimit}`;
 const STATUSES: SubscriptionStatus[] = [
   "ACTIVE",
   "PENDING",
@@ -74,7 +78,7 @@ export function SubscriptionsView({
     <>
       <AdminPageHeader
         title="Subscriptions"
-        description="Plans, trials and payments for every project."
+        description="Plans, trials and payments for every website."
       />
       <KpiGrid>
         <KpiCard
@@ -115,7 +119,7 @@ export function SubscriptionsView({
           <>
             <TableSearch
               searchParams={searchParams}
-              placeholder="Search by user or project"
+              placeholder="Search by user or website"
             />
             <FilterMenu
               label="Status"
@@ -178,7 +182,7 @@ export function SubscriptionsView({
         columns={[
           {
             key: "user",
-            header: "User · project",
+            header: "User · website",
             sortField: "userName",
             cell: (s) => (
               // Stretched link: the whole row opens the popup.
@@ -243,10 +247,10 @@ export function SubscriptionsView({
               <span
                 className={cn(
                   "tabular-nums",
-                  s.redeploysLeft === 0 && "font-semibold text-danger",
+                  s.redeployLimit > 0 && s.redeploysLeft === 0 && "font-semibold text-danger",
                 )}
               >
-                {s.redeploysLeft} of {s.redeployLimit}
+                {redeploysText(s)}
               </span>
             ),
           },
@@ -343,13 +347,13 @@ function SubscriptionDetail({
           <DetailList
             items={[
               { label: "Plan", value: planLabel(s.plan) },
-              { label: "Project", value: s.websiteName },
+              { label: "Website", value: s.websiteName },
               { label: "Status", value: statusLabel(s.status) },
               { label: "Start date", value: formatDate(s.startAt) },
               { label: "End date", value: formatDate(s.endAt) },
               {
                 label: "Redeploys left",
-                value: `${s.redeploysLeft} of ${s.redeployLimit}`,
+                value: redeploysText(s),
               },
             ]}
           />

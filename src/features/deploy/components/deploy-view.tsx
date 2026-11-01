@@ -12,7 +12,7 @@ export function DeployView({ view }: { view: DeployData }) {
   const { website } = view;
   const editorHref = `/websites/${website.id}/edit`;
   return (
-    <DeployShell siteName={website.name}>
+    <DeployShell siteName={website.name} backHref={editorHref}>
       {view.kind === "start" ? (
         <StartDeploy
           websiteId={website.id}

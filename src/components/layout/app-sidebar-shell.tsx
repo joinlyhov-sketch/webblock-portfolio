@@ -7,6 +7,7 @@ import { Avatar } from "@/components/common/avatar";
 import { ConfirmDialog } from "@/components/common/confirm-dialog";
 import { userNav } from "@/config/nav";
 import { useProfileUpdates } from "@/hooks/use-profile-updates";
+import { useSidebarCollapse } from "@/hooks/use-sidebar-collapse";
 import { cn } from "@/lib/utils";
 import type { Profile, SidebarSummary } from "@/features/account";
 import { BrandLogo } from "./brand-logo";
@@ -22,24 +23,24 @@ export function AppSidebarShell({
   summary: SidebarSummary;
 }) {
   const profile = useProfileUpdates(serverProfile);
-  const [collapsed, setCollapsed] = useState(false);
+  const { narrow, collapsed, toggle } = useSidebarCollapse();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [signingOut, startSignOut] = useTransition();
 
   return (
     <aside
       className={cn(
-        "sticky top-0 flex h-dvh shrink-0 flex-col gap-1.5 border-r border-border bg-background px-4 py-[22px] transition-[width] duration-200",
-        collapsed ? "w-[84px]" : "w-[260px]",
+        "sticky top-0 flex h-dvh shrink-0 flex-col gap-1.5 overflow-hidden border-r border-border bg-background px-4 py-[22px] transition-[width] duration-200 ease-out motion-reduce:transition-none",
+        narrow ? "w-[84px]" : "w-[260px]",
       )}
     >
       <div className={cn("flex items-center pt-1 pb-[22px]", collapsed ? "flex-col gap-3" : "justify-between px-2")}>
         <BrandLogo href="/websites" compact={collapsed} />
         <button
           type="button"
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          aria-expanded={!collapsed}
-          onClick={() => setCollapsed((value) => !value)}
+          aria-label={narrow ? "Expand sidebar" : "Collapse sidebar"}
+          aria-expanded={!narrow}
+          onClick={toggle}
           className="flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-background text-foreground-soft outline-none transition-colors hover:bg-primary-soft focus-visible:ring-3 focus-visible:ring-ring/40"
         >
           <SidebarLeft aria-hidden className="size-4" />
@@ -76,7 +77,7 @@ export function AppSidebarShell({
         loading={signingOut}
         icon={<Logout />}
         title="Log out of WebBlock?"
-        description="You’ll need to sign in again to manage and publish your websites."
+        description="You’ll need to sign in again to manage and deploy your websites."
         confirmLabel="Log out"
         look="soft"
       />

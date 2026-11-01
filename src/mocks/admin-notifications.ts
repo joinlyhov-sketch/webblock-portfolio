@@ -1,4 +1,5 @@
 import type { AdminNotification } from "@/features/admin/types";
+import { at } from "./time";
 
 // Times are relative to server start so "2 mins ago" stays realistic while you click around.
 const ago = (minutes: number) => new Date(Date.now() - minutes * 60_000).toISOString();
@@ -12,7 +13,7 @@ export const adminNotifications: AdminNotification[] = [
     actorAvatarUrl: null,
     message: "Hollow & Co. deploy failed at the Go live step.",
     link: "/admin/websites?website=9b2d4f6a-1c3e-4a5b-8d7f-2e4c6a8b0206",
-    createdAt: "2026-10-01T04:44:00Z",
+    createdAt: at("2026-10-01T04:44:00Z"),
     readAt: null,
   },
   {
@@ -23,7 +24,7 @@ export const adminNotifications: AdminNotification[] = [
     actorAvatarUrl: "/mock/avatars/lihov-chiv.jpg",
     message: "Started a free trial for Artisan Bakery.",
     link: "/admin/subscriptions?subscription=e4a6c8f0-3b5d-4f7a-8c9e-0a2c4e6a0402",
-    createdAt: "2026-10-22T02:30:00Z",
+    createdAt: at("2026-11-01T09:30:00Z"),
     readAt: null,
   },
   {
@@ -45,7 +46,7 @@ export const adminNotifications: AdminNotification[] = [
     actorAvatarUrl: "/mock/avatars/endy-ong.jpg",
     message: "Payment past due for Corner Chair · retries in 2 days.",
     link: "/admin/subscriptions?subscription=e4a6c8f0-3b5d-4f7a-8c9e-0a2c4e6a0404",
-    createdAt: "2026-10-30T03:30:00Z",
+    createdAt: at("2026-10-30T03:30:00Z"),
     readAt: null,
   },
   {
@@ -56,8 +57,8 @@ export const adminNotifications: AdminNotification[] = [
     actorAvatarUrl: null,
     message: "Hollow & Co. plan expired · site is offline until they renew.",
     link: "/admin/subscriptions?subscription=e4a6c8f0-3b5d-4f7a-8c9e-0a2c4e6a0406",
-    createdAt: "2026-10-20T08:45:00Z",
-    readAt: "2026-10-20T10:00:00Z",
+    createdAt: at("2026-10-20T08:45:00Z"),
+    readAt: at("2026-10-20T10:00:00Z"),
   },
   {
     id: "d2f4a6c8-6e8a-4b1c-9d3e-4f6a8c0e0706",
@@ -78,8 +79,8 @@ export const adminNotifications: AdminNotification[] = [
     actorAvatarUrl: "/mock/avatars/david-lim.jpg",
     message: "Upgraded Still Point Studio from Free trial to Plus.",
     link: "/admin/subscriptions?subscription=e4a6c8f0-3b5d-4f7a-8c9e-0a2c4e6a0403",
-    createdAt: "2026-08-12T05:05:00Z",
-    readAt: "2026-08-12T06:05:00Z",
+    createdAt: at("2026-08-12T05:05:00Z"),
+    readAt: at("2026-08-12T06:05:00Z"),
   },
   {
     id: "d2f4a6c8-6e8a-4b1c-9d3e-4f6a8c0e0708",
@@ -100,8 +101,8 @@ export const adminNotifications: AdminNotification[] = [
     actorAvatarUrl: "/mock/avatars/david-lim.jpg",
     message: "Still Point Studio deploy failed at the Build step.",
     link: "/admin/websites?website=9b2d4f6a-1c3e-4a5b-8d7f-2e4c6a8b0202",
-    createdAt: "2026-10-03T07:31:00Z",
-    readAt: "2026-10-03T08:01:00Z",
+    createdAt: at("2026-10-03T07:31:00Z"),
+    readAt: at("2026-10-03T08:01:00Z"),
   },
   {
     id: "d2f4a6c8-6e8a-4b1c-9d3e-4f6a8c0e0710",

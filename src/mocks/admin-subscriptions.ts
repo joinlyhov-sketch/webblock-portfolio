@@ -1,5 +1,6 @@
 import type { Payment, Plan, Subscription, SubscriptionStats } from "@/features/admin/types";
-import { daysAgo, daysFromNow } from "./time";
+import { PETAL_AND_STEM_ID, SOVANNARITH_ID } from "./session";
+import { at, daysAgo, daysFromNow } from "./time";
 
 /** Sovannarith's trial, same window as his account page (src/mocks/account.ts): 14 days, started 5 days ago. */
 export const SOVANNARITH_TRIAL_START = daysAgo(5);
@@ -9,8 +10,10 @@ export const SOVANNARITH_TRIAL_END = daysFromNow(9);
 export const subscriptionStats: SubscriptionStats = {
   monthlyRevenue: "15051.64",
   activePlans: 836,
-  trialsEndingSoon: 38,
-  pending: 14,
+  // Bloom Bakery and Riverfish Kitchen (the trials below that end within 3 days), as on the overview.
+  trialsEndingSoon: 2,
+  // Corner Chair: its renewal payment is past due (status PENDING below).
+  pending: 1,
 };
 
 const U = "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c";
@@ -19,35 +22,35 @@ const W = "9b2d4f6a-1c3e-4a5b-8d7f-2e4c6a8b";
 export const subscriptions: Subscription[] = [
   {
     id: "e4a6c8f0-3b5d-4f7a-8c9e-0a2c4e6a0401",
-    userId: `${U}0101`,
+    userId: SOVANNARITH_ID,
     userName: "Sovannarith Soeun",
     userEmail: "sovannarith@gmail.com",
     userAvatarUrl: "/mock/avatars/sovannarith-soeun.jpg",
-    websiteId: `${W}0201`,
+    websiteId: PETAL_AND_STEM_ID,
     websiteName: "Petal & Stem",
     websiteDomain: "petalandstem.webblock.com",
     plan: "FREE_TRIAL",
     status: "ACTIVE",
     startAt: SOVANNARITH_TRIAL_START,
     endAt: SOVANNARITH_TRIAL_END,
-    redeploysLeft: 5,
-    redeployLimit: 5,
+    redeploysLeft: 0,
+    redeployLimit: 0,
   },
   {
     id: "e4a6c8f0-3b5d-4f7a-8c9e-0a2c4e6a0402",
     userId: `${U}0102`,
     userName: "Lihov Chiv",
-    userEmail: "lihov@mapleandrye.com",
+    userEmail: "lihov@artisanbakery.com",
     userAvatarUrl: "/mock/avatars/lihov-chiv.jpg",
     websiteId: `${W}0222`,
     websiteName: "Artisan Bakery",
     websiteDomain: "artisan-bakery.webblock.com",
     plan: "FREE_TRIAL",
     status: "ACTIVE",
-    startAt: "2026-10-22T02:30:00Z",
-    endAt: "2026-11-05T02:30:00Z",
-    redeploysLeft: 5,
-    redeployLimit: 5,
+    startAt: at("2026-11-01T09:30:00Z"),
+    endAt: at("2026-11-05T02:30:00Z"),
+    redeploysLeft: 0,
+    redeployLimit: 0,
   },
   {
     id: "e4a6c8f0-3b5d-4f7a-8c9e-0a2c4e6a0403",
@@ -60,8 +63,8 @@ export const subscriptions: Subscription[] = [
     websiteDomain: "stillpoint.webblock.com",
     plan: "PLUS",
     status: "ACTIVE",
-    startAt: "2026-08-12T05:05:00Z",
-    endAt: "2026-11-12T05:05:00Z",
+    startAt: at("2026-08-12T05:05:00Z"),
+    endAt: at("2026-11-12T05:05:00Z"),
     redeploysLeft: 1,
     redeployLimit: 3,
   },
@@ -75,10 +78,11 @@ export const subscriptions: Subscription[] = [
     websiteName: "Corner Chair",
     websiteDomain: "cornerchair.webblock.com",
     plan: "PRO",
-    // Still active until the paid period ends; the renewal payment failed and is retried.
-    status: "ACTIVE",
-    startAt: "2026-07-03T03:30:00Z",
-    endAt: "2026-11-03T03:30:00Z",
+    // The renewal payment failed and is retried in 2 days: payment pending (past due). The overview's
+    // "Payments past due" tile opens this list (?status=PENDING).
+    status: "PENDING",
+    startAt: at("2026-07-03T03:30:00Z"),
+    endAt: at("2026-11-03T03:30:00Z"),
     redeploysLeft: 23,
     redeployLimit: 30,
   },
@@ -86,17 +90,17 @@ export const subscriptions: Subscription[] = [
     id: "e4a6c8f0-3b5d-4f7a-8c9e-0a2c4e6a0405",
     userId: `${U}0105`,
     userName: "Vanda Ros",
-    userEmail: "vanda@lanterncafe.com",
+    userEmail: "vanda@bloombakery.com",
     userAvatarUrl: "/mock/avatars/vanda-ros.jpg",
     websiteId: `${W}0221`,
     websiteName: "Bloom Bakery",
     websiteDomain: "bloombakery.webblock.com",
     plan: "FREE_TRIAL",
     status: "ACTIVE",
-    startAt: "2026-10-20T11:20:00Z",
-    endAt: "2026-11-03T11:20:00Z",
-    redeploysLeft: 5,
-    redeployLimit: 5,
+    startAt: at("2026-10-20T11:20:00Z"),
+    endAt: at("2026-11-03T11:20:00Z"),
+    redeploysLeft: 0,
+    redeployLimit: 0,
   },
   {
     id: "e4a6c8f0-3b5d-4f7a-8c9e-0a2c4e6a0406",
@@ -109,8 +113,8 @@ export const subscriptions: Subscription[] = [
     websiteDomain: "hollowandco.webblock.com",
     plan: "PLUS",
     status: "EXPIRED",
-    startAt: "2026-06-20T08:45:00Z",
-    endAt: "2026-10-20T08:45:00Z",
+    startAt: at("2026-06-20T08:45:00Z"),
+    endAt: at("2026-10-20T08:45:00Z"),
     redeploysLeft: 0,
     redeployLimit: 3,
   },
@@ -125,8 +129,8 @@ export const subscriptions: Subscription[] = [
     websiteDomain: "fixright.webblock.com",
     plan: "ULTRA",
     status: "ACTIVE",
-    startAt: "2026-08-26T11:00:00Z",
-    endAt: "2027-04-26T11:00:00Z",
+    startAt: at("2026-08-26T11:00:00Z"),
+    endAt: at("2027-04-26T11:00:00Z"),
     redeploysLeft: 92,
     redeployLimit: 100,
   },
@@ -141,10 +145,10 @@ export const subscriptions: Subscription[] = [
     websiteDomain: "riverfish.webblock.com",
     plan: "FREE_TRIAL",
     status: "ACTIVE",
-    startAt: "2026-10-20T06:25:00Z",
-    endAt: "2026-11-03T06:25:00Z",
-    redeploysLeft: 3,
-    redeployLimit: 5,
+    startAt: at("2026-10-20T06:25:00Z"),
+    endAt: at("2026-11-03T06:25:00Z"),
+    redeploysLeft: 0,
+    redeployLimit: 0,
   },
   {
     id: "e4a6c8f0-3b5d-4f7a-8c9e-0a2c4e6a0409",
@@ -157,8 +161,8 @@ export const subscriptions: Subscription[] = [
     websiteDomain: "maoprint.webblock.com",
     plan: "ULTRA",
     status: "ACTIVE",
-    startAt: "2026-03-08T09:15:00Z",
-    endAt: "2026-11-08T09:15:00Z",
+    startAt: at("2026-03-08T09:15:00Z"),
+    endAt: at("2026-11-08T09:15:00Z"),
     redeploysLeft: 81,
     redeployLimit: 100,
   },
@@ -176,12 +180,12 @@ const pay = (n: string, sub: string, plan: Payment["plan"], periodStart: string,
 });
 
 export const payments: Payment[] = [
-  pay("0503", "0403", "PLUS", "2026-10-01T00:00:00Z", "9.99", "PAID", "2026-10-12T05:05:00Z"),
-  pay("0504", "0404", "PRO", "2026-11-01T00:00:00Z", "19.99", "FAILED", "2026-10-30T03:30:00Z"),
-  pay("0505", "0404", "PRO", "2026-10-01T00:00:00Z", "19.99", "PAID", "2026-10-03T03:30:00Z"),
-  pay("0506", "0406", "PLUS", "2026-10-01T00:00:00Z", "9.99", "FAILED", "2026-10-20T08:45:00Z"),
-  pay("0507", "0407", "ULTRA", "2026-10-01T00:00:00Z", "39.99", "PAID", "2026-10-26T11:00:00Z"),
-  pay("0508", "0409", "ULTRA", "2026-10-01T00:00:00Z", "39.99", "PAID", "2026-10-08T09:15:00Z"),
+  pay("0503", "0403", "PLUS", at("2026-10-01T00:00:00Z"), "9.99", "PAID", at("2026-10-12T05:05:00Z")),
+  pay("0504", "0404", "PRO", at("2026-11-01T00:00:00Z"), "19.99", "FAILED", at("2026-10-30T03:30:00Z")),
+  pay("0505", "0404", "PRO", at("2026-10-01T00:00:00Z"), "19.99", "PAID", at("2026-10-03T03:30:00Z")),
+  pay("0506", "0406", "PLUS", at("2026-10-01T00:00:00Z"), "9.99", "FAILED", at("2026-10-20T08:45:00Z")),
+  pay("0507", "0407", "ULTRA", at("2026-10-01T00:00:00Z"), "39.99", "PAID", at("2026-10-26T11:00:00Z")),
+  pay("0508", "0409", "ULTRA", at("2026-10-01T00:00:00Z"), "39.99", "PAID", at("2026-10-08T09:15:00Z")),
 ];
 
 export const plans: Plan[] = [
@@ -192,7 +196,8 @@ export const plans: Plan[] = [
     priceMonthly: "0.00",
     trialDays: 14,
     websiteLimit: 1,
-    redeploysPerMonth: 5,
+    // First deploy only: the trial has no redeploys.
+    redeploysPerMonth: 0,
     productLimit: 30,
     monitoring: "Basic status monitoring",
     subscriberCount: 212,

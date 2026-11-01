@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { TickCircle } from "iconsax-reactjs";
 import { Button } from "@/components/ui/button";
+import { withNext } from "@/lib/auth/next-path";
 import { newPasswordInput, parseForm, type FieldErrors } from "../schemas";
 import { Field } from "./field";
 import { PasswordInput } from "./password-input";
@@ -13,9 +14,12 @@ import { PasswordRules, PasswordStrengthMeter } from "./password-strength";
 export function NewPasswordForm({
   email,
   mode,
+  next = null,
 }: {
   email: string;
   mode: "create" | "reset";
+  /** Where to go after signing in; passed on to the sign-in page. */
+  next?: string | null;
 }) {
   const router = useRouter();
   const [password, setPassword] = useState("");
@@ -30,7 +34,7 @@ export function NewPasswordForm({
     if (!result.ok) return setErrors(result.fieldErrors);
     setErrors({});
     // TODO(auth): call the create-account / reset-password action, then go to sign-in.
-    router.push(`/sign-in?email=${encodeURIComponent(email)}`);
+    router.push(withNext(`/sign-in?email=${encodeURIComponent(email)}`, next));
   }
 
   return (

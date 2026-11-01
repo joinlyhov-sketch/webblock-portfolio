@@ -1,6 +1,6 @@
 import type { PageData, Product } from "@/features/editor/types";
 
-// "Keyboards" demo page: a small keyboard shop in Phnom Penh. Showcase content only: call, message and
+// Midnight glow demo page: Keycap Lab, a small keyboard shop in Phnom Penh. Showcase content only: call, message and
 // directions, no ordering. Product tags follow a "|" in the description.
 const IMG = "/mock/templates/keyboards";
 
@@ -43,16 +43,16 @@ export const keyboardsPage: PageData = {
   root: {
     props: {
       templateId: "keyboards",
-      businessName: "Keyboards",
+      businessName: "Keycap Lab",
       statusText: "Open today · 9:00 AM – 6:00 PM",
       hours: "9:00 AM – 6:00 PM",
       hoursDetail: "Mon – Fri 9:00 AM – 6:00 PM · Sat 9:00 AM – 4:00 PM · Sun closed",
       address: "52 Street 240, Daun Penh, Phnom Penh",
       phones: [{ number: "012 678 910" }],
-      email: "hello@keyboardsshop.com",
-      telegram: "keyboards_kh",
-      facebookUrl: "https://facebook.com/keyboardsshop",
-      instagramUrl: "https://instagram.com/keyboardsshop",
+      email: "hello@keycaplab.com",
+      telegram: "keycaplab",
+      facebookUrl: "https://facebook.com/keycaplab",
+      instagramUrl: "https://instagram.com/keycaplab",
       currency: "USD",
       palette: "original",
       accentColor: null,

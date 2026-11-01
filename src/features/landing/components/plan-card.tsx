@@ -3,6 +3,7 @@ import type { ComponentType } from "react";
 import { Activity, Box1, Clock, DocumentText, Global, Refresh2, TickCircle } from "iconsax-reactjs";
 import { RevealGroup, RevealItem } from "@/components/common/motion";
 import { Button } from "@/components/ui/button";
+import { withNext } from "@/lib/auth/next-path";
 import { formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { Plan, PlanCode } from "../types";
@@ -22,7 +23,7 @@ type PlanTheme = {
 
 /** Per-tier colours from Figma "Plan cards (4)". */
 const themes = {
-  TRIAL: {
+  FREE_TRIAL: {
     card: "border-primary bg-linear-[126deg] from-primary-soft to-background to-70%",
     pill: "border border-primary/35 bg-primary-soft text-primary",
     price: "text-primary",
@@ -93,7 +94,10 @@ function planFeatures(plan: Plan, lower: Plan | undefined): Feature[] {
       icon: Global,
       label: plan.websiteLimit === 1 ? "1 website" : `Up to ${plural(plan.websiteLimit, "website")}`,
     },
-    { icon: Refresh2, label: `${plural(plan.redeploysPerMonth, "redeploy")} a month` },
+    {
+      icon: Refresh2,
+      label: plan.redeploysPerMonth === 0 ? "First deploy only" : `${plural(plan.redeploysPerMonth, "redeploy")} a month`,
+    },
     { icon: Box1, label: `Up to ${plural(plan.productLimit, "product")}` },
   );
   if (!lowerPaid) features.push({ icon: Activity, label: "Basic status monitoring" });
@@ -160,7 +164,8 @@ export function PlanCard({
       <div aria-hidden className={cn("h-px w-full", theme.divider)} />
 
       <Button asChild size="lp-md" className={cn("h-[46px] w-full text-[15px]", theme.cta)}>
-        <Link href={`/register?plan=${plan.code.toLowerCase()}`}>
+        {/* Every account starts on the free trial; "Choose Pro" then lands on the plans screen to switch. */}
+        <Link href={isTrial ? "/register" : withNext("/register", "/billing/plans")}>
           {isTrial ? "Start free trial" : `Choose ${plan.name}`}
         </Link>
       </Button>

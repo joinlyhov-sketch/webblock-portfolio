@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { ArrowLeft, ExportSquare, Logout, SidebarLeft } from "iconsax-reactjs";
 import { signOutAction } from "@/features/auth/actions";
@@ -9,52 +9,39 @@ import { ConfirmDialog } from "@/components/common/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { ownerNav } from "@/config/nav";
 import { liveSiteHref } from "@/config/site";
+import { useSidebarCollapse } from "@/hooks/use-sidebar-collapse";
 import { cn } from "@/lib/utils";
 import type { Profile } from "@/features/account";
 import type { Website } from "@/features/websites";
 import { BrandLogo } from "./brand-logo";
 import { SidebarNav } from "./sidebar-nav";
 
-/** Length of the sidebar's width animation (`duration-200`). */
-const WIDTH_MS = 200;
-
 /** Interactive part of the Owner Portal sidebar: collapse toggle and the log out confirmation. */
 export function OwnerSidebarShell({
   website,
   profile,
 }: {
-  website: Pick<Website, "id" | "name" | "domain">;
+  website: Pick<Website, "id" | "name" | "domain" | "status">;
   profile: Pick<Profile, "fullName" | "initials" | "avatarUrl">;
 }) {
-  // `narrow` is the width, `collapsed` the content layout. Expanding widens first and shows the
-  // labels once the width has finished growing; collapsing hides them first. That way nothing is
-  // laid out wide inside a sidebar that is still narrow (the old flicker on "Back to editor").
-  const [narrow, setNarrow] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
-  const labelsTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const { narrow, collapsed, toggle: toggleSidebar } = useSidebarCollapse();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [signingOut, startSignOut] = useTransition();
 
-  useEffect(() => () => clearTimeout(labelsTimer.current), []);
-
-  function toggleSidebar() {
-    clearTimeout(labelsTimer.current);
-    if (narrow) {
-      setNarrow(false);
-      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      labelsTimer.current = setTimeout(() => setCollapsed(false), reduceMotion ? 0 : WIDTH_MS);
-    } else {
-      setCollapsed(true);
-      setNarrow(true);
-    }
-  }
-
-  const siteLabel = website.domain ? "Go to website" : "Not published yet";
+  // Only a live website can be opened: a draft has no published page yet and a suspended one is
+  // hidden from visitors.
+  const live = website.status === "LIVE" && website.domain !== null;
+  const siteLabel = live ? "Go to website" : website.status === "SUSPENDED" ? "Website suspended" : "Not deployed yet";
+  // A suspended website can't be edited until it is reactivated from My Websites.
+  const back =
+    website.status === "SUSPENDED"
+      ? { href: "/websites?status=suspended", label: "Back to My Websites" }
+      : { href: `/websites/${website.id}/edit`, label: "Back to editor" };
 
   return (
     <aside
       className={cn(
-        "sticky top-0 flex h-dvh shrink-0 flex-col overflow-hidden border-r border-border bg-background px-4 pt-5 pb-4 transition-[width] duration-200 motion-reduce:transition-none",
+        "sticky top-0 flex h-dvh shrink-0 flex-col overflow-hidden border-r border-border bg-background px-4 pt-5 pb-4 transition-[width] duration-200 ease-out motion-reduce:transition-none",
         narrow ? "w-[84px]" : "w-[260px]",
       )}
     >
@@ -72,8 +59,8 @@ export function OwnerSidebarShell({
       </div>
 
       <div className={cn("pt-5 pb-5", collapsed && "flex justify-center")}>
-        {/* Opens the live site in a new tab. Before the first publish there is nothing to open. */}
-        {website.domain ? (
+        {/* Opens the live site in a new tab. Before the first deploy there is nothing to open. */}
+        {live ? (
           <Button
             asChild
             variant="soft"
@@ -84,7 +71,7 @@ export function OwnerSidebarShell({
               href={liveSiteHref(website.id)}
               target="_blank"
               rel="noopener noreferrer"
-              title={collapsed ? `Go to website (${website.domain})` : website.domain}
+              title={collapsed ? `Go to website (${website.domain})` : (website.domain ?? undefined)}
               aria-label={collapsed ? "Go to website" : undefined}
             >
               <ExportSquare aria-hidden />
@@ -96,7 +83,7 @@ export function OwnerSidebarShell({
             variant="soft"
             size={collapsed ? "icon" : "md"}
             disabled
-            title="Publish your website first"
+            title={website.status === "SUSPENDED" ? "Visitors can't see a suspended website" : "Deploy your website first"}
             aria-label={collapsed ? siteLabel : undefined}
             className={cn(!collapsed && "w-full")}
           >
@@ -110,15 +97,15 @@ export function OwnerSidebarShell({
 
       <div className="mt-auto flex flex-col gap-0.5">
         <Link
-          href={`/websites/${website.id}/edit`}
-          title={collapsed ? "Back to editor" : undefined}
+          href={back.href}
+          title={collapsed ? back.label : undefined}
           className={cn(
             "flex h-10 items-center gap-3 rounded-full px-3 text-sm font-medium text-foreground-soft outline-none transition-colors hover:bg-surface hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/40",
             collapsed && "justify-center px-0",
           )}
         >
           <ArrowLeft aria-hidden className="size-[18px] shrink-0" />
-          <span className={cn("whitespace-nowrap", collapsed && "sr-only")}>Back to editor</span>
+          <span className={cn("whitespace-nowrap", collapsed && "sr-only")}>{back.label}</span>
         </Link>
         <div className="py-2.5">
           <div className="h-px bg-border" />
@@ -154,7 +141,7 @@ export function OwnerSidebarShell({
         loading={signingOut}
         icon={<Logout />}
         title="Log out of WebBlock?"
-        description="You’ll need to sign in again to manage and publish your websites."
+        description="You’ll need to sign in again to manage and deploy your websites."
         confirmLabel="Log out"
         look="soft"
       />

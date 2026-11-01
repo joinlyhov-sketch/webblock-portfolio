@@ -36,7 +36,7 @@ export function PublishingScreen() {
             <ProgressRing />
             <span className="mt-5 flex h-6 items-center gap-1.5 rounded-full bg-brand-soft px-2.5 text-xs font-semibold text-brand-strong">
               <Refresh2 className="size-[13px]" />
-              Publishing · about 2 minutes left
+              Deploying · about 2 minutes left
             </span>
             <p className="mt-3 w-[560px] text-center font-heading text-[34px] leading-[46px] font-semibold tracking-[-1.1px] text-brand-dark">
               Deploying your changes
@@ -50,7 +50,7 @@ export function PublishingScreen() {
             >
               <div className="flex items-center justify-between border-b border-border px-8 py-5">
                 <div className="flex items-center gap-2.5">
-                  <span className="text-[15px] font-bold text-foreground">Publishing steps</span>
+                  <span className="text-[15px] font-bold text-foreground">Deploy steps</span>
                   <span className="flex gap-1">
                     {["bg-brand", "bg-brand", "bg-brand", "bg-brand/35", "bg-border", "bg-border"].map((bar, i) => (
                       <span key={i} className={cn("h-1 w-[18px] rounded-[2px]", bar)} />

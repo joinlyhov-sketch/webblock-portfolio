@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import { ArrowLeft, ShieldTick, Tag } from "iconsax-reactjs";
+import { PageHeader } from "@/components/common/page-header";
+import { Pill } from "@/components/common/status-badge";
 import { Button } from "@/components/ui/button";
 import { FitScreen } from "./fit-screen";
 import { cn } from "@/lib/utils";
@@ -202,13 +204,17 @@ export function BillingTitle({
   subtitle: string;
 }) {
   return (
-    <div className="flex h-[160px] w-full flex-col items-center gap-3.5 text-center">
-      <span className="inline-flex h-[30px] items-center gap-1.5 rounded-full border border-eyebrow-border bg-primary-soft px-3 text-[15px] leading-[18.5px] font-medium text-primary [&_svg]:size-3.5">
-        {icon}
-        {eyebrow}
-      </span>
-      <h1 className="text-[46px] leading-[48.2px] font-semibold tracking-[-1.1px] text-primary">{title}</h1>
-      <p className="max-w-[720px] text-lg leading-[26px] text-muted-foreground">{subtitle}</p>
-    </div>
+    <PageHeader
+      align="center"
+      size="hero"
+      className="mb-0 h-[160px] w-full"
+      eyebrow={
+        <Pill outline icon={icon}>
+          {eyebrow}
+        </Pill>
+      }
+      title={title}
+      description={subtitle}
+    />
   );
 }

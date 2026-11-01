@@ -7,6 +7,7 @@ import {
   type PlanCode,
   type SubscriptionStatus,
 } from "@/features/admin";
+import { nullIfNotFound } from "@/lib/api/errors";
 import { requireAdmin } from "@/lib/auth/session";
 import { parseTableQuery, type SearchParams } from "@/lib/table-query";
 
@@ -34,7 +35,7 @@ export default async function AdminSubscriptionsPage({ searchParams }: { searchP
     subscriptionId
       ? Promise.all([getSubscription(subscriptionId), listPayments(subscriptionId, { page: 0, size: 6 })]).then(
           ([subscription, payments]) => ({ subscription, payments }),
-        )
+        ).catch(nullIfNotFound)
       : null,
   ]);
 

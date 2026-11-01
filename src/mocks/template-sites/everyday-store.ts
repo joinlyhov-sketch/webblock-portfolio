@@ -9,7 +9,7 @@ export const everydayStoreContent: EverydayStoreContent = {
     { label: "Shop", href: "#shop" },
     { label: "Visit us", href: "#visit" },
   ],
-  statusLabel: "Open now · until 18:00",
+  statusLabel: "Open now · until 6:00 PM",
   contactLabel: "Contact",
   hero: {
     title: "Fresh flowers for every moment.",
@@ -87,8 +87,8 @@ export const everydayStoreContent: EverydayStoreContent = {
     email: "hello@petalandstem.com",
     address: "18 Garden Lane, Phnom Penh",
     hours: [
-      { days: "Mon – Fri", hours: "9:00 – 18:00" },
-      { days: "Sat", hours: "9:00 – 13:00" },
+      { days: "Mon – Fri", hours: "9:00 AM – 6:00 PM" },
+      { days: "Sat", hours: "9:00 AM – 1:00 PM" },
       { days: "Sun", hours: "closed" },
     ],
   },

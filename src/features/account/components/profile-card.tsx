@@ -81,7 +81,7 @@ export function ProfileCard({
     <SettingsCard
       icon={<User />}
       title="Profile"
-      description="This is how WebBlock know you"
+      description="This is how WebBlock knows you"
       className="w-full xl:w-[684px] xl:shrink-0 xl:self-stretch"
     >
       <div className="flex flex-col gap-6">

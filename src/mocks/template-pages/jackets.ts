@@ -1,6 +1,6 @@
 import type { PageData, Product } from "@/features/editor/types";
 
-// "Jackets" demo page: a small jacket shop in Phnom Penh. Everything on it is showcase content:
+// Street pop demo page: Stitch & Shell, a small jacket shop in Phnom Penh. Everything on it is showcase content:
 // call, message and directions only, no ordering.
 const IMG = "/mock/templates/jackets";
 
@@ -32,16 +32,16 @@ export const jacketsPage: PageData = {
   root: {
     props: {
       templateId: "jackets",
-      businessName: "Jackets",
+      businessName: "Stitch & Shell",
       statusText: "Open today · 9:00 AM – 6:00 PM",
       hours: "9:00 AM – 6:00 PM",
       hoursDetail: "Mon – Fri 9:00 AM – 6:00 PM · Sat 9:00 AM – 4:00 PM · Sun closed",
       address: "27 Street 178, Daun Penh, Phnom Penh",
       phones: [{ number: "012 456 789" }],
-      email: "hello@jacketsshop.com",
-      telegram: "jackets_kh",
-      facebookUrl: "https://facebook.com/jacketsshop",
-      instagramUrl: "https://instagram.com/jacketsshop",
+      email: "hello@stitchandshell.com",
+      telegram: "stitchandshell",
+      facebookUrl: "https://facebook.com/stitchandshell",
+      instagramUrl: "https://instagram.com/stitchandshell",
       currency: "USD",
       palette: "original",
       accentColor: null,

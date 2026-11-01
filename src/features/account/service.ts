@@ -8,6 +8,7 @@ import {
   setPassword,
   updateAvatar,
   updateProfile,
+  websiteLimitOf,
 } from "./api";
 import { settlePendingPayments } from "@/features/billing/api";
 import { countPlanDeploys } from "@/features/monitoring/api";
@@ -21,6 +22,7 @@ import { parseTableQuery, type SearchParams, type TableQuery } from "@/lib/table
 import { createCollector, FULL_NAME_MAX, formText } from "@/lib/validation/fields";
 import type {
   OrderStatus,
+  PlanCode,
   PlanOrder,
   Profile,
   ProfileIdentity,
@@ -46,6 +48,15 @@ function trialProgress(subscription: Subscription): number {
   return Math.min(100, Math.max(0, Math.round(((Date.now() - start) / total) * 100)));
 }
 
+/**
+ * The account's plan. One plan covers every website the user has online, so My Websites shows it
+ * on each live card. No subscription yet means the free trial.
+ */
+export async function getCurrentPlan(userId: string): Promise<PlanCode> {
+  const subscription = await getSubscription(userId).catch(() => null);
+  return subscription?.plan ?? "FREE_TRIAL";
+}
+
 /** Data for the trial card and the user row at the bottom of the sidebar. */
 export async function getSidebarView(
   userId: string,
@@ -56,12 +67,15 @@ export async function getSidebarView(
     getSubscription(userId).catch(() => null),
     listWebsites(userId, { status: "LIVE" }),
   ]);
-  const liveWebsiteName = websites.items[0]?.name ?? null;
+  const live = {
+    liveWebsiteName: websites.items[0]?.name ?? null,
+    liveWebsiteCount: websites.totalItems,
+  };
 
   if (!subscription) {
     return {
       profile,
-      summary: { plan: "FREE_TRIAL", planLabel: "Free trial", daysLeft: 0, renewsAt: null, progress: 0, liveWebsiteName },
+      summary: { plan: "FREE_TRIAL", planLabel: "Free trial", daysLeft: 0, renewsAt: null, progress: 0, websiteLimit: 1, ...live },
     };
   }
   return {
@@ -72,7 +86,8 @@ export async function getSidebarView(
       renewsAt: subscription.renewsAt,
       daysLeft: daysUntil(subscription.renewsAt ?? subscription.trialEndsAt),
       progress: trialProgress(subscription),
-      liveWebsiteName,
+      websiteLimit: subscription.plan === "FREE_TRIAL" ? 1 : websiteLimitOf(subscription.plan),
+      ...live,
     },
   };
 }

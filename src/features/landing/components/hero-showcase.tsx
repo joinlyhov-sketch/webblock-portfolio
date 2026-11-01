@@ -1,12 +1,15 @@
 import { Marquee } from "@/components/common/motion";
 import { BrowserMock, showcaseTemplates, TemplateThumb } from "./template-mock";
 
+/** The template shown in the hero's browser window. */
+const heroTemplate = showcaseTemplates.find((t) => t.slug === "cold-brew-co") ?? showcaseTemplates[0];
+
 // Three passes of the seven templates so one marquee copy is wider than an ultra-wide screen.
 const marqueeTemplates = [...showcaseTemplates, ...showcaseTemplates, ...showcaseTemplates];
 
 /**
  * "Websites built with WebBlock": a slow marquee of template thumbnails (pauses on hover) with the
- * Petal & Stem site in a browser window overlapping the bottom of its cards from md up.
+ * Café cream site (Cold Brew Co) in a browser window overlapping the bottom of its cards from md up.
  */
 export function HeroShowcase() {
   return (
@@ -27,7 +30,7 @@ export function HeroShowcase() {
       </Marquee>
       {/* Not animated: an opacity animation on an ancestor stops the frame's backdrop blur. */}
       <div className="relative z-10 mx-auto mt-6 w-full max-w-[820px] px-4 sm:px-6 md:-mt-[44px] md:px-0">
-        <BrowserMock template={showcaseTemplates[0]} preload />
+        <BrowserMock template={heroTemplate} preload />
       </div>
     </section>
   );

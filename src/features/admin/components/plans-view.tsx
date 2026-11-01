@@ -53,7 +53,10 @@ function features(plan: Plan, previous: Plan | undefined): Feature[] {
           ? "1 website"
           : `Up to ${plan.websiteLimit} websites`,
     },
-    { icon: <Send2 />, text: `${plan.redeploysPerMonth} redeploys a month` },
+    {
+      icon: <Send2 />,
+      text: plan.redeploysPerMonth === 0 ? "First deploy only" : `${plan.redeploysPerMonth} redeploys a month`,
+    },
     {
       icon: <Box />,
       text: `Up to ${count.format(plan.productLimit)} products`,

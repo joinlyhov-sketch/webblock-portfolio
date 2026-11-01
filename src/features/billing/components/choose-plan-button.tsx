@@ -30,7 +30,7 @@ type ChoosePlanButtonProps = {
 const COPY: Record<PlanMode, { title: (name: string) => string; detail: string }> = {
   subscribe: {
     title: (name) => `Subscribe to ${name}?`,
-    detail: "You’ll pay by KHQR on the next step and your website goes live right after.",
+    detail: "You’ll pay by KHQR on the next step and your plan starts right after.",
   },
   change: {
     title: (name) => `Switch to ${name}?`,
@@ -74,7 +74,8 @@ export function ChoosePlanButton({ plan, planName, price, mode, label, from, for
         loading={pending}
         icon={<InfoCircle />}
         title={COPY[mode].title(planName)}
-        description={`${cost} ${COPY[mode].detail}`}
+        // Only a payment made for a deploy puts the website online right after.
+        description={`${cost} ${forWebsite && mode === "subscribe" ? "You’ll pay by KHQR on the next step and your website deploys right after." : COPY[mode].detail}`}
         confirmLabel="Continue to payment"
       />
     </>

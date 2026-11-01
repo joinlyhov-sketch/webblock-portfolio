@@ -4,6 +4,7 @@ import "@puckeditor/core/puck.css";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Puck, useGetPuck } from "@puckeditor/core";
+import { ConfirmDialog } from "@/components/common/confirm-dialog";
 import { ResizeHandle } from "@/components/common/resize-handle";
 import { toast } from "@/components/common/toast";
 import { useViewportWidth } from "@/hooks/use-viewport-width";
@@ -123,6 +124,8 @@ function EditorShell({
   const getPuck = useGetPuck();
   const deploy = useDeploy(websiteId);
   const [busy, setBusy] = useState<"save" | "preview" | "deploy" | null>(null);
+  /** "Leave without saving?" for the back button; closing the tab uses the browser's own warning. */
+  const [leaveOpen, setLeaveOpen] = useState(false);
   // Both panels can be dragged narrower, or folded into an icon strip, to see more of the website.
   const viewport = useViewportWidth();
   const [open, setOpen] = useState<Record<Panel, boolean>>({ structure: true, properties: true });
@@ -175,6 +178,14 @@ function EditorShell({
 
   return (
     <div className="bg-dot-grid flex h-dvh min-h-[640px] flex-col">
+      <ConfirmDialog
+        open={leaveOpen}
+        onClose={() => setLeaveOpen(false)}
+        onConfirm={() => router.push("/websites")}
+        title="Leave without saving?"
+        description="You have changes that aren’t saved yet. If you leave now, they’ll be lost."
+        confirmLabel="Leave editor"
+      />
       <EditorTopBar
         siteName={siteName}
         domain={domain}
@@ -184,7 +195,9 @@ function EditorShell({
         onDeviceChange={onDeviceChange}
         busy={busy}
         onBack={(e) => {
-          if (dirty && !window.confirm("You have unsaved changes. Leave the editor anyway?")) e.preventDefault();
+          if (!dirty) return;
+          e.preventDefault();
+          setLeaveOpen(true);
         }}
         onSave={() => run("save", async () => void (await save(currentData())))}
         onPreview={() =>

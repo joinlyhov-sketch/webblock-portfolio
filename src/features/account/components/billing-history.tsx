@@ -203,6 +203,27 @@ export function BillingHistory({
           },
         ]}
         empty={
+          orders.length > 0 ? (
+            // Orders exist, the filters just hide them all.
+            <EmptyState
+              icon={<Filter />}
+              title="No orders match these filters"
+              description="Try another status or plan, or show every order."
+              action={
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => {
+                    setStatus("ALL");
+                    setPlan("");
+                    setPageIndex(0);
+                  }}
+                >
+                  Clear filters
+                </Button>
+              }
+            />
+          ) : (
           <EmptyState
             icon={<Receipt2 />}
             title="No billing history yet"
@@ -213,6 +234,7 @@ export function BillingHistory({
               </Button>
             }
           />
+          )
         }
       />
   );

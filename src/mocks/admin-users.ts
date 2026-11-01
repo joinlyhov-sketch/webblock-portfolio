@@ -1,5 +1,6 @@
 import type { UserAccount, UserStats } from "@/features/admin/types";
-import { daysAgo, hoursAgo } from "./time";
+import { SOVANNARITH_ID } from "./session";
+import { at, daysAgo, hoursAgo } from "./time";
 
 export const userStats: UserStats = {
   totalAccounts: 1284,
@@ -10,28 +11,29 @@ export const userStats: UserStats = {
 
 export const userAccounts: UserAccount[] = [
   {
-    id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0101",
+    id: SOVANNARITH_ID,
     accountCode: "usr_0b7f21",
     fullName: "Sovannarith Soeun",
     email: "sovannarith@gmail.com",
     avatarUrl: "/mock/avatars/sovannarith-soeun.jpg",
     plan: "FREE_TRIAL",
     status: "ACTIVE",
-    signInMethod: "EMAIL",
+    // Same as his account (account.ts): signed up with Google the day his trial started.
+    signInMethod: "GOOGLE",
     websiteCount: 4,
-    joinedAt: "2026-03-12T03:00:00Z",
+    joinedAt: daysAgo(5),
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0102",
     accountCode: "usr_1c94a0",
     fullName: "Lihov Chiv",
-    email: "lihov@mapleandrye.com",
+    email: "lihov@artisanbakery.com",
     avatarUrl: "/mock/avatars/lihov-chiv.jpg",
     plan: "FREE_TRIAL",
     status: "ACTIVE",
     signInMethod: "EMAIL",
     websiteCount: 1,
-    joinedAt: "2026-10-22T02:10:00Z",
+    joinedAt: at("2026-11-01T09:10:00Z"),
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0103",
@@ -43,7 +45,7 @@ export const userAccounts: UserAccount[] = [
     status: "ACTIVE",
     signInMethod: "GOOGLE",
     websiteCount: 1,
-    joinedAt: "2026-08-05T08:00:00Z",
+    joinedAt: at("2026-08-05T08:00:00Z"),
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0104",
@@ -55,19 +57,19 @@ export const userAccounts: UserAccount[] = [
     status: "ACTIVE",
     signInMethod: "EMAIL",
     websiteCount: 1,
-    joinedAt: "2026-07-01T07:00:00Z",
+    joinedAt: at("2026-07-01T07:00:00Z"),
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0105",
     accountCode: "usr_3a08f2",
     fullName: "Vanda Ros",
-    email: "vanda@lanterncafe.com",
+    email: "vanda@bloombakery.com",
     avatarUrl: "/mock/avatars/vanda-ros.jpg",
     plan: "FREE_TRIAL",
     status: "ACTIVE",
     signInMethod: "EMAIL",
     websiteCount: 1,
-    joinedAt: "2026-10-20T10:00:00Z",
+    joinedAt: at("2026-10-20T10:00:00Z"),
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0106",
@@ -79,7 +81,7 @@ export const userAccounts: UserAccount[] = [
     status: "ACTIVE",
     signInMethod: "GOOGLE",
     websiteCount: 3,
-    joinedAt: "2026-08-20T11:00:00Z",
+    joinedAt: at("2026-08-20T11:00:00Z"),
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0107",
@@ -91,7 +93,7 @@ export const userAccounts: UserAccount[] = [
     status: "ACTIVE",
     signInMethod: "EMAIL",
     websiteCount: 1,
-    joinedAt: "2026-06-14T10:00:00Z",
+    joinedAt: at("2026-06-14T10:00:00Z"),
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0108",
@@ -103,7 +105,7 @@ export const userAccounts: UserAccount[] = [
     status: "ACTIVE",
     signInMethod: "GOOGLE",
     websiteCount: 0,
-    joinedAt: "2026-10-25T08:00:00Z",
+    joinedAt: at("2026-10-25T08:00:00Z"),
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0109",
@@ -115,7 +117,7 @@ export const userAccounts: UserAccount[] = [
     status: "ACTIVE",
     signInMethod: "EMAIL",
     websiteCount: 1,
-    joinedAt: "2026-10-20T05:00:00Z",
+    joinedAt: at("2026-10-20T05:00:00Z"),
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0110",
@@ -127,7 +129,7 @@ export const userAccounts: UserAccount[] = [
     status: "SUSPENDED",
     signInMethod: "EMAIL",
     websiteCount: 0,
-    joinedAt: "2026-07-21T10:00:00Z",
+    joinedAt: at("2026-07-21T10:00:00Z"),
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0111",
@@ -151,7 +153,7 @@ export const userAccounts: UserAccount[] = [
     status: "ACTIVE",
     signInMethod: "EMAIL",
     websiteCount: 0,
-    joinedAt: "2026-04-11T02:35:00Z",
+    joinedAt: at("2026-04-11T02:35:00Z"),
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0113",
@@ -163,7 +165,7 @@ export const userAccounts: UserAccount[] = [
     status: "ACTIVE",
     signInMethod: "GOOGLE",
     websiteCount: 1,
-    joinedAt: "2026-03-08T09:15:00Z",
+    joinedAt: at("2026-03-08T09:15:00Z"),
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0114",
@@ -175,7 +177,7 @@ export const userAccounts: UserAccount[] = [
     status: "SUSPENDED",
     signInMethod: "EMAIL",
     websiteCount: 0,
-    joinedAt: "2026-06-30T12:00:00Z",
+    joinedAt: at("2026-06-30T12:00:00Z"),
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0115",
