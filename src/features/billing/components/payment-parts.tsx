@@ -16,19 +16,19 @@ const PLAN_BADGE: Record<PaidPlanCode, string> = {
 /** Top row of the payment card: plan badge and name on the left, status pill (`aside`) on the right. */
 export function PaymentCardHeader({ order, aside }: { order: PaymentOrder; aside: ReactNode }) {
   return (
-    <div className="flex items-center justify-between bg-background px-8 pt-[22px] pb-[18px]">
+    <div className="flex flex-wrap items-center justify-between gap-3 bg-background px-5 pt-[22px] pb-[18px] sm:px-8">
       <div className="flex items-center gap-3.5">
         <span
           className={cn(
-            "rounded-full px-3 py-[5px] text-base font-bold tracking-[1.28px] uppercase",
+            "rounded-full px-3 py-[5px] text-lg font-bold tracking-[1.28px] uppercase",
             PLAN_BADGE[order.plan],
           )}
         >
           {order.planName}
         </span>
         <div className="flex flex-col gap-0.5">
-          <p className="text-base leading-[22px] font-semibold text-foreground">{order.planName} plan · monthly</p>
-          <p className="text-[13px] leading-[18px] text-muted-foreground">Billed monthly · cancel anytime</p>
+          <p className="text-lg leading-[24px] font-semibold text-foreground">{order.planName} plan · monthly</p>
+          <p className="text-[15px] leading-[20px] text-muted-foreground">Billed monthly · cancel anytime</p>
         </div>
       </div>
       {aside}
@@ -50,7 +50,7 @@ export function StatePill({ tone, children }: { tone: PillTone; children: ReactN
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full py-2 pr-3.5 pl-3 text-[13px] leading-[18px] font-medium whitespace-nowrap",
+        "inline-flex items-center gap-1.5 rounded-full py-2 pr-3.5 pl-3 text-[15px] leading-[20px] font-medium whitespace-nowrap",
         PILL_TONE[tone],
       )}
     >
@@ -63,7 +63,7 @@ export function StatePill({ tone, children }: { tone: PillTone; children: ReactN
 /** Thin bar under the header. Pending: time left. Paid: full green. */
 export function PaymentProgress({ percent, paid }: { percent: number; paid?: boolean }) {
   return (
-    <div className="px-8">
+    <div className="px-5 sm:px-8">
       <div
         role="progressbar"
         aria-label={paid ? "Payment complete" : "Time left on the code"}
@@ -73,7 +73,10 @@ export function PaymentProgress({ percent, paid }: { percent: number; paid?: boo
         className="h-1 overflow-hidden rounded-full bg-border"
       >
         <div
-          className={cn("h-1 rounded-full", paid ? "bg-success" : "bg-muted")}
+          className={cn(
+            "h-1 rounded-full motion-safe:transition-[width] motion-safe:duration-1000 motion-safe:ease-linear",
+            paid ? "bg-success" : "bg-muted",
+          )}
           style={{ width: `${Math.min(100, Math.max(0, percent))}%` }}
         />
       </div>
@@ -87,34 +90,34 @@ export type KhqrState = "waiting" | "expiring" | "expired";
 export function KhqrPanel({ order, state }: { order: PaymentOrder; state: KhqrState }) {
   const expired = state === "expired";
   return (
-    <div className="flex w-[500px] shrink-0 flex-col self-stretch rounded-3xl px-8 py-3">
+    <div className="flex w-full shrink-0 flex-col self-stretch rounded-3xl px-4 py-3 motion-safe:animate-fade-up sm:px-8 lg:w-[500px]">
       <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-2xl p-[22px]">
         <div className="flex h-[237.094px] w-[200px] flex-col overflow-hidden rounded-[20px] border border-border bg-background">
           <div className={cn("bg-khqr px-3.5 py-2", expired && "opacity-40")}>
-            <p className="text-sm leading-[21px] font-bold text-primary-foreground">KHQR</p>
+            <p className="text-base leading-[23px] font-bold text-primary-foreground">KHQR</p>
           </div>
           <div className={cn("relative size-[198px] shrink-0", expired && "opacity-18")}>
             <Image src={order.qrImageUrl} alt="KHQR code" fill sizes="198px" className="object-contain" priority />
           </div>
         </div>
-        <p className="text-sm leading-[21px] font-bold text-foreground">
+        <p className="text-base leading-[23px] font-bold text-foreground">
           {expired ? "This code is no longer valid" : "Scan with your banking app"}
         </p>
         {state === "waiting" && (
-          <p className="text-[13px] leading-[19.5px] text-hint-strong">ABA, ACLEDA, Wing or any KHQR app</p>
+          <p className="text-[15px] leading-[21.5px] text-hint-strong">ABA, ACLEDA, Wing or any KHQR app</p>
         )}
         {state === "expiring" && (
-          <p className="text-[13px] leading-[19.5px] font-semibold text-status-suspended">Pay now or get a new code</p>
+          <p className="text-[15px] leading-[21.5px] font-semibold text-status-suspended">Pay now or get a new code</p>
         )}
         {expired ? (
           <>
-            <p className="text-[13px] leading-[19.5px] text-hint-strong">
+            <p className="text-[15px] leading-[21.5px] text-hint-strong">
               No payment was taken. Generate a new code to continue.
             </p>
             <RegenerateCodeButton orderId={order.id} />
           </>
         ) : (
-          <p className="flex items-center gap-2 text-xs leading-[18px] text-muted-foreground">
+          <p className="flex items-center gap-2 text-[14px] leading-[20px] text-muted-foreground">
             <Refresh2 aria-hidden className="size-3.5 motion-safe:animate-spin" /> Waiting for payment…
           </p>
         )}
@@ -127,7 +130,7 @@ function Pill({ tone, children }: { tone: "brand" | "success"; children: ReactNo
   return (
     <span
       className={cn(
-        "rounded-full px-2.5 py-[3px] text-xs font-medium",
+        "rounded-full px-2.5 py-[3px] text-[14px] font-medium",
         tone === "brand" ? "bg-sent-from text-primary" : "bg-success-soft text-success",
       )}
     >
@@ -139,7 +142,7 @@ function Pill({ tone, children }: { tone: "brand" | "success"; children: ReactNo
 function LineItem({ icon, label, value }: { icon: ReactNode; label: string; value: ReactNode }) {
   return (
     <li className="flex items-center justify-between">
-      <span className="flex items-center gap-2.5 text-sm leading-[21px] text-foreground">
+      <span className="flex items-center gap-2.5 text-base leading-[23px] text-foreground">
         <span className="flex size-[30px] items-center justify-center rounded-[9px] border border-border bg-background text-brand [&_svg]:size-[15px]">
           {icon}
         </span>
@@ -153,25 +156,30 @@ function LineItem({ icon, label, value }: { icon: ReactNode; label: string; valu
 const STEPS = ["Open your banking app", "Scan the QR code on the left", "Confirm — your website deploys automatically"];
 
 const LINE_COPY: Record<PaymentOrder["kind"], [label: string, pill: string]> = {
-  SUBSCRIBE: ["Free trial", "Ends today"],
+  SUBSCRIBE: ["Free trial", "Ended"],
   CHANGE: ["Plan change", "Starts today"],
   RENEW: ["Plan renewal", "Adds 30 days"],
 };
 
 /** Right-hand summary: website, line items, total and (until paid) the "How to pay" steps. */
-export function PaymentSummary({ order }: { order: PaymentOrder }) {
+export function PaymentSummary({ order, trialDaysLeft }: { order: PaymentOrder; trialDaysLeft: number | null }) {
   const paid = order.status === "PAID";
   const price = formatPrice(order.amount, "USD");
-  const [lineLabel, linePill] = LINE_COPY[order.kind];
+  const [lineLabel, defaultPill] = LINE_COPY[order.kind];
+  // Before paying, the trial line shows the same days the sidebar shows, not a made-up "ends today".
+  const linePill =
+    order.kind === "SUBSCRIBE" && !paid && trialDaysLeft
+      ? `${trialDaysLeft} ${trialDaysLeft === 1 ? "day" : "days"} left`
+      : defaultPill;
   return (
-    <div className="flex flex-1 flex-col gap-5 rounded-3xl bg-muted p-6">
+    <div className="flex w-full flex-1 flex-col gap-5 rounded-3xl bg-muted p-5 motion-safe:animate-fade-up sm:p-6">
       <div className="flex items-center gap-3 rounded-[18px] bg-background p-3">
         <div className="relative h-14 w-[72px] shrink-0 overflow-hidden rounded-xl">
           <Image src={order.websiteImageUrl} alt="" fill sizes="72px" className="object-cover" />
         </div>
         <div className="flex min-w-0 flex-col gap-0.5">
-          <p className="text-sm leading-[19.5px] font-bold text-foreground">{order.websiteName}</p>
-          <p className="flex items-center gap-[5px] text-xs leading-[18px] text-muted-foreground">
+          <p className="text-base leading-[21.5px] font-bold text-foreground">{order.websiteName}</p>
+          <p className="flex items-center gap-[5px] text-[14px] leading-[20px] text-muted-foreground">
             <Global aria-hidden className="size-3" /> {order.websiteDomain}
           </p>
         </div>
@@ -181,7 +189,7 @@ export function PaymentSummary({ order }: { order: PaymentOrder }) {
         <LineItem
           icon={<Crown aria-hidden />}
           label={`${order.planName} plan · monthly`}
-          value={<span className="text-sm leading-[21px] font-medium text-foreground">{price} / mo</span>}
+          value={<span className="text-base leading-[23px] font-medium text-foreground">{price} / mo</span>}
         />
         <LineItem
           icon={<Clock aria-hidden />}
@@ -195,21 +203,21 @@ export function PaymentSummary({ order }: { order: PaymentOrder }) {
 
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-1">
-          <p className="text-[15px] leading-[21px] font-bold text-foreground">{paid ? "Paid today" : "Due today"}</p>
-          <p className="text-xs leading-[18px] text-muted-foreground">
+          <p className="text-[17px] leading-[23px] font-bold text-foreground">{paid ? "Paid today" : "Due today"}</p>
+          <p className="text-[14px] leading-[20px] text-muted-foreground">
             Then {price} every month from {formatDayMonthYear(order.nextPaymentAt)}.
           </p>
         </div>
-        <p className="font-heading text-[28px] leading-[33px] font-bold text-foreground">{price}</p>
+        <p className="font-heading text-[30px] leading-[35px] font-bold text-foreground">{price}</p>
       </div>
 
       {!paid && (
         <div className="flex flex-col gap-2.5 rounded-[20px] bg-background px-[18px] py-4">
-          <p className="text-[13px] leading-[18px] font-semibold text-foreground">How to pay</p>
+          <p className="text-[15px] leading-[20px] font-semibold text-foreground">How to pay</p>
           <ol className="flex flex-col gap-2.5">
             {STEPS.map((step, index) => (
-              <li key={step} className="flex items-center gap-2.5 text-[13px] leading-[18px] text-muted-foreground">
-                <span className="flex size-[22px] shrink-0 items-center justify-center rounded-full bg-brand-soft text-[11px] leading-[14px] font-bold text-brand">
+              <li key={step} className="flex items-center gap-2.5 text-[15px] leading-[20px] text-muted-foreground">
+                <span className="flex size-[22px] shrink-0 items-center justify-center rounded-full bg-brand-soft text-[13px] leading-[16px] font-bold text-brand">
                   {index + 1}
                 </span>
                 {step}
@@ -230,23 +238,24 @@ export function PaymentSuccessPanel({ order, next }: { order: PaymentOrder; next
     ["Next payment", formatDayMonthYear(order.nextPaymentAt)],
   ];
   return (
-    <div className="flex w-[500px] shrink-0 flex-col justify-center gap-[18px] self-stretch rounded-3xl px-7 py-6">
-      <div className="flex flex-col gap-4 rounded-2xl border border-border bg-muted p-[22px]">
+    <div className="flex w-full shrink-0 flex-col justify-center gap-[18px] self-stretch rounded-3xl px-2 py-4 motion-safe:animate-fade-up sm:px-7 sm:py-6 lg:w-[500px]">
+      <div className="flex flex-col gap-4 rounded-2xl border border-border bg-muted p-[22px] shadow-card motion-safe:animate-float-soft">
         <div className="flex items-center gap-3.5">
-          <span className="flex size-10 items-center justify-center rounded-full bg-success-soft text-success">
-            <Check aria-hidden className="size-[18px]" />
+          <span className="relative flex size-10 shrink-0 items-center justify-center rounded-full bg-success-soft text-success motion-safe:animate-check-pop">
+            <span aria-hidden className="absolute inset-0 rounded-full bg-success-soft motion-safe:animate-halo-ripple" />
+            <Check aria-hidden className="relative size-[18px]" />
           </span>
           <div className="flex flex-col gap-0.5">
-            <p className="text-[22px] leading-[19.5px] font-semibold text-foreground">
+            <p className="text-[24px] leading-[21.5px] font-semibold text-foreground">
               {formatPrice(order.amount, "USD")}
             </p>
-            <p className="pt-1 text-[13px] leading-[21px] text-muted-foreground">
+            <p className="pt-1 text-[15px] leading-[23px] text-muted-foreground">
               Paid via KHQR · {order.paidAt ? formatDayMonthYearTime(order.paidAt) : ""}
             </p>
           </div>
         </div>
         <hr className="h-px border-0 bg-border" />
-        <dl className="flex flex-col gap-2.5 text-[13px]">
+        <dl className="flex flex-col gap-2.5 text-[15px]">
           {rows.map(([label, value]) => (
             <div key={label} className="flex items-start justify-between">
               <dt className="text-muted-foreground">{label}</dt>
@@ -254,12 +263,12 @@ export function PaymentSuccessPanel({ order, next }: { order: PaymentOrder; next
             </div>
           ))}
         </dl>
-        <p className="flex items-center gap-2 text-xs leading-[18px] text-success">
+        <p className="flex items-center gap-2 text-[14px] leading-[20px] text-success">
           <Check aria-hidden className="size-3.5" /> Payment confirmed · {next.label}
         </p>
         <RedirectAfterPaid href={next.href} />
       </div>
-      <p className="flex items-center gap-2.5 rounded-[20px] px-3.5 py-3 text-xs leading-[18px] text-muted-foreground">
+      <p className="flex items-center gap-2.5 rounded-[20px] px-3.5 py-3 text-[14px] leading-[20px] text-muted-foreground">
         <Lock1 aria-hidden className="size-[14px] shrink-0" />
         A receipt has been sent to your email. You can also download it any time from Settings › Billing.
       </p>

@@ -71,7 +71,8 @@ export async function getDeployView(
   if (!access.allowed) redirect(plansHref(websiteId, access.reason));
 
   const start = first(searchParams.start);
-  if (website.domain && idempotencyKeySchema.safeParse(start).success)
+  // A draft has never been published, so its owner always picks the address first, paid or not.
+  if (website.domain && website.status !== "DRAFT" && idempotencyKeySchema.safeParse(start).success)
     return { kind: "start", website, idempotencyKey: start };
   // A website that is already live on its address has nothing to pick: back to the editor.
   if (!access.firstDeploy && website.domain)
@@ -90,8 +91,8 @@ export async function getDeployView(
 
 /**
  * Starts a deploy of the saved draft (the editor saves it first). The answer says where to go next:
- * the plans when the plan does not allow it, the address picker for a first deploy that has no
- * address yet, or the progress screen.
+ * the plans when the plan does not allow it, the address picker for a draft (a website that was never
+ * published picks its address first, even right after paying), or the progress screen.
  */
 export async function startDeploy(
   userId: string,
@@ -116,7 +117,7 @@ export async function startDeploy(
       return { ok: true, data: { next: "PLANS", reason: access.reason } };
 
     const website = await getWebsite(websiteId);
-    if (!website.domain && !subdomain)
+    if ((!website.domain || website.status === "DRAFT") && !subdomain)
       return { ok: true, data: { next: "CHOOSE_DOMAIN" } };
 
     let chosen: string | null = null;

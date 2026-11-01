@@ -25,7 +25,7 @@ export function BillingTopBar({
       {chip && (
         <span
           className={cn(
-            "ml-auto inline-flex h-6 items-center gap-1.5 rounded-full px-2.5 text-xs leading-[18px] font-semibold whitespace-nowrap",
+            "ml-auto inline-flex h-6 items-center gap-1.5 rounded-full px-2.5 text-[14px] leading-[20px] font-semibold whitespace-nowrap",
             chip.tone === "brand" ? "bg-brand-soft text-brand-strong" : "bg-success-soft text-success",
           )}
         >
@@ -202,13 +202,13 @@ export function BillingTitle({
   subtitle: string;
 }) {
   return (
-    <div className="flex h-[168px] w-full flex-col items-center gap-3.5 text-center">
-      <span className="inline-flex h-[30px] items-center gap-1.5 rounded-full border border-eyebrow-border bg-primary-soft px-3 text-[13px] leading-[16.5px] font-medium text-primary [&_svg]:size-3.5">
+    <div className="flex h-[160px] w-full flex-col items-center gap-3.5 text-center">
+      <span className="inline-flex h-[30px] items-center gap-1.5 rounded-full border border-eyebrow-border bg-primary-soft px-3 text-[15px] leading-[18.5px] font-medium text-primary [&_svg]:size-3.5">
         {icon}
         {eyebrow}
       </span>
-      <h1 className="text-[44px] leading-[46.2px] font-semibold tracking-[-1.1px] text-primary">{title}</h1>
-      <p className="max-w-[720px] text-base leading-6 text-muted-foreground">{subtitle}</p>
+      <h1 className="text-[46px] leading-[48.2px] font-semibold tracking-[-1.1px] text-primary">{title}</h1>
+      <p className="max-w-[720px] text-lg leading-[26px] text-muted-foreground">{subtitle}</p>
     </div>
   );
 }

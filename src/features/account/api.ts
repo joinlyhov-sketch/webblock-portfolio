@@ -18,7 +18,10 @@ const globalForStore = globalThis as typeof globalThis & {
   __wbProfiles?: Profile[];
   __wbSubscriptions?: Record<string, Subscription>;
   __wbPlanOrders?: Record<string, PlanOrder[]>;
+  __wbPaidWebsites?: Set<string>;
 };
+/** MOCK ONLY: websites a confirmed payment was made for. Spring ties the paid plan to that website. */
+const paidWebsites: Set<string> = (globalForStore.__wbPaidWebsites ??= new Set());
 const store: Profile[] = (globalForStore.__wbProfiles ??= structuredClone(seed));
 const subscriptions: Record<string, Subscription> = (globalForStore.__wbSubscriptions ??=
   structuredClone(subscriptionsSeed));
@@ -101,6 +104,9 @@ export async function getDeployAccess(userId: string, websiteId: string): Promis
     reason = firstDeploy && (deploys?.used ?? 0) < (deploys?.limit ?? 1) ? "FIRST_FREE_DEPLOY" : "SUBSCRIPTION_REQUIRED";
   } else if (new Date(subscription.renewsAt as string).getTime() < Date.now()) {
     reason = "PLAN_EXPIRED";
+  } else if (firstDeploy && paidWebsites.has(websiteId)) {
+    // The owner just paid for this very website: it is covered by the plan, not counted against the limit again.
+    reason = "WITHIN_PLAN";
   } else {
     const metric = usageOf(subscription, firstDeploy ? "websites" : "redeploys");
     const full = metric !== undefined && metric.used >= metric.limit;
@@ -126,7 +132,7 @@ export async function recordDeploy(userId: string, websiteId: string): Promise<v
     const metric = usageOf(subscription, key);
     if (metric) metric.used += 1;
   };
-  if (firstDeploy) bump("websites");
+  if (firstDeploy && !paidWebsites.has(websiteId)) bump("websites");
   if (subscription.renewsAt === null) bump("deploys");
   else if (!firstDeploy) bump("redeploys");
 }
@@ -168,7 +174,9 @@ export async function activatePlan(
   userId: string,
   plan: PaidPlanCode,
   nextPaymentAt: string,
+  websiteId: string | null = null,
 ): Promise<Subscription> {
+  if (websiteId) paidWebsites.add(websiteId);
   const current = subscriptions[userId];
   if (!current) {
     throw new ApiError({ title: "No subscription", status: 404, detail: "This account has no plan yet." });

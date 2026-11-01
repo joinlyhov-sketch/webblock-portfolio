@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import type { PaymentOrder } from "../types";
 import { KhqrPanel, PaymentCardHeader, PaymentProgress, StatePill } from "./payment-parts";
 
-const POLL_MS = 3000;
+const POLL_MS = 1500;
 const EXPIRING_MS = 60_000;
 
 /** 09:42 while there is time, 0:45 in the last minute. */
@@ -59,7 +59,7 @@ export function PendingPayment({
         }
       />
       <PaymentProgress percent={(left / totalMs) * 100} />
-      <div className="flex items-start gap-3 bg-background p-4">
+      <div className="flex flex-col items-stretch gap-4 bg-background p-4 sm:p-5 lg:flex-row lg:items-start lg:gap-5">
         <KhqrPanel order={order} state={expiring ? "expiring" : "waiting"} />
         {children}
       </div>

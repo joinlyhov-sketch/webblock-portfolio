@@ -149,6 +149,8 @@ export async function regeneratePayment(userId: string, orderId: string): Promis
 
 export type PaymentView = {
   order: PaymentOrder;
+  /** Days left of the user's free trial (what the sidebar shows), or `null` when this payment is not the first one. */
+  trialDaysLeft: number | null;
   /** Where the back link goes. */
   backHref: string;
   backLabel: string;
@@ -185,8 +187,10 @@ export async function getPaymentView(
     throw e;
   });
   const toSettings = options.from === "settings" && order.status === "PENDING";
+  const subscription = await getSubscription(userId);
   return {
     order,
+    trialDaysLeft: order.kind === "SUBSCRIBE" ? daysUntil(subscription.trialEndsAt) : null,
     backHref: toSettings
       ? "/settings/billing"
       : order.websiteId

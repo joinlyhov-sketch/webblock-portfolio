@@ -61,7 +61,7 @@ function Ring({ percent, failed }: { percent: number; failed: boolean }) {
       </svg>
       <span
         className={cn(
-          "font-heading text-[28px] font-semibold",
+          "font-heading text-[30px] font-semibold",
           failed ? "text-danger" : "text-brand-strong",
         )}
       >
@@ -114,11 +114,11 @@ export function DeployProgress({
 
   return (
     <>
-      <div className="flex flex-col items-center gap-4 text-center">
+      <div className="flex flex-col items-center gap-3 text-center motion-safe:animate-fade-up">
         <Ring percent={deployment.percent} failed={failed} />
         <span
           className={cn(
-            "inline-flex h-6 items-center rounded-full px-3 text-xs font-medium",
+            "inline-flex h-6 items-center rounded-full px-3 text-[14px] font-medium",
             failed
               ? "bg-danger-soft text-danger"
               : "bg-brand-soft text-brand-strong",
@@ -132,23 +132,23 @@ export function DeployProgress({
         </span>
         <h1
           className={cn(
-            "font-heading text-[34px] leading-10 font-semibold tracking-[-0.8px]",
+            "font-heading text-[36px] leading-[42px] font-semibold tracking-[-0.8px]",
             failed ? "text-danger" : "text-brand-strong",
           )}
         >
           {title}
         </h1>
-        <p className="max-w-[520px] text-sm leading-5 text-muted-foreground">
+        <p className="max-w-[520px] text-base leading-[22px] text-muted-foreground">
           {subtitle}
         </p>
       </div>
 
-      <div className="mt-8 flex w-full justify-center">
+      <div className="mt-6 flex w-full justify-center">
         <DeploySteps deployment={deployment} />
       </div>
 
       {(running || failed) && (
-        <div className="mt-6 flex max-w-[520px] items-center gap-3 rounded-2xl border border-border bg-background px-4 py-3 shadow-card">
+        <div className="mt-4 flex max-w-[520px] items-center gap-3 rounded-2xl border border-border bg-background px-4 py-3 shadow-card">
           <span
             className={cn(
               "flex size-9 shrink-0 items-center justify-center rounded-full [&_svg]:size-4",
@@ -160,12 +160,12 @@ export function DeployProgress({
             {failed ? <Danger aria-hidden /> : <Notification aria-hidden />}
           </span>
           <div className="flex flex-col text-left">
-            <p className="text-[13px] leading-[18px] font-semibold text-foreground">
+            <p className="text-[15px] leading-[20px] font-semibold text-foreground">
               {failed
                 ? "Something went wrong while deploying"
                 : "You can safely leave this page"}
             </p>
-            <p className="text-xs leading-[18px] text-muted-foreground">
+            <p className="text-[14px] leading-[20px] text-muted-foreground">
               {failed
                 ? "Send this error to the admin and we’ll email you when it’s fixed."
                 : first

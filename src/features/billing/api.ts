@@ -45,7 +45,7 @@ async function nextPeriodStart(userId: string, kind: PaymentKind, from: number):
 
 /** Creates a pending order with a QR code that is valid for 10 minutes. */
 export async function createPayment(userId: string, body: CreatePaymentBody): Promise<PaymentOrder> {
-  await delay(300);
+  await delay(200);
   const plan = billingPlans.find((p) => p.code === body.plan);
   if (!plan) {
     throw new ApiError({ title: "Unknown plan", status: 400, detail: "That plan does not exist." });
@@ -95,7 +95,7 @@ async function settle(entry: StoredOrder): Promise<void> {
     order.status = "PAID";
     order.paidAt = new Date(entry.payAt).toISOString();
     order.nextPaymentAt = await nextPeriodStart(entry.userId, order.kind, entry.payAt);
-    await activatePlan(entry.userId, order.plan, order.nextPaymentAt);
+    await activatePlan(entry.userId, order.plan, order.nextPaymentAt, order.websiteId);
     await recordPlanOrder(entry.userId, { ...history, status: "PAID" });
   } else if (now >= new Date(order.expiresAt).getTime()) {
     order.status = "EXPIRED";

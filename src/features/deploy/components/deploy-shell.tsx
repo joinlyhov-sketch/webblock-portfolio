@@ -23,7 +23,7 @@ export function DeployShell({
         <div className="absolute top-12 -left-24 size-[420px] bg-[radial-gradient(circle,var(--color-dot)_1.5px,transparent_1.6px)] bg-size-[22px_22px] mask-[radial-gradient(circle,black_30%,transparent_68%)]" />
         <div className="absolute top-40 -right-24 size-[420px] bg-[radial-gradient(circle,var(--color-dot)_1.5px,transparent_1.6px)] bg-size-[22px_22px] mask-[radial-gradient(circle,black_30%,transparent_68%)]" />
       </div>
-      <header className="relative z-10 flex items-start justify-between px-5 pt-5">
+      <header className="absolute inset-x-0 top-0 z-10 flex items-start justify-between px-5 pt-5">
         <Button
           asChild
           variant="ghost"
@@ -39,16 +39,16 @@ export function DeployShell({
             <Element3 aria-hidden />
           </span>
           <span className="flex flex-col">
-            <span className="max-w-[200px] truncate text-xs leading-4 font-semibold text-foreground">
+            <span className="max-w-[200px] truncate text-[14px] leading-[18px] font-semibold text-foreground">
               {siteName}
             </span>
-            <span className="text-[11px] leading-4 text-muted-foreground">
+            <span className="text-[13px] leading-[18px] text-muted-foreground">
               Home page
             </span>
           </span>
         </div>
       </header>
-      <div className="relative z-10 flex flex-1 flex-col items-center px-6 pt-10 pb-16">
+      <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pt-[72px] pb-6">
         {children}
       </div>
     </div>
