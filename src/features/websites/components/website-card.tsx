@@ -111,7 +111,7 @@ export function WebsiteCard({
             {suspended ? (
               <>
                 <ReactivateButton websiteId={website.id} variant={reactivateFirst ? "primary" : "secondary"} onPatch={onPatch} />
-                <EditButton websiteId={website.id} primary={!reactivateFirst} />
+                <EditButton websiteId={website.id} primary={!reactivateFirst} disabled />
               </>
             ) : (
               <>
@@ -136,7 +136,15 @@ export function WebsiteCard({
   );
 }
 
-function EditButton({ websiteId, primary }: { websiteId: string; primary: boolean }) {
+function EditButton({ websiteId, primary, disabled }: { websiteId: string; primary: boolean; disabled?: boolean }) {
+  // A suspended site cannot be edited until it is reactivated.
+  if (disabled) {
+    return (
+      <Button size="sm" variant="secondary" disabled title="Reactivate this website to edit it" className="flex-1">
+        <Edit2 aria-hidden /> Edit
+      </Button>
+    );
+  }
   return (
     <Button
       asChild

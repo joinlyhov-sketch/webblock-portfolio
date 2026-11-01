@@ -1,7 +1,7 @@
 import { Marquee } from "@/components/common/motion";
 import { BrowserMock, showcaseTemplates, TemplateThumb } from "./template-mock";
 
-// Three passes of the four templates so one marquee copy is wider than an ultra-wide screen.
+// Three passes of the seven templates so one marquee copy is wider than an ultra-wide screen.
 const marqueeTemplates = [...showcaseTemplates, ...showcaseTemplates, ...showcaseTemplates];
 
 /**

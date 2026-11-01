@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { Field } from "@puckeditor/core";
 import { Add, ArrowDown2, Colorfilter, Edit2, Magicpen, Setting2, SidebarRight } from "iconsax-reactjs";
-import { LogoMark } from "@/components/common/logo";
+import { AiAvatar } from "@/components/common/ai-avatar";
 import { cn } from "@/lib/utils";
 import type { BlockName, SiteRootProps } from "../../types";
 import { AiChat } from "./ai-chat";
@@ -149,18 +149,11 @@ export function PropertiesPanel({
               onClick={() => setAiOpen((open) => !open)}
               className="flex min-w-0 flex-1 items-center gap-2.5 text-left outline-none after:absolute after:inset-0 after:rounded-[14px] focus-visible:after:ring-3 focus-visible:after:ring-ring/40"
             >
-              {/* Same profile picture as the AI's chat bubbles, with a green dot: it is ready to answer. */}
-              <span className="relative flex size-9 shrink-0 items-center justify-center rounded-full border border-border bg-background shadow-button">
-                <LogoMark className="h-4" />
-                <span
-                  aria-hidden
-                  className="absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full border-2 border-background bg-success"
-                />
-              </span>
+              <AiAvatar className="size-9" />
               <span className="min-w-0 flex-1">
                 <span className={cn("block text-sm leading-5 font-semibold", aiOpen ? "text-brand-deep" : "text-foreground")}>WebBlock AI</span>
                 <span className="block truncate text-xs leading-4 text-muted-foreground">
-                  {aiOpen ? "Online · describe a change" : "Ask AI to edit your site"}
+                  {aiOpen ? "Describe a change" : "Ask AI to edit your site"}
                 </span>
               </span>
             </button>

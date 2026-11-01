@@ -182,8 +182,6 @@ export async function getOrderReceipt(
       { label: "Billed to", value: find(userId).fullName },
       { label: "Email", value: find(userId).email },
       { label: "Plan", value: order.planName },
-      { label: "Website", value: order.websiteName },
-      { label: "Period", value: order.period ?? "-" },
       { label: "Date", value: formatDayMonthYear(order.createdAt) },
       { label: "Amount paid", value: formatPrice(order.amount, order.currency) },
       { label: "Status", value: "Paid" },

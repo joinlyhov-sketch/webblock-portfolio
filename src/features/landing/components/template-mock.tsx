@@ -12,7 +12,7 @@ export type ShowcaseTemplate = {
   image: { src: string; width: number; height: number };
 };
 
-/** The four sample sites shown in the hero marquee, the hero browser and the templates carousel. */
+/** The sample sites shown in the hero marquee, the hero browser and the templates carousel. */
 export const showcaseTemplates = [
   {
     slug: "petal-stem",
@@ -41,6 +41,27 @@ export const showcaseTemplates = [
     style: "Clean mono",
     domain: "northpointaudio.webblock.com",
     image: { src: "/landing/templates/northpoint-audio-home.webp", width: 2560, height: 1584 },
+  },
+  {
+    slug: "stitch-and-shell",
+    name: "Stitch & Shell",
+    style: "Jackets",
+    domain: "stitchandshell.webblock.com",
+    image: { src: "/landing/templates/jackets-home.webp", width: 2560, height: 1584 },
+  },
+  {
+    slug: "keycap-lab",
+    name: "Keycap Lab",
+    style: "Keyboards",
+    domain: "keycaplab.webblock.com",
+    image: { src: "/landing/templates/keyboards-home.webp", width: 2560, height: 1584 },
+  },
+  {
+    slug: "cold-brew-co",
+    name: "Cold Brew Co",
+    style: "Iced coffee",
+    domain: "coldbrewco.webblock.com",
+    image: { src: "/landing/templates/iced-coffee-home.webp", width: 2560, height: 1584 },
   },
 ] as const satisfies readonly ShowcaseTemplate[];
 

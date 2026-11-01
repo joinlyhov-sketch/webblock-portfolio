@@ -19,29 +19,29 @@ const STEP_ICON: Record<DeployStepKey, ReactNode> = {
 
 const STEP_COPY: Record<
   DeployStepKey,
-  { title: (domain: string) => string; detail: string }
+  { title: (domain: string) => string; detail: (domain: string) => string }
 > = {
   BUILD: {
     title: () => "Building your website",
-    detail: "Turning your design into a fast website",
+    detail: () => "Turning your design into a fast website",
   },
   PRODUCTS: {
     title: () => "Setting up your products",
-    detail: "Creating storage for products, prices and custom fields",
+    detail: () => "Creating storage for products, prices and custom fields",
   },
   PACKAGE: {
     title: () => "Packaging everything",
-    detail: "Preparing your site to run on our servers",
+    detail: () => "Preparing your site to run on our servers",
   },
   LAUNCH: {
     title: () => "Launching your website",
-    detail: "Starting your website and its data service",
+    detail: () => "Starting your website and its data service",
   },
   SSL: {
-    title: (domain) => `Setting up ${domain}`,
-    detail: "Adding the security padlock (SSL) to your free address",
+    title: () => "Securing your site",
+    detail: (domain) => `Adding the SSL padlock to ${domain}`,
   },
-  LIVE: { title: () => "Live!", detail: "Your website is open to customers" },
+  LIVE: { title: () => "Live!", detail: () => "Your website is open to customers" },
 };
 
 const STATUS_LABEL: Record<
@@ -56,7 +56,7 @@ const STATUS_LABEL: Record<
 function StepStatus({ step }: { step: DeploymentStep }) {
   if (step.status === "DONE")
     return (
-      <span className="text-[14px] text-muted-foreground">
+      <span className="text-[13px] text-muted-foreground">
         Done · {step.seconds ?? 0}s
       </span>
     );
@@ -64,7 +64,7 @@ function StepStatus({ step }: { step: DeploymentStep }) {
     return (
       <span
         className={cn(
-          "rounded-full px-2.5 py-0.5 text-[14px] font-medium",
+          "rounded-full px-2.5 py-0.5 text-[13px] font-medium",
           step.status === "FAILED"
             ? "bg-danger-soft text-danger"
             : "bg-brand-soft text-brand-strong",
@@ -75,7 +75,7 @@ function StepStatus({ step }: { step: DeploymentStep }) {
     );
   }
   return (
-    <span className="text-[14px] text-muted-foreground">
+    <span className="text-[13px] text-muted-foreground">
       {STATUS_LABEL[step.status]}
     </span>
   );
@@ -114,7 +114,7 @@ export function DeploySteps({ deployment }: { deployment: Deployment }) {
     >
       <header className="flex items-center justify-between border-b border-border px-6 py-3.5">
         <div className="flex items-center gap-3">
-          <h2 className="text-[15px] font-semibold text-foreground">
+          <h2 className="text-sm font-semibold text-foreground">
             Publishing steps
           </h2>
           <span aria-hidden className="flex gap-1">
@@ -133,25 +133,25 @@ export function DeploySteps({ deployment }: { deployment: Deployment }) {
             ))}
           </span>
         </div>
-        <p className="text-[14px] font-medium text-muted-foreground">
+        <p className="text-[13px] font-medium text-muted-foreground">
           {failed
             ? `Failed at step ${failedAt + 1}`
             : `${done} of ${steps.length} done`}
         </p>
       </header>
-      <ol className="grid grid-cols-6 gap-0 px-4 py-6">
+      <ol className="grid grid-cols-2 gap-x-2 gap-y-8 px-4 py-6 sm:grid-cols-3 lg:grid-cols-6 lg:gap-y-0">
         {steps.map((step, index) => {
           const copy = STEP_COPY[step.key];
           return (
             <li
               key={step.key}
-              className="relative flex min-w-0 flex-col items-center gap-2 px-2 text-center"
+              className="relative flex min-w-0 flex-col items-center gap-1.5 px-2 text-center"
             >
               {index > 0 && (
                 <span
                   aria-hidden
                   className={cn(
-                    "absolute top-[17px] right-1/2 h-px w-full",
+                    "absolute top-[17px] right-1/2 hidden h-px w-full lg:block",
                     steps[index - 1].status === "DONE" &&
                       step.status !== "NOT_STARTED"
                       ? "bg-primary"
@@ -160,13 +160,15 @@ export function DeploySteps({ deployment }: { deployment: Deployment }) {
                 />
               )}
               <StepBadge step={step} />
-              <p className="max-w-full text-[15px] leading-[20px] font-semibold text-foreground [overflow-wrap:anywhere]">
+              <p className="max-w-full text-sm leading-5 font-semibold text-foreground">
                 {copy.title(deployment.domain)}
               </p>
-              <p className="text-[14px] leading-[20px] text-muted-foreground">
-                {copy.detail}
+              <p className="text-xs leading-[18px] text-muted-foreground [overflow-wrap:anywhere]">
+                {copy.detail(deployment.domain)}
               </p>
-              <StepStatus step={step} />
+              <div className="mt-auto pt-2">
+                <StepStatus step={step} />
+              </div>
             </li>
           );
         })}

@@ -30,7 +30,7 @@ import type { Website, WebsiteStatus } from "../types";
 /**
  * "…" menu on a website card.
  * Draft: Open editor, Delete. Live: Portal, Open editor, Version history, Suspend (the card has its own "Visit site" button).
- * Suspended: Open editor, View live site, Portal, Reactivate.
+ * Suspended: Open editor (disabled), View live site, Portal, Reactivate.
  */
 export function WebsiteCardMenu({
   websiteId,
@@ -89,13 +89,18 @@ export function WebsiteCardMenu({
     });
   }
 
-  const editor = (
-    <DropdownMenuItem asChild>
-      <Link href={`/websites/${websiteId}/edit`}>
+  const editor =
+    status === "SUSPENDED" ? (
+      <DropdownMenuItem disabled>
         <Edit aria-hidden /> <span className="flex-1">Open editor</span>
-      </Link>
-    </DropdownMenuItem>
-  );
+      </DropdownMenuItem>
+    ) : (
+      <DropdownMenuItem asChild>
+        <Link href={`/websites/${websiteId}/edit`}>
+          <Edit aria-hidden /> <span className="flex-1">Open editor</span>
+        </Link>
+      </DropdownMenuItem>
+    );
   // The Owner Portal and the live site each open in their own tab, apart from the dashboard.
   const portal = (
     <DropdownMenuItem asChild>

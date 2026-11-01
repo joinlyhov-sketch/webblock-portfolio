@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
-import { ArrowUp, Copy } from "iconsax-reactjs";
-import { LogoMark } from "@/components/common/logo";
+import { ArrowUp } from "iconsax-reactjs";
+import { AiAvatar } from "@/components/common/ai-avatar";
 import { toast } from "@/components/common/toast";
 import { formatTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -16,41 +16,6 @@ const GREETING: AiMessage = {
   text: "Hi! Tell me what to change on your site, like “make the hero heading warmer” or “add a button to the About section”.",
   createdAt: "",
 };
-
-/** Appears next to the time of an AI reply when the group is hovered or focused. */
-function CopyButton({ text }: { text: string }) {
-  return (
-    <button
-      type="button"
-      aria-label="Copy reply"
-      onClick={() => {
-        navigator.clipboard
-          .writeText(text)
-          .then(() => toast.success("Copied"))
-          .catch(() => toast.error("Couldn't copy", "Your browser blocked access to the clipboard."));
-      }}
-      className="flex size-5 items-center justify-center rounded text-muted-foreground opacity-0 outline-none transition-opacity group-hover:opacity-100 hover:text-foreground focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring/40"
-    >
-      <Copy aria-hidden className="size-3.5" />
-    </button>
-  );
-}
-
-/** WebBlock AI's profile picture: the brand mark in a round white chip. */
-function AiAvatar({ className }: { className?: string }) {
-  return (
-    <span
-      role="img"
-      aria-label="WebBlock AI"
-      className={cn(
-        "flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-background shadow-button",
-        className,
-      )}
-    >
-      <LogoMark className="h-4" />
-    </span>
-  );
-}
 
 /** Figma "AI Agent tab": chat history (user bubbles right, AI replies left) and the prompt pill. */
 export function AiChat() {
@@ -129,8 +94,7 @@ export function AiChat() {
                     <time dateTime={message.createdAt} className="text-[11px] leading-4 text-muted-foreground">
                       {formatTime(message.createdAt)}
                     </time>
-                    {!user && <CopyButton text={message.text} />}
-                  </div>
+                                      </div>
                 )}
               </div>
             </div>
@@ -139,14 +103,14 @@ export function AiChat() {
         {pending && (
           <div className="mt-4 flex origin-bottom-left items-end gap-2.5 self-start motion-safe:animate-message-in">
             <AiAvatar />
-            <p role="status" className="flex h-10 items-center gap-1.5 rounded-[20px] bg-segment px-4">
+            <p role="status" className="flex h-8 items-center gap-1 rounded-full border border-border bg-background px-3.5 shadow-button">
               <span className="sr-only">WebBlock AI is typing</span>
               {[0, 1, 2].map((dot) => (
                 <span
                   key={dot}
                   aria-hidden
-                  className="size-2 rounded-full bg-muted-foreground/60 motion-safe:animate-typing-dot"
-                  style={{ animationDelay: `${dot * 160}ms` }}
+                  className="size-1 rounded-full bg-muted-foreground motion-safe:animate-typing-dot"
+                  style={{ animationDelay: `${dot * 180}ms` }}
                 />
               ))}
             </p>
