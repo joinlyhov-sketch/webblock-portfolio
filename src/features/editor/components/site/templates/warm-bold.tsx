@@ -32,6 +32,7 @@ import {
 } from "../site-links";
 import { useProductBrowser } from "../use-product-browser";
 import type { BlockRenderProps, TemplateDesign } from "./types";
+import { SiteLogo } from "../site-logo";
 
 // "Warm & bold" (Kiln Coffee): dark espresso page, one gold accent, Playfair headings,
 // DM Mono eyebrows/prices. Figma desktop is 1728 wide; scaled here to a 1280 container.
@@ -134,7 +135,7 @@ const NAV_LINKS = [
 function Brand({ name, className }: { name: string; className?: string }) {
   return (
     <span className={cn("block min-w-0 truncate font-site-heading font-black text-site-ink", className)}>
-      <span aria-hidden>◉ </span>
+      <SiteLogo fallback={<span aria-hidden>◉ </span>} className="mr-[0.35em] size-[1.4em] align-[-0.4em]" />
       {name}
     </span>
   );

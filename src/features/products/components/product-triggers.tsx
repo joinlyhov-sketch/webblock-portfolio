@@ -20,6 +20,16 @@ export function AddProductButton({ label = "Add product" }: { label?: string }) 
   );
 }
 
+/** Toolbar link after the category tabs: opens the "New category" popup. */
+export function NewCategoryButton() {
+  const { openNewCategory } = useProductDialogs();
+  return (
+    <Button variant="ghost" size="sm" onClick={openNewCategory} className="rounded-full text-primary hover:text-primary">
+      <Add aria-hidden /> New category
+    </Button>
+  );
+}
+
 const menuItem =
   "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-[9px] text-left text-sm leading-5 font-medium outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/40 [&_svg]:size-4 [&_svg]:shrink-0";
 
@@ -100,14 +110,14 @@ export function ProductCellButton({ product }: { product: Product }) {
     <button
       type="button"
       onClick={() => openDetails(product)}
-      className="group flex w-full min-w-0 items-center gap-3 rounded-lg text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/40"
+      className="group flex w-full min-w-0 items-center gap-4 rounded-lg text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/40"
     >
       <ProductImage src={product.imageUrl} alt="" sizes="64px" className="w-16 rounded-lg" />
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm leading-[21px] font-semibold text-foreground group-hover:text-primary">
+        <span className="block truncate text-[15px] leading-[22px] font-semibold text-foreground group-hover:text-primary">
           {product.name}
         </span>
-        <span className="block truncate text-[13px] leading-[19.5px] text-muted-foreground">{product.description}</span>
+        <span className="block truncate text-sm leading-[21px] text-muted-foreground">{product.description}</span>
       </span>
     </button>
   );

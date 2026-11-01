@@ -35,7 +35,7 @@ export function FaqSection() {
             </p>
             <Button asChild size="lp-md">
               <a href={supportHref}>
-                Talk to us <ArrowRight aria-hidden className="size-3.5!" />
+                Mail to us <ArrowRight aria-hidden className="size-3.5!" />
               </a>
             </Button>
           </div>

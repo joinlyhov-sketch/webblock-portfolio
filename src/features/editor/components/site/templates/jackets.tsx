@@ -32,6 +32,7 @@ import {
 import { SiteMap } from "../site-map";
 import { useProductBrowser } from "../use-product-browser";
 import type { BlockRenderProps, TemplateDesign } from "./types";
+import { SiteLogo } from "../site-logo";
 
 /*
  * "Jackets" (a small jacket shop). Dark page, cream cards with hard offset shadows in blue and yellow,
@@ -124,7 +125,7 @@ function Header() {
         )}
       >
         <a href={`#${SECTION_ID.top}`} className={cn("flex min-w-0 items-center gap-2.5 rounded-full", FOCUS)}>
-          <BrandMark />
+          <SiteLogo fallback={<BrandMark />} className="size-8" />
           <span className={cn(DISPLAY, "truncate text-[18px] tracking-[0.02em] @5xl:text-[20px]")}>{site.businessName}</span>
         </a>
         <nav aria-label="Main" className="hidden @3xl:block">
@@ -590,7 +591,7 @@ function Footer(props: BlockRenderProps<FooterProps>) {
         <div className="grid gap-8 @3xl:grid-cols-[1.2fr_1fr_1.3fr_1.2fr] @5xl:gap-10">
           <div className={cn("flex flex-col gap-3", ALIGN_CLASS[props.align])}>
             <a href={`#${SECTION_ID.top}`} className={cn("flex items-center gap-2.5 rounded-full", FOCUS)}>
-              <BrandMark />
+              <SiteLogo fallback={<BrandMark />} className="size-8" />
               <span className={cn(DISPLAY, "text-[20px] tracking-[0.02em]")}>{site.businessName}</span>
             </a>
             {props.tagline && <p className="max-w-[220px] text-[12px] leading-[1.6] text-site-muted">{props.tagline}</p>}

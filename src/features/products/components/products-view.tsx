@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { Box, Element4, Menu, SearchStatus } from "iconsax-reactjs";
+import { Box, Element4, RowVertical, SearchStatus } from "iconsax-reactjs";
 import { DataTable } from "@/components/common/data-table";
 import { EmptyState } from "@/components/common/empty-state";
 import { PageHeader } from "@/components/common/page-header";
@@ -17,7 +17,13 @@ import type { ProductsData, ProductsFilter, ProductsLayout } from "../service";
 import type { Product } from "../types";
 import { ProductDialogsProvider } from "./product-dialogs";
 import { CategoryChip } from "./product-parts";
-import { AddProductButton, ProductCard, ProductCellButton, ProductRowActions } from "./product-triggers";
+import {
+  AddProductButton,
+  NewCategoryButton,
+  ProductCard,
+  ProductCellButton,
+  ProductRowActions,
+} from "./product-triggers";
 
 type Sort = ProductsFilter["sort"];
 
@@ -40,9 +46,10 @@ function sortProducts(items: Product[], sort: Sort): Product[] {
  */
 export function ProductsView({ data, initialFilter }: { data: ProductsData; initialFilter: ProductsFilter }) {
   const [products, setProducts] = useState(data.products);
+  const [categories, setCategories] = useState(data.categories);
   const [q, setQ] = useState(initialFilter.q);
   const [category, setCategory] = useState(
-    initialFilter.category && data.categories.includes(initialFilter.category) ? initialFilter.category : null,
+    initialFilter.category && categories.includes(initialFilter.category) ? initialFilter.category : null,
   );
   const [layout, setLayout] = useState<ProductsLayout>(initialFilter.layout);
   const [size, setSize] = useState(initialFilter.size);
@@ -78,7 +85,7 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
 
   const counts = {
     total: products.length,
-    categories: data.categories.map((name) => ({
+    categories: categories.map((name) => ({
       category: name,
       count: products.filter((p) => p.category === name).length,
     })),
@@ -101,6 +108,9 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
   }
   function removeProduct(productId: string) {
     setProducts((current) => current.filter((p) => p.id !== productId));
+  }
+  function addCategory(name: string) {
+    setCategories((current) => (current.includes(name) ? current : [...current, name]));
   }
 
   const heading = (
@@ -143,11 +153,13 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
           })),
         ]}
       />
+      <NewCategoryButton />
       <div className="ml-auto flex items-center gap-2.5">
         <LayoutToggle layout={layout} onChange={setLayout} />
         <RowsSelect
           value={size}
           options={PRODUCT_PAGE_SIZES}
+          editable
           defaultSize={DEFAULT_PRODUCT_PAGE_SIZE}
           onChange={(next) => {
             setSize(next);
@@ -162,7 +174,6 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
     <EmptyState
       icon={<Box />}
       title="No products yet"
-      description="Add your first product. It shows as a Product Card on your website after your next deploy."
       action={<AddProductButton label="Add your first product" />}
     />
   ) : (
@@ -186,9 +197,10 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
     <ProductDialogsProvider
       websiteId={data.websiteId}
       domain={data.domain}
-      categories={data.categories}
+      categories={categories}
       onSaved={saveProduct}
       onDeleted={removeProduct}
+      onCategoryAdded={addCategory}
     >
       <PageHeader
         className="mb-0 items-center"
@@ -222,28 +234,28 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
             {
               key: "product",
               header: "Product",
-              className: "max-w-0 pl-0",
+              className: "max-w-0 py-4",
               cell: (product) => <ProductCellButton product={product} />,
             },
             {
               key: "category",
               header: "Category",
-              className: "w-[180px]",
+              className: "w-[180px] py-4",
               cell: (product) => <CategoryChip category={product.category} />,
             },
             {
               key: "price",
               header: "Price",
               sortField: "price",
-              className: "w-[140px]",
+              className: "w-[140px] py-4",
               cell: (product) => (
-                <span className="text-sm font-semibold text-foreground">{formatPrice(product.price, "USD")}</span>
+                <span className="text-[15px] font-semibold text-foreground">{formatPrice(product.price, "USD")}</span>
               ),
             },
             {
               key: "actions",
               header: <span className="sr-only">Actions</span>,
-              className: "w-[112px] pr-5",
+              className: "w-[112px] py-4 pr-5",
               cell: (product) => <ProductRowActions product={product} />,
             },
           ]}
@@ -261,14 +273,12 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
               ))}
             </ul>
           )}
-          <div className="border-t border-border">
-            <TablePagination
-              data={page}
-              onPageChange={setPageIndex}
-              itemLabel="products"
-              itemLabelOne="product"
-            />
-          </div>
+          {/* No products at all: no "Showing 0" footer, so the empty state sits in the middle of the card. */}
+          {!noProducts && (
+            <div className="border-t border-border">
+              <TablePagination data={page} onPageChange={setPageIndex} itemLabel="products" itemLabelOne="product" />
+            </div>
+          )}
         </ProductGridFrame>
       )}
     </ProductDialogsProvider>
@@ -301,7 +311,7 @@ function ProductGridFrame({
 function LayoutToggle({ layout, onChange }: { layout: ProductsLayout; onChange: (layout: ProductsLayout) => void }) {
   const options = [
     { value: "grid", label: "Grid view", icon: <Element4 /> },
-    { value: "list", label: "List view", icon: <Menu /> },
+    { value: "list", label: "List view", icon: <RowVertical /> },
   ] as const;
 
   return (

@@ -75,7 +75,7 @@ export function DeployTimeline({ deploys }: { deploys: Deploy[] }) {
           />
         ))}
       </div>
-      <div className="flex justify-between pt-2 text-[11px] text-muted-foreground">
+      <div className="flex justify-between pt-2 text-xs text-muted-foreground">
         <span>Last {deploys.length} deploys</span>
         <span>Latest</span>
       </div>
@@ -139,7 +139,7 @@ export function UsageRing({ metric }: { metric: UsageMetric }) {
         </svg>
         <span aria-hidden className="absolute inset-0 flex flex-col items-center justify-center">
           <span className={cn("font-heading text-[22px] leading-7 font-semibold", TONE[tone].text)}>{metric.used}</span>
-          <span className="text-[11px] text-muted-foreground">of {metric.limit}</span>
+          <span className="text-xs text-muted-foreground">of {metric.limit}</span>
         </span>
       </div>
       <p className={cn("text-xs", TONE[tone].note)}>{note}</p>
@@ -185,7 +185,7 @@ export function DeployResults({ stats }: { stats: DeployStats }) {
               <span aria-hidden className={cn("size-1.5 rounded-full", bar.dot)} />
               {bar.label}
             </p>
-            <p className="text-[11px] text-muted-foreground">{percent(bar.count)}% of deploys</p>
+            <p className="text-xs text-muted-foreground">{percent(bar.count)}% of deploys</p>
           </div>
         ))}
       </div>

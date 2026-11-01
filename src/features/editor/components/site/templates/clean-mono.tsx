@@ -32,6 +32,7 @@ import {
 import { SiteMap } from "../site-map";
 import { useProductBrowser } from "../use-product-browser";
 import type { BlockRenderProps, TemplateDesign } from "./types";
+import { SiteLogo } from "../site-logo";
 
 /*
  * "Clean mono" (Northpoint Audio). Swiss / editorial monochrome: white page, near-black ink,
@@ -93,7 +94,7 @@ function Header() {
           href={`#${SECTION_ID.top}`}
           className={cn("truncate font-site-heading text-[17px] font-bold text-site-ink @3xl:text-[19px] @5xl:text-[21px]", FOCUS)}
         >
-          <span aria-hidden>▲ </span>
+          <SiteLogo fallback={<span aria-hidden>▲ </span>} className="mr-[0.35em] size-[1.4em] align-[-0.4em]" />
           {site.businessName}
         </a>
         <div className="flex shrink-0 items-center gap-2 @3xl:gap-[22px]">
@@ -677,7 +678,7 @@ function Footer(props: BlockRenderProps<FooterProps>) {
         <div className="flex flex-col gap-5 pt-3 @3xl:flex-row @3xl:items-start @3xl:justify-between @3xl:pt-3.5 @5xl:pt-4">
           <div className={cn("flex flex-col gap-1.5 @3xl:gap-2 @5xl:gap-2.5", ALIGN_CLASS[props.align])}>
             <a href={`#${SECTION_ID.top}`} className={cn("font-site-heading text-[20px] font-bold text-site-ink @5xl:text-[24px]", FOCUS)}>
-              <span aria-hidden>▲ </span>
+              <SiteLogo fallback={<span aria-hidden>▲ </span>} className="mr-[0.35em] size-[1.4em] align-[-0.4em]" />
               {site.businessName}
             </a>
             {props.tagline && <p className="text-[13px] text-site-muted @5xl:text-[14px]">{props.tagline}</p>}

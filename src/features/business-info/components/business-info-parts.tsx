@@ -3,6 +3,8 @@ import Image from "next/image";
 import { Global, Shop } from "iconsax-reactjs";
 import { formatClock, initials } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { SiteTopPreview } from "@/features/editor/components/site-top-preview";
+import type { PageData } from "@/features/editor/types";
 import { WEEKDAYS } from "@/features/websites/schemas";
 import type { OpeningHour } from "@/features/websites/types";
 import type { BusinessInfoView } from "../service";
@@ -30,11 +32,25 @@ export function InfoCardTitle({ children, hint }: { children: ReactNode; hint?: 
 
 /** Small uppercase heading inside a card: ABOUT, CONTACT, LOCATION. */
 export function SectionLabel({ children }: { children: ReactNode }) {
-  return <h3 className="pt-3 pb-3 font-sans text-[11px] leading-4 font-medium tracking-wide text-muted-foreground uppercase">{children}</h3>;
+  return <h3 className="pt-3 pb-3 font-sans text-xs leading-4 font-medium tracking-wide text-muted-foreground uppercase">{children}</h3>;
 }
 
-/** Top of the website as visitors see it, cropped to the hero. */
-export function SiteBanner({ website }: { website: BusinessInfoView["website"] }) {
+/**
+ * Top of the website: a live render of the header and hero, using `logoUrl` as the logo (the saved
+ * one, or the one just picked in the form). Without a page it falls back to the saved screenshot.
+ */
+export function SiteBanner({
+  website,
+  preview,
+  logoUrl,
+  label,
+}: {
+  website: BusinessInfoView["website"];
+  preview: PageData | null;
+  logoUrl: string | null;
+  label?: string;
+}) {
+  if (preview) return <SiteTopPreview data={preview} logoUrl={logoUrl} label={label} />;
   return (
     <div className="relative h-[220px] overflow-hidden rounded-xl bg-preview-panel sm:h-[300px]">
       <Image

@@ -10,11 +10,12 @@ import { toast } from "@/components/common/toast";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/format";
 import type { Product } from "../types";
+import { NewCategoryForm } from "./category-form";
 import { ProductForm } from "./product-form";
 import { CategoryChip, ProductDialogHeader } from "./product-parts";
 
 type Dialog =
-  | { kind: "add" }
+  | { kind: "add" | "category" }
   | { kind: "details" | "edit" | "delete"; product: Product }
   | null;
 
@@ -23,6 +24,7 @@ type ProductDialogs = {
   openDetails: (product: Product) => void;
   openEdit: (product: Product) => void;
   openDelete: (product: Product) => void;
+  openNewCategory: () => void;
 };
 
 const ProductDialogsContext = createContext<ProductDialogs | null>(null);
@@ -41,6 +43,7 @@ export function ProductDialogsProvider({
   categories,
   onSaved,
   onDeleted,
+  onCategoryAdded,
   children,
 }: {
   websiteId: string;
@@ -49,6 +52,7 @@ export function ProductDialogsProvider({
   /** The list adds or replaces this product right away. */
   onSaved: (product: Product) => void;
   onDeleted: (productId: string) => void;
+  onCategoryAdded: (name: string) => void;
   children: ReactNode;
 }) {
   const [dialog, setDialog] = useState<Dialog>(null);
@@ -60,9 +64,10 @@ export function ProductDialogsProvider({
     openDetails: (product) => setDialog({ kind: "details", product }),
     openEdit: (product) => setDialog({ kind: "edit", product }),
     openDelete: (product) => setDialog({ kind: "delete", product }),
+    openNewCategory: () => setDialog({ kind: "category" }),
   };
 
-  const product = dialog && dialog.kind !== "add" ? dialog.product : null;
+  const product = dialog && "product" in dialog ? dialog.product : null;
   const shownOn = domain ? `Shown as a Product Card on ${domain}` : "Shown as a Product Card on your website";
 
   function remove(target: Product) {
@@ -105,11 +110,29 @@ export function ProductDialogsProvider({
         className="max-w-[616px] rounded-[20px]"
       >
         {dialog?.kind === "add" && (
-          <ProductForm websiteId={websiteId} categories={categories} product={null} onSaved={onSaved} onDone={close} />
+          <ProductForm
+            websiteId={websiteId}
+            categories={categories}
+            product={null}
+            onSaved={onSaved}
+            onCategoryAdded={onCategoryAdded}
+            onDone={close}
+          />
         )}
         {dialog?.kind === "edit" && (
-          <ProductForm websiteId={websiteId} categories={categories} product={dialog.product} onSaved={onSaved} onDone={close} />
+          <ProductForm
+            websiteId={websiteId}
+            categories={categories}
+            product={dialog.product}
+            onSaved={onSaved}
+            onCategoryAdded={onCategoryAdded}
+            onDone={close}
+          />
         )}
+      </Modal>
+
+      <Modal open={dialog?.kind === "category"} onClose={close} label="New category" className="max-w-[440px] rounded-[20px]">
+        {dialog?.kind === "category" && <NewCategoryForm websiteId={websiteId} onAdded={onCategoryAdded} onDone={close} />}
       </Modal>
 
       <ConfirmDialog

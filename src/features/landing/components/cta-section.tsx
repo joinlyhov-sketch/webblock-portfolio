@@ -33,7 +33,7 @@ export function CtaSection() {
               <Link href="/register">Build your website free</Link>
             </Button>
             <Button asChild variant="outline" size="lp-lg" className="border-cta-border bg-background">
-              <a href={CONTACT_HASH}>Talk to us</a>
+              <a href={CONTACT_HASH}>Mail to us</a>
             </Button>
           </div>
         </div>

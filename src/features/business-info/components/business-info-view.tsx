@@ -27,7 +27,7 @@ export function BusinessInfoView({ data }: { data: BusinessInfoData }) {
           title="Business information"
           description="You’re editing your details. Changes go live on your next deploy."
         />
-        <BusinessInfoForm info={info} website={website} />
+        <BusinessInfoForm info={info} website={website} preview={data.preview} />
       </>
     );
   }
@@ -43,7 +43,7 @@ export function BusinessInfoView({ data }: { data: BusinessInfoData }) {
       />
 
       <InfoCard className="p-2.5">
-        <SiteBanner website={website} />
+        <SiteBanner website={website} preview={data.preview} logoUrl={info.logoUrl} />
         <div className="flex flex-wrap items-center gap-4 px-4 pt-4 pb-3">
           <BusinessMark name={website.name} logoUrl={info.logoUrl} />
           <div className="min-w-0 flex-1">
@@ -57,7 +57,7 @@ export function BusinessInfoView({ data }: { data: BusinessInfoData }) {
         </div>
       </InfoCard>
 
-      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">
+      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
         <InfoCard>
           <InfoCardTitle>Business details</InfoCardTitle>
           <dl>

@@ -35,6 +35,7 @@ import { SiteImage } from "../site-image";
 import { SiteMap } from "../site-map";
 import { useProductBrowser } from "../use-product-browser";
 import type { BlockRenderProps, TemplateDesign } from "./types";
+import { SiteLogo } from "../site-logo";
 import type {
   AboutProps,
   AllProductsProps,
@@ -62,7 +63,7 @@ function Brand({ className }: { className?: string }) {
   const site = useSite();
   return (
     <span className={cn("block min-w-0 truncate font-site-heading font-bold text-site-ink", className)}>
-      <span aria-hidden>❀ </span>
+      <SiteLogo fallback={<span aria-hidden>❀ </span>} className="mr-[0.35em] size-[1.4em] align-[-0.4em]" />
       {site.businessName}
     </span>
   );

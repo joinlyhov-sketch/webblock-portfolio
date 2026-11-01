@@ -3,16 +3,17 @@
 import { useActionState, useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Camera, Link as LinkIcon, Location, Lock, Mobile, Sms } from "iconsax-reactjs";
+import { Camera, Link as LinkIcon, Location, Mobile, Sms } from "iconsax-reactjs";
 import { updateBusinessInfoAction } from "../actions";
 import { toast } from "@/components/common/toast";
+import { UploadImageModal } from "@/components/common/upload-image-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SelectField } from "@/components/common/select-field";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { formatClock } from "@/lib/format";
-import { checkImage, LOGO_RULE } from "@/lib/image-rules";
+import { LOGO_RULE } from "@/lib/image-rules";
 import { cn } from "@/lib/utils";
 import { TIME_OPTIONS } from "@/features/websites/schemas";
 import { BUSINESS_INFO_LIMITS as LIMITS } from "../schemas";
@@ -42,7 +43,15 @@ function parseHours(raw: string | undefined, fallback: OpeningHour[]): OpeningHo
 }
 
 /** Edit mode of Business information: the same layout as the details, with fields in place. */
-export function BusinessInfoForm({ info, website }: { info: BusinessInfo; website: BusinessInfoView["website"] }) {
+export function BusinessInfoForm({
+  info,
+  website,
+  preview,
+}: {
+  info: BusinessInfo;
+  website: BusinessInfoView["website"];
+  preview: BusinessInfoView["preview"];
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const [state, formAction, saving] = useActionState(updateBusinessInfoAction.bind(null, website.id), null);
@@ -55,6 +64,7 @@ export function BusinessInfoForm({ info, website }: { info: BusinessInfo; websit
   const logoInput = useRef<HTMLInputElement>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(info.logoUrl);
   const [logoError, setLogoError] = useState<string | null>(null);
+  const [uploadOpen, setUploadOpen] = useState(false);
 
   const handled = useRef(state);
   useEffect(() => {
@@ -73,15 +83,19 @@ export function BusinessInfoForm({ info, website }: { info: BusinessInfo; websit
     return () => URL.revokeObjectURL(logoPreview);
   }, [logoPreview]);
 
-  function chooseLogo(file: File | undefined) {
-    if (!file) return;
-    const problem = checkImage(file, LOGO_RULE);
-    setLogoError(problem);
-    if (problem) {
-      if (logoInput.current) logoInput.current.value = "";
-      return;
-    }
+  /**
+   * A logo picked in the upload popup (it has already checked the type and size). It goes into the
+   * hidden `logo` input so it is saved with the rest of the form, and shows straight away.
+   */
+  async function chooseLogo(file: File): Promise<boolean> {
+    const input = logoInput.current;
+    if (!input) return false;
+    const files = new DataTransfer();
+    files.items.add(file);
+    input.files = files.files;
+    setLogoError(null);
     setLogoPreview(URL.createObjectURL(file));
+    return true;
   }
 
   function updateHour(day: OpeningHour["day"], change: Partial<OpeningHour>) {
@@ -105,19 +119,32 @@ export function BusinessInfoForm({ info, website }: { info: BusinessInfo; websit
       <input type="hidden" name="hours" value={JSON.stringify(hours)} />
 
       <InfoCard className="p-2.5">
-        <SiteBanner website={website} />
+        {/* The picked logo shows in the site header right away, before Save changes. */}
+        <SiteBanner
+          website={website}
+          preview={preview}
+          logoUrl={logoPreview}
+          label="Preview: goes live on your next deploy"
+        />
         <div className="flex flex-wrap items-center gap-4 px-4 pt-4 pb-3">
           <div className="relative">
-            <BusinessMark name={website.name} logoUrl={logoPreview} />
+            {/* The whole logo opens the upload popup: a drop zone is easier to hit than the small badge. */}
             <button
               type="button"
               aria-label="Change logo"
               aria-describedby={photoError ? "logo-error" : undefined}
-              onClick={() => logoInput.current?.click()}
-              className="absolute -right-1 -bottom-1 flex size-6 items-center justify-center rounded-full border-2 border-background bg-brand-soft text-brand-strong outline-none transition-colors hover:bg-primary-soft focus-visible:ring-3 focus-visible:ring-ring/40"
+              onClick={() => setUploadOpen(true)}
+              className="group relative block rounded-xl outline-none focus-visible:ring-3 focus-visible:ring-ring/40"
             >
-              <Camera aria-hidden className="size-3" />
+              <BusinessMark name={website.name} logoUrl={logoPreview} />
+              <span
+                aria-hidden
+                className="absolute -right-1 -bottom-1 flex size-6 items-center justify-center rounded-full border-2 border-background bg-brand-soft text-brand-strong transition-colors group-hover:bg-primary-soft"
+              >
+                <Camera className="size-3" />
+              </span>
             </button>
+            {/* Holds the picked logo for the form submit; people choose it in the popup. */}
             <input
               ref={logoInput}
               type="file"
@@ -125,16 +152,17 @@ export function BusinessInfoForm({ info, website }: { info: BusinessInfo; websit
               accept={LOGO_RULE.types.join(",")}
               className="sr-only"
               tabIndex={-1}
-              aria-label="Logo file"
-              onChange={(event) => chooseLogo(event.target.files?.[0])}
+              aria-hidden
+            />
+            <UploadImageModal
+              open={uploadOpen}
+              onClose={() => setUploadOpen(false)}
+              rule={LOGO_RULE}
+              onUpload={chooseLogo}
             />
           </div>
           <div className="min-w-0 flex-1">
             <BusinessIdentity website={website}>
-              <p className="flex items-center gap-1.5 pt-1 text-xs text-muted-foreground">
-                <Lock aria-hidden className="size-3.5" />
-                Name, business type and web address can’t be changed
-              </p>
               {photoError && (
                 <p id="logo-error" role="alert" className="pt-1 text-xs text-danger">
                   {photoError}
@@ -155,7 +183,7 @@ export function BusinessInfoForm({ info, website }: { info: BusinessInfo; websit
         </div>
       </InfoCard>
 
-      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">
+      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
         <InfoCard>
           <InfoCardTitle>Business details</InfoCardTitle>
           <SectionLabel>About</SectionLabel>
@@ -238,7 +266,7 @@ export function BusinessInfoForm({ info, website }: { info: BusinessInfo; websit
         </InfoCard>
 
         <InfoCard>
-          <InfoCardTitle hint="Turn on the days you open, then set the opening and closing time.">Opening hours</InfoCardTitle>
+          <InfoCardTitle>Opening hours</InfoCardTitle>
           <fieldset aria-describedby={hoursError ? "info-hours-error" : undefined}>
             <legend className="sr-only">Opening hours</legend>
             <div

@@ -21,3 +21,12 @@ export const productInput = z.object({
 });
 
 export type ProductInput = z.infer<typeof productInput>;
+
+/** "New category" popup and the inline field in the product form. */
+export const categoryInput = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, "Enter a category name.")
+    .max(LIMITS.category, `Use ${LIMITS.category} characters or fewer.`),
+});

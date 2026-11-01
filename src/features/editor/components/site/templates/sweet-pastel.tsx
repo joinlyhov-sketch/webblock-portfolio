@@ -36,6 +36,7 @@ import {
 import { SiteMap } from "../site-map";
 import { useProductBrowser } from "../use-product-browser";
 import type { BlockRenderProps, TemplateDesign } from "./types";
+import { SiteLogo } from "../site-logo";
 
 /* ------------------------------------------------------------------ shared pieces */
 
@@ -134,7 +135,7 @@ function Header() {
     <header id={SECTION_ID.top} className="border-b border-site-border bg-site-bg">
       <div className={cn(WRAP, "flex items-center justify-between gap-4 py-[18px] @5xl:py-[22px]")}>
         <a href={`#${SECTION_ID.top}`} className={cn("min-w-0 font-site-heading text-[17px] font-bold text-site-ink @3xl:text-[18px] @5xl:text-[22px]", FOCUS)}>
-          <span aria-hidden>✧ </span>
+          <SiteLogo fallback={<span aria-hidden>✧ </span>} className="mr-[0.35em] size-[1.4em] align-[-0.4em]" />
           <span className="truncate">{site.businessName}</span>
         </a>
         <div className="flex shrink-0 items-center gap-6">
@@ -690,7 +691,7 @@ function Footer(props: BlockRenderProps<FooterProps>) {
     >
       <div className={cn(WRAP, "flex flex-col gap-3.5 @5xl:gap-5", ALIGN_CLASS[props.align])}>
         <p className="font-site-heading text-[20px] font-bold text-site-ink @3xl:text-[22px] @5xl:text-[28px]">
-          <span aria-hidden>✧ </span>
+          <SiteLogo fallback={<span aria-hidden>✧ </span>} className="mr-[0.35em] size-[1.4em] align-[-0.4em]" />
           {site.businessName}
         </p>
         {props.tagline && <p className="font-site-display text-[20px] font-bold text-site-accent @5xl:text-[24px]">{props.tagline}</p>}

@@ -38,10 +38,6 @@ export function PricingSection({ plans }: { plans: Plan[] }) {
             ))}
           </RevealGroup>
         )}
-
-        <p className="text-center text-sm leading-[21px] text-muted-foreground">
-          All plans are billed monthly. Cancel any time.
-        </p>
       </div>
     </section>
   );
@@ -51,7 +47,7 @@ export function PricingSection({ plans }: { plans: Plan[] }) {
 function PricingDecor() {
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 hidden 2xl:block">
-      <Pop className="absolute top-[120px] right-[108px]" delay={0.2}>
+      <Pop className="absolute top-30 right-27" delay={0.2}>
         <span className="flex size-20 items-center justify-center rounded-full bg-linear-135 from-plan-plus-light to-brand-strong to-70% text-primary-foreground shadow-button-hover">
           <Tag className="size-8" />
         </span>

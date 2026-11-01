@@ -166,6 +166,8 @@ export const siteRootSchema = z.object({
     ),
   facebookUrl: httpsUrl,
   instagramUrl: httpsUrl,
+  // Set from Business information (Owner Portal), never typed in the editor. Optional for older pages.
+  logoUrl: z.string().nullable().optional(),
   currency: z.enum(["USD", "KHR"]),
   palette: z.enum(["original", "lavender", "bakery", "sage"]),
   accentColor: hexColor,

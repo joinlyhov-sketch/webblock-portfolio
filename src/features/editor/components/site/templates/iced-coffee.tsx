@@ -32,6 +32,7 @@ import {
 import { SiteMap } from "../site-map";
 import { useProductBrowser } from "../use-product-browser";
 import type { BlockRenderProps, TemplateDesign } from "./types";
+import { SiteLogo } from "../site-logo";
 
 /*
  * "Iced coffee" (a small iced-drink shop). Warm cream page, a big espresso-brown hero panel, white
@@ -132,7 +133,7 @@ function Header() {
     <header id={SECTION_ID.top} className="bg-site-bg">
       <div className={cn(CONTAINER, "flex items-center justify-between gap-3 py-3 @5xl:py-4")}>
         <a href={`#${SECTION_ID.top}`} className={cn("flex min-w-0 items-center gap-2.5 rounded-full", FOCUS)}>
-          <BrandMark />
+          <SiteLogo fallback={<BrandMark />} className="size-8" />
           <span className="truncate text-[13px] font-bold text-site-ink @5xl:text-[14px]">{site.businessName}</span>
         </a>
         <nav aria-label="Main" className="hidden rounded-full bg-site-surface px-1.5 shadow-sm @3xl:block">
@@ -543,7 +544,7 @@ function Footer(props: BlockRenderProps<FooterProps>) {
         <div className="grid grid-cols-2 gap-x-6 gap-y-8 @5xl:grid-cols-[1.4fr_0.8fr_1.2fr_1.2fr] @5xl:gap-x-8">
           <div className={cn("col-span-2 flex flex-col gap-3 @5xl:col-span-1", ALIGN_CLASS[props.align])}>
             <a href={`#${SECTION_ID.top}`} className={cn("flex items-center gap-2.5 rounded-full", FOCUS)}>
-              <BrandMark />
+              <SiteLogo fallback={<BrandMark />} className="size-8" />
               <span className="text-[13px] font-bold text-site-ink">{site.businessName}</span>
             </a>
             {props.tagline && <p className="max-w-[230px] text-[12px] leading-[1.6] text-site-muted">{props.tagline}</p>}

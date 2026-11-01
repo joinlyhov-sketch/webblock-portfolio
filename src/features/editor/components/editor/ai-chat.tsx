@@ -1,29 +1,90 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
-import { ArrowUp } from "iconsax-reactjs";
-import { AiAvatar } from "@/components/common/ai-avatar";
+import { Add, ArrowUp, Colorfilter, Copy, Edit2 } from "iconsax-reactjs";
+import { LogoMark } from "@/components/common/logo";
 import { toast } from "@/components/common/toast";
 import { formatTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { askAiAction } from "../../actions";
-import type { AiMessage } from "../../types";
+import type { AiMessage, BlockName } from "../../types";
+import { BLOCK_META } from "./block-meta";
+import { BLOCK_SUGGESTIONS, SITE_SUGGESTIONS, type AiSuggestionKind } from "./ai-suggestions";
 import { useMedia } from "./editor-context";
+import { useEditorPuck } from "./use-editor-puck";
 
-const GREETING: AiMessage = {
-  id: "greeting",
-  role: "ASSISTANT",
-  text: "Hi! Tell me what to change on your site, like “make the hero heading warmer” or “add a button to the About section”.",
-  createdAt: "",
-};
+const SUGGESTION_ICON = {
+  write: Edit2,
+  style: Colorfilter,
+  add: Add,
+} satisfies Record<AiSuggestionKind, unknown>;
+
+/**
+ * Empty chat: a centred welcome and three ideas for the selected section (or the whole site), so the
+ * panel isn't a tall blank space before the first message. Picking an idea fills the prompt box; the
+ * owner can adjust it before sending, because the AI changes the site.
+ */
+function Welcome({ onPick }: { onPick: (prompt: string) => void }) {
+  const selectedType = useEditorPuck((s) => s.selectedItem?.type) as BlockName | undefined;
+  const suggestions = selectedType ? BLOCK_SUGGESTIONS[selectedType] : SITE_SUGGESTIONS;
+  const sectionLabel = selectedType ? BLOCK_META[selectedType].label : null;
+
+  return (
+    <div className="flex flex-1 flex-col justify-center gap-6 py-4">
+      <div className="flex flex-col items-center gap-3 text-center motion-safe:animate-fade-up">
+        <AiAvatar className="size-12 [&_img]:h-5" />
+        <div>
+          <p className="font-heading text-lg leading-6 font-semibold text-foreground">What should we change?</p>
+          <p className="mt-1 text-[13px] leading-5 text-muted-foreground">Describe it and I’ll edit your site for you.</p>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <p className="px-1 text-xs font-medium text-placeholder">
+          {sectionLabel ? `Ideas for the ${sectionLabel} section` : "Ideas to get started"}
+        </p>
+        {/* Keyed by section so the ideas animate in again when another section is selected. */}
+        <ul key={selectedType ?? "site"} className="flex flex-col gap-2">
+          {suggestions.map((suggestion, i) => {
+            const Icon = SUGGESTION_ICON[suggestion.kind];
+            return (
+              <li key={suggestion.prompt} className="motion-safe:animate-row-in" style={{ animationDelay: `${80 + i * 50}ms` }}>
+                <button
+                  type="button"
+                  onClick={() => onPick(suggestion.prompt)}
+                  className="flex w-full items-center gap-3 rounded-[14px] border border-border bg-background px-3 py-2.5 text-left text-[13px] leading-5 text-foreground outline-none transition-[background-color,border-color,scale] duration-150 hover:border-brand-border hover:bg-primary-soft focus-visible:ring-3 focus-visible:ring-ring/40 motion-safe:active:scale-[0.99]"
+                >
+                  <span aria-hidden className="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand">
+                    <Icon className="size-3.5" />
+                  </span>
+                  {suggestion.prompt}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </div>
+  );
+}
 
 /** Figma "AI Agent tab": chat history (user bubbles right, AI replies left) and the prompt pill. */
 export function AiChat() {
   const { websiteId } = useMedia();
-  const [messages, setMessages] = useState<AiMessage[]>([GREETING]);
+  const [messages, setMessages] = useState<AiMessage[]>([]);
   const [prompt, setPrompt] = useState("");
   const [pending, startTransition] = useTransition();
   const endRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function pickSuggestion(text: string) {
+    setPrompt(text);
+    const input = inputRef.current;
+    if (!input) return;
+    input.focus();
+    // Cursor at the end, ready to add to the idea or press Enter.
+    requestAnimationFrame(() => input.setSelectionRange(text.length, text.length));
+  }
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
@@ -50,8 +111,12 @@ export function AiChat() {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div role="log" aria-label="WebBlock AI chat" aria-live="polite" className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pt-3 pb-2">
-        {/* Pushes the conversation to the bottom, next to the prompt, like a messaging app. */}
-        <div aria-hidden className="flex-1" />
+        {messages.length === 0 ? (
+          <Welcome onPick={pickSuggestion} />
+        ) : (
+          // Pushes the conversation to the bottom, next to the prompt, like a messaging app.
+          <div aria-hidden className="flex-1" />
+        )}
         {messages.map((message, index) => {
           const user = message.role === "USER";
           // Messages from the same sender sit close together; only the last one of a group gets the tail,
@@ -128,6 +193,7 @@ export function AiChat() {
       >
         <div className="flex items-center gap-2 rounded-full border border-border bg-background py-1.5 pr-1.5 pl-[18px] shadow-card focus-within:border-brand">
           <input
+            ref={inputRef}
             aria-label="Ask WebBlock AI"
             placeholder="Make the heading warmer…"
             value={prompt}

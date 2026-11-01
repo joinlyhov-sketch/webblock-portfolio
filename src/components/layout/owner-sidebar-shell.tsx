@@ -1,19 +1,22 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
-import { ArrowLeft, Logout, SidebarLeft } from "iconsax-reactjs";
+import { ArrowLeft, ExportSquare, Logout, SidebarLeft } from "iconsax-reactjs";
 import { signOutAction } from "@/features/auth/actions";
 import { Avatar } from "@/components/common/avatar";
 import { ConfirmDialog } from "@/components/common/confirm-dialog";
+import { Button } from "@/components/ui/button";
 import { ownerNav } from "@/config/nav";
 import { liveSiteHref } from "@/config/site";
-import { initials } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { Profile } from "@/features/account";
 import type { Website } from "@/features/websites";
 import { BrandLogo } from "./brand-logo";
 import { SidebarNav } from "./sidebar-nav";
+
+/** Length of the sidebar's width animation (`duration-200`). */
+const WIDTH_MS = 200;
 
 /** Interactive part of the Owner Portal sidebar: collapse toggle and the log out confirmation. */
 export function OwnerSidebarShell({
@@ -23,68 +26,83 @@ export function OwnerSidebarShell({
   website: Pick<Website, "id" | "name" | "domain">;
   profile: Pick<Profile, "fullName" | "initials" | "avatarUrl">;
 }) {
+  // `narrow` is the width, `collapsed` the content layout. Expanding widens first and shows the
+  // labels once the width has finished growing; collapsing hides them first. That way nothing is
+  // laid out wide inside a sidebar that is still narrow (the old flicker on "Back to editor").
+  const [narrow, setNarrow] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const labelsTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [signingOut, startSignOut] = useTransition();
 
-  const shopMark = (
-    <span
-      aria-hidden
-      className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-brand-soft text-[13px] leading-[18px] font-bold text-brand-strong"
-    >
-      {initials(website.name)}
-    </span>
-  );
-  const shopText = (
-    <span className="min-w-0 flex-1">
-      <span className="block truncate text-sm leading-5 font-semibold text-foreground">{website.name}</span>
-      <span className="block truncate text-[11px] leading-4 text-muted-foreground">
-        {website.domain ?? "Not published yet"}
-      </span>
-    </span>
-  );
-  const shopClasses = cn(
-    "flex items-center gap-3 rounded-xl border border-border bg-page p-2.5",
-    collapsed && "justify-center border-0 bg-transparent p-0",
-  );
+  useEffect(() => () => clearTimeout(labelsTimer.current), []);
+
+  function toggleSidebar() {
+    clearTimeout(labelsTimer.current);
+    if (narrow) {
+      setNarrow(false);
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      labelsTimer.current = setTimeout(() => setCollapsed(false), reduceMotion ? 0 : WIDTH_MS);
+    } else {
+      setCollapsed(true);
+      setNarrow(true);
+    }
+  }
+
+  const siteLabel = website.domain ? "Go to website" : "Not published yet";
 
   return (
     <aside
       className={cn(
-        "sticky top-0 flex h-dvh shrink-0 flex-col border-r border-border bg-background px-4 pt-5 pb-4 transition-[width] duration-200",
-        collapsed ? "w-[84px]" : "w-[260px]",
+        "sticky top-0 flex h-dvh shrink-0 flex-col overflow-hidden border-r border-border bg-background px-4 pt-5 pb-4 transition-[width] duration-200 motion-reduce:transition-none",
+        narrow ? "w-[84px]" : "w-[260px]",
       )}
     >
       <div className={cn("flex items-center", collapsed ? "flex-col gap-3" : "justify-between pl-1")}>
         <BrandLogo href="/websites" compact={collapsed} />
         <button
           type="button"
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          aria-expanded={!collapsed}
-          onClick={() => setCollapsed((value) => !value)}
+          aria-label={narrow ? "Expand sidebar" : "Collapse sidebar"}
+          aria-expanded={!narrow}
+          onClick={toggleSidebar}
           className="flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-background text-foreground-soft outline-none transition-colors hover:bg-primary-soft focus-visible:ring-3 focus-visible:ring-ring/40"
         >
           <SidebarLeft aria-hidden className="size-4" />
         </button>
       </div>
 
-      <div className="pt-5 pb-5">
+      <div className={cn("pt-5 pb-5", collapsed && "flex justify-center")}>
+        {/* Opens the live site in a new tab. Before the first publish there is nothing to open. */}
         {website.domain ? (
-          <Link
-            href={liveSiteHref(website.id)}
-            target="_blank"
-            rel="noopener noreferrer"
-            title={collapsed ? website.name : undefined}
-            className={cn(shopClasses, "outline-none transition-colors hover:border-primary/40 focus-visible:ring-3 focus-visible:ring-ring/40")}
+          <Button
+            asChild
+            variant="soft"
+            size={collapsed ? "icon" : "md"}
+            className={cn(!collapsed && "w-full")}
           >
-            {shopMark}
-            {collapsed ? <span className="sr-only">{website.name}</span> : shopText}
-          </Link>
+            <Link
+              href={liveSiteHref(website.id)}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={collapsed ? `Go to website (${website.domain})` : website.domain}
+              aria-label={collapsed ? "Go to website" : undefined}
+            >
+              <ExportSquare aria-hidden />
+              {!collapsed && siteLabel}
+            </Link>
+          </Button>
         ) : (
-          <div className={shopClasses}>
-            {shopMark}
-            {collapsed ? <span className="sr-only">{website.name}</span> : shopText}
-          </div>
+          <Button
+            variant="soft"
+            size={collapsed ? "icon" : "md"}
+            disabled
+            title="Publish your website first"
+            aria-label={collapsed ? siteLabel : undefined}
+            className={cn(!collapsed && "w-full")}
+          >
+            <ExportSquare aria-hidden />
+            {!collapsed && siteLabel}
+          </Button>
         )}
       </div>
 
@@ -100,7 +118,7 @@ export function OwnerSidebarShell({
           )}
         >
           <ArrowLeft aria-hidden className="size-[18px] shrink-0" />
-          <span className={cn(collapsed && "sr-only")}>Back to editor</span>
+          <span className={cn("whitespace-nowrap", collapsed && "sr-only")}>Back to editor</span>
         </Link>
         <div className="py-2.5">
           <div className="h-px bg-border" />

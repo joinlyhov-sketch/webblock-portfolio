@@ -83,9 +83,6 @@ export function PlansView({ view }: { view: PlansData }) {
             <TierCard key={plan.code} plan={plan} view={view} />
           ))}
         </ul>
-        <p className="flex items-center justify-center gap-1.5 pt-8 text-[13px] leading-[19.5px] text-muted-foreground">
-          <Lock1 aria-hidden className="size-3.5" /> All plans are billed monthly. Cancel any time.
-        </p>
       </BillingContent>
     </BillingScreen>
   );
