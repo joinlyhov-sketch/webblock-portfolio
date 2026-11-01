@@ -56,8 +56,8 @@ Never import `sonner`, `recharts`, `@radix-ui/*` or Puck directly: use the wrapp
 ## Invariants (enforced by `.claude/hooks/invariants.mjs` on every edit and in `/verify`)
 1. ZERO-TRANSACTION: no cart, checkout, payment form, booking, or WhatsApp in website/editor code.
    Website CTAs only: `tel:`, `mailto:`, Google Maps directions, external `https://` links.
-   Platform subscription billing (KHQR) lives only in `features/billing`, and it only DISPLAYS
-   the QR returned by the API — never integrate the payment provider in the frontend.
+   Platform subscription billing (KHQR via WeBill365) lives only in `features/billing`, and it only
+   DISPLAYS the QR returned by the API. The backend talks to WeBill; never call it from the frontend.
 2. Backend owns logic: retries, deploy state machine, OTP, SSL, payment. Frontend triggers and displays.
 3. Every Server Action starts with the right check: `requireAdmin()` in features/admin,
    `requireWebsiteOwner(websiteId)` when it acts on a website, otherwise `requireUser()`.

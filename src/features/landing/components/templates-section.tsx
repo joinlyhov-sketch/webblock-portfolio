@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Reveal } from "@/components/common/motion";
 import { Button } from "@/components/ui/button";
 import { Diamond, DotGrid } from "./decor";
-import { TemplateFan } from "./template-fan";
+import { TemplateCarousel } from "./template-carousel";
 
 // Figma "Decor · style.jpg" diamonds, positioned as % of the 1728px frame. Some hide on phones.
 const diamonds = [
@@ -16,20 +16,20 @@ const diamonds = [
   { className: "top-[882px] left-[32.4%] hidden md:block", size: 12, delay: 1.1 },
 ];
 
-/** "Four looks. One kind of site." Tilted template fan with style chips. */
+/** "Different looks. One kind of site." 3D template carousel with style chips. */
 export function TemplatesSection() {
   return (
     <section
       id="templates"
       aria-labelledby="templates-title"
-      className="relative scroll-mt-24 overflow-hidden px-4 pt-20 pb-20 sm:px-6 md:pt-[120px] lg:px-8 lg:pb-52"
+      className="relative scroll-mt-24 overflow-hidden px-4 pt-16 pb-16 sm:px-6 md:pt-20 lg:px-8 lg:pb-24"
     >
       <DotGrid className="bottom-auto h-[92%]" />
       {diamonds.map((d) => (
         <Diamond key={d.className} className={d.className} size={d.size} delay={d.delay} />
       ))}
 
-      <div className="relative mx-auto flex max-w-[1280px] flex-col items-center gap-10">
+      <div className="relative mx-auto flex max-w-[1280px] flex-col items-center gap-4 md:gap-6">
         <div className="flex flex-col items-center gap-4 text-center">
           <Reveal y={16}>
             <p className="text-sm leading-5 font-semibold tracking-[0.08em] text-brand-strong uppercase">
@@ -41,12 +41,12 @@ export function TemplatesSection() {
               id="templates-title"
               className="text-[clamp(2rem,4.5vw+0.5rem,3.5rem)] leading-[1.1] font-semibold tracking-[-0.02em] text-foreground"
             >
-              Four looks. One kind of site.
+              Different looks. One kind of site.
             </h2>
           </Reveal>
         </div>
 
-        <TemplateFan />
+        <TemplateCarousel />
 
         <Reveal y={14} delay={0.2}>
           <Button asChild variant="outline" size="lp-lg">

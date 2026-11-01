@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { MotionProvider } from "@/components/common/motion";
-import { LandingFooter, LandingHeader } from "@/features/landing";
+import { ContactDialog, LandingFooter, LandingHeader } from "@/features/landing";
 
 export default function LandingLayout({ children }: { children: ReactNode }) {
   return (
@@ -9,6 +9,7 @@ export default function LandingLayout({ children }: { children: ReactNode }) {
         <LandingHeader />
         <main className="flex-1">{children}</main>
         <LandingFooter />
+        <ContactDialog />
       </div>
     </MotionProvider>
   );

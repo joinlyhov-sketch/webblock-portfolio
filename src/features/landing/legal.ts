@@ -92,7 +92,7 @@ export const privacyPolicy: LegalDocument = {
       items: [
         {
           label: "Service providers",
-          text: "Companies that host our servers, deliver our emails, process KHQR payments and provide Google sign-in. They receive only what they need for that job.",
+          text: "Companies that host our servers, deliver our emails, process KHQR payments (WeBill365) and provide Google sign-in. They receive only what they need for that job.",
         },
         {
           label: "The law",

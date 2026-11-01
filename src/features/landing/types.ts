@@ -1,5 +1,17 @@
 import type { Currency } from "@/lib/format";
 
+/**
+ * A message from the public contact form, as returned by `POST /contact` (public, no auth).
+ * Proposed contract: the backend stores it and emails support; the frontend only sends it.
+ */
+export type ContactMessage = {
+  id: string;
+  name: string;
+  email: string;
+  message: string;
+  createdAt: string;
+};
+
 export type PlanCode = "TRIAL" | "PLUS" | "PRO" | "ULTRA";
 
 /**

@@ -8,7 +8,7 @@ import { HowItWorksSection } from "./how-it-works-section";
 import { PricingSection } from "./pricing-section";
 import { TemplatesSection } from "./templates-section";
 
-/** The landing page body, in Figma order. Header and footer come from the route layout. */
+/** The landing page body (How it works sits under Templates). Header and footer come from the route layout. */
 export function LandingView({ plans }: { plans: Plan[] }) {
   return (
     <>
@@ -16,8 +16,8 @@ export function LandingView({ plans }: { plans: Plan[] }) {
         <HeroSection />
         <HeroShowcase />
       </HeroBackdrop>
-      <HowItWorksSection />
       <TemplatesSection />
+      <HowItWorksSection />
       <EditorSection />
       <PricingSection plans={plans} />
       <FaqSection />

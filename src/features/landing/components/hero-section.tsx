@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { builtFor } from "../content";
 import { DotGrid } from "./decor";
 
 /**
@@ -24,7 +23,7 @@ export function HeroBackdrop({ children }: { children: ReactNode }) {
 /** Hero copy (Figma "Hero copy"). The fixed header floats over its top padding. */
 export function HeroSection() {
   return (
-    <section className="relative isolate px-4 pt-32 pb-12 sm:px-6 sm:pt-40 lg:pt-46 lg:pb-14">
+    <section className="relative isolate px-4 pt-32 pb-8 sm:px-6 sm:pt-40 lg:pt-46 lg:pb-10">
       {/* "Copy glow": keeps the dots quiet behind the text. */}
       <div
         aria-hidden
@@ -51,12 +50,9 @@ export function HeroSection() {
             <a href="#how-it-works">See how it works</a>
           </Button>
         </div>
-        <div className="flex flex-col items-center gap-6 motion-safe:animate-fade-up motion-safe:[animation-delay:240ms]">
-          <p className="text-base text-foreground-soft">Free for 14 days.</p>
-          <p className="text-sm leading-[21px] text-foreground-soft">
-            Built for {builtFor.join(" · ")}
-          </p>
-        </div>
+        <p className="text-base text-foreground-soft motion-safe:animate-fade-up motion-safe:[animation-delay:240ms]">
+          Free for 14 days.
+        </p>
       </div>
     </section>
   );

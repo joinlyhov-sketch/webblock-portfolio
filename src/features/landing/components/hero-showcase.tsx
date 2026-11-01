@@ -14,11 +14,11 @@ export function HeroShowcase() {
       {/* White band behind the slider row so the hero dot grid never shows around the cards. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[140px] bg-background mask-[linear-gradient(to_bottom,transparent,black_24px,black_calc(100%-24px),transparent)] md:top-[58px] md:h-[218px]"
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[140px] bg-background mask-[linear-gradient(to_bottom,transparent,black_24px,black_calc(100%-24px),transparent)] md:top-2 md:h-[218px]"
       />
       <Marquee
-        duration={40}
-        className="pt-4 motion-safe:animate-fade-up motion-safe:[animation-delay:320ms] mask-[linear-gradient(to_right,transparent_1.3%,black_12.7%,black_87.3%,transparent_98.7%)] md:pt-[98px]"
+        duration={60}
+        className="pt-4 motion-safe:animate-fade-up motion-safe:[animation-delay:320ms] mask-[linear-gradient(to_right,transparent_1.3%,black_12.7%,black_87.3%,transparent_98.7%)] md:pt-12"
         trackClassName="gap-4 pr-4 md:gap-6 md:pr-6"
       >
         {marqueeTemplates.map((template, i) => (

@@ -3,6 +3,7 @@ import { ArrowRight } from "iconsax-reactjs";
 import { siteConfig } from "@/config/site";
 import { formatDate } from "@/lib/format";
 import type { LegalDocument } from "../legal";
+import { LegalToc } from "./legal-toc";
 
 const linkClass = "text-brand-strong underline underline-offset-2 hover:text-brand-dark";
 
@@ -29,16 +30,8 @@ export function LegalPage({ doc }: { doc: LegalDocument }) {
       <div className="mt-10 lg:grid lg:grid-cols-[200px_minmax(0,720px)] lg:gap-16">
         <nav aria-label="On this page" className="hidden lg:block">
           <div className="sticky top-32 flex flex-col gap-3">
-            <p className="text-xs font-semibold tracking-[0.08em] text-muted-foreground uppercase">On this page</p>
-            <ol className="flex flex-col gap-2.5">
-              {sections.map((section) => (
-                <li key={section.id}>
-                  <a href={`#${section.id}`} className="text-sm leading-5 text-foreground-soft hover:text-brand-strong">
-                    {section.heading}
-                  </a>
-                </li>
-              ))}
-            </ol>
+            <p className="px-3 text-xs font-semibold tracking-[0.08em] text-muted-foreground uppercase">On this page</p>
+            <LegalToc sections={sections.map(({ id, heading }) => ({ id, heading }))} />
           </div>
         </nav>
 

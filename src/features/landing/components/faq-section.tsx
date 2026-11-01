@@ -3,10 +3,10 @@ import { Reveal, RevealGroup, RevealItem } from "@/components/common/motion";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/config/site";
-import { faqItems } from "../content";
+import { CONTACT_HASH, faqItems } from "../content";
 import { Diamond, DotGrid, GlassOrb } from "./decor";
 
-const supportHref = `mailto:${siteConfig.supportEmail}`;
+const supportHref = CONTACT_HASH;
 
 /** "Questions owners ask us." (Figma "06 FAQ"): help card + accordion (first item open). */
 export function FaqSection() {
