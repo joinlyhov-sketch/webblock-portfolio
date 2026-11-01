@@ -1,7 +1,9 @@
 // Static marketing copy for the landing page. Not API data, so no mock and no DTO shape.
-import { siteConfig } from "@/config/site";
 
 export type NavLink = { label: string; href: string };
+
+/** Opens the "Talk to us" contact form (`ContactDialog`) on any landing, privacy or terms page. */
+export const CONTACT_HASH = "#contact-form";
 
 /** Home-page anchors, prefixed with `/` so they also work from /privacy and /terms. Section ids live on the section components. */
 export const navLinks: NavLink[] = [
@@ -9,16 +11,7 @@ export const navLinks: NavLink[] = [
   { label: "How it works", href: "/#how-it-works" },
   { label: "Pricing", href: "/#pricing" },
   { label: "FAQ", href: "/#faq" },
-  { label: "Contact", href: `mailto:${siteConfig.supportEmail}` },
-];
-
-export const builtFor = [
-  "cafés",
-  "furniture stores",
-  "burger joints",
-  "hotels",
-  "boutiques",
-  "computer shops",
+  { label: "Contact", href: CONTACT_HASH },
 ];
 
 export type FaqItem = { question: string; answer: string };
@@ -66,7 +59,7 @@ export const footerColumns: FooterColumn[] = [
   {
     title: "Support",
     links: [
-      { label: "Email support", href: `mailto:${siteConfig.supportEmail}` },
+      { label: "Email support", href: CONTACT_HASH },
       { label: "FAQ", href: "/#faq" },
     ],
   },

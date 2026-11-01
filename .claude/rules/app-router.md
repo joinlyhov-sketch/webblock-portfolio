@@ -17,7 +17,7 @@ paths:
 - Route groups and their shells:
   - `(landing-page)` landing · `(auth)` auth pages · `(project)` user sidebar
   - `(studio)` full-screen editor/preview/deploy and template preview, no sidebar
-  - `(billing)` plans and KHQR payment screens, own full-page layout
+  - `(billing)` plans and KHQR (WeBill365) payment screens, own full-page layout
   - `(site)` the sample template websites (`/template-sites/[templateId]`), rendered like a customer site
   - `portal/[websiteId]` Owner Portal sidebar · `admin/` Admin Portal sidebar
 - Page content padding: 15px from the sidebar and 15px from the right edge.

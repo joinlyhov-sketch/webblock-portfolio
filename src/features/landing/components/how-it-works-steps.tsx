@@ -18,8 +18,8 @@ const steps = [
 ];
 
 /**
- * The three-step rail (Figma 5574:226054). The white card slides to the step the demo is showing.
- * Rows share one height (`auto-rows-fr`) so the card can move in whole-row percentages at any width.
+ * The three-step rail (Figma 5574:226054). A brand-tinted card slides behind the step the demo is
+ * showing. Rows share one height (`auto-rows-fr`) so the card can move in whole-row percentages at any width.
  */
 export function HowItWorksSteps() {
   return (
@@ -27,7 +27,7 @@ export function HowItWorksSteps() {
       <Tracked
         aria-hidden
         tracks={tl.activeCard}
-        className="absolute top-0 right-0 left-[54px] h-1/3 rounded-[20px] bg-background shadow-hiw-step"
+        className="absolute top-0 right-0 left-[54px] h-1/3 rounded-[20px] bg-brand-soft shadow-hiw-step"
       />
       {steps.map((step, i) => {
         const number = String(i + 1).padStart(2, "0");

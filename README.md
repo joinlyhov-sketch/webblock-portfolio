@@ -99,8 +99,8 @@ Imports flow one way: `app → features → components/common → components/ui 
 These are checked automatically (`.claude/hooks/invariants.mjs`) on every edit, in `/verify`, and in CI:
 
 1. **Zero-transaction websites:** no cart, checkout, payment form, booking or WhatsApp in website or
-   editor code. Subscription billing (KHQR) lives only in `features/billing` and only shows the QR
-   returned by the API.
+   editor code. Subscription billing (KHQR via WeBill365) lives only in `features/billing` and only shows the QR
+   returned by the API. The backend talks to WeBill; the frontend never calls it.
 2. **The backend owns the logic:** retries, deploy states, OTP, SSL and payment. The frontend
    triggers actions and shows results.
 3. **Every Server Action starts with an auth check:** `requireAdmin()`, `requireWebsiteOwner(id)`

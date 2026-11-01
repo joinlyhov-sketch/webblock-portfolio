@@ -1,7 +1,10 @@
 export { listPublicPlans } from "./api";
+export { ContactDialog } from "./components/contact-dialog";
 export { LandingFooter } from "./components/landing-footer";
 export { LandingHeader } from "./components/landing-header";
 export { LandingView } from "./components/landing-view";
 export { LegalPage } from "./components/legal-page";
 export { privacyPolicy, termsOfService } from "./legal";
-export type { Plan, PlanCode } from "./types";
+export { submitContact } from "./service";
+export type { ContactReceipt } from "./service";
+export type { ContactMessage, Plan, PlanCode } from "./types";

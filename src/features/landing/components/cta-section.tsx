@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Reveal } from "@/components/common/motion";
 import { Button } from "@/components/ui/button";
-import { siteConfig } from "@/config/site";
+import { CONTACT_HASH } from "../content";
 import { Diamond, DotGrid } from "./decor";
 
 /** "Get your business online today" band (Figma "07 Get started"). */
@@ -33,7 +33,7 @@ export function CtaSection() {
               <Link href="/register">Build your website free</Link>
             </Button>
             <Button asChild variant="outline" size="lp-lg" className="border-cta-border bg-background">
-              <a href={`mailto:${siteConfig.supportEmail}`}>Talk to us</a>
+              <a href={CONTACT_HASH}>Talk to us</a>
             </Button>
           </div>
         </div>

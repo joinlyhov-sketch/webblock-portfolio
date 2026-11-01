@@ -12,7 +12,7 @@ export type ShowcaseTemplate = {
   image: { src: string; width: number; height: number };
 };
 
-/** The four sample sites shown in the hero marquee, the hero browser and the templates fan. */
+/** The four sample sites shown in the hero marquee, the hero browser and the templates carousel. */
 export const showcaseTemplates = [
   {
     slug: "petal-stem",
