@@ -10,13 +10,14 @@ import { formText } from "@/lib/validation/fields";
 import { getWebsite } from "@/features/websites/api";
 import {
   createProduct,
+  createProductCategory,
   deleteProduct,
   listProductCategories,
   listProducts,
   updateProduct,
 } from "./api";
 import { DEFAULT_PRODUCT_PAGE_SIZE } from "./page-sizes";
-import { productInput } from "./schemas";
+import { categoryInput, productInput } from "./schemas";
 import type { Product } from "./types";
 
 export type ProductsLayout = "grid" | "list";
@@ -129,6 +130,28 @@ export async function removeProduct(websiteId: string, productId: string): Promi
     return { ok: true, data: undefined, message: `${product.name} was removed` };
   } catch (e) {
     if (e instanceof ApiError) return { ok: false, message: e.message };
+    throw e;
+  }
+}
+
+/** Adds a product category. Returns its name so the tabs and the form can show it at once. */
+export async function addCategory(websiteId: string, formData: FormData): Promise<ActionResult<string>> {
+  const values = { name: formText(formData, "name") };
+  const parsed = categoryInput.safeParse(values);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      message: "Please fix the highlighted fields.",
+      fieldErrors: z.flattenError(parsed.error).fieldErrors,
+      values,
+    };
+  }
+  try {
+    const name = await createProductCategory(websiteId, parsed.data.name);
+    return { ok: true, data: name, message: `${name} was added to your categories` };
+  } catch (e) {
+    // A duplicate name belongs under the field, like any other validation message.
+    if (e instanceof ApiError) return { ok: false, message: e.message, fieldErrors: { name: [e.message] }, values };
     throw e;
   }
 }

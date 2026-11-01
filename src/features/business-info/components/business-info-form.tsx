@@ -43,7 +43,15 @@ function parseHours(raw: string | undefined, fallback: OpeningHour[]): OpeningHo
 }
 
 /** Edit mode of Business information: the same layout as the details, with fields in place. */
-export function BusinessInfoForm({ info, website }: { info: BusinessInfo; website: BusinessInfoView["website"] }) {
+export function BusinessInfoForm({
+  info,
+  website,
+  preview,
+}: {
+  info: BusinessInfo;
+  website: BusinessInfoView["website"];
+  preview: BusinessInfoView["preview"];
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const [state, formAction, saving] = useActionState(updateBusinessInfoAction.bind(null, website.id), null);
@@ -111,7 +119,13 @@ export function BusinessInfoForm({ info, website }: { info: BusinessInfo; websit
       <input type="hidden" name="hours" value={JSON.stringify(hours)} />
 
       <InfoCard className="p-2.5">
-        <SiteBanner website={website} />
+        {/* The picked logo shows in the site header right away, before Save changes. */}
+        <SiteBanner
+          website={website}
+          preview={preview}
+          logoUrl={logoPreview}
+          label="Preview: goes live on your next deploy"
+        />
         <div className="flex flex-wrap items-center gap-4 px-4 pt-4 pb-3">
           <div className="relative">
             {/* The whole logo opens the upload popup: a drop zone is easier to hit than the small badge. */}

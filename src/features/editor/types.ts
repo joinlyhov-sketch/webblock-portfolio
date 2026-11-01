@@ -59,6 +59,11 @@ export type SiteRootProps = {
   telegram: string;
   facebookUrl: string;
   instagramUrl: string;
+  /**
+   * Round logo in the site header, from Owner Portal → Business information. `null` or missing
+   * (older pages) shows the template's own mark instead.
+   */
+  logoUrl?: string | null;
   currency: Currency;
   palette: PaletteKey;
   /** Owner-picked "#rrggbb" colours that override the palette/template. null = keep it. */

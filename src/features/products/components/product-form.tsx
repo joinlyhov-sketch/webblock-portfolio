@@ -13,6 +13,7 @@ import { checkImage, PRODUCT_IMAGE_RULE } from "@/lib/image-rules";
 import { cn } from "@/lib/utils";
 import { PRODUCT_LIMITS as LIMITS } from "../schemas";
 import type { Product } from "../types";
+import { InlineCategoryCreator } from "./category-form";
 import { ProductDialogHeader } from "./product-parts";
 
 const fieldClasses = "h-[38px] rounded-xl px-3 text-sm";
@@ -24,10 +25,13 @@ export function ProductForm({
   categories,
   product,
   onSaved,
+  onCategoryAdded,
   onDone,
 }: {
   websiteId: string;
   categories: string[];
+  /** A category made from the form joins the list (tabs too) and is picked for this product. */
+  onCategoryAdded: (name: string) => void;
   /** `null` adds a new product. */
   product: Product | null;
   /** Called with the saved product before the popup closes, so the list can show it at once. */
@@ -76,6 +80,7 @@ export function ProductForm({
 
   const values = state && !state.ok ? state.values : undefined;
   const errors = state && !state.ok ? state.fieldErrors : undefined;
+  const [category, setCategory] = useState(product?.category ?? "");
   const error = (name: string) => errors?.[name]?.[0];
   const photoError = imageError ?? error("image");
 
@@ -169,14 +174,24 @@ export function ProductForm({
             <SelectField
               id="product-category"
               name="category"
-              defaultValue={values?.category ?? product?.category ?? ""}
-              placeholder="Choose a category"
+              value={category}
+              onValueChange={setCategory}
+              placeholder={categories.length ? "Choose a category" : "Add a category first"}
+              disabled={categories.length === 0}
               options={categories.map((category) => ({ value: category, label: category }))}
               aria-invalid={!!error("category")}
               aria-describedby={error("category") ? "product-category-error" : undefined}
               className={fieldClasses}
             />
             <FieldError id="product-category-error" message={error("category")} />
+            <InlineCategoryCreator
+              websiteId={websiteId}
+              hasCategories={categories.length > 0}
+              onAdded={(name) => {
+                onCategoryAdded(name);
+                setCategory(name);
+              }}
+            />
           </div>
 
           <div>

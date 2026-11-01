@@ -46,7 +46,7 @@ export function ContactDialog() {
   const [open, close] = useContactHash();
 
   return (
-    <Modal open={open} onClose={close} label="Talk to us" className="max-w-[520px] rounded-[24px]">
+    <Modal open={open} onClose={close} label="Mail to us" className="max-w-[520px] rounded-[24px]">
       <ContactForm onClose={close} />
     </Modal>
   );

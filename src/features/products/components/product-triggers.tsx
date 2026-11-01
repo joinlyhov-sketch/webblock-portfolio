@@ -20,6 +20,16 @@ export function AddProductButton({ label = "Add product" }: { label?: string }) 
   );
 }
 
+/** Toolbar link after the category tabs: opens the "New category" popup. */
+export function NewCategoryButton() {
+  const { openNewCategory } = useProductDialogs();
+  return (
+    <Button variant="ghost" size="sm" onClick={openNewCategory} className="rounded-full text-primary hover:text-primary">
+      <Add aria-hidden /> New category
+    </Button>
+  );
+}
+
 const menuItem =
   "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-[9px] text-left text-sm leading-5 font-medium outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/40 [&_svg]:size-4 [&_svg]:shrink-0";
 

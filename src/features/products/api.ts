@@ -6,8 +6,13 @@ import { toPage, type TableQuery } from "@/lib/table-query";
 import { productCategories, products as seed } from "@/mocks/products";
 import type { Product, ProductCounts } from "./types";
 
-const globalForStore = globalThis as typeof globalThis & { __wbProducts?: Product[] };
+const globalForStore = globalThis as typeof globalThis & {
+  __wbProducts?: Product[];
+  __wbProductCategories?: Record<string, string[]>;
+};
 const store: Product[] = (globalForStore.__wbProducts ??= structuredClone(seed));
+const categoryStore: Record<string, string[]> = (globalForStore.__wbProductCategories ??=
+  structuredClone(productCategories));
 
 export type ListProductsFilter = {
   q?: string;
@@ -43,7 +48,7 @@ export async function countProducts(websiteId: string): Promise<ProductCounts> {
   const mine = store.filter((p) => p.websiteId === websiteId);
   return {
     total: mine.length,
-    categories: (productCategories[websiteId] ?? []).map((category) => ({
+    categories: (categoryStore[websiteId] ?? []).map((category) => ({
       category,
       count: mine.filter((p) => p.category === category).length,
     })),
@@ -53,7 +58,18 @@ export async function countProducts(websiteId: string): Promise<ProductCounts> {
 /** GET /projects/{projectId}/product-categories */
 export async function listProductCategories(websiteId: string): Promise<string[]> {
   await delay(100);
-  return productCategories[websiteId] ?? [];
+  return categoryStore[websiteId] ?? [];
+}
+
+/** POST /projects/{projectId}/product-categories { name } — adds a category at the end of the list. */
+export async function createProductCategory(websiteId: string, name: string): Promise<string> {
+  await delay(300);
+  const categories = (categoryStore[websiteId] ??= []);
+  if (categories.some((c) => c.toLowerCase() === name.toLowerCase())) {
+    throw new ApiError({ title: "Category already exists", status: 409, detail: `You already have a “${name}” category.` });
+  }
+  categories.push(name);
+  return name;
 }
 
 export async function getProduct(websiteId: string, productId: string): Promise<Product> {
@@ -75,7 +91,7 @@ export type ProductBody = {
 };
 
 function checkCategory(websiteId: string, category: string) {
-  if (!(productCategories[websiteId] ?? []).includes(category)) {
+  if (!(categoryStore[websiteId] ?? []).includes(category)) {
     throw new ApiError({ title: "Unknown category", status: 422, detail: "Choose one of your website’s categories." });
   }
 }

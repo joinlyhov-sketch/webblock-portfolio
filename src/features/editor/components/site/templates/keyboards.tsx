@@ -32,6 +32,7 @@ import {
 import { SiteMap } from "../site-map";
 import { useProductBrowser } from "../use-product-browser";
 import type { BlockRenderProps, TemplateDesign } from "./types";
+import { SiteLogo } from "../site-logo";
 
 /*
  * "Keyboards" (a small keyboard shop). Near-black page, wide Syne headlines with one violet word,
@@ -123,7 +124,7 @@ function Header() {
     <header id={SECTION_ID.top} className="bg-site-bg">
       <div className={cn(CONTAINER, "flex items-center justify-between gap-4 py-4 @5xl:py-5")}>
         <a href={`#${SECTION_ID.top}`} className={cn("flex min-w-0 items-center gap-2.5 rounded-full", FOCUS)}>
-          <span aria-hidden className="size-2 shrink-0 rounded-full bg-site-accent" />
+          <SiteLogo fallback={<span aria-hidden className="size-2 shrink-0 rounded-full bg-site-accent" />} className="size-7" />
           <span className="truncate font-site-display text-[12px] font-bold tracking-[0.08em] text-site-ink uppercase @5xl:text-[13px]">
             {site.businessName}
           </span>

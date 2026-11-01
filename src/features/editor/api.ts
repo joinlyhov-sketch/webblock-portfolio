@@ -3,9 +3,10 @@ import { ApiError } from "@/lib/api/errors";
 import { delay } from "@/lib/api/delay";
 import type { Page } from "@/lib/api/types";
 import { toPage } from "@/lib/table-query";
+import { getBusinessInfo } from "@/features/business-info/api";
 import { touchWebsite } from "@/features/websites/api";
 import { mediaAssets, uploadedMedia, websitePages } from "@/mocks/website-pages";
-import type { AiMessage, MediaAsset, PageData, PageVersion, WebsitePage } from "./types";
+import type { AiMessage, MediaAsset, PageData, PageVersion, SiteRootProps, WebsitePage } from "./types";
 
 function findPage(websiteId: string): WebsitePage {
   const page = websitePages.find((p) => p.websiteId === websiteId);
@@ -39,7 +40,20 @@ function historyOf(page: WebsitePage): History {
 /** GET /projects/{projectId}/page — the saved draft and the published version. */
 export async function getPageData(websiteId: string): Promise<WebsitePage> {
   await delay();
-  return structuredClone(findPage(websiteId));
+  const page = structuredClone(findPage(websiteId));
+  page.draft = await withBusinessLogo(websiteId, page.draft);
+  return page;
+}
+
+/**
+ * The header logo comes from Owner Portal → Business information, not from the editor: Spring fills
+ * `root.props.logoUrl` when it serves the draft and when it deploys.
+ */
+async function withBusinessLogo(websiteId: string, data: PageData): Promise<PageData> {
+  const info = await getBusinessInfo(websiteId).catch(() => null);
+  if (!info) return data;
+  const props: SiteRootProps = { ...(data.root.props as SiteRootProps), logoUrl: info.logoUrl };
+  return { ...data, root: { ...data.root, props } };
 }
 
 /** GET /sites/{websiteId} — public: the deployed page that visitors see. 404 until the first deploy. */
@@ -72,7 +86,7 @@ export async function publishPage(websiteId: string, idempotencyKey: string): Pr
   const page = findPage(websiteId);
   const now = new Date().toISOString();
   const history = historyOf(page);
-  page.published = structuredClone(page.draft);
+  page.published = await withBusinessLogo(websiteId, structuredClone(page.draft));
   page.publishedAt = now;
   const id = crypto.randomUUID();
   history.versions.unshift({ id, publishedAt: now, data: structuredClone(page.published) });

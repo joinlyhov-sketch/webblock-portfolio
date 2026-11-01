@@ -17,7 +17,13 @@ import type { ProductsData, ProductsFilter, ProductsLayout } from "../service";
 import type { Product } from "../types";
 import { ProductDialogsProvider } from "./product-dialogs";
 import { CategoryChip } from "./product-parts";
-import { AddProductButton, ProductCard, ProductCellButton, ProductRowActions } from "./product-triggers";
+import {
+  AddProductButton,
+  NewCategoryButton,
+  ProductCard,
+  ProductCellButton,
+  ProductRowActions,
+} from "./product-triggers";
 
 type Sort = ProductsFilter["sort"];
 
@@ -40,9 +46,10 @@ function sortProducts(items: Product[], sort: Sort): Product[] {
  */
 export function ProductsView({ data, initialFilter }: { data: ProductsData; initialFilter: ProductsFilter }) {
   const [products, setProducts] = useState(data.products);
+  const [categories, setCategories] = useState(data.categories);
   const [q, setQ] = useState(initialFilter.q);
   const [category, setCategory] = useState(
-    initialFilter.category && data.categories.includes(initialFilter.category) ? initialFilter.category : null,
+    initialFilter.category && categories.includes(initialFilter.category) ? initialFilter.category : null,
   );
   const [layout, setLayout] = useState<ProductsLayout>(initialFilter.layout);
   const [size, setSize] = useState(initialFilter.size);
@@ -78,7 +85,7 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
 
   const counts = {
     total: products.length,
-    categories: data.categories.map((name) => ({
+    categories: categories.map((name) => ({
       category: name,
       count: products.filter((p) => p.category === name).length,
     })),
@@ -101,6 +108,9 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
   }
   function removeProduct(productId: string) {
     setProducts((current) => current.filter((p) => p.id !== productId));
+  }
+  function addCategory(name: string) {
+    setCategories((current) => (current.includes(name) ? current : [...current, name]));
   }
 
   const heading = (
@@ -143,6 +153,7 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
           })),
         ]}
       />
+      <NewCategoryButton />
       <div className="ml-auto flex items-center gap-2.5">
         <LayoutToggle layout={layout} onChange={setLayout} />
         <RowsSelect
@@ -186,9 +197,10 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
     <ProductDialogsProvider
       websiteId={data.websiteId}
       domain={data.domain}
-      categories={data.categories}
+      categories={categories}
       onSaved={saveProduct}
       onDeleted={removeProduct}
+      onCategoryAdded={addCategory}
     >
       <PageHeader
         className="mb-0 items-center"

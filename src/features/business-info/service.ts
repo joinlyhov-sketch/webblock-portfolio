@@ -7,6 +7,8 @@ import { formFile, imageToDataUrl } from "@/lib/files";
 import { checkImage, LOGO_RULE } from "@/lib/image-rules";
 import type { SearchParams } from "@/lib/table-query";
 import { formText } from "@/lib/validation/fields";
+import { getPageData } from "@/features/editor/api";
+import type { PageData } from "@/features/editor/types";
 import { getWebsite } from "@/features/websites/api";
 import type { Website } from "@/features/websites/types";
 import { getBusinessInfo, updateBusinessInfo } from "./api";
@@ -16,16 +18,31 @@ import type { BusinessInfo } from "./types";
 export type BusinessInfoView = {
   info: BusinessInfo;
   website: Pick<Website, "id" | "name" | "businessType" | "domain" | "thumbnailUrl">;
+  /**
+   * The top of the website for the live preview banner: the draft's root props (header) and its
+   * hero (or first section). The draft is what the next deploy puts online. `null` when the
+   * website has no page yet: the banner shows the saved screenshot instead.
+   */
+  preview: PageData | null;
   /** `?edit=1`: the page shows the form instead of the details. */
   editing: boolean;
 };
 
 export async function getBusinessInfoView(websiteId: string, searchParams: SearchParams): Promise<BusinessInfoView> {
-  const [info, website] = await Promise.all([getBusinessInfo(websiteId), getWebsite(websiteId)]);
+  const [info, website, page] = await Promise.all([
+    getBusinessInfo(websiteId),
+    getWebsite(websiteId),
+    getPageData(websiteId).catch((e: unknown) => {
+      if (e instanceof ApiError && e.status === 404) return null;
+      throw e;
+    }),
+  ]);
   const { id, name, businessType, domain, thumbnailUrl } = website;
+  const top = page && (page.draft.content.find((block) => block.type === "Hero") ?? page.draft.content[0]);
   return {
     info,
     website: { id, name, businessType, domain, thumbnailUrl },
+    preview: page && { root: page.draft.root, content: top ? [top] : [] },
     editing: searchParams.edit === "1",
   };
 }

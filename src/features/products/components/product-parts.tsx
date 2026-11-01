@@ -1,11 +1,15 @@
+import type { ReactNode } from "react";
 import { Add, Box } from "iconsax-reactjs";
 
 /** Blue icon tile + title + subtitle + close button, shared by the details and form popups. */
 export function ProductDialogHeader({
+  icon = <Box />,
   title,
   subtitle,
   onClose,
 }: {
+  /** Tile icon; a product box by default. */
+  icon?: ReactNode;
   title: string;
   subtitle: string;
   onClose: () => void;
@@ -14,9 +18,9 @@ export function ProductDialogHeader({
     <div className="flex items-center gap-3 border-b border-border pb-4">
       <span
         aria-hidden
-        className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-linear-to-br from-logo-from to-logo-to text-primary-foreground shadow-logo"
+        className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-linear-to-br from-logo-from to-logo-to text-primary-foreground shadow-logo [&_svg]:size-4"
       >
-        <Box className="size-4" />
+        {icon}
       </span>
       <div className="min-w-0 flex-1">
         <h2 className="text-lg leading-6 font-semibold text-foreground">{title}</h2>
