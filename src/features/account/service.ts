@@ -10,6 +10,8 @@ import {
   updateProfile,
 } from "./api";
 import { settlePendingPayments } from "@/features/billing/api";
+import { countPlanDeploys } from "@/features/monitoring/api";
+import { countProducts } from "@/features/products/api";
 import { listWebsites } from "@/features/websites/api";
 import { ApiError } from "@/lib/api/errors";
 import { formFile, imageToDataUrl } from "@/lib/files";
@@ -75,6 +77,31 @@ export async function getSidebarView(
   };
 }
 
+/**
+ * The plan's usage counted from real data, so it always matches the websites and products on screen:
+ * websites online now (a suspended one is offline and frees its place), products across the owner's
+ * websites, and the deploys of those websites in the current period (trial or 30-day plan period).
+ */
+async function withLiveUsage(userId: string, subscription: Subscription): Promise<Subscription> {
+  const [online, all] = await Promise.all([
+    listWebsites(userId, { status: "LIVE" }),
+    listWebsites(userId, {}),
+  ]);
+  const productCounts = await Promise.all(all.items.map((w) => countProducts(w.id)));
+  const paid = subscription.renewsAt !== null;
+  const since = paid
+    ? new Date(new Date(subscription.renewsAt as string).getTime() - BILLING_PERIOD_MS).toISOString()
+    : subscription.trialStartsAt;
+  const onlineIds = online.items.map((w) => w.id);
+  const live: Record<string, number> = {
+    websites: online.items.length,
+    products: productCounts.reduce((sum, c) => sum + c.total, 0),
+    deploys: countPlanDeploys(onlineIds, since, false),
+    redeploys: countPlanDeploys(onlineIds, since, true),
+  };
+  return { ...subscription, usage: subscription.usage.map((m) => ({ ...m, used: live[m.key] ?? m.used })) };
+}
+
 export type BillingView = {
   subscription: Subscription;
   daysLeft: number;
@@ -121,7 +148,7 @@ export async function getBillingView(
   ]);
 
   return {
-    subscription,
+    subscription: await withLiveUsage(userId, subscription),
     daysLeft: daysUntil(subscription.renewsAt ?? subscription.trialEndsAt),
     periodDays: subscription.renewsAt ? 30 : subscription.trialDays,
     progress: trialProgress(subscription),

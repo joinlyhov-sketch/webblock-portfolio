@@ -1,18 +1,14 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
-import { ArrowLeft, Element3 } from "iconsax-reactjs";
-import { Button } from "@/components/ui/button";
+import { Element3 } from "iconsax-reactjs";
 
 /**
- * Full-screen frame of the Deploy screens (Figma "13 First Deploy", "15 Deploying"): a floating
- * "Back to editor" pill, the website chip top-right and a soft dotted backdrop. The page never needs a sidebar.
+ * Full-screen frame of the Deploy screens (Figma "13 First Deploy", "15 Deploying"): the website chip
+ * top-right and a soft dotted backdrop. The page never needs a sidebar.
  */
 export function DeployShell({
-  backHref,
   siteName,
   children,
 }: {
-  backHref: string;
   siteName: string;
   children: ReactNode;
 }) {
@@ -23,32 +19,22 @@ export function DeployShell({
         <div className="absolute top-12 -left-24 size-[420px] bg-[radial-gradient(circle,var(--color-dot)_1.5px,transparent_1.6px)] bg-size-[22px_22px] mask-[radial-gradient(circle,black_30%,transparent_68%)]" />
         <div className="absolute top-40 -right-24 size-[420px] bg-[radial-gradient(circle,var(--color-dot)_1.5px,transparent_1.6px)] bg-size-[22px_22px] mask-[radial-gradient(circle,black_30%,transparent_68%)]" />
       </div>
-      <header className="relative z-10 flex items-start justify-between px-5 pt-5">
-        <Button
-          asChild
-          variant="ghost"
-          size="sm"
-          className="rounded-full bg-background shadow-button"
-        >
-          <Link href={backHref}>
-            <ArrowLeft aria-hidden /> Back to editor
-          </Link>
-        </Button>
+      <header className="absolute inset-x-0 top-0 z-10 flex items-start justify-end px-5 pt-5">
         <div className="flex items-center gap-2.5 rounded-2xl bg-background py-2 pr-4 pl-2 shadow-card">
           <span className="flex size-8 items-center justify-center rounded-[10px] bg-primary text-primary-foreground [&_svg]:size-4">
             <Element3 aria-hidden />
           </span>
           <span className="flex flex-col">
-            <span className="max-w-[200px] truncate text-xs leading-4 font-semibold text-foreground">
+            <span className="max-w-[200px] truncate text-[14px] leading-[18px] font-semibold text-foreground">
               {siteName}
             </span>
-            <span className="text-[11px] leading-4 text-muted-foreground">
+            <span className="text-[13px] leading-[18px] text-muted-foreground">
               Home page
             </span>
           </span>
         </div>
       </header>
-      <div className="relative z-10 flex flex-1 flex-col items-center px-6 pt-10 pb-16">
+      <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pt-[72px] pb-28">
         {children}
       </div>
     </div>

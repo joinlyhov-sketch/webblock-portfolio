@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-const DELAY_MS = 3000;
+const DELAY_MS = 1800;
 
 /** Once the bank has confirmed the payment, takes the owner back to where they chose the plan. */
 export function RedirectAfterPaid({ href }: { href: string }) {

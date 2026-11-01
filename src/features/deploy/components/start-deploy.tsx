@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Danger } from "iconsax-reactjs";
+import { LogoMark } from "@/components/common/logo";
 import { Button } from "@/components/ui/button";
 import { startDeployAction } from "../actions";
 import { plansHref } from "../schemas";
@@ -47,8 +48,8 @@ export function StartDeploy({
         <span className="flex size-12 items-center justify-center rounded-full bg-danger-soft text-danger [&_svg]:size-6">
           <Danger aria-hidden />
         </span>
-        <h1 className="font-heading text-[28px] leading-9 font-semibold text-foreground">Couldn’t start the deploy</h1>
-        <p className="max-w-[460px] text-sm text-muted-foreground">{error}</p>
+        <h1 className="font-heading text-[30px] leading-[34.5px] font-semibold tracking-[-0.6px] text-foreground">Couldn’t start the deploy</h1>
+        <p className="max-w-[460px] text-[15px] leading-[22.5px] text-muted-foreground">{error}</p>
         <div className="flex gap-2.5 pt-2">
           <Button
             onClick={() => {
@@ -67,13 +68,19 @@ export function StartDeploy({
   }
 
   return (
-    <div role="status" className="flex flex-col items-center gap-4 text-center">
-      <span
-        aria-hidden
-        className="size-12 animate-spin rounded-full border-4 border-brand-soft border-t-primary"
-      />
-      <h1 className="font-heading text-[28px] leading-9 font-semibold text-primary">Starting your deploy…</h1>
-      <p className="text-sm text-muted-foreground">Payment confirmed. Your website is being generated and published.</p>
+    <div role="status" className="flex flex-col items-center gap-4 text-center motion-safe:animate-fade-up">
+      <span aria-hidden className="relative flex size-20 items-center justify-center">
+        <span className="absolute inset-0 rounded-full bg-brand-soft motion-safe:animate-halo-ripple" />
+        <span
+          className="absolute inset-0 rounded-full bg-brand-soft motion-safe:animate-halo-ripple"
+          style={{ animationDelay: "1.2s" }}
+        />
+        <span className="relative flex size-16 items-center justify-center rounded-full border border-border bg-background shadow-card motion-safe:animate-float-soft">
+          <LogoMark className="h-8" />
+        </span>
+      </span>
+      <h1 className="font-heading text-[30px] leading-[34.5px] font-semibold tracking-[-0.6px] text-primary">Starting your deploy…</h1>
+      <p className="text-[15px] leading-[22.5px] text-muted-foreground">Payment confirmed. Your website is being generated and published.</p>
     </div>
   );
 }

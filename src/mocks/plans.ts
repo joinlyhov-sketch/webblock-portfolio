@@ -22,7 +22,7 @@ export const plans: Plan[] = [
     currency: "USD",
     trialDays: null,
     websiteLimit: 1,
-    redeploysPerMonth: 5,
+    redeploysPerMonth: 3,
     productLimit: 30,
     logsEnabled: false,
     popular: false,

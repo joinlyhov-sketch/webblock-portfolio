@@ -29,7 +29,7 @@ import type { Website, WebsiteStatus } from "../types";
 
 /**
  * "…" menu on a website card.
- * Draft: Open editor, Delete. Live: Portal, Open editor, View live site, Suspend.
+ * Draft: Open editor, Delete. Live: Portal, Open editor, Version history, Suspend (the card has its own "Visit site" button).
  * Suspended: Open editor, View live site, Portal, Reactivate.
  */
 export function WebsiteCardMenu({
@@ -142,7 +142,6 @@ export function WebsiteCardMenu({
             <>
               {portal}
               {editor}
-              {liveSite}
               {history}
               <DropdownMenuSeparator className="mx-1 my-[3px]" />
               <DropdownMenuItem variant="destructive" onSelect={() => setConfirmOpen(true)}>

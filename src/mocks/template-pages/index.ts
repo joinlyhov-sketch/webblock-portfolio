@@ -1,6 +1,9 @@
 import type { PageData, TemplateKey } from "@/features/editor/types";
 import { cleanMonoPage } from "./clean-mono";
 import { everydayStorePage } from "./everyday-store";
+import { icedCoffeePage } from "./iced-coffee";
+import { jacketsPage } from "./jackets";
+import { keyboardsPage } from "./keyboards";
 import { sweetPastelPage } from "./sweet-pastel";
 import { warmBoldPage } from "./warm-bold";
 
@@ -10,4 +13,7 @@ export const templatePages: Record<TemplateKey, PageData> = {
   "sweet-pastel": sweetPastelPage,
   "warm-bold": warmBoldPage,
   "clean-mono": cleanMonoPage,
+  jackets: jacketsPage,
+  keyboards: keyboardsPage,
+  "iced-coffee": icedCoffeePage,
 };

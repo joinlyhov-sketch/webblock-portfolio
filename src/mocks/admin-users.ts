@@ -1,4 +1,5 @@
 import type { UserAccount, UserStats } from "@/features/admin/types";
+import { daysAgo, hoursAgo } from "./time";
 
 export const userStats: UserStats = {
   totalAccounts: 1284,
@@ -14,11 +15,11 @@ export const userAccounts: UserAccount[] = [
     fullName: "Sovannarith Soeun",
     email: "sovannarith@gmail.com",
     avatarUrl: "/mock/avatars/sovannarith-soeun.jpg",
-    plan: "PRO",
+    plan: "FREE_TRIAL",
     status: "ACTIVE",
     signInMethod: "EMAIL",
-    websiteCount: 3,
-    joinedAt: "2026-10-26T05:00:00Z",
+    websiteCount: 4,
+    joinedAt: "2026-03-12T03:00:00Z",
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0102",
@@ -30,7 +31,7 @@ export const userAccounts: UserAccount[] = [
     status: "ACTIVE",
     signInMethod: "EMAIL",
     websiteCount: 1,
-    joinedAt: "2026-10-26T09:00:00Z",
+    joinedAt: "2026-10-22T02:10:00Z",
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0103",
@@ -42,7 +43,7 @@ export const userAccounts: UserAccount[] = [
     status: "ACTIVE",
     signInMethod: "GOOGLE",
     websiteCount: 1,
-    joinedAt: "2026-10-26T08:00:00Z",
+    joinedAt: "2026-08-05T08:00:00Z",
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0104",
@@ -54,7 +55,7 @@ export const userAccounts: UserAccount[] = [
     status: "ACTIVE",
     signInMethod: "EMAIL",
     websiteCount: 1,
-    joinedAt: "2026-10-26T07:00:00Z",
+    joinedAt: "2026-07-01T07:00:00Z",
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0105",
@@ -66,7 +67,7 @@ export const userAccounts: UserAccount[] = [
     status: "ACTIVE",
     signInMethod: "EMAIL",
     websiteCount: 1,
-    joinedAt: "2026-10-26T06:00:00Z",
+    joinedAt: "2026-10-20T10:00:00Z",
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0106",
@@ -77,8 +78,8 @@ export const userAccounts: UserAccount[] = [
     plan: "ULTRA",
     status: "ACTIVE",
     signInMethod: "GOOGLE",
-    websiteCount: 2,
-    joinedAt: "2026-10-26T11:00:00Z",
+    websiteCount: 3,
+    joinedAt: "2026-08-20T11:00:00Z",
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0107",
@@ -86,11 +87,11 @@ export const userAccounts: UserAccount[] = [
     fullName: "Sreyleak Chan",
     email: "sreyleak@hollowandco.com",
     avatarUrl: null,
-    plan: "ULTRA",
+    plan: "PLUS",
     status: "ACTIVE",
     signInMethod: "EMAIL",
     websiteCount: 1,
-    joinedAt: "2026-10-26T10:00:00Z",
+    joinedAt: "2026-06-14T10:00:00Z",
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0108",
@@ -101,7 +102,7 @@ export const userAccounts: UserAccount[] = [
     plan: "PLUS",
     status: "ACTIVE",
     signInMethod: "GOOGLE",
-    websiteCount: 1,
+    websiteCount: 0,
     joinedAt: "2026-10-25T08:00:00Z",
   },
   {
@@ -114,7 +115,7 @@ export const userAccounts: UserAccount[] = [
     status: "ACTIVE",
     signInMethod: "EMAIL",
     websiteCount: 1,
-    joinedAt: "2026-10-02T06:25:00Z",
+    joinedAt: "2026-10-20T05:00:00Z",
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0110",
@@ -138,7 +139,7 @@ export const userAccounts: UserAccount[] = [
     status: "ACTIVE",
     signInMethod: "GOOGLE",
     websiteCount: 0,
-    joinedAt: "2026-10-20T13:50:00Z",
+    joinedAt: daysAgo(6),
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0112",
@@ -149,7 +150,7 @@ export const userAccounts: UserAccount[] = [
     plan: "PRO",
     status: "ACTIVE",
     signInMethod: "EMAIL",
-    websiteCount: 1,
+    websiteCount: 0,
     joinedAt: "2026-04-11T02:35:00Z",
   },
   {
@@ -161,7 +162,7 @@ export const userAccounts: UserAccount[] = [
     plan: "ULTRA",
     status: "ACTIVE",
     signInMethod: "GOOGLE",
-    websiteCount: 2,
+    websiteCount: 1,
     joinedAt: "2026-03-08T09:15:00Z",
   },
   {
@@ -173,7 +174,7 @@ export const userAccounts: UserAccount[] = [
     plan: "PLUS",
     status: "SUSPENDED",
     signInMethod: "EMAIL",
-    websiteCount: 1,
+    websiteCount: 0,
     joinedAt: "2026-06-30T12:00:00Z",
   },
   {
@@ -186,6 +187,6 @@ export const userAccounts: UserAccount[] = [
     status: "ACTIVE",
     signInMethod: "EMAIL",
     websiteCount: 0,
-    joinedAt: "2026-10-24T01:05:00Z",
+    joinedAt: hoursAgo(26),
   },
 ];

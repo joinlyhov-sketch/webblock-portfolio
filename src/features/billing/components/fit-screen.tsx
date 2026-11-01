@@ -33,7 +33,7 @@ export function FitScreen({ children }: { children: ReactNode }) {
     <div ref={outerRef} className="relative min-h-0 w-full flex-1">
       <div
         ref={innerRef}
-        className="absolute top-1/2 left-1/2 flex w-full max-w-[1292px] flex-col items-center px-4 py-6"
+        className="absolute top-1/2 left-1/2 flex w-full max-w-[1292px] flex-col items-center px-4 pt-2 pb-12"
         style={{ transform: `translate(-50%, -50%) scale(${scale})` }}
       >
         {children}

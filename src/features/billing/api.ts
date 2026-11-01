@@ -45,7 +45,7 @@ async function nextPeriodStart(userId: string, kind: PaymentKind, from: number):
 
 /** Creates a pending order with a QR code that is valid for 10 minutes. */
 export async function createPayment(userId: string, body: CreatePaymentBody): Promise<PaymentOrder> {
-  await delay(300);
+  await delay(200);
   const plan = billingPlans.find((p) => p.code === body.plan);
   if (!plan) {
     throw new ApiError({ title: "Unknown plan", status: 400, detail: "That plan does not exist." });

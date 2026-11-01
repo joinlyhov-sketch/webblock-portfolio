@@ -10,7 +10,9 @@ import {
   profiles as seed,
   subscriptions as subscriptionsSeed,
 } from "@/mocks/account";
+import { buildReceiptPdf } from "@/mocks/receipt-pdf";
 import { websitePages } from "@/mocks/website-pages";
+import { formatDayMonthYear, formatPrice } from "@/lib/format";
 import type { DeployAccess, DeployReason, OrderStatus, PlanCode, PlanOrder, Profile, Subscription } from "./types";
 import type { PaidPlanCode } from "@/features/billing/types";
 
@@ -154,6 +156,46 @@ export async function listOrders(
       : sign * a.createdAt.localeCompare(b.createdAt),
   );
   return toPage(sorted, query);
+}
+
+/**
+ * GET /me/orders/{orderId}/receipt — the receipt file of a paid order. Spring returns the real PDF;
+ * the mock builds a simple one. Only paid orders have a receipt.
+ */
+export async function getOrderReceipt(
+  userId: string,
+  orderId: string,
+): Promise<{ filename: string; type: "application/pdf"; bytes: Uint8Array }> {
+  await delay(150);
+  const order = (planOrders[userId] ?? []).find((o) => o.id === orderId);
+  if (!order) {
+    throw new ApiError({ title: "Order not found", status: 404, detail: "We could not find that order." });
+  }
+  if (order.status !== "PAID") {
+    throw new ApiError({ title: "No receipt", status: 409, detail: "Only paid orders have a receipt." });
+  }
+  const number = order.id.slice(0, 8).toUpperCase();
+  const bytes = buildReceiptPdf(
+    `Receipt ${number}`,
+    [
+      { label: "Receipt no.", value: number },
+      { label: "Billed to", value: find(userId).fullName },
+      { label: "Email", value: find(userId).email },
+      { label: "Plan", value: order.planName },
+      { label: "Website", value: order.websiteName },
+      { label: "Period", value: order.period ?? "-" },
+      { label: "Date", value: formatDayMonthYear(order.createdAt) },
+      { label: "Amount paid", value: formatPrice(order.amount, order.currency) },
+      { label: "Status", value: "Paid" },
+    ],
+    "Thank you for choosing WebBlock. Questions? Contact support from Settings.",
+  );
+  return { filename: `webblock-receipt-${number}.pdf`, type: "application/pdf", bytes };
+}
+
+/** How many websites a paid plan may have online at once. */
+export function websiteLimitOf(plan: PaidPlanCode): number {
+  return planLimits[plan].websites;
 }
 
 export async function listPlanOptions(): Promise<{ value: PlanCode; label: string }[]> {

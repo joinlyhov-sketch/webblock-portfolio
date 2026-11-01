@@ -21,7 +21,7 @@ export const billingPlans: BillingPlan[] = [
     popular: false,
     features: [
       { icon: "globe", text: "1 website" },
-      { icon: "rocket", text: "5 redeploys a month" },
+      { icon: "rocket", text: "3 redeploys a month" },
       { icon: "box", text: "Up to 30 products" },
       { icon: "pulse", text: "Basic status monitoring" },
     ],
@@ -57,6 +57,6 @@ export const billingPlans: BillingPlan[] = [
 export const QR_LIFETIME_MS = 10 * 60_000;
 
 /** MOCK ONLY: the real backend confirms the payment when the bank does. */
-export const MOCK_AUTO_PAY_MS = 20_000;
+export const MOCK_AUTO_PAY_MS = 8_000;
 
 export const MOCK_QR_IMAGE_URL = "/images/billing/khqr-code.jpg";

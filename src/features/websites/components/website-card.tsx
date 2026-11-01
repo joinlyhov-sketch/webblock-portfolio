@@ -8,6 +8,7 @@ import { liveSiteHref } from "@/config/site";
 import { formatRelativeTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { Website } from "../types";
+import { LiveSitePreview } from "./live-site-preview";
 import { ReactivateButton } from "./reactivate-button";
 import { WebsiteCardMenu } from "./website-card-menu";
 
@@ -66,6 +67,11 @@ export function WebsiteCard({
             sizes="(min-width: 1440px) 25vw, 100vw"
             className="object-cover object-top"
           />
+          {/* The real page over the template image: the published site once deployed, else the saved draft. */}
+          <LiveSitePreview
+            src={website.status !== "DRAFT" ? liveSiteHref(website.id) : `/websites/${website.id}/draft`}
+            name={website.name}
+          />
         </div>
         <StatusBadge status={website.status} className="absolute top-3 right-[11px]" />
       </div>
@@ -78,7 +84,7 @@ export function WebsiteCard({
             </h3>
             <p className="flex h-[19.5px] items-center gap-1.5 text-[13px] text-muted-foreground">
               <Global aria-hidden className="size-3.5 shrink-0" />
-              <span className="truncate">{website.domain ?? "Not published yet"}</span>
+              <span className="truncate">{website.status === "DRAFT" ? "Not published yet" : (website.domain ?? "Not published yet")}</span>
             </p>
           </div>
           {hasMenu && (

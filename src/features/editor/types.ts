@@ -2,12 +2,15 @@
 import type { Data } from "@puckeditor/core";
 import type { Currency } from "@/lib/format";
 
-/** The four website designs. Each block renders a different design per template. */
+/** The seven website designs. Each block renders a different design per template. */
 export type TemplateKey =
   | "everyday-store"
   | "sweet-pastel"
   | "warm-bold"
-  | "clean-mono";
+  | "clean-mono"
+  | "jackets"
+  | "keyboards"
+  | "iced-coffee";
 
 /** Whole-site visual style, chosen in "Layout & Design · Visual style". `original` = the template's own. */
 export type PaletteKey = "original" | "lavender" | "bakery" | "sage";
@@ -80,7 +83,7 @@ export type HeroProps = LayoutProps & {
   secondaryAction: CtaAction;
   imageUrl: string | null;
   /** Extra images (Sweet pastel side photos). */
-  sideImages: { imageUrl: string | null }[];
+  sideImages: { imageUrl: string | null; label?: string }[];
   /** Short facts (Warm & bold strip, Clean mono spec row, Sweet pastel stickers). */
   highlights: Highlight[];
   /** Badge text (Warm & bold round badge, Clean mono price tag). Empty hides it. */
@@ -112,6 +115,8 @@ export type AboutProps = LayoutProps & {
   heading: string;
   body: string;
   imageUrl: string | null;
+  /** Second photo (Keyboards shows two boards). Optional: older pages don't have it. */
+  secondImageUrl?: string | null;
   /** Caption under the photo (Clean mono) or quote attribution (Warm & bold). */
   caption: string;
   stats: Stat[];
@@ -130,6 +135,8 @@ export type TextProps = LayoutProps & {
   eyebrow: string;
   heading: string;
   body: string;
+  /** Picture beside the text (Keyboards). Optional: older pages don't have it. */
+  imageUrl?: string | null;
 };
 
 /** Block name → props. Keys are the Puck component names stored in the page JSON. */

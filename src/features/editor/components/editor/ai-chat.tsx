@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
-import { ArrowUp } from "iconsax-reactjs";
+import { ArrowUp, Copy } from "iconsax-reactjs";
+import { LogoMark } from "@/components/common/logo";
 import { toast } from "@/components/common/toast";
+import { formatTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { askAiAction } from "../../actions";
 import type { AiMessage } from "../../types";
@@ -14,6 +16,41 @@ const GREETING: AiMessage = {
   text: "Hi! Tell me what to change on your site, like “make the hero heading warmer” or “add a button to the About section”.",
   createdAt: "",
 };
+
+/** Appears next to the time of an AI reply when the group is hovered or focused. */
+function CopyButton({ text }: { text: string }) {
+  return (
+    <button
+      type="button"
+      aria-label="Copy reply"
+      onClick={() => {
+        navigator.clipboard
+          .writeText(text)
+          .then(() => toast.success("Copied"))
+          .catch(() => toast.error("Couldn't copy", "Your browser blocked access to the clipboard."));
+      }}
+      className="flex size-5 items-center justify-center rounded text-muted-foreground opacity-0 outline-none transition-opacity group-hover:opacity-100 hover:text-foreground focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring/40"
+    >
+      <Copy aria-hidden className="size-3.5" />
+    </button>
+  );
+}
+
+/** WebBlock AI's profile picture: the brand mark in a round white chip. */
+function AiAvatar({ className }: { className?: string }) {
+  return (
+    <span
+      role="img"
+      aria-label="WebBlock AI"
+      className={cn(
+        "flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-background shadow-button",
+        className,
+      )}
+    >
+      <LogoMark className="h-4" />
+    </span>
+  );
+}
 
 /** Figma "AI Agent tab": chat history (user bubbles right, AI replies left) and the prompt pill. */
 export function AiChat() {
@@ -47,22 +84,73 @@ export function AiChat() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div role="log" aria-label="WebBlock AI chat" aria-live="polite" className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 pt-3 pb-2">
-        {messages.map((message) => (
-          <p
-            key={message.id}
-            className={cn(
-              "max-w-[268px] rounded-[20px] px-4 py-2.5 text-[13px] leading-5 break-words whitespace-pre-wrap",
-              message.role === "USER" ? "self-end bg-brand-strong text-primary-foreground" : "self-start bg-segment text-foreground",
-            )}
-          >
-            {message.text}
-          </p>
-        ))}
+      <div role="log" aria-label="WebBlock AI chat" aria-live="polite" className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pt-3 pb-2">
+        {/* Pushes the conversation to the bottom, next to the prompt, like a messaging app. */}
+        <div aria-hidden className="flex-1" />
+        {messages.map((message, index) => {
+          const user = message.role === "USER";
+          // Messages from the same sender sit close together; only the last one of a group gets the tail,
+          // the avatar and the time.
+          const startsGroup = messages[index - 1]?.role !== message.role;
+          const endsGroup = messages[index + 1]?.role !== message.role && !(pending && !user);
+          const showTime = endsGroup && message.createdAt !== "";
+          return (
+            <div
+              key={message.id}
+              className={cn(
+                "group flex max-w-full items-end gap-2.5 motion-safe:animate-message-in",
+                startsGroup ? "mt-4" : "mt-1",
+                user ? "origin-bottom-right self-end pr-2" : "origin-bottom-left self-start",
+              )}
+            >
+              {!user &&
+                (endsGroup ? (
+                  <AiAvatar className={showTime ? "mb-[22px]" : undefined} />
+                ) : (
+                  <span aria-hidden className="w-8 shrink-0" />
+                ))}
+              <div className={cn("flex min-w-0 flex-col gap-1.5", user ? "items-end" : "items-start")}>
+                <p
+                  className={cn(
+                    "relative max-w-[250px] rounded-[20px] px-4 py-2.5 text-[13px] leading-5 break-words whitespace-pre-wrap",
+                    user ? "bg-brand-strong text-primary-foreground" : "bg-segment text-foreground",
+                    !startsGroup && (user ? "rounded-tr-[6px]" : "rounded-tl-[6px]"),
+                    !endsGroup && (user ? "rounded-br-[6px]" : "rounded-bl-[6px]"),
+                    endsGroup &&
+                      (user
+                        ? "before:absolute before:-right-2 before:bottom-0 before:h-4 before:w-4 before:rounded-bl-[16px] before:bg-brand-strong after:absolute after:-right-[10px] after:bottom-0 after:h-4 after:w-[10px] after:rounded-bl-[10px] after:bg-background"
+                        : "before:absolute before:-left-2 before:bottom-0 before:h-4 before:w-4 before:rounded-br-[16px] before:bg-segment after:absolute after:-left-[10px] after:bottom-0 after:h-4 after:w-[10px] after:rounded-br-[10px] after:bg-background"),
+                  )}
+                >
+                  {message.text}
+                </p>
+                {showTime && (
+                  <div className="flex items-center gap-2 px-1">
+                    <time dateTime={message.createdAt} className="text-[11px] leading-4 text-muted-foreground">
+                      {formatTime(message.createdAt)}
+                    </time>
+                    {!user && <CopyButton text={message.text} />}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
         {pending && (
-          <p className="self-start rounded-[20px] bg-segment px-4 py-2.5 text-[13px] leading-5 text-muted-foreground">
-            Thinking…
-          </p>
+          <div className="mt-4 flex origin-bottom-left items-end gap-2.5 self-start motion-safe:animate-message-in">
+            <AiAvatar />
+            <p role="status" className="flex h-10 items-center gap-1.5 rounded-[20px] bg-segment px-4">
+              <span className="sr-only">WebBlock AI is typing</span>
+              {[0, 1, 2].map((dot) => (
+                <span
+                  key={dot}
+                  aria-hidden
+                  className="size-2 rounded-full bg-muted-foreground/60 motion-safe:animate-typing-dot"
+                  style={{ animationDelay: `${dot * 160}ms` }}
+                />
+              ))}
+            </p>
+          </div>
         )}
         <div ref={endRef} />
       </div>

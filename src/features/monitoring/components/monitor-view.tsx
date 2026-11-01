@@ -102,7 +102,7 @@ export function MonitorView({ data, websiteId }: { data: MonitorData; websiteId:
           {usage ? (
             <>
               <MonitorCardTitle
-                hint={`${usage.planName} plan · resets on ${formatDayMonthYear(usage.resetsAt).replace(/ \d{4}$/, "")}`}
+                hint={`${usage.plan === "FREE_TRIAL" ? `${usage.planName} · ends on` : `${usage.planName} plan · resets on`} ${formatDayMonthYear(usage.resetsAt).replace(/ \d{4}$/, "")}`}
                 action={<PlanBadge plan={usage.plan} name={usage.planName} />}
               >
                 Plan usage
