@@ -15,7 +15,7 @@ import {
   listProducts,
   updateProduct,
 } from "./api";
-import { DEFAULT_PRODUCT_PAGE_SIZE, PRODUCT_PAGE_SIZES } from "./page-sizes";
+import { DEFAULT_PRODUCT_PAGE_SIZE } from "./page-sizes";
 import { productInput } from "./schemas";
 import type { Product } from "./types";
 
@@ -54,7 +54,8 @@ export function parseInitialProductsFilter(searchParams: SearchParams): Products
     q: first(searchParams.q).trim(),
     category: first(searchParams.category) || null,
     layout: first(searchParams.view) === "list" ? "list" : "grid",
-    size: PRODUCT_PAGE_SIZES.includes(query.size) ? query.size : DEFAULT_PRODUCT_PAGE_SIZE,
+    // Any typed size from 1 to MAX_PAGE_SIZE is kept (parseTableQuery checks the range).
+    size: query.size,
     page: query.page,
     sort: query.sort,
   };

@@ -37,7 +37,7 @@ export function ProductDialogHeader({
 /** Outlined category pill (Figma "Chip"). */
 export function CategoryChip({ category }: { category: string }) {
   return (
-    <span className="inline-flex h-[26px] items-center rounded-full border border-border bg-background px-2.5 text-xs leading-[18px] font-medium whitespace-nowrap text-foreground-soft">
+    <span className="inline-flex h-7 items-center rounded-full border border-border bg-background px-3 text-[13px] leading-[19px] font-medium whitespace-nowrap text-foreground-soft">
       {category}
     </span>
   );

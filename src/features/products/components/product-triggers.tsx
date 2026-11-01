@@ -100,14 +100,14 @@ export function ProductCellButton({ product }: { product: Product }) {
     <button
       type="button"
       onClick={() => openDetails(product)}
-      className="group flex w-full min-w-0 items-center gap-3 rounded-lg text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/40"
+      className="group flex w-full min-w-0 items-center gap-4 rounded-lg text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/40"
     >
       <ProductImage src={product.imageUrl} alt="" sizes="64px" className="w-16 rounded-lg" />
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm leading-[21px] font-semibold text-foreground group-hover:text-primary">
+        <span className="block truncate text-[15px] leading-[22px] font-semibold text-foreground group-hover:text-primary">
           {product.name}
         </span>
-        <span className="block truncate text-[13px] leading-[19.5px] text-muted-foreground">{product.description}</span>
+        <span className="block truncate text-sm leading-[21px] text-muted-foreground">{product.description}</span>
       </span>
     </button>
   );

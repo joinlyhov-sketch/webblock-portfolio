@@ -147,8 +147,8 @@ function TableCard({ title, children }: { title: string; children: ReactNode }) 
   );
 }
 
-const head = "h-auto px-5 py-3 text-xs leading-normal";
-const cell = "h-[54px] px-5 py-2 text-[13px]";
+const head = "h-auto px-4 py-3 text-[13px] leading-normal";
+const cell = "h-[64px] px-4 py-3 text-sm";
 
 function RecentDeploys({ rows, compact, websiteId }: { rows: DeployRow[]; compact: boolean; websiteId: string }) {
   return (
@@ -267,7 +267,11 @@ function ActivityLog({ events }: { events: ActivityEvent[] }) {
                       {type.label}
                     </span>
                   </TableCell>
-                  <TableCell className={cn(cell, "text-right whitespace-nowrap")}>{dateTime(event.occurredAt)}</TableCell>
+                  {/* Date over time, so the narrow activity card never has to scroll sideways. */}
+                  <TableCell className={cn(cell, "text-right")}>
+                    <span className="block whitespace-nowrap">{formatDayMonthYear(event.occurredAt)}</span>
+                    <span className="block text-xs whitespace-nowrap text-muted-foreground">{formatTime(event.occurredAt)}</span>
+                  </TableCell>
                 </TableRow>
               );
             })}

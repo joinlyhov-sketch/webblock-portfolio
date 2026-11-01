@@ -57,7 +57,7 @@ export function BusinessInfoView({ data }: { data: BusinessInfoData }) {
         </div>
       </InfoCard>
 
-      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">
+      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
         <InfoCard>
           <InfoCardTitle>Business details</InfoCardTitle>
           <dl>

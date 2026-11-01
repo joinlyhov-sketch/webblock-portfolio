@@ -30,7 +30,7 @@ export function InfoCardTitle({ children, hint }: { children: ReactNode; hint?: 
 
 /** Small uppercase heading inside a card: ABOUT, CONTACT, LOCATION. */
 export function SectionLabel({ children }: { children: ReactNode }) {
-  return <h3 className="pt-3 pb-3 font-sans text-[11px] leading-4 font-medium tracking-wide text-muted-foreground uppercase">{children}</h3>;
+  return <h3 className="pt-3 pb-3 font-sans text-xs leading-4 font-medium tracking-wide text-muted-foreground uppercase">{children}</h3>;
 }
 
 /** Top of the website as visitors see it, cropped to the hero. */

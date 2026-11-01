@@ -137,7 +137,7 @@ export function ProductForm({
           <p
             id="product-image-hint"
             role={photoError ? "alert" : undefined}
-            className={cn("text-[11px] leading-4", photoError ? "text-danger" : "text-muted-foreground")}
+            className={cn("text-xs leading-4", photoError ? "text-danger" : "text-muted-foreground")}
           >
             {photoError ?? `${PRODUCT_IMAGE_RULE.label}. Landscape 4:3, as shown on your website.`}
           </p>
