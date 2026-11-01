@@ -85,7 +85,7 @@ function usageOf(subscription: Subscription, key: string) {
 }
 
 /**
- * GET /me/deploy-access?websiteId= — can this user deploy this website now?
+ * GET /me/deploy-access?projectId= — can this user deploy this website now?
  * Free trial: one free deploy, then a plan is required. Paid plans: a website that was never
  * deployed counts against the website limit, a website that is already live against the
  * monthly redeploy limit. Spring applies the same rules inside the publish call.

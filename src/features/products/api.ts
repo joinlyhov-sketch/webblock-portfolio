@@ -14,7 +14,7 @@ export type ListProductsFilter = {
   category?: string;
 };
 
-/** GET /websites/{websiteId}/products?q=&category=&page=&size=&sort= — newest first by default. */
+/** GET /projects/{projectId}/products?q=&category=&page=&size=&sort= — newest first by default. */
 export async function listProducts(
   websiteId: string,
   query: TableQuery,
@@ -37,7 +37,7 @@ export async function listProducts(
   return toPage(items, query);
 }
 
-/** GET /websites/{websiteId}/products/counts */
+/** GET /projects/{projectId}/products/counts */
 export async function countProducts(websiteId: string): Promise<ProductCounts> {
   await delay(100);
   const mine = store.filter((p) => p.websiteId === websiteId);
@@ -50,7 +50,7 @@ export async function countProducts(websiteId: string): Promise<ProductCounts> {
   };
 }
 
-/** GET /websites/{websiteId}/product-categories */
+/** GET /projects/{projectId}/product-categories */
 export async function listProductCategories(websiteId: string): Promise<string[]> {
   await delay(100);
   return productCategories[websiteId] ?? [];
@@ -80,7 +80,7 @@ function checkCategory(websiteId: string, category: string) {
   }
 }
 
-/** POST /websites/{websiteId}/products */
+/** POST /projects/{projectId}/products */
 export async function createProduct(websiteId: string, body: ProductBody): Promise<Product> {
   await delay(400);
   checkCategory(websiteId, body.category);
@@ -100,7 +100,7 @@ export async function createProduct(websiteId: string, body: ProductBody): Promi
   return product;
 }
 
-/** PUT /websites/{websiteId}/products/{productId} */
+/** PUT /projects/{projectId}/products/{productId} */
 export async function updateProduct(websiteId: string, productId: string, body: ProductBody): Promise<Product> {
   const product = await getProduct(websiteId, productId);
   await delay(300);
@@ -116,7 +116,7 @@ export async function updateProduct(websiteId: string, productId: string, body: 
   return product;
 }
 
-/** DELETE /websites/{websiteId}/products/{productId} */
+/** DELETE /projects/{projectId}/products/{productId} */
 export async function deleteProduct(websiteId: string, productId: string): Promise<Product> {
   const product = await getProduct(websiteId, productId);
   await delay(300);

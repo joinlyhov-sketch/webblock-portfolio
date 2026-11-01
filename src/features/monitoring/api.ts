@@ -8,20 +8,20 @@ import { countProducts } from "@/features/products/api";
 import { activity, deploys, planUsage, siteStatus } from "@/mocks/monitoring";
 import type { ActivityEvent, Deploy, DeployStats, PlanUsage, SiteStatus } from "./types";
 
-/** GET /websites/{websiteId}/status — `null` when the website has never been deployed. */
+/** GET /projects/{projectId}/status — `null` when the website has never been deployed. */
 export async function getSiteStatus(websiteId: string): Promise<SiteStatus | null> {
   await delay(150);
   return siteStatus.find((s) => s.websiteId === websiteId) ?? null;
 }
 
-/** GET /websites/{websiteId}/deploys?page=&size= — newest first. */
+/** GET /projects/{projectId}/deploys?page=&size= — newest first. */
 export async function listDeploys(websiteId: string, query: Pick<TableQuery, "page" | "size">): Promise<Page<Deploy>> {
   await delay();
   const mine = deploys.filter((d) => d.websiteId === websiteId).sort((a, b) => b.number - a.number);
   return toPage(mine, query);
 }
 
-/** GET /websites/{websiteId}/deploys/stats */
+/** GET /projects/{projectId}/deploys/stats */
 export async function getDeployStats(websiteId: string): Promise<DeployStats> {
   await delay(100);
   const mine = deploys.filter((d) => d.websiteId === websiteId);
@@ -29,7 +29,7 @@ export async function getDeployStats(websiteId: string): Promise<DeployStats> {
   return { total: mine.length, succeeded, failed: mine.length - succeeded };
 }
 
-/** GET /websites/{websiteId}/usage */
+/** GET /projects/{projectId}/usage */
 export async function getPlanUsage(websiteId: string): Promise<PlanUsage | null> {
   await delay(150);
   const usage = planUsage.find((u) => u.websiteId === websiteId);
@@ -43,7 +43,7 @@ export async function getPlanUsage(websiteId: string): Promise<PlanUsage | null>
   };
 }
 
-/** GET /websites/{websiteId}/activity?page=&size= — newest first. Pro and Ultra plans only (403 otherwise). */
+/** GET /projects/{projectId}/activity?page=&size= — newest first. Pro and Ultra plans only (403 otherwise). */
 export async function listActivity(
   websiteId: string,
   query: Pick<TableQuery, "page" | "size">,

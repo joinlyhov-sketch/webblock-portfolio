@@ -141,7 +141,7 @@ export async function reactivateUser(userId: string): Promise<UserAccount> {
 
 // ── Websites ─────────────────────────────────────────────────────────────────
 
-/** GET /api/admin/websites?q=&release=&ownerId=&page=&size=&sort= */
+/** GET /api/admin/projects?q=&release=&ownerId=&page=&size=&sort= */
 export async function listWebsites(
   filters: WebsiteFilters,
   query: TableQuery,
@@ -157,13 +157,13 @@ export async function listWebsites(
   return toPage(sorted(items, query.sort), query);
 }
 
-/** GET /api/admin/websites/{websiteId} */
+/** GET /api/admin/projects/{projectId} */
 export async function getWebsite(websiteId: string): Promise<AdminWebsite> {
   await delay(150);
   return adminWebsites.find((w) => w.id === websiteId) ?? notFound("Website");
 }
 
-/** GET /api/admin/deploys?websiteId=&page=&size= — newest first. */
+/** GET /api/admin/deploys?projectId=&page=&size= — newest first. */
 export async function listDeploys(
   filters: { websiteId?: string },
   query: TableQuery,
@@ -178,7 +178,7 @@ export async function listDeploys(
 const redeployKeys = new Map<string, Deploy>();
 
 /**
- * POST /api/admin/websites/{websiteId}/redeploy (Idempotency-Key header).
+ * POST /api/admin/projects/{projectId}/redeploy (Idempotency-Key header).
  * The backend runs the pipeline and its retries; we only trigger it and show the state.
  */
 export async function redeployWebsite(
@@ -237,7 +237,7 @@ export async function redeployWebsite(
   return deploy;
 }
 
-/** POST /api/admin/websites/{websiteId}/suspend — takes the site offline, content is kept. */
+/** POST /api/admin/projects/{projectId}/suspend — takes the site offline, content is kept. */
 export async function suspendWebsite(websiteId: string): Promise<AdminWebsite> {
   await delay();
   const website =
@@ -246,7 +246,7 @@ export async function suspendWebsite(websiteId: string): Promise<AdminWebsite> {
   return website;
 }
 
-/** POST /api/admin/websites/{websiteId}/contact-owner — the backend emails the website's owner. */
+/** POST /api/admin/projects/{projectId}/contact-owner — the backend emails the website's owner. */
 export async function contactWebsiteOwner(
   websiteId: string,
   email: { subject: string; message: string },
@@ -259,7 +259,7 @@ export async function contactWebsiteOwner(
 
 const ownerEmailOutbox: { to: string; subject: string; message: string; sentAt: string }[] = [];
 
-/** POST /api/admin/websites/{websiteId}/resume */
+/** POST /api/admin/projects/{projectId}/resume */
 export async function resumeWebsite(websiteId: string): Promise<AdminWebsite> {
   await delay();
   const website =

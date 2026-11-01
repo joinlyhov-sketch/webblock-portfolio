@@ -7,7 +7,7 @@ import type { BusinessInfo } from "./types";
 const globalForStore = globalThis as typeof globalThis & { __wbBusinessInfo?: BusinessInfo[] };
 const store: BusinessInfo[] = (globalForStore.__wbBusinessInfo ??= structuredClone(seed));
 
-/** GET /websites/{websiteId}/business-info */
+/** GET /projects/{projectId}/business-info */
 export async function getBusinessInfo(websiteId: string): Promise<BusinessInfo> {
   await delay();
   const info = store.find((b) => b.websiteId === websiteId);
@@ -26,7 +26,7 @@ export type BusinessInfoBody = Pick<BusinessInfo, "description" | "phone" | "ema
   logoUrl?: string | null;
 };
 
-/** PUT /websites/{websiteId}/business-info */
+/** PUT /projects/{projectId}/business-info */
 export async function updateBusinessInfo(websiteId: string, body: BusinessInfoBody): Promise<BusinessInfo> {
   const info = await getBusinessInfo(websiteId);
   await delay(300);

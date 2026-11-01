@@ -148,7 +148,7 @@ export type BlockName = keyof BlockProps;
 /** The Puck document of one page. Stored by the backend as JSON. */
 export type PageData = Data<BlockProps, SiteRootProps>;
 
-/** GET /websites/{websiteId}/page */
+/** GET /projects/{projectId}/page */
 export type WebsitePage = {
   websiteId: string;
   draft: PageData;
@@ -158,7 +158,7 @@ export type WebsitePage = {
   publishedAt: string | null;
 };
 
-/** One deployed version of the page (GET /websites/{websiteId}/page/versions). */
+/** One deployed version of the page (GET /projects/{projectId}/page/versions). */
 export type PageVersion = {
   id: string;
   /** ISO-8601 UTC. When this version went live. */
@@ -167,14 +167,14 @@ export type PageVersion = {
   current: boolean;
 };
 
-/** An image the owner can put on the site (GET /websites/{websiteId}/media). */
+/** An image the owner can put on the site (GET /projects/{projectId}/media). */
 export type MediaAsset = {
   id: string;
   url: string;
   name: string;
 };
 
-/** One message in the WebBlock AI chat (POST /websites/{websiteId}/ai/messages). */
+/** One message in the WebBlock AI chat (POST /projects/{projectId}/ai/messages). */
 export type AiMessage = {
   id: string;
   role: "USER" | "ASSISTANT";
