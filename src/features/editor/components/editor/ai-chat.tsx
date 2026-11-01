@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
-import { Add, ArrowUp, Colorfilter, Copy, Edit2 } from "iconsax-reactjs";
-import { LogoMark } from "@/components/common/logo";
+import { Add, ArrowUp, Colorfilter, Edit2 } from "iconsax-reactjs";
+import { AiAvatar } from "@/components/common/ai-avatar";
 import { toast } from "@/components/common/toast";
 import { formatTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -32,7 +32,7 @@ function Welcome({ onPick }: { onPick: (prompt: string) => void }) {
   return (
     <div className="flex flex-1 flex-col justify-center gap-6 py-4">
       <div className="flex flex-col items-center gap-3 text-center motion-safe:animate-fade-up">
-        <AiAvatar className="size-12 [&_img]:h-5" />
+        <AiAvatar className="size-12" />
         <div>
           <p className="font-heading text-lg leading-6 font-semibold text-foreground">What should we change?</p>
           <p className="mt-1 text-[13px] leading-5 text-muted-foreground">Describe it and I’ll edit your site for you.</p>
