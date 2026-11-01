@@ -164,7 +164,7 @@ async function settle(entry: StoredDeployment): Promise<void> {
 }
 
 /**
- * POST /websites/{websiteId}/deployments - starts a deploy of the saved draft. Answers 402 when the
+ * POST /projects/{projectId}/deployments - starts a deploy of the saved draft. Answers 402 when the
  * owner's plan does not allow it, 409 when one is already running or the address is unusable.
  * `idempotencyKey` goes in the `Idempotency-Key` header: a repeated request returns the same deployment.
  */
@@ -239,7 +239,7 @@ export async function startDeployment(
   return structuredClone(deployment);
 }
 
-/** GET /websites/{websiteId}/deployments/{id} - the deploy's current progress. */
+/** GET /projects/{projectId}/deployments/{id} - the deploy's current progress. */
 export async function getDeployment(
   websiteId: string,
   deploymentId: string,
@@ -259,7 +259,7 @@ export async function getDeployment(
   return structuredClone(entry.deployment);
 }
 
-/** GET /websites/{websiteId}/deployments?status=RUNNING&size=1 - the deploy in progress, if any. */
+/** GET /projects/{projectId}/deployments?status=RUNNING&size=1 - the deploy in progress, if any. */
 export async function getRunningDeployment(
   websiteId: string,
 ): Promise<Deployment | null> {

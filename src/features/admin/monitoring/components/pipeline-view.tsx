@@ -48,13 +48,12 @@ export function PipelineView({
         searchParams={searchParams}
         rowKey={(r) => r.id}
         minWidth="min-w-[1080px]"
-        compact
         rowClassName="relative cursor-pointer"
         toolbar={
           <div className="w-full space-y-3">
-            <CardHeader compact title="Latest publishes" icon={<Hierarchy />} />
+            <CardHeader title="Latest publishes" icon={<Hierarchy />} />
             <div className="flex flex-wrap items-center gap-3">
-              <SegmentedTabs variant="filled"
+              <SegmentedTabs
                 size="sm"
                 className="mb-0"
                 tabs={[
@@ -77,12 +76,15 @@ export function PipelineView({
           </div>
         }
         empty={
-          <EmptyState variant="box"
+          <EmptyState
             icon={<SearchNormal1 />}
             title={
               stage
                 ? `No websites in ${STAGE_LABEL[stage as PipelineStage] ?? "this stage"} right now`
                 : "No publishes yet"
+            }
+            description={
+              stage ? "Nothing matches this filter. Try another stage." : undefined
             }
             action={
               stage ? (
@@ -108,7 +110,7 @@ export function PipelineView({
                 <span className="block truncate font-semibold text-foreground group-hover:text-primary">
                   {r.websiteName}
                 </span>
-                <span className="block truncate text-xs text-muted-foreground">
+                <span className="block truncate text-[13px] text-muted-foreground">
                   {r.domain}
                 </span>
               </Link>

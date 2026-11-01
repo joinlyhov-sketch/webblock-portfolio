@@ -40,8 +40,8 @@ export function TableSearch({
         aria-label={placeholder}
         placeholder={placeholder}
         defaultValue={Array.isArray(value) ? value[0] : value}
-        // Same height as the toolbar's `size="sm"` filter buttons (Status, Plan…).
-        className="h-8 w-full rounded-full border border-input bg-background pr-3 pl-9 text-[13px] text-foreground transition-[border-color,box-shadow] outline-none placeholder:text-placeholder focus-visible:border-primary focus-visible:ring-3 focus-visible:ring-ring/25"
+        // Same height as the toolbar's `size="sm"` buttons and tabs.
+        className="h-8 w-full rounded-full border border-border bg-background pr-3 pl-9 text-[13px] text-foreground transition-[border-color,box-shadow] outline-none placeholder:text-placeholder focus-visible:border-primary focus-visible:ring-3 focus-visible:ring-ring/25"
       />
     </Form>
   );

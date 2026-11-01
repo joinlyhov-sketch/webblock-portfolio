@@ -6,7 +6,9 @@ import { cn } from "@/lib/utils";
 
 export type SegmentedTab = {
   label: string;
-  href: string;
+  href?: string;
+  /** Client-side tab: renders a button that calls this instead of navigating (no reload). */
+  onSelect?: () => void;
   /** Number shown after the label (e.g. websites per status). */
   count?: number;
   /** Set when the active tab comes from the URL query instead of the path (`?status=live`). */
@@ -53,19 +55,14 @@ export function SegmentedTabs({
   return (
     <nav aria-label={label} className={cn("inline-flex rounded-full p-1", v.nav, className)}>
       {tabs.map((tab) => {
-        const active = tab.active ?? pathname === tab.href;
-        return (
-          <Link
-            key={tab.href}
-            href={tab.href}
-            scroll={false}
-            aria-current={active ? "page" : undefined}
-            className={cn(
-              "inline-flex items-center justify-center gap-2 rounded-full whitespace-nowrap transition-[background-color,color,box-shadow] outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
-              size === "sm" ? "px-3 py-[3px] text-xs" : variant === "track" ? "h-9 min-w-[100px] px-4 text-sm leading-[21px]" : "px-4 py-1.5 text-sm",
-              active ? v.active : v.idle,
-            )}
-          >
+        const active = tab.active ?? (tab.href !== undefined && pathname === tab.href);
+        const tabClass = cn(
+          "inline-flex items-center justify-center gap-2 rounded-full whitespace-nowrap transition-[background-color,color,box-shadow] outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
+          size === "sm" ? "px-3 py-1 text-xs" : variant === "track" ? "h-9 min-w-[100px] px-4 text-sm leading-[21px]" : "px-4 py-1.5 text-sm",
+          active ? v.active : v.idle,
+        );
+        const content = (
+          <>
             {tab.label}
             {tab.count !== undefined && (
               <span
@@ -77,6 +74,15 @@ export function SegmentedTabs({
                 {tab.count}
               </span>
             )}
+          </>
+        );
+        return tab.onSelect || tab.href === undefined ? (
+          <button key={tab.label} type="button" aria-pressed={active} onClick={tab.onSelect} className={tabClass}>
+            {content}
+          </button>
+        ) : (
+          <Link key={tab.href} href={tab.href} scroll={false} aria-current={active ? "page" : undefined} className={tabClass}>
+            {content}
           </Link>
         );
       })}

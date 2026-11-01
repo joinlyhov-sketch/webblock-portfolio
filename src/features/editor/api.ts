@@ -4,7 +4,7 @@ import { delay } from "@/lib/api/delay";
 import type { Page } from "@/lib/api/types";
 import { toPage } from "@/lib/table-query";
 import { mediaAssets, uploadedMedia, websitePages } from "@/mocks/website-pages";
-import type { AiMessage, MediaAsset, PageData, WebsitePage } from "./types";
+import type { AiMessage, MediaAsset, PageData, PageVersion, WebsitePage } from "./types";
 
 function findPage(websiteId: string): WebsitePage {
   const page = websitePages.find((p) => p.websiteId === websiteId);
@@ -12,7 +12,30 @@ function findPage(websiteId: string): WebsitePage {
   return page;
 }
 
-/** GET /websites/{websiteId}/page — the saved draft and the published version. */
+/** Mock history of deployed pages. Spring keeps one immutable row per deploy; the draft is a separate record. */
+type StoredVersion = { id: string; publishedAt: string; data: PageData };
+type History = { versions: StoredVersion[]; currentId: string | null };
+
+const MAX_VERSIONS = 10;
+const globalForHistory = globalThis as typeof globalThis & { __wbPageHistory?: Map<string, History> };
+const histories = (globalForHistory.__wbPageHistory ??= new Map<string, History>());
+
+/** A website that was live before any history was recorded gets its current page as the first version. */
+function historyOf(page: WebsitePage): History {
+  let history = histories.get(page.websiteId);
+  if (!history) {
+    history = { versions: [], currentId: null };
+    if (page.published) {
+      const id = crypto.randomUUID();
+      history.versions.push({ id, publishedAt: page.publishedAt ?? page.updatedAt, data: structuredClone(page.published) });
+      history.currentId = id;
+    }
+    histories.set(page.websiteId, history);
+  }
+  return history;
+}
+
+/** GET /projects/{projectId}/page — the saved draft and the published version. */
 export async function getPageData(websiteId: string): Promise<WebsitePage> {
   await delay();
   return structuredClone(findPage(websiteId));
@@ -26,7 +49,7 @@ export async function getPublishedPage(websiteId: string): Promise<PageData> {
   return structuredClone(page.published);
 }
 
-/** PUT /websites/{websiteId}/page { data } — saves the draft. Visitors still see the published version. */
+/** PUT /projects/{projectId}/page { data } — saves the draft. Visitors still see the published version. */
 export async function savePageData(websiteId: string, data: PageData): Promise<WebsitePage> {
   await delay();
   const page = findPage(websiteId);
@@ -37,7 +60,7 @@ export async function savePageData(websiteId: string, data: PageData): Promise<W
 }
 
 /**
- * POST /websites/{websiteId}/page/publish — asks the backend to deploy the saved draft.
+ * POST /projects/{projectId}/page/publish — asks the backend to deploy the saved draft.
  * The real backend runs the deploy pipeline (and owns retries); the mock publishes instantly.
  * `idempotencyKey` goes in the `Idempotency-Key` header so a double click never deploys twice.
  */
@@ -46,12 +69,42 @@ export async function publishPage(websiteId: string, idempotencyKey: string): Pr
   void idempotencyKey;
   const page = findPage(websiteId);
   const now = new Date().toISOString();
+  const history = historyOf(page);
   page.published = structuredClone(page.draft);
   page.publishedAt = now;
+  const id = crypto.randomUUID();
+  history.versions.unshift({ id, publishedAt: now, data: structuredClone(page.published) });
+  history.versions.length = Math.min(history.versions.length, MAX_VERSIONS);
+  history.currentId = id;
   return structuredClone(page);
 }
 
-/** GET /websites/{websiteId}/media — images the owner can place on the site. */
+/** GET /projects/{projectId}/page/versions — deployed versions, newest first. */
+export async function listVersions(websiteId: string): Promise<PageVersion[]> {
+  await delay();
+  const history = historyOf(findPage(websiteId));
+  return history.versions.map((v) => ({ id: v.id, publishedAt: v.publishedAt, current: v.id === history.currentId }));
+}
+
+/**
+ * POST /projects/{projectId}/page/versions/{versionId}/restore — puts an old deployed version back
+ * live. The editor draft is reset to it so the next Save starts from what visitors see.
+ */
+export async function restoreVersion(websiteId: string, versionId: string): Promise<WebsitePage> {
+  await delay(400);
+  const page = findPage(websiteId);
+  const history = historyOf(page);
+  const version = history.versions.find((v) => v.id === versionId);
+  if (!version) throw new ApiError({ title: "Version not found", status: 404, detail: "That version is no longer available." });
+  page.published = structuredClone(version.data);
+  page.draft = structuredClone(version.data);
+  page.publishedAt = new Date().toISOString();
+  page.updatedAt = page.publishedAt;
+  history.currentId = version.id;
+  return structuredClone(page);
+}
+
+/** GET /projects/{projectId}/media — images the owner can place on the site. */
 export async function listMedia(websiteId: string): Promise<Page<MediaAsset>> {
   await delay();
   findPage(websiteId);
@@ -60,7 +113,7 @@ export async function listMedia(websiteId: string): Promise<Page<MediaAsset>> {
 }
 
 /**
- * POST /websites/{websiteId}/media (multipart) — stores an image from the owner's computer.
+ * POST /projects/{projectId}/media (multipart) — stores an image from the owner's computer.
  * The backend puts it in storage and returns its URL; the mock keeps the bytes in memory and
  * serves them from /api/mock-media/{id}. Newest uploads come first in the library.
  */
@@ -81,7 +134,7 @@ export async function getMediaFile(assetId: string): Promise<{ type: string; byt
 }
 
 /**
- * POST /websites/{websiteId}/ai/messages { prompt } — asks WebBlock AI to edit the site.
+ * POST /projects/{projectId}/ai/messages { prompt } — asks WebBlock AI to edit the site.
  * The backend runs the model and returns its reply. The mock only answers with a placeholder.
  */
 export async function sendAiMessage(websiteId: string, prompt: string): Promise<AiMessage> {

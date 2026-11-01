@@ -12,6 +12,7 @@ import { toast } from "@/components/common/toast";
 import { UploadImageModal } from "@/components/common/upload-image-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { announceProfile } from "@/hooks/use-profile-updates";
 import { AVATAR_RULE } from "@/lib/image-rules";
 import { FULL_NAME_MAX } from "@/lib/validation/fields";
 import type { Profile } from "../types";
@@ -31,7 +32,18 @@ export function ProfileCard({
 }) {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [removing, startRemove] = useTransition();
+  // What the card shows. Name and initials come from the last saved result, the photo from the last
+  // upload or removal, so a change appears without a re-render from the server.
+  const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl);
   const [state, formAction, saving] = useActionState(updateProfileAction, null);
+  const saved = state?.ok ? state.data : null;
+  const fullName = saved?.fullName ?? profile.fullName;
+  const initials = saved?.initials ?? profile.initials;
+
+  // Tell the sidebar (a different part of the page) about the new name or photo.
+  useEffect(() => {
+    announceProfile({ fullName, initials, avatarUrl });
+  }, [fullName, initials, avatarUrl]);
 
   useEffect(() => {
     if (!state) return;
@@ -43,15 +55,20 @@ export function ProfileCard({
     const formData = new FormData();
     formData.set("photo", file);
     const result = await uploadAvatarAction(formData);
-    if (result.ok) toast.success(result.message ?? "Photo updated");
-    else toast.error("Upload failed", result.message);
+    if (result.ok) {
+      setAvatarUrl(result.data.avatarUrl);
+      toast.success(result.message ?? "Photo updated");
+    } else toast.error("Upload failed", result.message);
     return result.ok;
   }
 
   function removePhoto() {
     startRemove(async () => {
       const result = await removeAvatarAction();
-      if (result.ok) toast.success(result.message ?? "Photo removed");
+      if (result.ok) {
+        setAvatarUrl(result.data.avatarUrl);
+        toast.success(result.message ?? "Photo removed");
+      }
       else toast.error("Could not remove the photo", result.message);
     });
   }
@@ -70,9 +87,9 @@ export function ProfileCard({
           <div className="flex flex-wrap items-center gap-[18px] p-[22px]">
             <span className="relative size-[76px] shrink-0">
               <Avatar
-                name={profile.fullName}
-                initials={profile.initials}
-                src={profile.avatarUrl}
+                name={fullName}
+                initials={initials}
+                src={avatarUrl}
                 className="size-[76px] border-4 border-background from-avatar-from to-violet-border text-[32px] leading-[33px] shadow-avatar"
               />
               <button
@@ -86,7 +103,7 @@ export function ProfileCard({
             </span>
             <div className="flex min-w-0 flex-1 flex-col gap-1.5">
               <div className="flex items-center gap-2">
-                <p className="truncate font-heading text-lg font-semibold">{profile.fullName}</p>
+                <p className="truncate font-heading text-lg font-semibold">{fullName}</p>
                 <span className="inline-flex h-[22px] items-center rounded-md bg-badge-soft px-2 text-[11px] font-semibold tracking-[0.66px] whitespace-nowrap text-brand uppercase">
                   {planLabel}
                 </span>
@@ -103,7 +120,7 @@ export function ProfileCard({
                   variant="secondary"
                   onClick={removePhoto}
                   loading={removing}
-                  disabled={!profile.avatarUrl}
+                  disabled={!avatarUrl}
                 >
                   Remove
                 </Button>

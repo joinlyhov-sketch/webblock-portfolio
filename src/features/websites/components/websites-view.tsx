@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
 import { SearchNormal1 } from "iconsax-reactjs";
 import { Breadcrumb } from "@/components/common/breadcrumb";
 import { EmptyState } from "@/components/common/empty-state";
@@ -5,34 +8,91 @@ import { PageHeader } from "@/components/common/page-header";
 import { SearchInput } from "@/components/common/search-input";
 import { SegmentedTabs } from "@/components/common/segmented-tabs";
 import { formatRelativeTime } from "@/lib/format";
-import { tableHref, type SearchParams } from "@/lib/table-query";
 import type { NotificationsView } from "@/features/notifications/service";
-import type { WebsitesView as WebsitesData } from "../service";
 import type { Template } from "@/features/templates/types";
+import type { StatusFilter } from "../service";
+import type { Website, WebsiteStatusCounts } from "../types";
 import { NewWebsiteCard } from "./new-website-card";
 import { NotificationBell } from "./notification-bell";
 import { WebsiteCard } from "./website-card";
 
-/** "My Websites": status tabs and search (both in the URL), the new-website tile and the cards. */
+const TAB_PARAM: Record<StatusFilter, string | null> = {
+  ALL: null,
+  LIVE: "live",
+  DRAFT: "draft",
+  SUSPENDED: "suspended",
+};
+
+/**
+ * "My Websites", rendered in the browser. The list, the status tabs and the search all live in
+ * state, so typing or switching a tab never reloads the page. The address bar is kept in sync with
+ * `history.replaceState` (no navigation) so a refresh or a shared link opens on the same view.
+ */
 export function WebsitesView({
-  data,
+  websites: initialWebsites,
   notifications,
   templates,
   businessTypes,
-  searchParams,
+  initialFilter,
 }: {
-  data: WebsitesData;
+  websites: Website[];
   notifications: NotificationsView;
   templates: Template[];
   businessTypes: string[];
-  searchParams: SearchParams;
+  initialFilter: { status: StatusFilter; q: string };
 }) {
-  const filtering = data.status !== "ALL" || data.q !== "";
-  const tab = (label: string, status: string | null, count: number, active: boolean) => ({
+  const [websites, setWebsites] = useState(initialWebsites);
+  const [status, setStatus] = useState<StatusFilter>(initialFilter.status);
+  const [query, setQuery] = useState(initialFilter.q);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (TAB_PARAM[status]) params.set("status", TAB_PARAM[status]);
+    if (query.trim()) params.set("q", query.trim());
+    const search = params.toString();
+    window.history.replaceState(window.history.state, "", search ? `?${search}` : window.location.pathname);
+  }, [status, query]);
+
+  const counts = useMemo<WebsiteStatusCounts>(
+    () => ({
+      ALL: websites.length,
+      LIVE: websites.filter((w) => w.status === "LIVE").length,
+      DRAFT: websites.filter((w) => w.status === "DRAFT").length,
+      SUSPENDED: websites.filter((w) => w.status === "SUSPENDED").length,
+    }),
+    [websites],
+  );
+
+  const q = query.trim().toLowerCase();
+  const visible = useMemo(
+    () =>
+      websites
+        .filter((w) => status === "ALL" || w.status === status)
+        .filter(
+          (w) =>
+            !q ||
+            w.name.toLowerCase().includes(q) ||
+            w.businessType.toLowerCase().includes(q) ||
+            (w.domain ?? "").includes(q),
+        ),
+    [websites, status, q],
+  );
+
+  const filtering = status !== "ALL" || q !== "";
+
+  /** Updates one card right after an action succeeds, so the UI changes without a reload. */
+  function patchWebsite(id: string, patch: Partial<Website>) {
+    setWebsites((current) => current.map((w) => (w.id === id ? { ...w, ...patch } : w)));
+  }
+  function removeWebsite(id: string) {
+    setWebsites((current) => current.filter((w) => w.id !== id));
+  }
+
+  const tab = (label: string, value: StatusFilter) => ({
     label,
-    count,
-    active,
-    href: tableHref(searchParams, { status, page: null }),
+    count: counts[value],
+    active: status === value,
+    onSelect: () => setStatus(value),
   });
 
   return (
@@ -55,28 +115,37 @@ export function WebsitesView({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <SegmentedTabs
           label="Filter websites by status"
-          tabs={[
-            tab("All", null, data.counts.ALL, data.status === "ALL"),
-            tab("Live", "live", data.counts.LIVE, data.status === "LIVE"),
-            tab("Draft", "draft", data.counts.DRAFT, data.status === "DRAFT"),
-            tab("Suspended", "suspended", data.counts.SUSPENDED, data.status === "SUSPENDED"),
-          ]}
+          tabs={[tab("All", "ALL"), tab("Live", "LIVE"), tab("Draft", "DRAFT"), tab("Suspended", "SUSPENDED")]}
         />
-        <SearchInput defaultValue={data.q} placeholder="Search websites" label="Search websites" />
+        <SearchInput
+          value={query}
+          onValueChange={setQuery}
+          placeholder="Search websites"
+          label="Search websites"
+        />
       </div>
 
-      <div className="pt-1 pb-6">
-        {filtering && data.websites.length === 0 ? (
-          <EmptyState
-            icon={<SearchNormal1 />}
-            title="No websites found"
-            description="Nothing matches this filter. Try another status or clear your search."
-          />
+      {/* flex-1 + centring: the empty state sits in the middle of the free space, not at the top. */}
+      <div className="flex flex-1 flex-col pt-1 pb-6">
+        {filtering && visible.length === 0 ? (
+          <div className="flex flex-1 items-center justify-center">
+            <EmptyState
+              icon={<SearchNormal1 />}
+              title={q ? "No results found" : "No websites here yet"}
+              description={q ? "Try a different keyword." : "Nothing matches this tab. Try another status."}
+            />
+          </div>
         ) : (
-          <div className="grid gap-[15px] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {!filtering && <NewWebsiteCard templates={templates} businessTypes={businessTypes} />}
-            {data.websites.map((website) => (
-              <WebsiteCard key={website.id} website={website} filtered={data.status !== "ALL"} />
+            {visible.map((website) => (
+              <WebsiteCard
+                key={website.id}
+                website={website}
+                filtered={status !== "ALL"}
+                onPatch={(patch) => patchWebsite(website.id, patch)}
+                onRemove={() => removeWebsite(website.id)}
+              />
             ))}
           </div>
         )}

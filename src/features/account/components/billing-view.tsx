@@ -1,20 +1,14 @@
 import Link from "next/link";
-import { Card, DocumentDownload, Filter, Receipt2, Refresh2 } from "iconsax-reactjs";
-import { DataTable } from "@/components/common/data-table";
-import { EmptyState } from "@/components/common/empty-state";
-import { FilterSelect } from "@/components/common/filter-select";
-import { StatusBadge } from "@/components/common/status-badge";
+import { Card, Refresh2 } from "iconsax-reactjs";
 import { Button } from "@/components/ui/button";
 import { formatDayMonthYear, formatPrice } from "@/lib/format";
-import { tableHref, type SearchParams } from "@/lib/table-query";
 import { cn } from "@/lib/utils";
 import type { BillingView as BillingData } from "../service";
 import type { PlanCode, Subscription } from "../types";
 import { BillingCard, CardHeader } from "./billing-card";
-import { PillTabs } from "./pill-tabs";
+import { BillingHistory } from "./billing-history";
 import { PLAN_TONE, TONE_STYLE, type ToneStyle } from "./plan-tone";
 import { PlanDetailsCard } from "./plan-details-card";
-import { RowsSelect } from "@/components/common/rows-select";
 
 /** Panel colours of the "Current plan" card: Free trial is pale, paid plans are filled. */
 const PLAN_PANEL: Record<PlanCode, { panel: string; text: string; sub: string }> = {
@@ -41,25 +35,12 @@ const PLAN_PANEL: Record<PlanCode, { panel: string; text: string; sub: string }>
   },
 };
 
-const PLAN_LETTER: Record<PlanCode, string> = {
-  FREE_TRIAL: "text-muted-foreground border-border",
-  PLUS: "text-primary border-primary",
-  PRO: "text-pro-to border-pro-from",
-  ULTRA: "text-ultra-to border-ultra-from",
-};
-
 /** Settings → Billing: current plan, plan actions, usage, then billing history. */
-export function BillingView({ data, searchParams }: { data: BillingData; searchParams: SearchParams }) {
+export function BillingView({ data }: { data: BillingData }) {
   const { subscription, daysLeft } = data;
   const paid = subscription.renewsAt !== null;
   const endDate = formatDayMonthYear(subscription.renewsAt ?? subscription.trialEndsAt);
   const tone = TONE_STYLE[PLAN_TONE[subscription.plan]];
-
-  const tab = (label: string, status: string | null, active: boolean) => ({
-    label,
-    active,
-    href: tableHref(searchParams, { status, page: null }),
-  });
 
   return (
     <div data-fit-viewport className="flex min-h-0 flex-1 flex-col gap-[15px]">
@@ -108,118 +89,7 @@ export function BillingView({ data, searchParams }: { data: BillingData; searchP
         <PlanDetailsCard subscription={subscription} daysLeft={daysLeft} />
       </div>
 
-      <DataTable
-        className="min-h-[360px] flex-1"
-        label="Billing history"
-        itemLabel="orders"
-        itemLabelOne="order"
-        data={data.orders}
-        searchParams={searchParams}
-        rowKey={(order) => order.id}
-        defaultSort={{ field: "createdAt", direction: "desc" }}
-        heading={
-          <h2 className="flex items-center gap-3 text-lg font-semibold">
-            <Receipt2 aria-hidden className="size-[22px] text-brand" /> Billing history
-          </h2>
-        }
-        toolbar={
-          <>
-            <PillTabs
-              size="sm"
-              label="Filter billing history"
-              tabs={[
-                tab("All", null, data.status === "ALL"),
-                tab("Paid", "paid", data.status === "PAID"),
-                tab("Expired", "expired", data.status === "EXPIRED"),
-              ]}
-            />
-            <div className="ml-auto flex items-center gap-2.5">
-              <FilterSelect label="Plan:" param="plan" value={data.plan} options={data.planOptions} />
-              <RowsSelect value={data.orders.size} />
-            </div>
-          </>
-        }
-        columns={[
-          {
-            key: "plan",
-            header: "Plan",
-            className: "px-0",
-            cell: (order) => (
-              <div className="flex items-center gap-3">
-                <span
-                  aria-hidden
-                  className={cn(
-                    "flex size-9 shrink-0 items-center justify-center rounded-full border-[1.5px] text-[13px] font-semibold",
-                    PLAN_LETTER[order.plan],
-                  )}
-                >
-                  {order.planName.charAt(0)}
-                </span>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold">{order.planName}</p>
-                  <p className="truncate text-[13px] text-placeholder">
-                    {order.period ? `${order.period} · ` : ""}
-                    {order.websiteName}
-                  </p>
-                </div>
-              </div>
-            ),
-          },
-          {
-            key: "date",
-            header: "Date",
-            sortField: "createdAt",
-            className: "w-[140px] px-0",
-            cell: (order) => <span className="text-sm">{formatDayMonthYear(order.createdAt)}</span>,
-          },
-          {
-            key: "amount",
-            header: "Amount",
-            sortField: "amount",
-            className: "w-[110px] px-0",
-            cell: (order) => (
-              <span className={cn("text-sm", order.status === "PAID" ? "font-semibold" : "text-placeholder")}>
-                {formatPrice(order.amount, order.currency)}
-              </span>
-            ),
-          },
-          {
-            key: "status",
-            header: "Status",
-            headerIcon: <Filter aria-hidden className="size-3.5" />,
-            className: "w-[190px] px-0",
-            cell: (order) => <StatusBadge status={order.status} />,
-          },
-          {
-            key: "action",
-            header: <span className="sr-only">Receipt</span>,
-            className: "w-[200px] pr-4 pl-0 text-right",
-            cell: (order) =>
-              order.status === "PAID" ? (
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-1.5 rounded-full text-sm font-medium text-primary outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/40"
-                >
-                  <DocumentDownload aria-hidden className="size-3.5" /> Receipt
-                </button>
-              ) : (
-                <span className="text-sm text-placeholder">QR code expired</span>
-              ),
-          },
-        ]}
-        empty={
-          <EmptyState
-            icon={<Receipt2 />}
-            title="No billing history yet"
-            description="You’re on the free trial, so there’s nothing to pay yet. Your plan orders and receipts will show up here after you choose a plan."
-            action={
-              <Button asChild variant="secondary" size="sm">
-                <Link href="/billing/plans?from=settings">View plans</Link>
-              </Button>
-            }
-          />
-        }
-      />
+      <BillingHistory orders={data.orders} planOptions={data.planOptions} initialFilter={data.initialFilter} />
     </div>
   );
 }

@@ -32,7 +32,16 @@ type DataTableProps<T> = {
   data: Page<T>;
   rowKey: (row: T) => string;
   /** The page's resolved `searchParams` — pagination and sort links keep every other param. */
-  searchParams: SearchParams;
+  searchParams?: SearchParams;
+  /**
+   * Browser mode: the parent keeps sort and page in state and passes the slice to show. Headers and
+   * pages become buttons, so nothing navigates or re-renders on the server.
+   */
+  controls?: {
+    sort?: TableQuery["sort"];
+    onSort: (field: string, direction: "asc" | "desc") => void;
+    onPageChange: (page: number) => void;
+  };
   /** Plural noun for the footer: "Showing 1–9 of 14 {itemLabel}". */
   itemLabel: string;
   /** Singular noun for the footer when there is exactly one item. Defaults to `itemLabel`. */
@@ -84,7 +93,8 @@ export function DataTable<T>({
   columns,
   data,
   rowKey,
-  searchParams,
+  searchParams = {},
+  controls,
   itemLabel,
   itemLabelOne,
   label,
@@ -99,7 +109,7 @@ export function DataTable<T>({
   compact = false,
   className,
 }: DataTableProps<T>) {
-  const { sort } = parseTableQuery(searchParams, { sort: defaultSort });
+  const sort = controls ? controls.sort : parseTableQuery(searchParams, { sort: defaultSort }).sort;
   const offset = data.page * data.size;
   const colSpan = columns.length + 1;
   const noItems = data.totalItems === 0;
@@ -150,7 +160,7 @@ export function DataTable<T>({
                   aria-sort={active === "asc" ? "ascending" : active === "desc" ? "descending" : undefined}
                 >
                   {column.sortField ? (
-                    <SortLink field={column.sortField} active={active} searchParams={searchParams}>
+                    <SortLink field={column.sortField} active={active} searchParams={searchParams} onSort={controls?.onSort}>
                       {column.header}
                     </SortLink>
                   ) : (
@@ -187,9 +197,15 @@ export function DataTable<T>({
                 <TableCell colSpan={colSpan} className="h-64 text-center">
                   <p className="text-muted-foreground">
                     This page is empty.{" "}
-                    <Link href={tableHref(searchParams, { page: null })} className="font-medium text-primary hover:underline">
-                      Go to the first page
-                    </Link>
+                    {controls ? (
+                      <button type="button" onClick={() => controls.onPageChange(0)} className="font-medium text-primary hover:underline">
+                        Go to the first page
+                      </button>
+                    ) : (
+                      <Link href={tableHref(searchParams, { page: null })} className="font-medium text-primary hover:underline">
+                        Go to the first page
+                      </Link>
+                    )}
                   </p>
                 </TableCell>
               </TableRow>
@@ -213,7 +229,13 @@ export function DataTable<T>({
             compact && "[&_a]:h-7 [&_a]:min-w-7 [&_a]:text-xs [&_p]:text-xs [&_span]:text-xs [&>div]:py-2",
           )}
         >
-          <TablePagination data={data} searchParams={searchParams} itemLabel={itemLabel} itemLabelOne={itemLabelOne} />
+          <TablePagination
+            data={data}
+            searchParams={searchParams}
+            onPageChange={controls?.onPageChange}
+            itemLabel={itemLabel}
+            itemLabelOne={itemLabelOne}
+          />
         </div>
       )}
     </section>
@@ -225,25 +247,23 @@ function SortLink({
   field,
   active,
   searchParams,
+  onSort,
   children,
 }: {
   field: string;
   active?: "asc" | "desc";
   searchParams: SearchParams;
+  onSort?: (field: string, direction: "asc" | "desc") => void;
   children: ReactNode;
 }) {
   const next = active === "asc" ? "desc" : "asc";
   const Icon = active === "asc" ? ArrowUp : active === "desc" ? ArrowDown : ArrowSwapVertical;
-
-  return (
-    <Link
-      href={tableHref(searchParams, { sort: `${field},${next}`, page: null })}
-      scroll={false}
-      className={cn(
-        "group inline-flex items-center gap-1.5 rounded-full outline-none transition-colors duration-150 focus-visible:ring-3 focus-visible:ring-ring/40",
-        active ? "text-primary" : "hover:text-foreground",
-      )}
-    >
+  const className = cn(
+    "group inline-flex items-center gap-1.5 rounded-full outline-none transition-colors duration-150 focus-visible:ring-3 focus-visible:ring-ring/40",
+    active ? "text-primary" : "hover:text-foreground",
+  );
+  const content = (
+    <>
       {children}
       <Icon
         aria-hidden
@@ -255,6 +275,17 @@ function SortLink({
       <span className="sr-only">
         {active ? `, sorted ${active === "asc" ? "ascending" : "descending"}` : ", sort"}
       </span>
+    </>
+  );
+
+  // Browser mode sorts in state with a button; URL mode links to `?sort=`.
+  return onSort ? (
+    <button type="button" onClick={() => onSort(field, next)} className={className}>
+      {content}
+    </button>
+  ) : (
+    <Link href={tableHref(searchParams, { sort: `${field},${next}`, page: null })} scroll={false} className={className}>
+      {content}
     </Link>
   );
 }

@@ -4,3 +4,4 @@ export { PreviewShell } from "./components/preview/preview-shell";
 export { SiteRenderer } from "./components/site-renderer";
 export { WebsiteEditor } from "./components/editor/website-editor";
 export type { MediaAsset, PageData, TemplateKey, WebsitePage } from "./types";
+export { VersionHistoryDialog } from "./components/version-history-dialog";

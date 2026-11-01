@@ -1,11 +1,11 @@
 import { requireUser } from "@/lib/auth/session";
-import { getProfileView, ProfileView } from "@/features/account";
+import { getSettingsView, SettingsScreen } from "@/features/account";
 
 export const metadata = { title: "Profile" };
 
-export default async function ProfilePage() {
+export default async function ProfileSettingsPage() {
   const user = await requireUser();
-  const profile = await getProfileView(user.id);
+  const { profile, billing } = await getSettingsView(user.id, {});
 
-  return <ProfileView profile={profile} />;
+  return <SettingsScreen profile={profile} billing={billing} initialTab="profile" />;
 }

@@ -7,10 +7,10 @@ import { ApiError } from "@/lib/api/errors";
 import { requireWebsiteOwner } from "@/lib/auth/session";
 import { formFile } from "@/lib/files";
 import { checkImage, SITE_IMAGE_RULE } from "@/lib/image-rules";
-import { savePageData, sendAiMessage, uploadMedia } from "./api";
+import { listVersions, restoreVersion, savePageData, sendAiMessage, uploadMedia } from "./api";
 import { describeIssue } from "./issue-message";
 import { aiPromptSchema, pageDataSchema } from "./schemas";
-import type { AiMessage, MediaAsset, PageData } from "./types";
+import type { AiMessage, MediaAsset, PageData, PageVersion } from "./types";
 
 function invalid(error: z.ZodError, data: unknown): ActionResult<never> {
   return { ok: false, message: describeIssue(error.issues[0], data) };
@@ -65,6 +65,30 @@ export async function askAiAction(websiteId: string, prompt: string): Promise<Ac
   if (!parsed.success) return { ok: false, message: parsed.error.issues[0]?.message ?? "Type what you want to change." };
   try {
     return { ok: true, data: await sendAiMessage(websiteId, parsed.data) };
+  } catch (e) {
+    if (e instanceof ApiError) return { ok: false, message: e.message };
+    throw e;
+  }
+}
+
+/** Version history dialog: the deployed versions of this website, newest first. */
+export async function listVersionsAction(websiteId: string): Promise<ActionResult<PageVersion[]>> {
+  await requireWebsiteOwner(websiteId);
+  try {
+    return { ok: true, data: await listVersions(websiteId) };
+  } catch (e) {
+    if (e instanceof ApiError) return { ok: false, message: e.message };
+    throw e;
+  }
+}
+
+/** "Restore this version": the live site goes back to an old deployed version. */
+export async function restoreVersionAction(websiteId: string, versionId: string): Promise<ActionResult<PageVersion[]>> {
+  await requireWebsiteOwner(websiteId);
+  try {
+    await restoreVersion(websiteId, versionId);
+    revalidateWebsite(websiteId);
+    return { ok: true, data: await listVersions(websiteId), message: "Previous version restored and live" };
   } catch (e) {
     if (e instanceof ApiError) return { ok: false, message: e.message };
     throw e;

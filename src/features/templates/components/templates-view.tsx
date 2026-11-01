@@ -1,17 +1,47 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
 import { Breadcrumb } from "@/components/common/breadcrumb";
-import { FilterSelect } from "@/components/common/filter-select";
+import { PillSelect } from "@/components/common/filter-select";
 import { SearchInput } from "@/components/common/search-input";
-import { categoryOptions, type TemplatesView as TemplatesData } from "../service";
+import { categoryOptions, CATEGORY_BY_PARAM } from "../categories";
+import type { Template } from "../types";
 import { TemplatesGrid } from "./templates-grid";
 
-/** "Templates": hero with search, then the count + category filter (in the URL) and the grid. */
+/**
+ * "Templates": hero with search, then the count + category filter and the grid. Search and category
+ * filter the loaded list in state, so typing never reloads the page; the URL is kept in sync with
+ * `history.replaceState` so a refresh or a shared link opens on the same view.
+ */
 export function TemplatesView({
-  data,
+  templates,
   businessTypes,
+  initialFilter,
 }: {
-  data: TemplatesData;
+  templates: Template[];
   businessTypes: string[];
+  initialFilter: { q: string; category: string };
 }) {
+  const [query, setQuery] = useState(initialFilter.q);
+  const [category, setCategory] = useState(initialFilter.category);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (query.trim()) params.set("q", query.trim());
+    if (category) params.set("category", category);
+    const search = params.toString();
+    window.history.replaceState(window.history.state, "", search ? `?${search}` : window.location.pathname);
+  }, [query, category]);
+
+  const q = query.trim().toLowerCase();
+  const visible = useMemo(
+    () =>
+      templates
+        .filter((t) => !category || t.category === CATEGORY_BY_PARAM[category])
+        .filter((t) => !q || t.name.toLowerCase().includes(q) || t.description.toLowerCase().includes(q)),
+    [templates, category, q],
+  );
+
   return (
     <>
       <Breadcrumb current="Templates" />
@@ -58,7 +88,8 @@ export function TemplatesView({
         <div className="absolute top-[226px] left-1/2 w-[560px] max-w-full -translate-x-1/2 px-4">
           <SearchInput
             variant="hero"
-            defaultValue={data.q}
+            value={query}
+            onValueChange={setQuery}
             placeholder="Search templates, e.g. “minimal”"
             label="Search templates"
           />
@@ -67,13 +98,13 @@ export function TemplatesView({
 
       <div className="flex items-center gap-2">
         <p className="text-[13px] leading-[19.5px] text-muted-foreground" aria-live="polite">
-          {data.templates.length} {data.templates.length === 1 ? "template" : "templates"}
+          {visible.length} {visible.length === 1 ? "template" : "templates"}
         </p>
         <span aria-hidden className="h-px flex-1" />
-        <FilterSelect label="Category:" param="category" value={data.category} options={categoryOptions} />
+        <PillSelect label="Category:" value={category} onValueChange={setCategory} options={categoryOptions} />
       </div>
 
-      <TemplatesGrid templates={data.templates} businessTypes={businessTypes} />
+      <TemplatesGrid templates={visible} businessTypes={businessTypes} searching={q !== ""} />
     </>
   );
 }

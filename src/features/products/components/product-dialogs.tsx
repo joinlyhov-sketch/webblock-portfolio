@@ -34,16 +34,21 @@ export function useProductDialogs(): ProductDialogs {
   return value;
 }
 
-/** Holds which product popup is open. Cards and rows stay Server-rendered children. */
+/** Holds which product popup is open. Cards and rows open it through `useProductDialogs`. */
 export function ProductDialogsProvider({
   websiteId,
   domain,
   categories,
+  onSaved,
+  onDeleted,
   children,
 }: {
   websiteId: string;
   domain: string | null;
   categories: string[];
+  /** The list adds or replaces this product right away. */
+  onSaved: (product: Product) => void;
+  onDeleted: (productId: string) => void;
   children: ReactNode;
 }) {
   const [dialog, setDialog] = useState<Dialog>(null);
@@ -64,7 +69,10 @@ export function ProductDialogsProvider({
     startDelete(async () => {
       const result = await deleteProductAction(websiteId, target.id);
       close();
-      if (result.ok) toast.success("Product deleted", result.message);
+      if (result.ok) {
+        onDeleted(target.id);
+        toast.success("Product deleted", result.message);
+      }
       else toast.error("Could not delete the product", result.message);
     });
   }
@@ -97,10 +105,10 @@ export function ProductDialogsProvider({
         className="max-w-[616px] rounded-[20px]"
       >
         {dialog?.kind === "add" && (
-          <ProductForm websiteId={websiteId} categories={categories} product={null} onDone={close} />
+          <ProductForm websiteId={websiteId} categories={categories} product={null} onSaved={onSaved} onDone={close} />
         )}
         {dialog?.kind === "edit" && (
-          <ProductForm websiteId={websiteId} categories={categories} product={dialog.product} onDone={close} />
+          <ProductForm websiteId={websiteId} categories={categories} product={dialog.product} onSaved={onSaved} onDone={close} />
         )}
       </Modal>
 

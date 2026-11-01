@@ -3,61 +3,71 @@
 import { z } from "zod";
 import type { ActionResult } from "@/lib/actions/result";
 import { ApiError } from "@/lib/api/errors";
-import type { Page } from "@/lib/api/types";
 import { formFile, imageToDataUrl } from "@/lib/files";
 import { checkImage, PRODUCT_IMAGE_RULE } from "@/lib/image-rules";
 import { parseTableQuery, type SearchParams } from "@/lib/table-query";
 import { formText } from "@/lib/validation/fields";
 import { getWebsite } from "@/features/websites/api";
 import {
-  countProducts,
   createProduct,
   deleteProduct,
   listProductCategories,
   listProducts,
   updateProduct,
 } from "./api";
+import { DEFAULT_PRODUCT_PAGE_SIZE, PRODUCT_PAGE_SIZES } from "./page-sizes";
 import { productInput } from "./schemas";
-import type { Product, ProductCounts } from "./types";
+import type { Product } from "./types";
 
 export type ProductsLayout = "grid" | "list";
 
-export const PRODUCT_PAGE_SIZES = [6, 12, 24];
-export const DEFAULT_PRODUCT_PAGE_SIZE = 6;
+const ALL_PRODUCTS = 1000;
 
-export type ProductsView = {
+/** Everything the Products screen needs. It filters, sorts and pages `products` in the browser. */
+export type ProductsData = {
   websiteId: string;
   /** Public host shown in the page description, or `null` before the first deploy. */
   domain: string | null;
-  products: Page<Product>;
-  counts: ProductCounts;
-  /** Every category of the website, in order, for the form. */
+  products: Product[];
+  /** Every category of the website, in order, for the tabs and the form. */
   categories: string[];
-  category: string | null;
+};
+
+/** Starting view read from the URL, so a shared or refreshed link opens on the same search, tab and page. */
+export type ProductsFilter = {
   q: string;
+  category: string | null;
   layout: ProductsLayout;
+  size: number;
+  /** Zero-based. */
+  page: number;
+  sort?: { field: string; direction: "asc" | "desc" };
 };
 
 function first(value: string | string[] | undefined): string {
   return (Array.isArray(value) ? value[0] : value) ?? "";
 }
 
-export async function getProductsView(websiteId: string, searchParams: SearchParams): Promise<ProductsView> {
-  const q = first(searchParams.q).trim();
-  const layout: ProductsLayout = first(searchParams.view) === "list" ? "list" : "grid";
+export function parseInitialProductsFilter(searchParams: SearchParams): ProductsFilter {
   const query = parseTableQuery(searchParams, { size: DEFAULT_PRODUCT_PAGE_SIZE });
+  return {
+    q: first(searchParams.q).trim(),
+    category: first(searchParams.category) || null,
+    layout: first(searchParams.view) === "list" ? "list" : "grid",
+    size: PRODUCT_PAGE_SIZES.includes(query.size) ? query.size : DEFAULT_PRODUCT_PAGE_SIZE,
+    page: query.page,
+    sort: query.sort,
+  };
+}
 
-  const [website, categories, counts] = await Promise.all([
+/** One request for the whole catalogue of a website (the mock has a few dozen products at most). */
+export async function getProductsData(websiteId: string): Promise<ProductsData> {
+  const [website, categories, all] = await Promise.all([
     getWebsite(websiteId),
     listProductCategories(websiteId),
-    countProducts(websiteId),
+    listProducts(websiteId, { page: 0, size: ALL_PRODUCTS }),
   ]);
-  // Ignore a `?category=` the website does not have instead of showing an empty list.
-  const requested = first(searchParams.category);
-  const category = categories.includes(requested) ? requested : null;
-  const products = await listProducts(websiteId, query, { q, category: category ?? undefined });
-
-  return { websiteId, domain: website.domain, products, counts, categories, category, q, layout };
+  return { websiteId, domain: website.domain, products: all.items, categories };
 }
 
 /** Creates a product, or updates `productId` when it is set. */
@@ -65,7 +75,7 @@ export async function saveProduct(
   websiteId: string,
   productId: string | null,
   formData: FormData,
-): Promise<ActionResult<{ id: string }>> {
+): Promise<ActionResult<Product>> {
   const values = {
     name: formText(formData, "name"),
     category: formText(formData, "category"),
@@ -103,7 +113,7 @@ export async function saveProduct(
       : await createProduct(websiteId, { ...parsed.data, imageUrl });
     return {
       ok: true,
-      data: { id: product.id },
+      data: product,
       message: productId ? `${product.name} was updated` : `${product.name} was added to your products`,
     };
   } catch (e) {

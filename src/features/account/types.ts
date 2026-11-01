@@ -15,6 +15,9 @@ export type Profile = {
   googleEmail: string | null;
 };
 
+/** The part of the profile the sidebar and the profile card show. Actions return it after a change. */
+export type ProfileIdentity = Pick<Profile, "fullName" | "initials" | "avatarUrl">;
+
 export type UsageMetric = {
   key: string;
   /** Name in the plan dialog, e.g. "Websites". */
@@ -42,7 +45,7 @@ export type Subscription = {
 };
 
 /**
- * Whether the user may deploy a website right now (GET /me/deploy-access?websiteId=).
+ * Whether the user may deploy a website right now (GET /me/deploy-access?projectId=).
  * The backend decides; the screens only show the answer.
  * - FIRST_FREE_DEPLOY: free trial, the one deploy that costs nothing.
  * - WITHIN_PLAN: paid plan with room left in its limits.

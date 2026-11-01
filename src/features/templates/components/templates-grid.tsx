@@ -11,19 +11,26 @@ import { TemplateCard } from "./template-card";
 export function TemplatesGrid({
   templates,
   businessTypes,
+  searching = false,
 }: {
   templates: Template[];
   businessTypes: string[];
+  /** True when a search word is typed, so the empty state asks for a different keyword. */
+  searching?: boolean;
 }) {
   const [selected, setSelected] = useState<Template | null>(null);
 
   if (templates.length === 0) {
     return (
-      <EmptyState
-        icon={<Layer />}
-        title="No templates found"
-        description="Try another category or search, or choose All to see every template."
-      />
+      <div className="flex flex-1 items-center justify-center pb-6">
+        <EmptyState
+          icon={<Layer />}
+          title={searching ? "No results found" : "No templates found"}
+          description={
+            searching ? "Try a different keyword." : "Try another category, or choose All to see every template."
+          }
+        />
+      </div>
     );
   }
 

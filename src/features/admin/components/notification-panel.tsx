@@ -12,25 +12,13 @@ import {
   markAllNotificationsReadAction,
   markNotificationReadAction,
 } from "../actions";
-import type { AdminNotification, NotificationKind } from "../types";
-
-/** Colour of the small dot on the avatar: red = broken, amber = money/time running out, blue = activity. */
-const KIND_DOT = {
-  DEPLOY_FAILED: "bg-danger",
-  PLAN_EXPIRED: "bg-danger",
-  PAYMENT_PAST_DUE: "bg-warning",
-  TRIAL_ENDING: "bg-warning",
-  TRIAL_STARTED: "bg-primary",
-  REDEPLOY_REQUESTED: "bg-primary",
-  ACCOUNT_CREATED: "bg-primary",
-  PLAN_UPGRADED: "bg-success",
-} satisfies Record<NotificationKind, string>;
+import type { AdminNotification } from "../types";
 
 type Tab = "all" | "unread";
 
 /**
  * Admin notifications list (bell popover and /admin/notifications): title, "Mark all as read",
- * All / Unread tabs, rows with avatar + event dot, unread rows tinted with a blue dot.
+ * All / Unread tabs, rows with avatar, unread rows tinted with a blue dot.
  * Opening a row marks it read.
  */
 export function NotificationPanel({
@@ -143,13 +131,13 @@ export function NotificationPanel({
         {shown.length === 0 && (
           <li className="px-5 py-4">
             {tab === "unread" ? (
-              <EmptyState variant="box"
+              <EmptyState
                 icon={<TickCircle />}
                 title="You're all caught up"
                 description="New activity will show here."
               />
             ) : (
-              <EmptyState variant="box"
+              <EmptyState
                 icon={<NotificationBing />}
                 title="No notifications yet"
               />
@@ -160,22 +148,11 @@ export function NotificationPanel({
           const isUnread = n.readAt === null;
           const row = (
             <>
-              {/* Exactly the avatar's box (grid, no text line), so the dot lands in the same spot
-                  on photos and initials alike. */}
-              <span className="relative grid size-10 shrink-0">
+              <span className="grid size-10 shrink-0">
                 <Avatar variant="solid"
                   name={n.actorName}
                   src={n.actorAvatarUrl}
                   className="size-10 text-xs ring-0"
-                />
-                {/* Centred on the avatar's edge at the bottom-right (45°), so half sits on the photo
-                    and half outside it: the edge is ~5.9px in from the box corner, minus the 5px radius. */}
-                <span
-                  aria-hidden
-                  className={cn(
-                    "absolute right-px bottom-px size-2.5 rounded-full ring-[1.5px] ring-background",
-                    KIND_DOT[n.kind],
-                  )}
                 />
               </span>
               <span className="min-w-0 flex-1">

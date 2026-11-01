@@ -62,6 +62,16 @@ function UploadForm({ rule, onClose, onUpload }: Pick<UploadImageModalProps, "ru
 
       <div className="flex flex-col gap-3 px-4 pb-4">
         <div
+          role="button"
+          tabIndex={0}
+          aria-label="Choose an image: click or drop a file here"
+          onClick={() => inputRef.current?.click()}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              inputRef.current?.click();
+            }
+          }}
           onDragOver={(event) => {
             event.preventDefault();
             setDragging(true);
@@ -73,7 +83,7 @@ function UploadForm({ rule, onClose, onUpload }: Pick<UploadImageModalProps, "ru
             choose(event.dataTransfer.files[0]);
           }}
           className={cn(
-            "flex flex-col items-center gap-2 rounded-[14px] border border-dashed p-[26px] text-center transition-colors",
+            "group flex cursor-pointer flex-col items-center gap-2 rounded-[14px] border border-dashed p-[26px] text-center outline-none transition-colors hover:border-primary hover:bg-brand-soft focus-visible:ring-3 focus-visible:ring-ring/40",
             dragging ? "border-primary bg-brand-soft" : "border-dropzone-border bg-primary-soft",
           )}
         >
@@ -92,13 +102,9 @@ function UploadForm({ rule, onClose, onUpload }: Pick<UploadImageModalProps, "ru
               <p className="text-[13px] leading-[19.5px] font-bold">Drag a photo here</p>
               <p className="text-xs leading-[18px] text-hint-strong">
                 or{" "}
-                <button
-                  type="button"
-                  onClick={() => inputRef.current?.click()}
-                  className="font-semibold text-primary hover:underline focus-visible:underline"
-                >
+                <span className="font-semibold text-primary underline-offset-2 group-hover:underline">
                   browse your files
-                </button>{" "}
+                </span>{" "}
                 · {rule.label}
               </p>
             </>
@@ -110,6 +116,7 @@ function UploadForm({ rule, onClose, onUpload }: Pick<UploadImageModalProps, "ru
             className="sr-only"
             tabIndex={-1}
             aria-label="Choose an image file"
+            onClick={(event) => event.stopPropagation()}
             onChange={(event) => choose(event.target.files?.[0])}
           />
         </div>

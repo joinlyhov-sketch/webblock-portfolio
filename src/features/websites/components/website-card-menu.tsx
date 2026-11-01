@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
+  Clock,
   Edit,
   ExportSquare,
   Global,
@@ -23,7 +24,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { liveSiteHref } from "@/config/site";
-import type { WebsiteStatus } from "../types";
+import { VersionHistoryDialog } from "@/features/editor/components/version-history-dialog";
+import type { Website, WebsiteStatus } from "../types";
 
 /**
  * "…" menu on a website card.
@@ -35,12 +37,17 @@ export function WebsiteCardMenu({
   websiteName,
   status,
   domain,
+  onPatch,
+  onRemove,
 }: {
   websiteId: string;
   websiteName: string;
   status: WebsiteStatus;
   domain: string | null;
+  onPatch: (patch: Partial<Website>) => void;
+  onRemove: () => void;
 }) {
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -49,7 +56,11 @@ export function WebsiteCardMenu({
     startTransition(async () => {
       const result = await suspendWebsiteAction(websiteId);
       setConfirmOpen(false);
-      if (result.ok) toast.success(result.message ?? "Website suspended");
+      if (result.ok) {
+        const now = new Date().toISOString();
+        onPatch({ status: "SUSPENDED", suspendedAt: now, reactivatedAt: null, updatedAt: now });
+        toast.success(result.message ?? "Website suspended");
+      }
       else toast.error("Could not suspend the website", result.message);
     });
   }
@@ -58,7 +69,10 @@ export function WebsiteCardMenu({
     startTransition(async () => {
       const result = await deleteWebsiteAction(websiteId);
       setDeleteOpen(false);
-      if (result.ok) toast.success(result.message ?? "Website deleted", `${websiteName} was deleted.`);
+      if (result.ok) {
+        onRemove();
+        toast.success(result.message ?? "Website deleted", `${websiteName} was deleted.`);
+      }
       else toast.error("Could not delete the website", result.message);
     });
   }
@@ -66,7 +80,11 @@ export function WebsiteCardMenu({
   function reactivate() {
     startTransition(async () => {
       const result = await reactivateWebsiteAction(websiteId);
-      if (result.ok) toast.success(result.message ?? "Website reactivated");
+      if (result.ok) {
+        const now = new Date().toISOString();
+        onPatch({ status: "LIVE", suspendedAt: null, reactivatedAt: now, updatedAt: now });
+        toast.success(result.message ?? "Website reactivated");
+      }
       else toast.error("Could not reactivate the website", result.message);
     });
   }
@@ -95,6 +113,12 @@ export function WebsiteCardMenu({
     </DropdownMenuItem>
   );
 
+  const history = domain && (
+    <DropdownMenuItem onSelect={() => setHistoryOpen(true)}>
+      <Clock aria-hidden /> <span className="flex-1">Version history</span>
+    </DropdownMenuItem>
+  );
+
   return (
     <>
       <DropdownMenu modal={false}>
@@ -119,6 +143,7 @@ export function WebsiteCardMenu({
               {portal}
               {editor}
               {liveSite}
+              {history}
               <DropdownMenuSeparator className="mx-1 my-[3px]" />
               <DropdownMenuItem variant="destructive" onSelect={() => setConfirmOpen(true)}>
                 <PauseCircle aria-hidden /> <span className="flex-1">Suspend website</span>
@@ -130,6 +155,7 @@ export function WebsiteCardMenu({
               {editor}
               {liveSite}
               {portal}
+              {history}
               <DropdownMenuSeparator className="mx-1 my-[3px]" />
               <DropdownMenuItem disabled={pending} onSelect={reactivate}>
                 <PlayCircle aria-hidden /> <span className="flex-1">Reactivate website</span>
@@ -139,6 +165,12 @@ export function WebsiteCardMenu({
         </DropdownMenuContent>
       </DropdownMenu>
 
+      <VersionHistoryDialog
+        websiteId={websiteId}
+        websiteName={websiteName}
+        open={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+      />
       <ConfirmDialog
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}

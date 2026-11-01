@@ -44,6 +44,17 @@ function first(value: string | string[] | undefined): string {
   return (Array.isArray(value) ? value[0] : value) ?? "";
 }
 
+/** Starting filter read from the URL, so a shared or refreshed link opens on the same tab and search. */
+export function parseInitialFilter(searchParams: SearchParams): { status: StatusFilter; q: string } {
+  return { status: STATUS_BY_PARAM[first(searchParams.status)] ?? "ALL", q: first(searchParams.q).trim() };
+}
+
+/** Every website of the owner. The My Websites screen filters this list in the browser. */
+export async function getAllWebsites(ownerId: string): Promise<Website[]> {
+  const page = await listWebsites(ownerId, {});
+  return page.items;
+}
+
 export async function getWebsitesView(
   ownerId: string,
   searchParams: SearchParams,

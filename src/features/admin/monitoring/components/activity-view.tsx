@@ -54,13 +54,12 @@ export function ActivityView({
         searchParams={searchParams}
         rowKey={(a) => a.id}
         minWidth="min-w-[1000px]"
-        compact
         toolbar={
           <div className="w-full space-y-3">
-            <CardHeader compact title="Recent activity" icon={<Activity />} />
+            <CardHeader title="Recent activity" icon={<Activity />} />
             <div className="flex flex-wrap items-center gap-3">
               <div className="max-w-full overflow-x-auto">
-                <SegmentedTabs variant="filled"
+                <SegmentedTabs
                   size="sm"
                   className="mb-0 whitespace-nowrap"
                   tabs={[
@@ -115,10 +114,15 @@ export function ActivityView({
           </div>
         }
         empty={
-          <EmptyState variant="box"
+          <EmptyState
             icon={action || by ? <SearchNormal1 /> : <Activity />}
             title={
-              action || by ? "No actions match these filters" : "No actions yet"
+              action || by ? "No actions found" : "No actions yet"
+            }
+            description={
+              action || by
+                ? "Nothing matches this filter. Try another action or person."
+                : undefined
             }
             action={
               action || by ? (
@@ -139,7 +143,7 @@ export function ActivityView({
                 <span className="block max-w-[300px] truncate font-semibold text-foreground">
                   {a.targetName}
                 </span>
-                <span className="block max-w-[300px] truncate text-xs text-muted-foreground">
+                <span className="block max-w-[300px] truncate text-[13px] text-muted-foreground">
                   {a.targetDetail}
                 </span>
               </span>

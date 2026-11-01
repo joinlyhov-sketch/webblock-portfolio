@@ -13,12 +13,6 @@ export type NotificationItem = AppNotification & {
   timeLabel: string;
 };
 
-const dotColor: Record<NotificationKind, string> = {
-  SUCCESS: "bg-success",
-  WARNING: "bg-notice-warning",
-  INFO: "bg-primary",
-};
-
 const plainAvatar: Record<NotificationKind, string> = {
   SUCCESS: "bg-brand-soft",
   WARNING: "bg-notice-warning-soft",
@@ -102,19 +96,10 @@ export function NotificationBell({ items: initial }: { items: NotificationItem[]
                   !n.read ? "bg-notice-unread" : "bg-background",
                 )}
               >
-                <span className="relative size-[38px] shrink-0">
-                  <span className={cn("relative block size-[38px] overflow-hidden rounded-full", plainAvatar[n.kind])}>
-                    {n.imageUrl && (
-                      <Image src={n.imageUrl} alt="" fill unoptimized sizes="38px" className="object-cover object-top" />
-                    )}
-                  </span>
-                  <span
-                    aria-hidden
-                    className={cn(
-                      "absolute -right-px -bottom-px size-3 rounded-full border-2 border-background",
-                      dotColor[n.kind],
-                    )}
-                  />
+                <span className={cn("relative block size-[38px] shrink-0 overflow-hidden rounded-full", plainAvatar[n.kind])}>
+                  {n.imageUrl && (
+                    <Image src={n.imageUrl} alt="" fill unoptimized sizes="38px" className="object-cover object-top" />
+                  )}
                 </span>
                 <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-left">
                   <p className={cn("truncate text-sm text-foreground", n.read ? "font-medium" : "font-semibold")}>

@@ -139,7 +139,7 @@ export async function suspendWebsite(websiteId: string): Promise<Website> {
 }
 
 /**
- * DELETE /websites/{websiteId} — removes a website that was never deployed.
+ * DELETE /projects/{projectId} — removes a website that was never deployed.
  * The backend refuses (409) for live or suspended websites; the mock does the same.
  */
 export async function deleteWebsite(websiteId: string): Promise<void> {
