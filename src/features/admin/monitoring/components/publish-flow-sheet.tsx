@@ -146,7 +146,7 @@ function FlowStrip({ steps }: { steps: PipelineStep[] }) {
                   />
                 )}
                 <li className="relative rounded-[20px] border border-border bg-background px-4 pt-7 pb-4">
-                  <span className="absolute -top-3.5 left-4 rounded-full border border-border bg-background px-3 py-1 text-[13px] leading-4 font-semibold text-foreground">
+                  <span className="absolute -top-3.5 left-4 rounded-full border border-border bg-background px-3 py-1 text-sm leading-4 font-semibold text-foreground">
                     {group.label}{" "}
                     <span className="font-normal text-muted-foreground">
                       {group.range}
@@ -250,7 +250,7 @@ function StepCard({ step }: { step: PipelineStep }) {
         >
           <Icon variant="Outline" />
         </span>
-        <span className="pt-0.5 text-xs font-medium text-muted-foreground tabular-nums">
+        <span className="pt-0.5 text-[13px] font-medium text-muted-foreground tabular-nums">
           {String(step.number).padStart(2, "0")}
         </span>
       </div>
@@ -263,7 +263,7 @@ function StepCard({ step }: { step: PipelineStep }) {
         {step.title}
       </p>
       <p
-        className="truncate text-xs leading-5 text-muted-foreground"
+        className="truncate text-[13px] leading-5 text-muted-foreground"
         title={step.subtitle}
       >
         {step.subtitle}
@@ -328,7 +328,7 @@ function CurrentStepPanel({
       className="space-y-4 rounded-[22px] border border-border p-5"
     >
       <div>
-        <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+        <p className="text-[13px] font-medium tracking-wide text-muted-foreground uppercase">
           Step {run.currentStep} · {current.phase}
         </p>
         <div className="mt-1 flex flex-wrap items-center gap-2">
@@ -342,7 +342,7 @@ function CurrentStepPanel({
           {current.tags.map((tag) => (
             <span
               key={tag}
-              className="inline-flex h-6 items-center rounded-full bg-neutral-soft px-2.5 text-xs font-medium text-foreground-soft"
+              className="inline-flex h-6 items-center rounded-full bg-neutral-soft px-2.5 text-[13px] font-medium text-foreground-soft"
             >
               {tag}
             </span>
@@ -354,7 +354,7 @@ function CurrentStepPanel({
         <dl className="grid gap-2.5 [grid-template-columns:repeat(auto-fit,minmax(170px,1fr))]">
           {facts.map((f) => (
             <div key={f.label} className="rounded-xl bg-muted px-3.5 py-3">
-              <dt className="text-xs text-muted-foreground">{f.label}</dt>
+              <dt className="text-[13px] text-muted-foreground">{f.label}</dt>
               <dd
                 className={cn(
                   "mt-1",
@@ -369,7 +369,7 @@ function CurrentStepPanel({
                 {f.value}
               </dd>
               {f.hint && (
-                <dd className="mt-0.5 text-xs text-muted-foreground">
+                <dd className="mt-0.5 text-[13px] text-muted-foreground">
                   {f.hint}
                 </dd>
               )}
@@ -423,7 +423,7 @@ function LiveLogs({
           >
             Live logs
           </h4>
-          <p className="text-[13px] text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             What {run.domain} is logging as visitors use it · newest first
           </p>
         </div>
@@ -441,7 +441,7 @@ function LiveLogs({
                 scroll={false}
                 aria-current={active === tab.value ? "true" : undefined}
                 className={cn(
-                  "rounded-full px-3 py-1 text-[13px] transition-colors",
+                  "rounded-full px-3 py-1 text-sm transition-colors",
                   active === tab.value
                     ? "bg-background font-semibold text-foreground shadow-button"
                     : "text-muted-foreground hover:text-foreground",
@@ -489,7 +489,7 @@ function LiveLogs({
               key: "level",
               header: "Level",
               cell: (line) => (
-                <span className={cn("rounded-md px-1.5 py-0.5 font-mono text-xs", LEVEL_STYLE[line.level])}>
+                <span className={cn("rounded-md px-1.5 py-0.5 font-mono text-[13px]", LEVEL_STYLE[line.level])}>
                   {line.level.toLowerCase()}
                 </span>
               ),
@@ -533,7 +533,7 @@ function LiveLogs({
           ]}
         />
       </div>
-      <p className="border-t border-border bg-surface px-4 py-2.5 text-xs text-muted-foreground">
+      <p className="border-t border-border bg-surface px-4 py-2.5 text-[13px] text-muted-foreground">
         Showing the latest {logs.items.length} lines · updates every 2 seconds ·
         logs are kept for 15 minutes
       </p>
@@ -549,7 +549,7 @@ function StepChecks({
 }) {
   return (
     <div className="space-y-2.5">
-      <h4 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+      <h4 className="text-[13px] font-medium tracking-wide text-muted-foreground uppercase">
         {group.title}
       </h4>
       <ul className="grid gap-2.5 sm:grid-cols-2">
@@ -573,7 +573,7 @@ function StepChecks({
             ) : (
               <span
                 aria-label={`Waiting, step ${i + 1}`}
-                className="grid size-6 shrink-0 place-items-center rounded-full bg-brand text-xs font-semibold text-primary-foreground"
+                className="grid size-6 shrink-0 place-items-center rounded-full bg-brand text-[13px] font-semibold text-primary-foreground"
               >
                 {i + 1}
               </span>
@@ -582,7 +582,7 @@ function StepChecks({
               <span className="block truncate text-sm font-semibold text-foreground">
                 {check.title}
               </span>
-              <span className="block truncate text-[13px] text-muted-foreground">
+              <span className="block truncate text-sm text-muted-foreground">
                 {check.detail}
               </span>
             </span>

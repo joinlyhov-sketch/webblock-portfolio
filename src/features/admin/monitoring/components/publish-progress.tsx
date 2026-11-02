@@ -39,7 +39,7 @@ export function PublishProgress({
           </Fragment>
         ))}
       </div>
-      <p className="text-xs text-muted-foreground">
+      <p className="text-[13px] text-muted-foreground">
         {run.currentStep} / {run.steps.length} ·{" "}
         {STAGE_LABEL[stageOfStep(run.currentStep)]}
       </p>

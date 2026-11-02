@@ -114,7 +114,7 @@ export function PipelineView({
                   <span className="block truncate font-semibold text-foreground group-hover:text-primary">
                     {r.websiteName}
                   </span>
-                  <span className="block truncate text-[13px] text-muted-foreground">
+                  <span className="block truncate text-sm text-muted-foreground">
                     {r.domain}
                   </span>
                 </span>
