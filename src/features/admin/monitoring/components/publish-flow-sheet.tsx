@@ -16,7 +16,7 @@ import {
 import { CompactTable } from "@/components/common/compact-table";
 import { Modal } from "@/components/common/modal";
 import { ScrollStrip } from "@/components/common/scroll-strip";
-import { Pill, StatusBadge } from "@/components/common/status-badge";
+import { StatusBadge } from "@/components/common/status-badge";
 import type { Page } from "@/lib/api/types";
 import { formatLogTime, formatRelative, formatTime } from "@/lib/format";
 import { tableHref, type SearchParams } from "@/lib/table-query";
@@ -246,6 +246,7 @@ function StepCard({ step }: { step: PipelineStep }) {
           className={cn(
             "grid size-9 place-items-center rounded-xl [&_svg]:size-[18px]",
             tone.chip,
+            step.status === "RUNNING" && "motion-safe:animate-pulse",
           )}
         >
           <Icon />
@@ -454,12 +455,6 @@ function LiveLogs({
               </Link>
             ))}
           </nav>
-          <Pill
-            tone="success"
-            icon={<span aria-hidden className="size-1.5 rounded-full bg-success motion-safe:animate-pulse" />}
-          >
-            Streaming
-          </Pill>
         </div>
       </header>
 
@@ -534,7 +529,7 @@ function LiveLogs({
         />
       </div>
       <p className="border-t border-border bg-surface px-4 py-2.5 text-[13px] text-muted-foreground">
-        Showing the latest {logs.items.length} lines · updates every 2 seconds ·
+        Showing the latest {logs.items.length} lines · reload to see newer lines ·
         logs are kept for 15 minutes
       </p>
     </section>
