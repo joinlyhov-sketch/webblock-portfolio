@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Hierarchy, SearchNormal1 } from "iconsax-reactjs";
+import { Thumbnail } from "@/components/common/avatar";
 import { CardHeader } from "@/components/common/card";
 import { DataTable } from "@/components/common/data-table";
 import { EmptyState } from "@/components/common/empty-state";
@@ -106,13 +107,16 @@ export function PipelineView({
               <Link
                 href={runHref(r.websiteId)}
                 scroll={false}
-                className="group block min-w-0 outline-none after:absolute after:inset-0 after:content-[''] focus-visible:after:ring-3 focus-visible:after:ring-ring/40"
+                className="group flex min-w-0 items-center gap-3 outline-none after:absolute after:inset-0 after:content-[''] focus-visible:after:ring-3 focus-visible:after:ring-ring/40"
               >
-                <span className="block truncate font-semibold text-foreground group-hover:text-primary">
-                  {r.websiteName}
-                </span>
-                <span className="block truncate text-[13px] text-muted-foreground">
-                  {r.domain}
+                <Thumbnail src={r.thumbnailUrl} />
+                <span className="min-w-0">
+                  <span className="block truncate font-semibold text-foreground group-hover:text-primary">
+                    {r.websiteName}
+                  </span>
+                  <span className="block truncate text-[13px] text-muted-foreground">
+                    {r.domain}
+                  </span>
                 </span>
               </Link>
             ),

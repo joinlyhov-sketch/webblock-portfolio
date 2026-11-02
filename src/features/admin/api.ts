@@ -9,15 +9,16 @@ import { adminProfile } from "@/mocks/admin-profile";
 import {
   payments,
   plans,
-  subscriptionStats,
   subscriptions,
 } from "@/mocks/admin-subscriptions";
-import { userAccounts, userStats } from "@/mocks/admin-users";
+import { userAccounts } from "@/mocks/admin-users";
 import { adminDeploys, adminWebsites } from "@/mocks/admin-websites";
+import { daysAgo } from "@/mocks/time";
 import type {
   AdminNotification,
   AdminOverview,
   AdminProfile,
+  AttentionItem,
   NotificationFilters,
   AdminWebsite,
   Deploy,
@@ -64,10 +65,109 @@ function notFound(entity: string): never {
 
 // ── Overview ─────────────────────────────────────────────────────────────────
 
+const DAY = 86_400_000;
+
+// A website's plan and end date are the subscription's (one source of truth).
+for (const w of adminWebsites) {
+  const sub = subscriptions.find((x) => x.websiteId === w.id);
+  if (sub) {
+    w.plan = sub.plan;
+    w.planEndsAt = sub.endAt;
+  }
+}
+
+/** "Live" = the site is reachable. Used by both the Overview and Users cards. */
+const liveSites = () => adminWebsites.filter((w) => w.siteStatus === "ONLINE");
+
+/**
+ * Every KPI below is counted from the same lists the screens show, so a card and the table it
+ * summarises can never disagree. The backend does the same with SQL counts.
+ */
+const isPaid = (plan: string) => plan !== "FREE_TRIAL";
+const trialsEnding = () =>
+  subscriptions.filter((s) => {
+    const left = new Date(s.endAt).getTime() - Date.now();
+    return s.plan === "FREE_TRIAL" && s.status !== "EXPIRED" && left >= 0 && left <= 3 * DAY;
+  });
+
+/** Money collected for the latest billing month = sum of PAID payments with that period. */
+function latestMonthRevenue() {
+  const paid = payments.filter((p) => p.status === "PAID");
+  const month = paid.map((p) => p.periodStart).sort().at(-1) ?? "";
+  const total = paid
+    .filter((p) => p.periodStart === month)
+    .reduce((sum, p) => sum + Number(p.amount), 0);
+  return { month, total };
+}
+
 /** GET /api/admin/overview */
 export async function getOverview(): Promise<AdminOverview> {
   await delay();
-  return adminOverview;
+  const failedSites = adminWebsites
+    .filter((w) => w.releaseStatus === "FAILED")
+    .sort((a, b) => (b.lastDeployAt ?? "").localeCompare(a.lastDeployAt ?? ""));
+  const expired = subscriptions.filter((s) => s.status === "EXPIRED");
+  const pending = subscriptions.filter((s) => s.status === "PENDING");
+  const trials = trialsEnding();
+  const latestSub = (list: Subscription[]) =>
+    [...list].sort((a, b) => b.endAt.localeCompare(a.endAt))[0];
+
+  const attention: AttentionItem[] = [
+    {
+      kind: "FAILED_DEPLOYS",
+      count: failedSites.length,
+      latestName: failedSites[0]?.name ?? null,
+      latestAt: failedSites[0]?.lastDeployAt ?? null,
+      latestOwnerName: failedSites[0]?.ownerName ?? null,
+      amountAtRisk: null,
+      retryInDays: null,
+    },
+    {
+      kind: "PLAN_EXPIRED",
+      count: expired.length,
+      latestName: latestSub(expired)?.websiteName ?? null,
+      latestAt: latestSub(expired)?.endAt ?? null,
+      latestOwnerName: latestSub(expired)?.userName ?? null,
+      amountAtRisk: null,
+      retryInDays: null,
+    },
+    {
+      kind: "PAYMENTS_PAST_DUE",
+      count: pending.length,
+      latestName: latestSub(pending)?.websiteName ?? null,
+      latestAt: latestSub(pending)?.endAt ?? null,
+      latestOwnerName: latestSub(pending)?.userName ?? null,
+      amountAtRisk: null,
+      retryInDays: null,
+    },
+    {
+      kind: "TRIALS_ENDING",
+      count: trials.length,
+      latestName: latestSub(trials)?.websiteName ?? null,
+      latestAt: latestSub(trials)?.endAt ?? null,
+      latestOwnerName: latestSub(trials)?.userName ?? null,
+      amountAtRisk: null,
+      retryInDays: null,
+    },
+  ];
+
+  // The chart's last bar is this month's real revenue; earlier months keep their shape, scaled to match.
+  const { total } = latestMonthRevenue();
+  const last = Number(adminOverview.revenueByMonth.at(-1)?.amount ?? 1);
+  const revenueByMonth = adminOverview.revenueByMonth.map((m, i, all) => ({
+    ...m,
+    amount: (i === all.length - 1 ? total : (Number(m.amount) * total) / last).toFixed(2),
+  }));
+  const since = daysAgo(30);
+
+  return {
+    newAccounts: userAccounts.filter((u) => u.joinedAt >= since).length,
+    websitesPublished: liveSites().length,
+    monthlyRevenue: total.toFixed(2),
+    failedDeploys: failedSites.length,
+    revenueByMonth,
+    attention,
+  };
 }
 
 // ── Users ────────────────────────────────────────────────────────────────────
@@ -89,7 +189,12 @@ export async function listUsers(
 /** GET /api/admin/users/stats */
 export async function getUserStats(): Promise<UserStats> {
   await delay(150);
-  return userStats;
+  return {
+    totalAccounts: userAccounts.length,
+    onFreeTrial: userAccounts.filter((u) => u.plan === "FREE_TRIAL").length,
+    paying: userAccounts.filter((u) => isPaid(u.plan) && u.status === "ACTIVE").length,
+    liveWebsites: liveSites().length,
+  };
 }
 
 /** GET /api/admin/users/{userId} */
@@ -288,7 +393,12 @@ export async function listSubscriptions(
 /** GET /api/admin/subscriptions/stats */
 export async function getSubscriptionStats(): Promise<SubscriptionStats> {
   await delay(150);
-  return subscriptionStats;
+  return {
+    monthlyRevenue: latestMonthRevenue().total.toFixed(2),
+    activePlans: subscriptions.filter((s) => s.status === "ACTIVE").length,
+    trialsEndingSoon: trialsEnding().length,
+    pending: subscriptions.filter((s) => s.status === "PENDING").length,
+  };
 }
 
 /** GET /api/admin/subscriptions/{subscriptionId} */

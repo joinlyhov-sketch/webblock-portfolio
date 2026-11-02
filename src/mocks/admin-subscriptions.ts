@@ -1,11 +1,5 @@
-import type { Payment, Plan, Subscription, SubscriptionStats } from "@/features/admin/types";
-
-export const subscriptionStats: SubscriptionStats = {
-  monthlyRevenue: "14920.00",
-  activePlans: 836,
-  trialsEndingSoon: 38,
-  pending: 14,
-};
+import type { Payment, Plan, Subscription } from "@/features/admin/types";
+import { daysFromNow } from "@/mocks/time";
 
 export const subscriptions: Subscription[] = [
   {
@@ -36,7 +30,7 @@ export const subscriptions: Subscription[] = [
     plan: "FREE_TRIAL",
     status: "PENDING",
     startAt: "2026-09-28T09:40:00Z",
-    endAt: "2026-10-12T09:40:00Z",
+    endAt: daysFromNow(2),
     redeploysLeft: 1,
     redeployLimit: 3,
   },
@@ -84,7 +78,7 @@ export const subscriptions: Subscription[] = [
     plan: "FREE_TRIAL",
     status: "PENDING",
     startAt: "2026-10-01T11:20:00Z",
-    endAt: "2026-10-15T11:20:00Z",
+    endAt: daysFromNow(3),
     redeploysLeft: 2,
     redeployLimit: 3,
   },
@@ -132,7 +126,7 @@ export const subscriptions: Subscription[] = [
     plan: "FREE_TRIAL",
     status: "ACTIVE",
     startAt: "2026-10-15T06:25:00Z",
-    endAt: "2026-10-29T06:25:00Z",
+    endAt: daysFromNow(9),
     redeploysLeft: 2,
     redeployLimit: 3,
   },
@@ -151,6 +145,38 @@ export const subscriptions: Subscription[] = [
     endAt: "2026-11-08T09:15:00Z",
     redeploysLeft: 81,
     redeployLimit: 100,
+  },
+  {
+    id: "e4a6c8f0-3b5d-4f7a-8c9e-0a2c4e6a0410",
+    userId: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0112",
+    userName: "Srey Neang",
+    userEmail: "srey@neangtailoring.com",
+    userAvatarUrl: null,
+    websiteId: "9b2d4f6a-1c3e-4a5b-8d7f-2e4c6a8b0208",
+    websiteName: "Northpoint Audio",
+    websiteDomain: "northpointaudio.webblock.com",
+    plan: "PLUS",
+    status: "EXPIRED",
+    startAt: "2026-06-12T06:30:00Z",
+    endAt: "2026-09-12T06:30:00Z",
+    redeploysLeft: 0,
+    redeployLimit: 5,
+  },
+  {
+    id: "e4a6c8f0-3b5d-4f7a-8c9e-0a2c4e6a0411",
+    userId: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0101",
+    userName: "Sovannarith Soeun",
+    userEmail: "sovannarith@gmail.com",
+    userAvatarUrl: "/mock/avatars/sovannarith-soeun.jpg",
+    websiteId: "9b2d4f6a-1c3e-4a5b-8d7f-2e4c6a8b0212",
+    websiteName: "Petal & Stem Weddings",
+    websiteDomain: "petalandstemweddings.webblock.com",
+    plan: "PRO",
+    status: "EXPIRED",
+    startAt: "2026-07-20T04:10:00Z",
+    endAt: "2026-09-20T04:10:00Z",
+    redeploysLeft: 3,
+    redeployLimit: 30,
   },
 ];
 

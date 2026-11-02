@@ -1,11 +1,4 @@
-import type { UserAccount, UserStats } from "@/features/admin/types";
-
-export const userStats: UserStats = {
-  totalAccounts: 1284,
-  onFreeTrial: 212,
-  paying: 836,
-  liveWebsites: 1047,
-};
+import type { UserAccount } from "@/features/admin/types";
 
 export const userAccounts: UserAccount[] = [
   {
@@ -101,7 +94,7 @@ export const userAccounts: UserAccount[] = [
     plan: "PLUS",
     status: "ACTIVE",
     signInMethod: "GOOGLE",
-    websiteCount: 1,
+    websiteCount: 0,
     joinedAt: "2026-10-25T08:00:00Z",
   },
   {
@@ -114,7 +107,7 @@ export const userAccounts: UserAccount[] = [
     status: "ACTIVE",
     signInMethod: "EMAIL",
     websiteCount: 1,
-    joinedAt: "2026-10-02T06:25:00Z",
+    joinedAt: "2026-10-15T06:25:00Z",
   },
   {
     id: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0110",
@@ -146,7 +139,7 @@ export const userAccounts: UserAccount[] = [
     fullName: "Srey Neang",
     email: "srey@neangtailoring.com",
     avatarUrl: null,
-    plan: "PRO",
+    plan: "PLUS",
     status: "ACTIVE",
     signInMethod: "EMAIL",
     websiteCount: 1,
@@ -161,7 +154,7 @@ export const userAccounts: UserAccount[] = [
     plan: "ULTRA",
     status: "ACTIVE",
     signInMethod: "GOOGLE",
-    websiteCount: 2,
+    websiteCount: 1,
     joinedAt: "2026-03-08T09:15:00Z",
   },
   {
@@ -173,7 +166,7 @@ export const userAccounts: UserAccount[] = [
     plan: "PLUS",
     status: "SUSPENDED",
     signInMethod: "EMAIL",
-    websiteCount: 1,
+    websiteCount: 0,
     joinedAt: "2026-06-30T12:00:00Z",
   },
   {
