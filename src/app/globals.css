@@ -75,6 +75,8 @@
   --color-browser-url: #52525b;
   --color-browser-glass: rgb(235 235 235 / 0.35); /* clear frosted browser frame: the slider shows through */
   --color-browser-page: rgb(230 230 230 / 0.75); /* frosted tint behind transparent template pages */
+  --color-glass-frame: #eef1f6; /* landing template carousel: frosted glass border, before the screenshot's colours blur into it */
+  --color-glass-rim: #ffffff; /* the light edge between the glass border and the screenshot */
   --shadow-browser: 0 24px 70px rgb(0 0 0 / 0.16);
   --shadow-browser-sm: 0 12px 35px rgb(0 0 0 / 0.16);
 
@@ -157,8 +159,8 @@
   --color-page-from: #dfe7fe;
   --color-page-via: #eef2ff;
   --color-device-monitor: #171f33;
-  --color-device-chin: #e5ebf2;
-  --color-device-stand: #ccd6e5;
+  --color-device-chin: #171f33;
+  --color-device-stand: #0b0b0d;
   --color-device-phone: #0b0b0d;
   --color-device-phone-edge: #6e7076;
   --color-device-tablet-edge: #8e9198;
@@ -717,22 +719,22 @@
 }
 
 [data-site-template="warm-bold"] {
-  --site-bg: #271b15; /* espresso page background */
-  --site-alt: #342419; /* About section, image placeholder */
-  --site-surface: #2e2019; /* dialogs, map pin card + map pill (dark, so gold pin text stays legible) */
-  --site-ink: #f6ecdc; /* cream text */
-  --site-muted: #b89e8a;
-  --site-subtle: #8c7464;
-  --site-border: #4a3528;
+  --site-bg: #fbf3e6; /* espresso page background */
+  --site-alt: #f4e7d2; /* About section, image placeholder */
+  --site-surface: #ffffff; /* dialogs, map pin card + map pill (dark, so gold pin text stays legible) */
+  --site-ink: #3a2418; /* cream text */
+  --site-muted: #7a6050;
+  --site-subtle: #a08a78;
+  --site-border: #e6d5bd;
   --site-accent: #f2b544; /* gold */
   --site-accent-fg: #271b15;
-  --site-accent-soft: #3d2c1a;
+  --site-accent-soft: #fbe8c4;
   --site-tint-1: #1a110c; /* deep band: facts strip, footer, feature-card gradient */
   --site-tint-2: #46362c;
   --site-tint-3: #4a3528;
   --site-tint-4: #f6ecdc;
-  --site-success: #7ed39a; /* dark-green "Open now" pill */
-  --site-success-soft: #1f3a2a;
+  --site-success: #1f7a45; /* dark-green "Open now" pill */
+  --site-success-soft: #e0f3e6;
   --site-map-land: #e8f0e5;
   --site-map-park: #cce3c7;
   --site-map-road: #ffffff;
@@ -771,16 +773,16 @@
 }
 [data-site-template="jackets"] {
   /* Dark page, cream cards. The cards use tint-2 (cream) with tint-3 (near-black) text. */
-  --site-bg: #0c0c0f;
-  --site-alt: #17171c;
-  --site-surface: #17171c;
-  --site-ink: #fff3e8;
-  --site-muted: #bdb7b0;
+  --site-bg: #ffffff;
+  --site-alt: #f6f3ef;
+  --site-surface: #ffffff;
+  --site-ink: #0c0c0f;
+  --site-muted: #5c5750;
   --site-subtle: #8a857f;
-  --site-border: #2c2c34;
+  --site-border: #e6e0d8;
   --site-accent: #93c5fd;
   --site-accent-fg: #0c0c0f;
-  --site-accent-soft: #1b2a3f;
+  --site-accent-soft: #e4f0fe;
   --site-tint-1: #ffe27a;
   --site-tint-2: #fff1e4;
   --site-tint-3: #0c0c0f;
@@ -800,25 +802,25 @@
 }
 [data-site-template="keyboards"] {
   /* Near-black page, hairline cards, one violet accent. Tints are the glow colours behind the photos. */
-  --site-bg: #07070a;
-  --site-alt: #0e0e13;
-  --site-surface: #0e0e13;
-  --site-ink: #f4f4f6;
-  --site-muted: #9a9aa8;
-  --site-subtle: #6c6c78;
-  --site-border: #23232c;
+  --site-bg: #f7f6fb;
+  --site-alt: #ffffff;
+  --site-surface: #ffffff;
+  --site-ink: #14141c;
+  --site-muted: #5e5e70;
+  --site-subtle: #8a8a99;
+  --site-border: #e4e4ee;
   --site-accent: #7c5cff;
   --site-accent-fg: #ffffff;
-  --site-accent-soft: #1d1840;
+  --site-accent-soft: #ebe6ff;
   --site-tint-1: #7a2d56;
   --site-tint-2: #2a3a8c;
   --site-tint-3: #1f6b46;
   --site-tint-4: #4b2fb8;
-  --site-success: #3ddc84;
-  --site-success-soft: #12261c;
-  --site-map-land: #13131a;
-  --site-map-park: #17241d;
-  --site-map-road: #22222c;
+  --site-success: #1a9e5a;
+  --site-success-soft: #e3f8ec;
+  --site-map-land: #eceaf5;
+  --site-map-park: #dff0e5;
+  --site-map-road: #ffffff;
   --site-map-pin: #7c5cff;
   --site-font-heading: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
   --site-font-body: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
