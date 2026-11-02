@@ -34,6 +34,13 @@ export function SearchInput({
 }: SearchInputProps) {
   const { setParam, pending } = useUrlParam();
   const [localValue, setLocalValue] = useState(defaultValue);
+  // Reconcile URL-driven defaults on back/forward or another filter navigation.
+  const [previousDefault, setPreviousDefault] = useState(defaultValue);
+  if (previousDefault !== defaultValue) {
+    setPreviousDefault(defaultValue);
+    // Preserve text typed while an earlier server search is still in flight.
+    if (localValue.trim() === previousDefault) setLocalValue(defaultValue);
+  }
   const controlled = onValueChange !== undefined;
   const value = controlled ? (controlledValue ?? "") : localValue;
   const setValue = controlled ? onValueChange : setLocalValue;

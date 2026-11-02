@@ -4,6 +4,7 @@ import { Check, Clock, Crown, Global, Lock1, Refresh2, ShieldTick } from "iconsa
 import { formatDayMonthYear, formatDayMonthYearTime, formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { PaidPlanCode, PaymentOrder } from "../types";
+import { PaymentConfetti } from "./payment-confetti";
 import { RedirectAfterPaid } from "./redirect-after-paid";
 import { RegenerateCodeButton } from "./regenerate-code-button";
 
@@ -249,6 +250,19 @@ export function PaymentSuccessPanel({ order, next }: { order: PaymentOrder; next
   ];
   return (
     <div className="flex w-full shrink-0 flex-col justify-center gap-[18px] self-stretch rounded-3xl px-2 py-4 motion-safe:animate-fade-up sm:px-7 sm:py-6 lg:w-[500px]">
+      <PaymentConfetti />
+      <div className="flex flex-col items-center gap-2 pb-1 text-center">
+        <span className="relative flex size-20 items-center justify-center rounded-full bg-success text-primary-foreground shadow-card motion-safe:animate-celebrate-pop">
+          <span aria-hidden className="absolute inset-0 rounded-full bg-success-soft motion-safe:animate-halo-ripple" />
+          <Check variant="Outline" aria-hidden className="relative size-9" />
+        </span>
+        <h2 className="pt-2 font-heading text-[28px] leading-9 font-semibold text-foreground sm:text-[32px] sm:leading-10">
+          Congratulations!
+        </h2>
+        <p className="text-base leading-6 text-muted-foreground">
+          Your {order.planName} plan is now active. Thank you for choosing WebBlock.
+        </p>
+      </div>
       <div className="flex flex-col gap-4 rounded-2xl border border-border bg-muted p-[22px] shadow-card motion-safe:animate-float-soft">
         <div className="flex items-center gap-3.5">
           <span className="relative flex size-10 shrink-0 items-center justify-center rounded-full bg-success-soft text-success motion-safe:animate-check-pop">

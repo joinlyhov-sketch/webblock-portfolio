@@ -26,14 +26,14 @@ export function MobileNav({ links }: { links: NavLink[] }) {
         <Logo />
         <nav aria-label="Main" className="mt-4 flex flex-col">
           {links.map((link) => (
-            <a
+            <Link
               key={link.label}
               href={link.href}
               onClick={close}
               className="rounded-lg px-3 py-3 text-base text-foreground outline-none hover:bg-primary-soft focus-visible:ring-3 focus-visible:ring-ring/40"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </nav>
         <div className="mt-auto flex flex-col gap-2">

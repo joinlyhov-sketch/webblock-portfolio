@@ -34,12 +34,12 @@ export function ProductCard({ product }: { product: Product }) {
   const { openDetails, openEdit, openDelete } = useProductDialogs();
 
   return (
-    <article className="relative flex flex-col rounded-2xl border border-border bg-background p-2 transition-[border-color,box-shadow] focus-within:border-primary/40 hover:border-primary/40 hover:shadow-card">
+    <article className="relative flex flex-col rounded-2xl border border-border bg-background p-1.5 sm:p-2 transition-[border-color,box-shadow] focus-within:border-primary/40 hover:border-primary/40 hover:shadow-card">
       <ProductImage src={product.imageUrl} alt="" sizes="(min-width: 1280px) 25vw, 50vw" className="w-full" />
-      <div className="flex flex-col gap-3 pt-3 pr-1 pb-1.5 pl-2">
+      <div className="flex flex-col gap-1.5 pt-2 pr-0.5 pb-1 pl-1.5 sm:gap-3 sm:pt-3 sm:pr-1 sm:pb-1.5 sm:pl-2">
         <div className="flex items-start gap-2">
           <div className="min-w-0 flex-1">
-            <h3 className="truncate font-sans text-[15px] leading-[22px] font-semibold text-foreground">
+            <h3 className="truncate font-sans text-sm leading-5 font-semibold text-foreground sm:text-[15px] sm:leading-[22px]">
               <button
                 type="button"
                 onClick={() => openDetails(product)}
@@ -49,7 +49,8 @@ export function ProductCard({ product }: { product: Product }) {
               </button>
             </h3>
             <p className="truncate text-[13px] leading-[19.5px] text-muted-foreground">
-              {product.category} · {product.description}
+              {product.category}
+              <span className="max-sm:hidden"> · {product.description}</span>
             </p>
           </div>
           <div className="relative z-10">
@@ -62,7 +63,7 @@ export function ProductCard({ product }: { product: Product }) {
             />
           </div>
         </div>
-        <p className="font-heading text-xl leading-[26px] font-semibold text-foreground">
+        <p className="font-heading text-base leading-6 font-semibold text-foreground sm:text-xl sm:leading-[26px]">
           {formatPrice(product.price, "USD")}
         </p>
       </div>

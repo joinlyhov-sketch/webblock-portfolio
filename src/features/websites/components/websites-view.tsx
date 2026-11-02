@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { SearchNormal1 } from "iconsax-reactjs";
 import type { PlanTier } from "@/components/common/plan-badge";
 import { EmptyState } from "@/components/common/empty-state";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { PageHeader } from "@/components/common/page-header";
 import { SearchInput } from "@/components/common/search-input";
 import { SegmentedTabs } from "@/components/common/segmented-tabs";
@@ -47,14 +48,15 @@ export function WebsitesView({
   const [websites, setWebsites] = useState(initialWebsites);
   const [status, setStatus] = useState<StatusFilter>(initialFilter.status);
   const [query, setQuery] = useState(initialFilter.q);
+  const debouncedQuery = useDebouncedValue(query);
 
   useEffect(() => {
     const params = new URLSearchParams();
     if (TAB_PARAM[status]) params.set("status", TAB_PARAM[status]);
-    if (query.trim()) params.set("q", query.trim());
+    if (debouncedQuery.trim()) params.set("q", debouncedQuery.trim());
     const search = params.toString();
     window.history.replaceState(window.history.state, "", search ? `?${search}` : window.location.pathname);
-  }, [status, query]);
+  }, [status, debouncedQuery]);
 
   const counts = useMemo<WebsiteStatusCounts>(
     () => ({
@@ -66,7 +68,7 @@ export function WebsitesView({
     [websites],
   );
 
-  const q = query.trim().toLowerCase();
+  const q = debouncedQuery.trim().toLowerCase();
   const visible = useMemo(
     () =>
       websites
