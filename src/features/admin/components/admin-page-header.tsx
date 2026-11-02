@@ -1,11 +1,7 @@
 import type { ReactNode } from "react";
 import { PageHeader } from "@/components/common/page-header";
 import { requireAdmin } from "@/lib/auth/session";
-import {
-  getAdminProfile,
-  getUnreadNotificationCount,
-  listNotifications,
-} from "../api";
+import { getAdminProfile, listNotifications } from "../api";
 import { AdminProfileMenu } from "./admin-profile-menu";
 import { NotificationsBell } from "./notifications-bell";
 
@@ -21,9 +17,8 @@ export async function AdminPageHeader({
   children?: ReactNode;
 }) {
   await requireAdmin();
-  const [notifications, unreadCount, profile] = await Promise.all([
+  const [notifications, profile] = await Promise.all([
     listNotifications({}, { page: 0, size: 20 }),
-    getUnreadNotificationCount(),
     getAdminProfile(),
   ]);
 
@@ -34,10 +29,7 @@ export async function AdminPageHeader({
       actions={
         <>
           {children}
-          <NotificationsBell
-            notifications={notifications.items}
-            unreadCount={unreadCount}
-          />
+          <NotificationsBell notifications={notifications.items} />
           <AdminProfileMenu profile={profile} />
         </>
       }

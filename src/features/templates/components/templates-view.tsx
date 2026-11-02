@@ -2,8 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Breadcrumb } from "@/components/common/breadcrumb";
+import { PageHeader } from "@/components/common/page-header";
 import { PillSelect } from "@/components/common/filter-select";
 import { SearchInput } from "@/components/common/search-input";
+import { Pill } from "@/components/common/status-badge";
 import { categoryOptions, CATEGORY_BY_PARAM } from "../categories";
 import type { Template } from "../types";
 import { TemplatesGrid } from "./templates-grid";
@@ -66,23 +68,26 @@ export function TemplatesView({
         <span aria-hidden className="absolute top-[215px] right-[17%] size-[9px] rounded-full bg-primary/20 blur-[1px]" />
         <span aria-hidden className="absolute top-[88px] right-[11%] size-1.5 rounded-full bg-primary/20" />
 
-        <p className="absolute top-[29px] left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-border bg-background py-[5px] pr-3 pl-2.5 text-xs leading-4 font-medium whitespace-pre text-brand backdrop-blur-[4px]">
-          <span aria-hidden className="text-sm leading-none">
-            ✦
-          </span>
-          {"choose  which match with your business"}
-        </p>
-
-        <div className="absolute top-[71px] left-1/2 flex w-[800px] max-w-full -translate-x-1/2 flex-col items-center px-4 text-center">
-          <h1 className="text-[44px] leading-[48px] font-semibold tracking-[-1.2px] text-heading">
-            Start from a website that
-            <br />
-            already <span className="text-primary">looks like yours</span>
-          </h1>
-          <p className="max-w-[780px] pt-2.5 text-[15px] leading-[22.5px] text-muted-foreground">
-            Same pages, different look. Pick the style that fits your brand, then swap in your name, photos and
-            prices.
-          </p>
+        <div className="absolute top-[29px] left-1/2 w-[800px] max-w-full -translate-x-1/2 px-4">
+          <PageHeader
+            align="center"
+            size="hero"
+            tone="heading"
+            className="mb-0"
+            eyebrow={
+              <Pill outline icon={<span aria-hidden>✦</span>}>
+                Choose the one that matches your business
+              </Pill>
+            }
+            title={
+              <>
+                Start from a website that
+                <br />
+                already <span className="text-primary">looks like yours</span>
+              </>
+            }
+            description="Same pages, different look. Pick the style that fits your brand, then swap in your name, photos and prices."
+          />
         </div>
 
         <div className="absolute top-[226px] left-1/2 w-[560px] max-w-full -translate-x-1/2 px-4">

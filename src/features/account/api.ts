@@ -186,7 +186,7 @@ export async function getOrderReceipt(
       { label: "Amount paid", value: formatPrice(order.amount, order.currency) },
       { label: "Status", value: "Paid" },
     ],
-    "Thank you for choosing WebBlock. Questions? Contact support from Settings.",
+    "Thank you for choosing WebBlock. Questions? Open Support in your WebBlock account.",
   );
   return { filename: `webblock-receipt-${number}.pdf`, type: "application/pdf", bytes };
 }

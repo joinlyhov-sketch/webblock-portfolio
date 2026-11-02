@@ -1,4 +1,4 @@
-import type { ComponentType } from "react";
+import type { ComponentType, ReactNode } from "react";
 import {
   Danger,
   Edit2,
@@ -64,7 +64,8 @@ export type Status =
 /** Old name of `Status`, kept so existing imports keep working. */
 export type BadgeStatus = Status;
 
-type Tone = "success" | "danger" | "info" | "warning" | "neutral" | "draft";
+export type PillTone = "success" | "danger" | "info" | "warning" | "neutral" | "draft" | "brand";
+type Tone = PillTone;
 
 type StatusMeta = {
   label: string;
@@ -90,8 +91,8 @@ const STATUS = {
   UPDATING: { label: "Updating", tone: "info", icon: Refresh2 },
   PAID: { label: "Paid", tone: "success", icon: Wallet2 },
   QUEUED: { label: "Queued", tone: "draft", icon: Edit2 },
-  PUBLISHING: { label: "Publishing", tone: "info", icon: Send2 },
-  PUBLISHED: { label: "Published", tone: "success", icon: Global },
+  PUBLISHING: { label: "Deploying", tone: "info", icon: Send2 },
+  PUBLISHED: { label: "Deployed", tone: "success", icon: Global },
   STUCK: { label: "Stuck", tone: "warning", icon: Clock },
   NONE_YET: { label: "None yet", tone: "draft", icon: Edit2 },
   BUILDING: { label: "Building", tone: "info", icon: Send2 },
@@ -113,7 +114,41 @@ const TONE = {
   warning: "bg-warning-soft text-warning",
   neutral: "bg-neutral-soft text-muted-foreground",
   draft: "bg-info-soft text-foreground-soft",
+  brand: "bg-brand-soft text-brand-strong",
 } satisfies Record<Tone, string>;
+
+/**
+ * The one pill shape in the app (24px, light tint, optional icon). `StatusBadge` is a Pill per
+ * status; use Pill directly for labels that aren't statuses ("Google sign-in", "Available").
+ * `outline` is the eyebrow look above page titles.
+ */
+export function Pill({
+  tone = "neutral",
+  outline = false,
+  icon,
+  children,
+  className,
+}: {
+  tone?: PillTone;
+  outline?: boolean;
+  icon?: ReactNode;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <span
+      data-badge
+      className={cn(
+        "inline-flex h-6 items-center gap-[5px] rounded-full px-2.5 text-xs font-medium whitespace-nowrap [&_svg]:size-3.5 [&_svg]:shrink-0",
+        outline ? "border border-eyebrow-border bg-primary-soft text-primary" : cn(TONE[tone], "shadow-button"),
+        className,
+      )}
+    >
+      {icon}
+      {children}
+    </span>
+  );
+}
 
 /** Pill with a light tint and an icon per status (Figma "Status badge"). `detail` adds " · 52 min". */
 export function StatusBadge({
@@ -128,18 +163,10 @@ export function StatusBadge({
   const meta: StatusMeta = STATUS[status];
   const Icon = meta.icon;
   return (
-    <span
-      data-badge
-      className={cn(
-        "inline-flex h-6 items-center gap-[5px] rounded-full px-2 text-xs font-medium whitespace-nowrap shadow-button",
-        TONE[meta.tone],
-        className,
-      )}
-    >
-      <Icon aria-hidden className="size-3.5" />
+    <Pill tone={meta.tone} icon={<Icon aria-hidden />} className={cn("px-2", className)}>
       {meta.label}
       {detail && <> · {detail}</>}
-    </span>
+    </Pill>
   );
 }
 

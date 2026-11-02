@@ -1,11 +1,10 @@
 "use client";
 
-import { Add, Edit2, More, Trash } from "iconsax-reactjs";
-import { Popover } from "@/components/common/popover";
+import { Add, Edit2, Trash } from "iconsax-reactjs";
+import { ActionMenu } from "@/components/common/action-menu";
 import { ProductImage } from "@/components/common/product-image";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/format";
-import { cn } from "@/lib/utils";
 import type { Product } from "../types";
 import { useProductDialogs } from "./product-dialogs";
 
@@ -29,9 +28,6 @@ export function NewCategoryButton() {
     </Button>
   );
 }
-
-const menuItem =
-  "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-[9px] text-left text-sm leading-5 font-medium outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/40 [&_svg]:size-4 [&_svg]:shrink-0";
 
 /** Grid card (Figma "Product card"): click opens the details, "…" opens Edit / Delete. */
 export function ProductCard({ product }: { product: Product }) {
@@ -57,42 +53,13 @@ export function ProductCard({ product }: { product: Product }) {
             </p>
           </div>
           <div className="relative z-10">
-            <Popover
+            <ActionMenu
               label={`More actions for ${product.name}`}
-              trigger={<More aria-hidden className="size-[18px]" />}
-              triggerClassName="size-8 rounded-[10px] text-foreground-soft transition-colors hover:bg-primary-soft"
-              panelClassName="w-[174px] rounded-[14px] p-1.5 shadow-menu"
-            >
-              {(close) => (
-                <div role="menu" className="flex flex-col">
-                  <button
-                    type="button"
-                    role="menuitem"
-                    onClick={() => {
-                      close();
-                      openEdit(product);
-                    }}
-                    className={cn(menuItem, "text-foreground hover:bg-primary-soft")}
-                  >
-                    <Edit2 aria-hidden /> Edit product
-                  </button>
-                  <div className="px-1 py-[3px]">
-                    <div className="h-px bg-border" />
-                  </div>
-                  <button
-                    type="button"
-                    role="menuitem"
-                    onClick={() => {
-                      close();
-                      openDelete(product);
-                    }}
-                    className={cn(menuItem, "text-danger hover:bg-danger-soft")}
-                  >
-                    <Trash aria-hidden /> Delete product
-                  </button>
-                </div>
-              )}
-            </Popover>
+              items={[
+                { label: "Edit product", icon: <Edit2 aria-hidden />, onSelect: () => openEdit(product) },
+                { label: "Delete product", icon: <Trash aria-hidden />, danger: true, onSelect: () => openDelete(product) },
+              ]}
+            />
           </div>
         </div>
         <p className="font-heading text-xl leading-[26px] font-semibold text-foreground">

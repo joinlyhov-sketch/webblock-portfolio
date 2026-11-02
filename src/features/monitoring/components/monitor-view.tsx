@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { Activity, Box, CloseCircle, Edit2, Send2, TickCircle } from "iconsax-reactjs";
+import { Avatar } from "@/components/common/avatar";
+import { CompactTable } from "@/components/common/compact-table";
 import { EmptyState } from "@/components/common/empty-state";
 import { PageHeader } from "@/components/common/page-header";
 import { StatusBadge } from "@/components/common/status-badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatDayMonthYear, formatDuration, formatRelativeTime, formatTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { DeployRow, MonitorView as MonitorData } from "../service";
@@ -147,63 +148,55 @@ function TableCard({ title, children }: { title: string; children: ReactNode }) 
   );
 }
 
-const head = "h-auto px-4 py-3 text-[13px] leading-normal";
-const cell = "h-[64px] px-4 py-3 text-sm";
-
 function RecentDeploys({ rows, compact, websiteId }: { rows: DeployRow[]; compact: boolean; websiteId: string }) {
   return (
     <TableCard title="Recent deploys">
-      {rows.length === 0 ? (
-        <EmptyState
-          icon={<Send2 />}
-          title="No deploys yet"
-          description="When you deploy your website, each deploy and its result shows here."
-          action={
-            <Link href={`/websites/${websiteId}/edit`} className="text-sm font-semibold text-primary hover:underline">
-              Open the editor
-            </Link>
+      <div className="px-5 pt-3 pb-2">
+        <CompactTable
+          label="Recent deploys"
+          rows={rows}
+          rowKey={(row) => row.id}
+          empty={
+            <EmptyState
+              icon={<Send2 />}
+              title="No deploys yet"
+              description="When you deploy your website, each deploy and its result shows here."
+              action={
+                <Link href={`/websites/${websiteId}/edit`} className="text-sm font-semibold text-primary hover:underline">
+                  Open the editor
+                </Link>
+              }
+            />
           }
-        />
-      ) : (
-        <Table aria-label="Recent deploys">
-          <TableHeader>
-            <TableRow>
-              <TableHead className={head}>Deploy</TableHead>
-              {!compact && <TableHead className={head}>Started by</TableHead>}
-              <TableHead className={head}>Date</TableHead>
-              {!compact && <TableHead className={head}>Live for</TableHead>}
-              <TableHead className={head}>Status</TableHead>
-              <TableHead className={cn(head, "text-right")}>Duration</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell className={cn(cell, "font-semibold tabular-nums")}>{row.number}</TableCell>
-                {!compact && (
-                  <TableCell className={cell}>
-                    <span className="flex items-center gap-2">
-                      <span
-                        aria-hidden
-                        className="flex size-6 items-center justify-center rounded-full bg-brand-soft text-[9px] font-bold text-brand-deep"
-                      >
-                        {row.startedBy.initials}
+          columns={[
+            { key: "deploy", header: "Deploy", cell: (row) => row.number, className: "font-semibold tabular-nums" },
+            ...(compact
+              ? []
+              : [
+                  {
+                    key: "by",
+                    header: "Started by",
+                    cell: (row: DeployRow) => (
+                      <span className="flex items-center gap-2">
+                        <Avatar name={row.startedBy.fullName} initials={row.startedBy.initials} src={null} className="size-6 text-[9px]" />
+                        {row.startedBy.fullName}
                       </span>
-                      {row.startedBy.fullName}
-                    </span>
-                  </TableCell>
-                )}
-                <TableCell className={cn(cell, "whitespace-nowrap")}>{dateTime(row.finishedAt)}</TableCell>
-                {!compact && <TableCell className={cell}>{liveFor(row)}</TableCell>}
-                <TableCell className={cell}>
-                  <StatusBadge status={row.status} />
-                </TableCell>
-                <TableCell className={cn(cell, "text-right tabular-nums")}>{formatDuration(row.durationSeconds)}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      )}
+                    ),
+                  },
+                ]),
+            { key: "date", header: "Date", cell: (row) => dateTime(row.finishedAt), className: "whitespace-nowrap" },
+            ...(compact ? [] : [{ key: "live", header: "Live for", cell: (row: DeployRow) => liveFor(row) }]),
+            { key: "status", header: "Status", cell: (row) => <StatusBadge status={row.status} /> },
+            {
+              key: "duration",
+              header: "Duration",
+              align: "end",
+              cell: (row) => formatDuration(row.durationSeconds),
+              className: "tabular-nums",
+            },
+          ]}
+        />
+      </div>
     </TableCard>
   );
 }
@@ -233,51 +226,64 @@ function ActivityIcon({ event }: { event: ActivityEvent }) {
 function ActivityLog({ events }: { events: ActivityEvent[] }) {
   return (
     <TableCard title="Recent activity log">
-      {events.length === 0 ? (
-        <EmptyState
-          icon={<Activity />}
-          title="No activity yet"
-          description="Deploys and changes to your products and business details show here."
+      <div className="px-5 pt-3 pb-2">
+        <CompactTable
+          label="Recent activity"
+          className="min-w-0"
+          rows={events}
+          rowKey={(event) => event.id}
+          empty={
+            <EmptyState
+              icon={<Activity />}
+              title="No activity yet"
+              description="Deploys and changes to your products and business details show here."
+            />
+          }
+          columns={[
+            {
+              key: "update",
+              header: "Update",
+              cell: (event) => (
+                <span className="flex items-center gap-2.5">
+                  <ActivityIcon event={event} />
+                  <span className="min-w-0">
+                    <span className="block text-foreground">{event.title}</span>
+                    {event.detail && <span className="block text-xs text-danger">{event.detail}</span>}
+                  </span>
+                </span>
+              ),
+            },
+            {
+              key: "type",
+              header: "Type",
+              cell: (event) => (
+                <span
+                  className={cn(
+                    "rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap",
+                    ACTIVITY_TYPE[event.type].className,
+                  )}
+                >
+                  {ACTIVITY_TYPE[event.type].label}
+                </span>
+              ),
+            },
+            {
+              // Date over time, so the narrow activity card never has to scroll sideways.
+              key: "when",
+              header: "When",
+              align: "end",
+              cell: (event) => (
+                <>
+                  <span className="block whitespace-nowrap">{formatDayMonthYear(event.occurredAt)}</span>
+                  <span className="block text-xs whitespace-nowrap text-muted-foreground">
+                    {formatTime(event.occurredAt)}
+                  </span>
+                </>
+              ),
+            },
+          ]}
         />
-      ) : (
-        <Table aria-label="Recent activity">
-          <TableHeader>
-            <TableRow>
-              <TableHead className={head}>Update</TableHead>
-              <TableHead className={head}>Type</TableHead>
-              <TableHead className={cn(head, "text-right")}>When</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {events.map((event) => {
-              const type = ACTIVITY_TYPE[event.type];
-              return (
-                <TableRow key={event.id}>
-                  <TableCell className={cell}>
-                    <span className="flex items-center gap-2.5">
-                      <ActivityIcon event={event} />
-                      <span className="min-w-0">
-                        <span className="block text-foreground">{event.title}</span>
-                        {event.detail && <span className="block text-xs text-danger">{event.detail}</span>}
-                      </span>
-                    </span>
-                  </TableCell>
-                  <TableCell className={cell}>
-                    <span className={cn("rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap", type.className)}>
-                      {type.label}
-                    </span>
-                  </TableCell>
-                  {/* Date over time, so the narrow activity card never has to scroll sideways. */}
-                  <TableCell className={cn(cell, "text-right")}>
-                    <span className="block whitespace-nowrap">{formatDayMonthYear(event.occurredAt)}</span>
-                    <span className="block text-xs whitespace-nowrap text-muted-foreground">{formatTime(event.occurredAt)}</span>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      )}
+      </div>
     </TableCard>
   );
 }

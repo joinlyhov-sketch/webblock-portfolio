@@ -16,6 +16,13 @@ import {
   Setting5,
   Shop,
 } from "iconsax-reactjs";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import type { NavIcon, NavItem } from "@/config/nav";
 import { cn } from "@/lib/utils";
 
@@ -111,7 +118,10 @@ function NavLink({
   );
 }
 
-/** Item with sub-pages: a toggle button, open while one of its pages is showing. */
+/**
+ * Item with sub-pages: a toggle button, open while one of its pages is showing. In the collapsed
+ * rail the sub-pages (which have no icons) open as a flyout menu beside the icon instead.
+ */
 function NavGroup({
   item,
   pathname,
@@ -128,21 +138,20 @@ function NavGroup({
   const listId = `nav-group-${item.href.replace(/\W+/g, "-")}`;
   const expanded = open || inside;
 
+  if (collapsed) return <CollapsedNavGroup item={item} pathname={pathname} inside={inside} compact={compact} />;
+
   return (
     <div>
       <button
         type="button"
-        title={collapsed ? item.label : undefined}
         aria-expanded={expanded}
         aria-controls={listId}
         onClick={() => setOpen((o) => !o)}
-        className={cn(itemClass(false, compact, collapsed), inside && "text-foreground")}
+        className={cn(itemClass(false, compact), inside && "text-foreground")}
       >
         <NavIconGlyph item={item} compact={compact} />
-        <span className={cn("flex-1 text-left", collapsed && "sr-only")}>{item.label}</span>
-        {!collapsed && (
-          <ArrowRight2 aria-hidden className={cn("size-4 transition-transform duration-150", expanded && "rotate-90")} />
-        )}
+        <span className="flex-1 text-left">{item.label}</span>
+        <ArrowRight2 aria-hidden className={cn("size-4 transition-transform duration-150", expanded && "rotate-90")} />
       </button>
       {/* Slides open/closed (grid rows 0fr ⇄ 1fr) instead of popping; `inert` keeps hidden links out of Tab. */}
       <div
@@ -154,22 +163,58 @@ function NavGroup({
       >
         {/* Padding offset by negative margin: room for the links' focus ring inside the clip. */}
         <div className="-mx-1 -mb-1 overflow-hidden px-1 pb-1">
-          <div
-            id={listId}
-            className={cn("mt-1 flex flex-col gap-1", collapsed ? "" : "ml-[21px] border-l border-border pl-3")}
-          >
+          <div id={listId} className="mt-1 ml-[21px] flex flex-col gap-1 border-l border-border pl-3">
             {item.children?.map((child) => (
-              <NavLink
-                key={child.href}
-                item={child}
-                active={isActive(pathname, child)}
-                compact={compact}
-                collapsed={collapsed}
-              />
+              <NavLink key={child.href} item={child} active={isActive(pathname, child)} compact={compact} />
             ))}
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+/** Collapsed rail version of a group: the icon opens its sub-pages in a menu to the right. */
+function CollapsedNavGroup({
+  item,
+  pathname,
+  inside,
+  compact,
+}: {
+  item: NavItem;
+  pathname: string;
+  inside: boolean;
+  compact: boolean;
+}) {
+  return (
+    <DropdownMenu modal={false}>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          title={item.label}
+          aria-label={item.label}
+          className={cn(itemClass(inside, compact, true), "data-[state=open]:bg-muted")}
+        >
+          <NavIconGlyph item={item} compact={compact} />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent side="right" align="start" sideOffset={12} className="min-w-[200px]">
+        <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">{item.label}</DropdownMenuLabel>
+        {item.children?.map((child) => {
+          const active = isActive(pathname, child);
+          return (
+            <DropdownMenuItem
+              key={child.href}
+              asChild
+              className={cn(active && "bg-brand-soft font-semibold text-brand-deep focus:bg-brand-soft focus:text-brand-deep")}
+            >
+              <Link href={child.href} aria-current={active ? "page" : undefined}>
+                {child.label}
+              </Link>
+            </DropdownMenuItem>
+          );
+        })}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

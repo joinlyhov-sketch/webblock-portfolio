@@ -18,6 +18,14 @@ paths:
 Check `components/common/` first. Never create a second badge, modal, table, toast or tab style.
 - Every status → `StatusBadge` (pill, light tint, icon per status, normal case, no border).
   Its status map uses `satisfies Record<Status, StatusMeta>` so a new status fails the build.
+  Labels that aren't statuses ("Google sign-in", "Available", eyebrows) → `Pill` from the same file
+  (one 24px height; `outline` = eyebrow look). Never hand-roll a `rounded-full bg-*-soft` pill.
+- Every page title → `PageHeader` (`eyebrow`, `align="center"` for one-task screens, `size="hero"` inside
+  a banner, `tone="heading"` for navy heroes with a `text-primary` highlight, `tone="danger"` for failures).
+- Small unpaginated tables inside a card ("Recent deploys", logs) → `CompactTable` (`dense` for logs).
+- Notification bells → `NotificationBell` / `NotificationList` + `useNotifications` (`common/notifications`);
+  the feature only maps its data to `NotificationEntry` and passes its actions.
+- Floating panels → `ui/popover` (Radix). Leave/unsaved-changes questions → `ConfirmDialog`, never `window.confirm`.
 - Every button → `Button` from `ui/button` (Figma "Button" + "Icon button"). Variants: `primary`
   (one per view), `secondary`, `soft` (Edit, Use template), `ghost`, `dark`, `danger`, `white`.
   Sizes `sm | md | lg` and `icon-sm | icon | icon-lg`. Hover/press motion, `loading` and focus ring are

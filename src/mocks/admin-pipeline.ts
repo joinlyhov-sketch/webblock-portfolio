@@ -4,6 +4,7 @@ import type {
   PipelineStep,
   StepStatus,
 } from "@/features/admin/monitoring/types";
+import { at } from "./time";
 
 const TITLES = [
   "Request received",
@@ -42,12 +43,13 @@ function steps(
   });
 }
 
-export const pipelineRuns: PipelineRun[] = [
+// No image here: `features/admin/monitoring/api.ts` adds it from the website itself.
+export const pipelineRuns: Omit<PipelineRun, "thumbnailUrl">[] = [
   {
     id: "7a1c3e5f-9b2d-4f6a-8c1e-3a5c7e9b0801",
     websiteId: "9b2d4f6a-1c3e-4a5b-8d7f-2e4c6a8b0220",
-    websiteName: "Kiln Coffee",
-    domain: "kilncoffee.webblock.com",
+    websiteName: "Mekong Brew Bar",
+    domain: "mekongbrew.webblock.com",
     ownerName: "Lina Tha",
     stage: "REQUEST",
     requestStatus: "QUEUED",
@@ -94,8 +96,8 @@ export const pipelineRuns: PipelineRun[] = [
             status: "PASSED",
           },
           {
-            title: "No other publish running",
-            detail: "no earlier publish",
+            title: "No other deploy running",
+            detail: "no earlier deploy",
             status: "PASSED",
           },
           {
@@ -107,7 +109,7 @@ export const pipelineRuns: PipelineRun[] = [
       },
     },
     live: null,
-    updatedAt: "2026-10-22T04:32:00Z",
+    updatedAt: at("2026-11-01T11:32:00Z"),
   },
   {
     id: "7a1c3e5f-9b2d-4f6a-8c1e-3a5c7e9b0802",
@@ -173,7 +175,7 @@ export const pipelineRuns: PipelineRun[] = [
       ],
     },
     live: null,
-    updatedAt: "2026-10-22T02:50:00Z",
+    updatedAt: at("2026-11-01T09:50:00Z"),
   },
   {
     id: "7a1c3e5f-9b2d-4f6a-8c1e-3a5c7e9b0803",
@@ -233,7 +235,7 @@ export const pipelineRuns: PipelineRun[] = [
       ],
     },
     live: null,
-    updatedAt: "2026-10-22T04:31:00Z",
+    updatedAt: at("2026-11-01T11:31:00Z"),
   },
   {
     id: "7a1c3e5f-9b2d-4f6a-8c1e-3a5c7e9b0804",
@@ -299,7 +301,7 @@ export const pipelineRuns: PipelineRun[] = [
       ],
     },
     live: null,
-    updatedAt: "2026-10-22T03:43:00Z",
+    updatedAt: at("2026-11-01T10:43:00Z"),
   },
   {
     id: "7a1c3e5f-9b2d-4f6a-8c1e-3a5c7e9b0805",
@@ -366,80 +368,7 @@ export const pipelineRuns: PipelineRun[] = [
       ],
     },
     live: null,
-    updatedAt: "2026-10-22T04:29:00Z",
-  },
-  {
-    id: "7a1c3e5f-9b2d-4f6a-8c1e-3a5c7e9b0806",
-    websiteId: "9b2d4f6a-1c3e-4a5b-8d7f-2e4c6a8b0208",
-    websiteName: "Northpoint Audio",
-    domain: "northpointaudio.webblock.com",
-    ownerName: "Sovannarith Soeun",
-    stage: "RELEASE",
-    requestStatus: "PUBLISHED",
-    requestStuckMinutes: null,
-    releaseState: "READY",
-    currentStep: 6,
-    steps: steps(6, "WAITING", [
-      "0b5a7e13 · 11:05",
-      "run 1 accepted",
-      "commit 61d0e8f",
-      "attempt 1 · 3m 40s",
-      "checks passed",
-      "waits: promote cmd",
-    ]),
-    current: {
-      checkGroup: {
-        title: "Checks before going live",
-        checks: [
-          {
-            title: "Private checks passed",
-            detail: "3 of 3",
-            status: "PASSED",
-          },
-          {
-            title: "SSL certificate valid",
-            detail: "until 11 Dec 2026",
-            status: "PASSED",
-          },
-          {
-            title: "Hosting active",
-            detail: "suspended by an admin",
-            status: "FAILED",
-          },
-          {
-            title: "Promote command",
-            detail: "waits for hosting to resume",
-            status: "PENDING",
-          },
-        ],
-      },
-      phase: "PROVISIONING",
-      title: "Go live",
-      status: "WAITING",
-      tags: ["ready to promote"],
-      facts: [
-        {
-          label: "Ready since",
-          value: "11:27",
-          hint: "private checks passed",
-          tone: "default",
-        },
-        {
-          label: "Waiting for",
-          value: "promote command",
-          hint: "hosting is suspended by an admin",
-          tone: "info",
-        },
-        {
-          label: "Live release",
-          value: "R-2702 · kept",
-          hint: null,
-          tone: "default",
-        },
-      ],
-    },
-    live: null,
-    updatedAt: "2026-10-22T04:27:00Z",
+    updatedAt: at("2026-11-01T11:29:00Z"),
   },
   {
     id: "7a1c3e5f-9b2d-4f6a-8c1e-3a5c7e9b0808",
@@ -514,7 +443,7 @@ export const pipelineRuns: PipelineRun[] = [
       ],
     },
     live: null,
-    updatedAt: "2026-10-22T02:36:00Z",
+    updatedAt: at("2026-11-01T09:36:00Z"),
   },
   {
     id: "7a1c3e5f-9b2d-4f6a-8c1e-3a5c7e9b0809",
@@ -573,7 +502,7 @@ export const pipelineRuns: PipelineRun[] = [
       ],
     },
     live: null,
-    updatedAt: "2026-10-03T07:31:00Z",
+    updatedAt: at("2026-10-03T07:31:00Z"),
   },
   {
     id: "7a1c3e5f-9b2d-4f6a-8c1e-3a5c7e9b0811",
@@ -604,7 +533,7 @@ export const pipelineRuns: PipelineRun[] = [
       facts: [],
     },
     live: {
-      liveSince: "2026-09-29T08:00:00Z",
+      liveSince: at("2026-09-29T08:00:00Z"),
       release: "R-2949",
       previousRelease: "R-2911",
       requests5m: 412,
@@ -613,7 +542,7 @@ export const pipelineRuns: PipelineRun[] = [
       avgResponseMs: 39,
       logCounts: { INFO: 412, WARN: 0, ERROR: 0 },
     },
-    updatedAt: "2026-09-29T08:00:00Z",
+    updatedAt: at("2026-09-29T08:00:00Z"),
   },
   {
     id: "7a1c3e5f-9b2d-4f6a-8c1e-3a5c7e9b0812",
@@ -644,7 +573,7 @@ export const pipelineRuns: PipelineRun[] = [
       facts: [],
     },
     live: {
-      liveSince: "2026-10-25T14:12:00Z",
+      liveSince: at("2026-10-25T14:12:00Z"),
       release: "R-3190",
       previousRelease: "R-3150",
       requests5m: 96,
@@ -653,7 +582,7 @@ export const pipelineRuns: PipelineRun[] = [
       avgResponseMs: 61,
       logCounts: { INFO: 94, WARN: 1, ERROR: 1 },
     },
-    updatedAt: "2026-10-25T14:12:00Z",
+    updatedAt: at("2026-10-25T14:12:00Z"),
   },
 ];
 
@@ -662,7 +591,7 @@ export const liveLogs: (LogLine & { websiteId: string })[] = [
   {
     id: "l-0201",
     websiteId: "9b2d4f6a-1c3e-4a5b-8d7f-2e4c6a8b0207",
-    at: "2026-10-03T08:00:12.001Z",
+    at: at("2026-10-03T08:00:12.001Z"),
     level: "INFO",
     method: "GET",
     path: "/",
@@ -673,7 +602,7 @@ export const liveLogs: (LogLine & { websiteId: string })[] = [
   {
     id: "l-0202",
     websiteId: "9b2d4f6a-1c3e-4a5b-8d7f-2e4c6a8b0207",
-    at: "2026-10-03T08:00:10.480Z",
+    at: at("2026-10-03T08:00:10.480Z"),
     level: "INFO",
     method: "GET",
     path: "/services",
@@ -684,7 +613,7 @@ export const liveLogs: (LogLine & { websiteId: string })[] = [
   {
     id: "l-0301",
     websiteId: "9b2d4f6a-1c3e-4a5b-8d7f-2e4c6a8b0210",
-    at: "2026-10-26T05:10:02.340Z",
+    at: at("2026-10-26T05:10:02.340Z"),
     level: "ERROR",
     method: "GET",
     path: "/menu",
@@ -695,7 +624,7 @@ export const liveLogs: (LogLine & { websiteId: string })[] = [
   {
     id: "l-0302",
     websiteId: "9b2d4f6a-1c3e-4a5b-8d7f-2e4c6a8b0210",
-    at: "2026-10-26T05:09:58.010Z",
+    at: at("2026-10-26T05:09:58.010Z"),
     level: "INFO",
     method: "GET",
     path: "/",

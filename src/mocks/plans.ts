@@ -3,13 +3,14 @@ import type { Plan } from "@/features/landing/types";
 export const plans: Plan[] = [
   {
     id: "5b0f7a52-2a3e-4c1d-9f35-6c2d1e8a4b01",
-    code: "TRIAL",
+    code: "FREE_TRIAL",
     name: "Free trial",
-    priceMonthly: "0",
+    priceMonthly: "0.00",
     currency: "USD",
     trialDays: 14,
     websiteLimit: 1,
-    redeploysPerMonth: 5,
+    // First deploy only: the trial has no redeploys.
+    redeploysPerMonth: 0,
     productLimit: 30,
     logsEnabled: false,
     popular: false,

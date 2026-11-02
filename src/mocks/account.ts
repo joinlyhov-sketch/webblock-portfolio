@@ -5,7 +5,7 @@ export const profiles: Profile[] = [
   {
     id: "0f8a2c4e-5b1d-4e7a-9c3f-2d6b8e1a7c90",
     fullName: "Sovannarith Soeun",
-    initials: "SV",
+    initials: "SS",
     email: "sovannarith@gmail.com",
     avatarUrl: "/mock/avatars/sovannarith-soeun.jpg",
     plan: "FREE_TRIAL",
@@ -17,10 +17,10 @@ export const profiles: Profile[] = [
   },
   {
     id: "5c2e7a91-3d4b-4f6e-8a1c-9b0d2e3f4a51",
-    fullName: "Dara Admin",
-    initials: "DA",
-    email: "admin@webblock.app",
-    avatarUrl: null,
+    fullName: "Uy Chakriya",
+    initials: "UC",
+    email: "admin@webblock.com",
+    avatarUrl: "/mock/avatars/chakriya-uy.jpg",
     plan: "PLUS",
     memberSince: daysAgo(66),
     lastSignInAt: daysAgo(1),
@@ -68,13 +68,9 @@ export const subscriptions: Record<string, Subscription> = {
 /** A trial user has nothing to pay yet, so the list starts empty. */
 export const planOrders: Record<string, PlanOrder[]> = {
   "0f8a2c4e-5b1d-4e7a-9c3f-2d6b8e1a7c90": [],
-  "5c2e7a91-3d4b-4f6e-8a1c-9b0d2e3f4a51": [
-    // One website (Plus allows one): Still Point Studio. Paid after the trial ended, a Pro upgrade QR
-    // that was never paid, then the renewal 14 days ago (renews in 16 = 30-day period).
-    { id: "a1f0c2d4-0001-4a10-9b01-000000000001", plan: "PRO", planName: "Pro plan", websiteName: "Still Point Studio", period: "Monthly", createdAt: daysAgo(21), amount: "19.99", currency: "USD", status: "EXPIRED" },
-    { id: "a1f0c2d4-0001-4a10-9b01-000000000002", plan: "PLUS", planName: "Plus plan", websiteName: "Still Point Studio", period: "Monthly", createdAt: daysAgo(51), amount: "9.99", currency: "USD", status: "PAID" },
-    { id: "a1f0c2d4-0001-4a10-9b01-000000000003", plan: "PLUS", planName: "Plus plan", websiteName: "Still Point Studio", period: "Monthly · renewal", createdAt: daysAgo(14), amount: "9.99", currency: "USD", status: "PAID" },
-  ],
+  // The admin doesn't build websites, so there is nothing to pay. ("Still Point Studio" is David Lim's
+  // website in the admin data, not the admin's.)
+  "5c2e7a91-3d4b-4f6e-8a1c-9b0d2e3f4a51": [],
 };
 
 export const planFilterOptions = [

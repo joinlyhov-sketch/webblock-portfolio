@@ -9,7 +9,7 @@ export async function OwnerSidebar({ websiteId }: { websiteId: string }) {
   const [website, profile] = await Promise.all([getWebsite(websiteId), getProfileView(user.id)]);
   return (
     <OwnerSidebarShell
-      website={{ id: website.id, name: website.name, domain: website.domain }}
+      website={{ id: website.id, name: website.name, domain: website.domain, status: website.status }}
       profile={profile}
     />
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { Breadcrumb } from "@/components/common/breadcrumb";
+import { PageHeader } from "@/components/common/page-header";
 import { PillTabs } from "./pill-tabs";
 import { SettingsArt } from "./settings-art";
 
@@ -13,10 +14,7 @@ export function SettingsHeader({ tab, onTab }: { tab: SettingsTab; onTab: (tab: 
       <SettingsArt />
       <Breadcrumb current="Settings" />
       <div className="flex flex-col gap-4">
-        <div>
-          <h1 className="text-[30px] leading-[34.5px] font-semibold tracking-[-0.6px] text-primary">Settings</h1>
-          <p className="pt-1 text-sm leading-[21px] text-muted-foreground">Manage your personal information.</p>
-        </div>
+        <PageHeader className="mb-0" title="Settings" description="Manage your personal information." />
         <PillTabs
           label="Settings sections"
           tabs={[

@@ -1,12 +1,17 @@
 import Link from "next/link";
 import {
+  CalendarAdd,
+  CalendarRemove,
   Card as CardIcon,
   Clock,
   Crown1,
   Danger,
   DocumentText,
   DollarCircle,
+  Global,
   MinusCirlce,
+  Refresh2,
+  Receipt2,
   SearchNormal1,
   Sms,
   TickCircle,
@@ -43,7 +48,11 @@ import type {
   SubscriptionStatus,
 } from "../types";
 import { AdminPageHeader } from "./admin-page-header";
-import { DetailHero, DetailSection, HeroChip } from "./detail-hero";
+import { DetailCard, DetailHero, HeroChip } from "./detail-hero";
+
+/** "3 of 30", or "First deploy only" on the free trial (it has no redeploys). */
+const redeploysText = (s: { redeploysLeft: number; redeployLimit: number }) =>
+  s.redeployLimit === 0 ? "First deploy only" : `${s.redeploysLeft} of ${s.redeployLimit}`;
 const STATUSES: SubscriptionStatus[] = [
   "ACTIVE",
   "PENDING",
@@ -74,7 +83,7 @@ export function SubscriptionsView({
     <>
       <AdminPageHeader
         title="Subscriptions"
-        description="Plans, trials and payments for every project."
+        description="Plans, trials and payments for every website."
       />
       <KpiGrid>
         <KpiCard
@@ -115,7 +124,7 @@ export function SubscriptionsView({
           <>
             <TableSearch
               searchParams={searchParams}
-              placeholder="Search by user or project"
+              placeholder="Search by user or website"
             />
             <FilterMenu
               label="Status"
@@ -179,6 +188,7 @@ export function SubscriptionsView({
           {
             key: "user",
             header: "User · project",
+            className: "w-[28%]",
             sortField: "userName",
             cell: (s) => (
               // Stretched link: the whole row opens the popup.
@@ -243,10 +253,10 @@ export function SubscriptionsView({
               <span
                 className={cn(
                   "tabular-nums",
-                  s.redeploysLeft === 0 && "font-semibold text-danger",
+                  s.redeployLimit > 0 && s.redeploysLeft === 0 && "font-semibold text-danger",
                 )}
               >
-                {s.redeploysLeft} of {s.redeployLimit}
+                {redeploysText(s)}
               </span>
             ),
           },
@@ -302,7 +312,7 @@ function statusCallout(s: Subscription) {
       );
   }
 }
-function SubscriptionDetail({
+export function SubscriptionDetail({
   subscription: s,
   payments,
   closeHref,
@@ -315,7 +325,9 @@ function SubscriptionDetail({
     <Modal
       title={`${s.userName} · ${s.websiteName}`}
       hideTitle
-      size="lg"
+      size="xl"
+      // Same fixed size as the website popup; the body scrolls inside it.
+      className="h-[700px]"
       closeHref={closeHref}
     >
       <DetailHero
@@ -339,29 +351,40 @@ function SubscriptionDetail({
       />
       <div className="space-y-5 px-6 py-5">
         {statusCallout(s)}
-        <DetailSection title="Subscription details" icon={<DocumentText />}>
+        <DetailCard title="Subscription details" icon={<DocumentText />}>
           <DetailList
+            className="rounded-none border-0 [&>div]:px-1"
             items={[
-              { label: "Plan", value: planLabel(s.plan) },
-              { label: "Project", value: s.websiteName },
-              { label: "Status", value: statusLabel(s.status) },
-              { label: "Start date", value: formatDate(s.startAt) },
-              { label: "End date", value: formatDate(s.endAt) },
+              { icon: <Crown1 />, label: "Plan", value: <PlanBadge plan={s.plan} /> },
+              { icon: <Global />, label: "Project", value: s.websiteName },
+              { icon: <TickCircle />, label: "Status", value: <StatusBadge status={s.status} /> },
+              { icon: <CalendarAdd />, label: "Start date", value: formatDate(s.startAt) },
+              { icon: <CalendarRemove />, label: "End date", value: formatDate(s.endAt) },
               {
+                icon: <Refresh2 />,
                 label: "Redeploys left",
-                value: `${s.redeploysLeft} of ${s.redeployLimit}`,
+                value: redeploysText(s),
               },
             ]}
           />
-        </DetailSection>
-        <DetailSection title="Payment history" icon={<Wallet2 />}>
+        </DetailCard>
+        <DetailCard title="Payment history" icon={<Wallet2 />} aside={`${payments.items.length} payments`}>
           {payments.items.length ? (
-            <ul className="divide-y divide-border rounded-2xl border border-border text-[13px]">
+            <ul className="divide-y divide-border text-[13px]">
               {payments.items.map((p) => (
                 <li
                   key={p.id}
-                  className="flex items-center gap-3 px-3.5 py-2.5"
+                  className="flex items-center gap-3 px-1 py-3"
                 >
+                  <span
+                    aria-hidden
+                    className={cn(
+                      "grid size-7 shrink-0 place-items-center rounded-full [&_svg]:size-3.5",
+                      p.status === "FAILED" ? "bg-danger-soft text-danger" : "bg-success-soft text-success",
+                    )}
+                  >
+                    {p.status === "FAILED" ? <Danger /> : <Receipt2 />}
+                  </span>
                   <span className="font-semibold text-brand">
                     {planLabel(p.plan)} plan · {formatMonth(p.periodStart)}
                     {p.status === "FAILED" && " · failed"}
@@ -381,11 +404,11 @@ function SubscriptionDetail({
               ))}
             </ul>
           ) : (
-            <p className="rounded-2xl border border-dashed border-border px-4 py-5 text-center text-[13px] text-muted-foreground">
+            <p className="py-6 text-center text-[13px] text-muted-foreground">
               No payments yet — free trials aren&apos;t billed.
             </p>
           )}
-        </DetailSection>
+        </DetailCard>
       </div>
     </Modal>
   );

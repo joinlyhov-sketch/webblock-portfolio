@@ -68,7 +68,7 @@ export function VersionHistoryDialog({
           <div className="min-w-0">
             <h2 className="font-heading text-base font-semibold">Version history</h2>
             <p className="truncate text-[13px] text-muted-foreground">
-              Every time {websiteName} was published. Saving a draft never changes the live site.
+              Every time {websiteName} was deployed. Saving a draft never changes the live site.
             </p>
           </div>
           <button
@@ -87,7 +87,7 @@ export function VersionHistoryDialog({
           ))}
           {error && <li role="alert" className="py-6 text-center text-[13px] text-danger">{error}</li>}
           {versions?.length === 0 && (
-            <li className="py-8 text-center text-[13px] text-muted-foreground">No published versions yet. Publish your website to create the first one.</li>
+            <li className="py-8 text-center text-[13px] text-muted-foreground">No deployed versions yet. Deploy your website to create the first one.</li>
           )}
           {versions?.map((version) => (
             <li key={version.id} className="flex items-center gap-3 rounded-xl border border-border px-4 py-3">
@@ -97,7 +97,7 @@ export function VersionHistoryDialog({
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold">{formatDateTime(version.publishedAt)}</p>
                 <p className="text-xs text-muted-foreground">
-                  {version.current ? "Live now" : `Published ${formatRelativeTime(version.publishedAt)}`}
+                  {version.current ? "Live now" : `Deployed ${formatRelativeTime(version.publishedAt)}`}
                 </p>
               </div>
               {!version.current && (

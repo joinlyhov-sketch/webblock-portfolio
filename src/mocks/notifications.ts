@@ -14,8 +14,8 @@ export const notifications: AppNotification[] = [
   {
     id: "a1f0c2d4-1111-4a5b-8c6d-0e1f2a3b4c02",
     title: "Northpoint Audio",
-    message: "Website suspended · reactivate it any time.",
-    kind: "WARNING",
+    message: "Draft saved · deploy it when you’re ready.",
+    kind: "INFO",
     imageUrl: "/mock/templates/clean-mono.png",
     createdAt: hoursAgo(3),
     read: false,
@@ -32,7 +32,7 @@ export const notifications: AppNotification[] = [
   {
     id: "a1f0c2d4-1111-4a5b-8c6d-0e1f2a3b4c04",
     title: "WebBlock Support",
-    message: "We replied to your message about your domain.",
+    message: "We replied to your message about your website address.",
     kind: "INFO",
     imageUrl: null,
     createdAt: hoursAgo(5),
@@ -41,7 +41,7 @@ export const notifications: AppNotification[] = [
   {
     id: "a1f0c2d4-1111-4a5b-8c6d-0e1f2a3b4c05",
     title: "Lantern Café",
-    message: "Draft saved · publish when you’re ready.",
+    message: "Draft saved · deploy it when you’re ready.",
     kind: "INFO",
     imageUrl: "/mock/templates/warm-bold.png",
     createdAt: daysAgo(4),
@@ -49,8 +49,8 @@ export const notifications: AppNotification[] = [
   },
   {
     id: "a1f0c2d4-1111-4a5b-8c6d-0e1f2a3b4c06",
-    title: "Maple & Rye",
-    message: "Website created from the Sweet pastel template.",
+    title: "Maple & Rye Bakery",
+    message: "Website created from the Candy pastel template.",
     kind: "SUCCESS",
     imageUrl: "/mock/templates/sweet-pastel.png",
     createdAt: daysAgo(1),

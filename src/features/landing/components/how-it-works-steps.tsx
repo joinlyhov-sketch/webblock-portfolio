@@ -12,7 +12,7 @@ const steps = [
     text: "Change text, images, colors and layout, or ask WebBlock AI to do it for you.",
   },
   {
-    title: "Publish",
+    title: "Deploy",
     text: "Go live in minutes on your free webblock.com address.",
   },
 ];

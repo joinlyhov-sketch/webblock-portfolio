@@ -17,6 +17,7 @@ export function SidebarShell({
   footer,
   compact = false,
   collapsed = false,
+  narrow = collapsed,
   onToggleCollapsed,
 }: {
   label?: string;
@@ -27,14 +28,16 @@ export function SidebarShell({
   compact?: boolean;
   /** Icon-only rail: logo mark, nav icons, footer stacked. */
   collapsed?: boolean;
+  /** Rail width. Defaults to `collapsed`; pass it separately (see `useSidebarCollapse`) to stage the animation. */
+  narrow?: boolean;
   onToggleCollapsed?: () => void;
 }) {
   return (
     <aside
       className={cn(
-        "sticky top-0 flex h-dvh shrink-0 flex-col gap-1.5 border-r border-border bg-background transition-[width] duration-200",
+        "sticky top-0 flex h-dvh shrink-0 flex-col gap-1.5 overflow-hidden border-r border-border bg-background transition-[width] duration-200 ease-out motion-reduce:transition-none",
         compact ? "px-3 py-4" : "px-4 py-[22px]",
-        collapsed ? "w-[72px]" : compact ? "w-[232px]" : "w-[260px]",
+        narrow ? "w-[72px]" : compact ? "w-[232px]" : "w-[260px]",
       )}
     >
       <div className={cn("mb-4 flex items-center pt-1", collapsed ? "flex-col gap-3" : "justify-between gap-2")}>
@@ -48,8 +51,8 @@ export function SidebarShell({
         {onToggleCollapsed && (
           <button
             type="button"
-            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            aria-expanded={!collapsed}
+            aria-label={narrow ? "Expand sidebar" : "Collapse sidebar"}
+            aria-expanded={!narrow}
             onClick={onToggleCollapsed}
             className="flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-background text-foreground-soft outline-none transition-colors hover:bg-primary-soft focus-visible:ring-3 focus-visible:ring-ring/40"
           >

@@ -8,10 +8,10 @@ export const cleanMonoContent: CleanMonoContent = {
     phone: "012 345 678",
     email: "hello@northpointaudio.com",
     address: "Floor 2, Sorya Center, Phnom Penh",
-    hours: [{ days: "Mon – Sun", hours: "10:00 – 20:00" }],
+    hours: [{ days: "Mon – Sun", hours: "10:00 AM – 8:00 PM" }],
   },
-  openNowLabel: "Open now · until 20:00",
-  todayHours: "10:00 – 20:00",
+  openNowLabel: "Open now · until 8:00 PM",
+  todayHours: "10:00 AM – 8:00 PM",
   hero: {
     eyebrow: "NP-01 — OVER-EAR WIRELESS · NEW THIS SEASON",
     titleLines: ["Sound you", "can feel."],
@@ -55,7 +55,7 @@ export const cleanMonoContent: CleanMonoContent = {
     stats: [
       { value: "120+", label: "products you can try in person" },
       { value: "1", label: "listening bar, zero pressure" },
-      { value: "7", label: "days a week, 10:00 – 20:00" },
+      { value: "7", label: "days a week, 10:00 AM – 8:00 PM" },
     ],
     imageUrl: img("about"),
     imageAlt: "The listening bar inside the store",

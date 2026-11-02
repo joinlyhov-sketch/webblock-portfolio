@@ -5,7 +5,7 @@ export const billingPlans: BillingPlan[] = [
   {
     code: "FREE_TRIAL",
     name: "Free trial",
-    monthlyPrice: "0",
+    monthlyPrice: "0.00",
     popular: false,
     features: [
       { icon: "clock", text: "Free for 14 days" },

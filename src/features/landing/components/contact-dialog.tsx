@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type ChangeEvent, type FocusEvent, type FormEvent } from "react";
 import { CloseCircle, Profile, Sms, TickCircle } from "iconsax-reactjs";
 import { FormField } from "@/components/common/form-field";
 import { Modal } from "@/components/common/modal";
@@ -10,7 +10,14 @@ import { Textarea } from "@/components/ui/textarea";
 import type { ActionResult } from "@/lib/actions/result";
 import { siteConfig } from "@/config/site";
 import { CONTACT_HASH } from "../content";
-import { CONTACT_LIMITS as LIMITS, parseContact, type FieldErrors } from "../schemas";
+import {
+  CONTACT_LIMITS as LIMITS,
+  contactFieldError,
+  contactNameTypingError,
+  parseContact,
+  type ContactField,
+  type FieldErrors,
+} from "../schemas";
 import type { ContactReceipt } from "../service";
 
 const labelClass = "text-[13px] leading-[19.5px]";
@@ -46,11 +53,14 @@ export function ContactDialog() {
   const [open, close] = useContactHash();
 
   return (
-    <Modal open={open} onClose={close} label="Mail to us" className="max-w-[520px] rounded-[24px]">
+    <Modal open={open} onClose={close} label="Talk to us" className="max-w-[520px] rounded-[24px]">
       <ContactForm onClose={close} />
     </Modal>
   );
 }
+
+/** Field order on screen, to focus the first one with an error. */
+const FIELDS: ContactField[] = ["name", "email", "message"];
 
 /** Mounted fresh each time the popup opens (Modal unmounts closed content), so it always starts empty. */
 function ContactForm({ onClose }: { onClose: () => void }) {
@@ -65,7 +75,12 @@ function ContactForm({ onClose }: { onClose: () => void }) {
     const checked = parseContact(Object.fromEntries(formData));
     setErrors(checked.ok ? {} : checked.fieldErrors);
     setFailure(null);
-    if (!checked.ok) return;
+    if (!checked.ok) {
+      // Take the visitor to the first field that needs fixing.
+      const first = FIELDS.find((field) => checked.fieldErrors[field]?.length);
+      if (first) e.currentTarget.querySelector<HTMLElement>(`[name="${first}"]`)?.focus();
+      return;
+    }
 
     setPending(true);
     try {
@@ -84,6 +99,29 @@ function ContactForm({ onClose }: { onClose: () => void }) {
   }
 
   const error = (field: string) => errors[field]?.[0];
+
+  function setFieldError(field: ContactField, message: string | null) {
+    setErrors((current) => ({ ...current, [field]: message ? [message] : undefined }));
+  }
+
+  /**
+   * While typing: a field already marked wrong is re-checked on every key, so the message goes away
+   * as soon as it's fixed. A name also flags digits and symbols right away; nothing else nags yet.
+   */
+  function onFieldChange(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+    const field = e.target.name as ContactField;
+    const value = e.target.value;
+    if (errors[field]?.length) setFieldError(field, contactFieldError(field, value));
+    else if (field === "name") setFieldError(field, contactNameTypingError(value));
+  }
+
+  /** Leaving a field checks it fully. Empty fields wait for "Send message" so tabbing past doesn't nag. */
+  function onFieldBlur(e: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) {
+    const field = e.target.name as ContactField;
+    if (e.target.value.trim()) setFieldError(field, contactFieldError(field, e.target.value));
+  }
+
+  const fieldEvents = { onChange: onFieldChange, onBlur: onFieldBlur };
 
   return (
     <div className="relative flex flex-col gap-5 p-6 sm:p-8">
@@ -130,6 +168,7 @@ function ContactForm({ onClose }: { onClose: () => void }) {
                 iconClassName={fieldIconClass}
                 className={fieldClass}
                 placeholder="e.g. Sokha Chan"
+                {...fieldEvents}
                 aria-invalid={!!error("name") || undefined}
                 aria-describedby={error("name") ? "contact-name-hint" : undefined}
               />
@@ -145,6 +184,7 @@ function ContactForm({ onClose }: { onClose: () => void }) {
                 iconClassName={fieldIconClass}
                 className={fieldClass}
                 placeholder="you@example.com"
+                {...fieldEvents}
                 aria-invalid={!!error("email") || undefined}
                 aria-describedby={error("email") ? "contact-email-hint" : undefined}
               />
@@ -155,6 +195,7 @@ function ContactForm({ onClose }: { onClose: () => void }) {
                 name="message"
                 maxLength={LIMITS.message}
                 placeholder="How can we help?"
+                {...fieldEvents}
                 className="min-h-[140px] rounded-xl px-3.5 py-3 text-sm leading-[21.7px]"
                 aria-invalid={!!error("message") || undefined}
                 aria-describedby={error("message") ? "contact-message-hint" : undefined}

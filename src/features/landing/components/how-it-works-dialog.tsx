@@ -8,10 +8,10 @@ import { RealSize, Tracked, tl } from "./how-it-works-timeline";
 const DIALOG_SCALE = 656 / 1288;
 
 const templates = [
-  { name: "Everyday store", tagline: "Products, categories and clear prices", thumb: "everyday-store" },
-  { name: "Sweet pastel", tagline: "Round photos, stickers, candy colours", thumb: "sweet-pastel" },
-  { name: "Warm & bold", tagline: "Full-bleed hero, serif, menu-board grid", thumb: "warm-bold" },
-  { name: "Clean mono", tagline: "Hairlines, big type, catalogue layout", thumb: "clean-mono" },
+  { name: "Fresh & simple", tagline: "Products, categories and clear prices", thumb: "everyday-store" },
+  { name: "Candy pastel", tagline: "Round photos, stickers, candy colours", thumb: "sweet-pastel" },
+  { name: "Rustic roast", tagline: "Full-bleed hero, serif, menu-board grid", thumb: "warm-bold" },
+  { name: "Studio mono", tagline: "Hairlines, big type, catalogue layout", thumb: "clean-mono" },
 ];
 
 export function ChooseTemplateScreen() {

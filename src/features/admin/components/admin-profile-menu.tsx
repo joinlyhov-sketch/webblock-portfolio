@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import { Calendar, Copy, MagicStar, Personalcard, ShieldTick, Sms, TickCircle } from "iconsax-reactjs";
 import { Avatar } from "@/components/common/avatar";
+import { Pill } from "@/components/common/status-badge";
 import {
   Popover,
   PopoverContent,
@@ -77,10 +78,9 @@ export function AdminProfileMenu({ profile }: { profile: AdminProfile }) {
           <p className="mt-3 max-w-full truncate font-heading text-lg leading-6 font-semibold text-foreground">
             {profile.fullName}
           </p>
-          <p className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-brand-soft px-2.5 py-1 text-xs font-medium text-brand-strong">
-            <ShieldTick aria-hidden className="size-3.5" />
+          <Pill tone="brand" icon={<ShieldTick aria-hidden />} className="mt-1.5">
             {profile.title}
-          </p>
+          </Pill>
         </div>
 
         <ul className="m-4 mt-5 divide-y divide-border overflow-hidden rounded-2xl border border-border bg-surface/60 motion-safe:animate-fade-up motion-safe:[animation-delay:80ms]">

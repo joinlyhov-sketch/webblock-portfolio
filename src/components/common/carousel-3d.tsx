@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Component, useEffect, useRef, type ReactNode } from "react";
 import * as THREE from "three";
 import { cn } from "@/lib/utils";
 
@@ -77,23 +77,32 @@ function roundedPanel(width: number, height: number, radius: number) {
   return geometry;
 }
 
-/** Whether this browser can draw WebGL at all. */
-function hasWebGL(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    const gl = document.createElement("canvas").getContext("webgl2") ?? document.createElement("canvas").getContext("webgl");
-    // Free the test context at once: browsers allow only a few WebGL contexts per page.
-    gl?.getExtension("WEBGL_lose_context")?.loseContext();
-    return gl !== null;
-  } catch {
-    return false;
-  }
-}
-
 /** A design token from globals.css (e.g. `--color-border`) as a three.js colour. */
 function tokenColor(name: string) {
   const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   return new THREE.Color(value || "white");
+}
+
+type Carousel3DProps = {
+  items: Carousel3DItem[];
+  activeIndex: number;
+  onSelect: (index: number) => void;
+  /** Shown instead of the canvas when WebGL is unavailable or the 3D stage fails. */
+  fallback?: ReactNode;
+  className?: string;
+};
+
+/** Shows `fallback` when the 3D stage throws (e.g. no WebGL context could be created). */
+class StageBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  render() {
+    return this.state.failed ? this.props.fallback : this.props.children;
+  }
 }
 
 /**
@@ -103,25 +112,24 @@ function tokenColor(name: string) {
  * so other controls (chips) stay in sync. The canvas is `aria-hidden`: always render accessible
  * controls next to it. Renders only while on screen and while moving. Without WebGL it shows `fallback`.
  */
-export function Carousel3D({
+export function Carousel3D({ fallback = null, ...props }: Carousel3DProps) {
+  return (
+    <StageBoundary fallback={fallback}>
+      <Carousel3DStage {...props} />
+    </StageBoundary>
+  );
+}
+
+function Carousel3DStage({
   items,
   activeIndex,
   onSelect,
-  fallback,
   className,
-}: {
-  items: Carousel3DItem[];
-  activeIndex: number;
-  onSelect: (index: number) => void;
-  fallback?: ReactNode;
-  className?: string;
-}) {
+}: Omit<Carousel3DProps, "fallback">) {
   const containerRef = useRef<HTMLDivElement>(null);
   const targetRef = useRef(activeIndex);
   const kickRef = useRef<() => void>(() => {});
   const onSelectRef = useRef(onSelect);
-  // Load this component with `next/dynamic` and `ssr: false`: it checks the browser on first render.
-  const [supported] = useState(hasWebGL);
 
   useEffect(() => {
     onSelectRef.current = onSelect;
@@ -134,15 +142,12 @@ export function Carousel3D({
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || !supported || items.length === 0) return;
+    if (!container || items.length === 0) return;
 
-    let renderer: THREE.WebGLRenderer;
-    try {
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    } catch {
-      // Context creation can still fail (e.g. too many open contexts): leave the stage empty.
-      return;
-    }
+    // No separate "is WebGL there?" probe: a throwaway context costs as much as the real one
+    // (hundreds of ms on slow devices). If this throws (no WebGL, too many open contexts),
+    // `StageBoundary` shows the fallback.
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
     const canvas = renderer.domElement;
@@ -378,8 +383,7 @@ export function Carousel3D({
       renderer.dispose();
       canvas.remove();
     };
-  }, [items, supported]);
+  }, [items]);
 
-  if (!supported) return <>{fallback}</>;
   return <div ref={containerRef} className={cn("relative overflow-hidden", className)} />;
 }

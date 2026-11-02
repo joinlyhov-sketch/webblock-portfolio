@@ -29,9 +29,9 @@ export const cleanMonoPage: PageData = {
     props: {
       templateId: "clean-mono",
       businessName: "Northpoint Audio",
-      statusText: "Open now · until 20:00",
-      hours: "10:00 – 20:00",
-      hoursDetail: "Mon – Sun · 10:00 – 20:00",
+      statusText: "Open now · until 8:00 PM",
+      hours: "10:00 AM – 8:00 PM",
+      hoursDetail: "Mon – Sun · 10:00 AM – 8:00 PM",
       address: "Floor 2, Sorya Center, Phnom Penh",
       phones: [{ number: "012 345 678" }],
       email: "hello@northpointaudio.com",
@@ -108,7 +108,7 @@ export const cleanMonoPage: PageData = {
         stats: [
           { value: "120+", label: "products you can try before buying" },
           { value: "1", label: "listening bar, zero pressure" },
-          { value: "7", label: "days a week, 10:00 – 20:00" },
+          { value: "7", label: "days a week, 10:00 AM – 8:00 PM" },
         ],
         align: "left",
         spacing: "normal",

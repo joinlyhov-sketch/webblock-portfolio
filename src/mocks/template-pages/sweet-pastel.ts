@@ -98,9 +98,9 @@ export const sweetPastelPage: PageData = {
     props: {
       templateId: "sweet-pastel",
       businessName: "Sugar & Crumb",
-      statusText: "Open now · until 19:00",
-      hours: "7:00 – 19:00",
-      hoursDetail: "Mon – Sun 7:00 – 19:00",
+      statusText: "Open now · until 7:00 PM",
+      hours: "7:00 AM – 7:00 PM",
+      hoursDetail: "Mon – Sun 7:00 AM – 7:00 PM",
       address: "22 Street 240, Phnom Penh",
       phones: [{ number: "012 345 678" }],
       email: "hello@sugarandcrumb.com",

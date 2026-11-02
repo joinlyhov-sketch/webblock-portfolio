@@ -29,9 +29,9 @@ export const warmBoldPage: PageData = {
     props: {
       templateId: "warm-bold",
       businessName: "Kiln Coffee",
-      statusText: "Open now · until 17:00",
-      hours: "6:30 – 17:00",
-      hoursDetail: "Mon – Sun · 6:30 – 17:00",
+      statusText: "Open now · until 5:00 PM",
+      hours: "6:30 AM – 5:00 PM",
+      hoursDetail: "Mon – Sun · 6:30 AM – 5:00 PM",
       address: "8 Street 308, Phnom Penh",
       phones: [{ number: "012 345 678" }],
       email: "hello@kilncoffee.com",
@@ -64,7 +64,7 @@ export const warmBoldPage: PageData = {
         highlights: [
           { text: "Small batch, roasted here" },
           { text: "Beans from farms we visited" },
-          { text: "Bar open 6:30 – 17:00 daily" },
+          { text: "Bar open 6:30 AM – 5:00 PM daily" },
         ],
         badge: "SMALL BATCH · 2× WEEKLY",
         align: "left",

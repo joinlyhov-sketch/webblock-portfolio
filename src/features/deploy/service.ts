@@ -46,6 +46,8 @@ export async function getDeployView(
   searchParams: Record<string, string | string[] | undefined>,
 ): Promise<DeployView> {
   const website = await getWebsite(websiteId);
+  // A suspended website can't be deployed until it is reactivated (from My Websites).
+  if (website.status === "SUSPENDED") redirect("/websites?status=suspended");
 
   const deploymentId = first(searchParams.deployment);
   if (deploymentId) {
@@ -102,6 +104,9 @@ export async function startDeploy(
   idempotencyKey: string,
 ): Promise<ActionResult<DeployNext>> {
   try {
+    if ((await getWebsite(websiteId)).status === "SUSPENDED")
+      return { ok: false, message: "This website is suspended. Reactivate it from My Websites before deploying." };
+
     const running = await getRunningDeployment(websiteId);
     if (running)
       return {
@@ -117,7 +122,7 @@ export async function startDeploy(
       return {
         ok: false,
         message:
-          "You haven’t made any changes since your last deploy, so there’s nothing new to publish. Edit your website, then deploy again.",
+          "You haven’t made any changes since your last deploy, so there’s nothing new to deploy. Edit your website, then deploy again.",
       };
 
     const access = await getDeployAccess(userId, websiteId);

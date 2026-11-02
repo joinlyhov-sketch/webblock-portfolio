@@ -4,9 +4,10 @@ import { delay } from "@/lib/api/delay";
 import type { Page } from "@/lib/api/types";
 import { toPage } from "@/lib/table-query";
 import { getBusinessInfo } from "@/features/business-info/api";
-import { touchWebsite } from "@/features/websites/api";
-import { mediaAssets, uploadedMedia, websitePages } from "@/mocks/website-pages";
-import type { AiMessage, MediaAsset, PageData, PageVersion, SiteRootProps, WebsitePage } from "./types";
+import { listProductCategories, listProducts } from "@/features/products/api";
+import { getWebsite, touchWebsite } from "@/features/websites/api";
+import { fillBusinessData, mediaAssets, uploadedMedia, websitePages } from "@/mocks/website-pages";
+import type { AiMessage, MediaAsset, PageData, PageVersion, WebsitePage } from "./types";
 
 function findPage(websiteId: string): WebsitePage {
   const page = websitePages.find((p) => p.websiteId === websiteId);
@@ -41,26 +42,33 @@ function historyOf(page: WebsitePage): History {
 export async function getPageData(websiteId: string): Promise<WebsitePage> {
   await delay();
   const page = structuredClone(findPage(websiteId));
-  page.draft = await withBusinessLogo(websiteId, page.draft);
+  page.draft = await withBusinessData(websiteId, page.draft);
   return page;
 }
 
 /**
- * The header logo comes from Owner Portal → Business information, not from the editor: Spring fills
- * `root.props.logoUrl` when it serves the draft and when it deploys.
+ * Business information (logo, contacts, opening hours) and Products are managed in the Owner Portal,
+ * not in the editor: Spring fills them into the page when it serves the draft and when it deploys
+ * (see `fillBusinessData`).
  */
-async function withBusinessLogo(websiteId: string, data: PageData): Promise<PageData> {
-  const info = await getBusinessInfo(websiteId).catch(() => null);
-  if (!info) return data;
-  const props: SiteRootProps = { ...(data.root.props as SiteRootProps), logoUrl: info.logoUrl };
-  return { ...data, root: { ...data.root, props } };
+async function withBusinessData(websiteId: string, data: PageData): Promise<PageData> {
+  const [info, products, categories] = await Promise.all([
+    getBusinessInfo(websiteId).catch(() => null),
+    listProducts(websiteId, { page: 0, size: 1000 }).then((page) => page.items),
+    listProductCategories(websiteId),
+  ]);
+  return fillBusinessData(data, { info, products, categories });
 }
 
-/** GET /sites/{websiteId} — public: the deployed page that visitors see. 404 until the first deploy. */
+/**
+ * GET /sites/{websiteId} — public: the deployed page that visitors see. 404 until the first deploy, and
+ * while the website is suspended (visitors can't see it, as the suspend dialog says).
+ */
 export async function getPublishedPage(websiteId: string): Promise<PageData> {
   await delay();
   const page = websitePages.find((p) => p.websiteId === websiteId);
-  if (!page?.published) throw new ApiError({ title: "Site not found", status: 404 });
+  const website = await getWebsite(websiteId).catch(() => null);
+  if (!page?.published || website?.status === "SUSPENDED") throw new ApiError({ title: "Site not found", status: 404 });
   return structuredClone(page.published);
 }
 
@@ -86,7 +94,7 @@ export async function publishPage(websiteId: string, idempotencyKey: string): Pr
   const page = findPage(websiteId);
   const now = new Date().toISOString();
   const history = historyOf(page);
-  page.published = await withBusinessLogo(websiteId, structuredClone(page.draft));
+  page.published = await withBusinessData(websiteId, structuredClone(page.draft));
   page.publishedAt = now;
   const id = crypto.randomUUID();
   history.versions.unshift({ id, publishedAt: now, data: structuredClone(page.published) });

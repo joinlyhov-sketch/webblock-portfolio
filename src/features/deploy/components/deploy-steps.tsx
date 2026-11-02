@@ -89,18 +89,29 @@ function StepBadge({ step }: { step: DeploymentStep }) {
     <span
       className={cn(
         "relative z-10 flex size-[34px] items-center justify-center rounded-full border bg-background [&_svg]:size-4",
+        "motion-safe:transition-colors motion-safe:duration-300",
         done && "border-primary bg-primary text-primary-foreground",
         active && "border-primary text-primary",
         failed && "border-danger text-danger",
         !done && !active && !failed && "border-border text-muted-foreground",
       )}
     >
-      {done ? <Check aria-hidden /> : STEP_ICON[step.key]}
+      {active && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 hidden rounded-full border border-primary motion-safe:block motion-safe:animate-halo-ripple"
+        />
+      )}
+      {done ? (
+        <Check aria-hidden className="motion-safe:animate-check-pop" />
+      ) : (
+        STEP_ICON[step.key]
+      )}
     </span>
   );
 }
 
-/** "Publishing steps" card: the six stages of a deploy and where the backend is now. Display only. */
+/** "Deploy steps" card: the six stages of a deploy and where the backend is now. Display only. */
 export function DeploySteps({ deployment }: { deployment: Deployment }) {
   const { steps } = deployment;
   const failedAt = steps.findIndex((s) => s.status === "FAILED");
@@ -109,20 +120,20 @@ export function DeploySteps({ deployment }: { deployment: Deployment }) {
 
   return (
     <section
-      aria-label="Publishing steps"
+      aria-label="Deploy steps"
       className="w-full max-w-[960px] overflow-hidden rounded-2xl border border-border bg-background shadow-card"
     >
       <header className="flex items-center justify-between border-b border-border px-6 py-3.5">
         <div className="flex items-center gap-3">
           <h2 className="text-sm font-semibold text-foreground">
-            Publishing steps
+            Deploy steps
           </h2>
           <span aria-hidden className="flex gap-1">
             {steps.map((s) => (
               <span
                 key={s.key}
                 className={cn(
-                  "h-[3px] w-4 rounded-full",
+                  "h-[3px] w-4 rounded-full motion-safe:transition-colors motion-safe:duration-500",
                   s.status === "DONE" && (failed ? "bg-danger" : "bg-primary"),
                   s.status === "IN_PROGRESS" && "bg-primary/40",
                   s.status === "FAILED" && "bg-danger/40",
@@ -142,22 +153,28 @@ export function DeploySteps({ deployment }: { deployment: Deployment }) {
       <ol className="grid grid-cols-2 gap-x-2 gap-y-8 px-4 py-6 sm:grid-cols-3 lg:grid-cols-6 lg:gap-y-0">
         {steps.map((step, index) => {
           const copy = STEP_COPY[step.key];
+          const linked =
+            index > 0 &&
+            steps[index - 1].status === "DONE" &&
+            step.status !== "NOT_STARTED";
           return (
             <li
               key={step.key}
               className="relative flex min-w-0 flex-col items-center gap-1.5 px-2 text-center"
             >
               {index > 0 && (
+                // Grey track with a blue fill that grows left → right when the previous step finishes.
                 <span
                   aria-hidden
-                  className={cn(
-                    "absolute top-[17px] right-1/2 hidden h-px w-full lg:block",
-                    steps[index - 1].status === "DONE" &&
-                      step.status !== "NOT_STARTED"
-                      ? "bg-primary"
-                      : "bg-border",
-                  )}
-                />
+                  className="absolute top-[17px] right-1/2 hidden h-px w-full overflow-hidden bg-border lg:block"
+                >
+                  <span
+                    className={cn(
+                      "block h-full w-full origin-left bg-primary motion-safe:transition-transform motion-safe:duration-500 motion-safe:ease-out",
+                      linked ? "scale-x-100" : "scale-x-0",
+                    )}
+                  />
+                </span>
               )}
               <StepBadge step={step} />
               <p className="max-w-full text-sm leading-5 font-semibold text-foreground">

@@ -8,9 +8,9 @@ export const sweetPastelContent: SweetPastelContent = {
     phone: "012 345 678",
     email: "hello@sugarandcrumb.com",
     address: "22 Street 240, Phnom Penh",
-    hours: [{ days: "Mon – Sun", hours: "7:00 – 19:00" }],
+    hours: [{ days: "Mon – Sun", hours: "7:00 AM – 7:00 PM" }],
   },
-  openNote: "Open now · until 19:00",
+  openNote: "Open now · until 7:00 PM",
   hero: {
     kicker: "fresh from the oven, every single day",
     titleLines: ["Baked fresh,", "every morning."],
@@ -50,7 +50,7 @@ export const sweetPastelContent: SweetPastelContent = {
     kicker: "come say hi",
     title: "Come and see the bakery",
     todayLabel: "Open today",
-    todayHours: "7:00 – 19:00",
+    todayHours: "7:00 AM – 7:00 PM",
     formTitle: "Send us a message",
     formIntro: "Custom cakes, party treats or a quick question.",
     topics: ["Cupcakes", "Birthdays", "Weddings", "Other"],
@@ -71,5 +71,5 @@ export const sweetPastelContent: SweetPastelContent = {
     { label: "Facebook", href: "https://facebook.com/sugarandcrumb" },
     { label: "Instagram", href: "https://instagram.com/sugarandcrumb" },
   ],
-  hoursSummary: "Mon – Sun 7:00 – 19:00",
+  hoursSummary: "Mon – Sun 7:00 AM – 7:00 PM",
 };

@@ -4,6 +4,7 @@ import type { CleanMonoContent } from "../types/clean-mono";
 import { CleanMonoCatalog } from "./clean-mono-catalog";
 import { CleanMonoContactForm } from "./clean-mono-contact-form";
 import { CleanMonoHeader } from "./clean-mono-header";
+import { telHref } from "@/lib/tel";
 
 const display = Space_Grotesk({ subsets: ["latin"], variable: "--font-cm-display", display: "swap" });
 const mono = Space_Mono({ subsets: ["latin"], weight: "400", variable: "--font-cm-mono", display: "swap" });
@@ -26,9 +27,6 @@ function mapsUrl(address: string) {
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
 }
 
-function telHref(phone: string) {
-  return `tel:${phone.replace(/[^\d+]/g, "")}`;
-}
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return <p className="cm-mono text-[12px] tracking-[0.06em] text-(--cm-muted)">{children}</p>;

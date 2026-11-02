@@ -2,13 +2,23 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import {
   Add,
+  Box,
   Calendar1,
   Clock,
+  Crown1,
   Danger,
   Edit2,
   Global,
+  Hierarchy,
+  Link21,
+  Refresh2,
+  Routing,
   SearchNormal1,
+  Setting2,
+  ShieldTick,
   TickCircle,
+  Timer1,
+  Wifi,
 } from "iconsax-reactjs";
 import { Avatar, Thumbnail } from "@/components/common/avatar";
 import { Callout } from "@/components/common/callout";
@@ -17,7 +27,7 @@ import { DataTable } from "@/components/common/data-table";
 import { EmptyState } from "@/components/common/empty-state";
 import { FilterMenu } from "@/components/common/filter-menu";
 import { Modal } from "@/components/common/modal";
-import { planLabel } from "@/components/common/plan-badge";
+import { PlanBadge, planLabel } from "@/components/common/plan-badge";
 import { RowsSelect } from "@/components/common/rows-select";
 import { SegmentedTabs } from "@/components/common/segmented-tabs";
 import { StatusBadge } from "@/components/common/status-badge";
@@ -33,7 +43,7 @@ import {
 import { tableHref, type SearchParams } from "@/lib/table-query";
 import type { AdminWebsite, Deploy, PlanCode, SiteStatus } from "../types";
 import { AdminPageHeader } from "./admin-page-header";
-import { DetailHero, DetailSection, HeroChip } from "./detail-hero";
+import { DetailCard, DetailHero, HeroChip } from "./detail-hero";
 import { WebsiteDetailActions, WebsiteRowMenu } from "./website-actions";
 const OFFLINE_REASON = {
   ONLINE: { reason: "None", hint: "site is reachable" },
@@ -169,6 +179,7 @@ export function WebsitesView({
           {
             key: "website",
             header: "Website",
+            className: "w-[26%]",
             sortField: "name",
             cell: (w) => (
               // Stretched link: the whole row opens the popup.
@@ -251,7 +262,7 @@ function deployCallout(latest: Deploy | undefined) {
         tone="neutral"
         icon={<Edit2 />}
         title="Not deployed yet"
-        description="The owner hasn't published this website."
+        description="The owner hasn't deployed this website."
       />
     );
   }
@@ -306,7 +317,9 @@ export function WebsiteDetail({
     <Modal
       title={website.name}
       hideTitle
-      size="lg"
+      size="xl"
+      // Same width as the account popup. Fixed height so it never changes size; the body scrolls inside it.
+      className="h-[700px]"
       closeHref={closeHref}
       footer={<WebsiteDetailActions website={website} />}
     >
@@ -355,13 +368,13 @@ export function WebsiteDetail({
       />
       <div className="space-y-5 px-6 py-5">
         {deployCallout(latest)}
-        <DetailSection title="Recent deploys">
+        <DetailCard title="Recent deploys" icon={<Refresh2 />} aside={`${deploys.items.length} deploys`}>
           {deploys.items.length ? (
-            <ul className="divide-y divide-border rounded-2xl border border-border text-sm">
+            <ul className="divide-y divide-border text-sm">
               {deploys.items.map((d) => (
                 <li
                   key={d.id}
-                  className="grid grid-cols-[40px_96px_1fr_auto] items-center gap-3 px-5 py-3"
+                  className="grid grid-cols-[40px_96px_1fr_auto] items-center gap-3 px-1 py-3"
                 >
                   <span className="font-semibold text-brand">#{d.number}</span>
                   <span className="text-foreground-soft">
@@ -379,16 +392,17 @@ export function WebsiteDetail({
               ))}
             </ul>
           ) : (
-            <p className="rounded-2xl border border-dashed border-border px-4 py-5 text-center text-[13px] text-muted-foreground">
+            <p className="py-6 text-center text-[13px] text-muted-foreground">
               Never deployed.
             </p>
           )}
-        </DetailSection>
-        <DetailSection title="Site details">
+        </DetailCard>
+        <DetailCard title="Site details" icon={<Setting2 />}>
           <DetailList
-            className="[&>div]:px-5 [&>div]:py-3"
+            className="rounded-none border-0 [&>div]:px-1 [&>div]:py-3"
             items={[
               {
+                icon: <ShieldTick />,
                 label: "SSL certificate",
                 value: website.sslValidUntil ? (
                   <span className="inline-flex items-center gap-2">
@@ -403,26 +417,38 @@ export function WebsiteDetail({
                 ),
               },
               {
+                icon: <Crown1 />,
                 label: "Plan",
-                value:
-                  website.plan === "FREE_TRIAL"
-                    ? `Free trial · ends ${formatDayMonthYear(website.planEndsAt)}`
-                    : `${planLabel(website.plan)} · monthly`,
+                // The plan keeps its colour (grey, blue, gold, violet) like everywhere else.
+                value: (
+                  <span className="inline-flex items-center gap-2">
+                    <PlanBadge plan={website.plan} />
+                    <span className="font-normal text-muted-foreground">
+                      {website.plan === "FREE_TRIAL"
+                        ? `ends ${formatDayMonthYear(website.planEndsAt)}`
+                        : "monthly"}
+                    </span>
+                  </span>
+                ),
               },
               {
+                icon: <Box />,
                 label: "Products",
                 value: `${website.productCount} of ${website.productLimit.toLocaleString("en-US")}`,
               },
               {
+                icon: <Timer1 />,
                 label: "Redeploys left",
                 value: `${website.redeploysLeft} of ${website.redeployLimit}`,
               },
             ]}
           />
-        </DetailSection>
-        <DetailSection title="Hosting & routing">
-          <dl className="grid grid-cols-2 divide-border rounded-2xl border border-border sm:grid-cols-4 sm:divide-x">
+        </DetailCard>
+        <DetailCard title="Hosting & routing" icon={<Hierarchy />}>
+          <dl className="grid grid-cols-2 gap-2.5 py-3.5">
             <HostingTile
+              icon={<Wifi />}
+              iconTone={SITE_ICON_TONE[website.siteStatus]}
               label="Hosting"
               value={<StatusBadge status={website.siteStatus} />}
               hint={
@@ -432,6 +458,8 @@ export function WebsiteDetail({
               }
             />
             <HostingTile
+              icon={<Routing />}
+              iconTone={website.routingStatus === "UPDATING" ? "brand" : "success"}
               label="Routing"
               value={<StatusBadge status={website.routingStatus} />}
               hint={
@@ -441,6 +469,8 @@ export function WebsiteDetail({
               }
             />
             <HostingTile
+              icon={<Link21 />}
+              iconTone={website.liveRelease ? "brand" : "muted"}
               label="Live release"
               value={website.liveRelease ?? "—"}
               hint={
@@ -452,30 +482,64 @@ export function WebsiteDetail({
               }
             />
             <HostingTile
+              icon={<Danger />}
+              iconTone={SITE_ICON_TONE[website.siteStatus]}
               label="Offline reason"
               value={offline.reason}
               hint={offline.hint}
             />
           </dl>
-        </DetailSection>
+        </DetailCard>
       </div>
     </Modal>
   );
 }
+// Soft icon colour says what the state means (green = healthy, blue = in progress, amber = not started,
+// red = problem). The cards stay white so the tinted icon still shows.
+const ICON_TONE = {
+  success: "bg-success-soft text-success",
+  brand: "bg-brand-soft text-brand",
+  warning: "bg-warning-soft text-warning",
+  danger: "bg-danger-soft text-danger",
+  muted: "bg-muted text-muted-foreground",
+};
+
+const SITE_ICON_TONE = {
+  ONLINE: "success",
+  NOT_DEPLOYED: "warning",
+  OFFLINE_BILLING: "danger",
+  SUSPENDED: "danger",
+} satisfies Record<SiteStatus, keyof typeof ICON_TONE>;
+
+const TILE_CARD = "border-border bg-background";
+
+/** One card of "Hosting & routing": round icon on the left; label, value and hint stacked beside it. */
 function HostingTile({
+  icon,
   label,
   value,
   hint,
+  iconTone,
 }: {
+  icon: ReactNode;
   label: string;
   value: ReactNode;
   hint?: string;
+  iconTone: keyof typeof ICON_TONE;
 }) {
   return (
-    <div className="min-w-0 space-y-1.5 px-3.5 py-3">
-      <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className="text-sm font-semibold break-words text-foreground">{value}</dd>
-      {hint && <dd className="text-[11px] text-placeholder">{hint}</dd>}
+    <div className={`flex min-w-0 items-center gap-3 rounded-2xl border px-3.5 py-3 ${TILE_CARD}`}>
+      <span
+        aria-hidden
+        className={`grid size-10 shrink-0 place-items-center rounded-full [&_svg]:size-5 ${ICON_TONE[iconTone]}`}
+      >
+        {icon}
+      </span>
+      <div className="min-w-0 space-y-0.5">
+        <dt className="text-[15px] text-muted-foreground">{label}</dt>
+        <dd className="text-lg leading-6 font-bold break-words text-foreground">{value}</dd>
+        {hint && <dd className="truncate text-sm text-placeholder">{hint}</dd>}
+      </div>
     </div>
   );
 }

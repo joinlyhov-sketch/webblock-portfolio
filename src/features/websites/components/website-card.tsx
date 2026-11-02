@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Edit2, Global } from "iconsax-reactjs";
 import { CategoryBadge } from "@/components/common/category-badge";
+import { PlanBadge, type PlanTier } from "@/components/common/plan-badge";
 import { StatusBadge } from "@/components/common/status-badge";
 import { Button } from "@/components/ui/button";
 import { liveSiteHref } from "@/config/site";
@@ -32,14 +33,17 @@ function activityText(website: Website): string {
 /**
  * One website: screenshot with status, name, address, last change and the main actions.
  * `filtered` is the status-tab view, which drops the category pill (Figma filter screens).
+ * A live website also shows the plan it is online on (one plan covers all of the account's sites).
  */
 export function WebsiteCard({
   website,
+  plan,
   filtered = false,
   onPatch,
   onRemove,
 }: {
   website: Website;
+  plan: PlanTier;
   filtered?: boolean;
   /** Called after an action worked, with the fields that changed, so the list updates at once. */
   onPatch: (patch: Partial<Website>) => void;
@@ -67,13 +71,17 @@ export function WebsiteCard({
             sizes="(min-width: 1440px) 25vw, 100vw"
             className="object-cover object-top"
           />
-          {/* The real page over the template image: the published site once deployed, else the saved draft. */}
+          {/* The real page over the template image: the live site while it is online, else the saved draft
+              (a suspended site is hidden from visitors, so its public address no longer shows it). */}
           <LiveSitePreview
-            src={website.status !== "DRAFT" ? liveSiteHref(website.id) : `/websites/${website.id}/draft`}
+            src={website.status === "LIVE" ? liveSiteHref(website.id) : `/websites/${website.id}/draft`}
             name={website.name}
           />
         </div>
-        <StatusBadge status={website.status} className="absolute top-3 right-[11px]" />
+        <div className="absolute top-3 right-[11px] flex items-center gap-1.5">
+          {website.status === "LIVE" && <PlanBadge plan={plan} className="shadow-button" />}
+          <StatusBadge status={website.status} />
+        </div>
       </div>
 
       <div className="flex flex-col gap-2.5 px-1.5 pb-1.5">
@@ -84,7 +92,7 @@ export function WebsiteCard({
             </h3>
             <p className="flex h-[19.5px] items-center gap-1.5 text-[13px] text-muted-foreground">
               <Global aria-hidden className="size-3.5 shrink-0" />
-              <span className="truncate">{website.status === "DRAFT" ? "Not published yet" : (website.domain ?? "Not published yet")}</span>
+              <span className="truncate">{website.status === "DRAFT" ? "Not deployed yet" : (website.domain ?? "Not deployed yet")}</span>
             </p>
           </div>
           {hasMenu && (

@@ -6,6 +6,7 @@ import {
   type PlanCode,
   type ReleaseStatus,
 } from "@/features/admin";
+import { nullIfNotFound } from "@/lib/api/errors";
 import { requireAdmin } from "@/lib/auth/session";
 import { parseTableQuery, type SearchParams } from "@/lib/table-query";
 
@@ -51,7 +52,9 @@ export default async function AdminWebsitesPage({
       ? Promise.all([
           getWebsite(websiteId),
           listDeploys({ websiteId }, { page: 0, size: 3 }),
-        ]).then(([website, deploys]) => ({ website, deploys }))
+        ])
+          .then(([website, deploys]) => ({ website, deploys }))
+          .catch(nullIfNotFound)
       : null,
   ]);
 

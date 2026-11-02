@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import Link from "next/link";
 import {
   Calendar1,
@@ -26,7 +25,7 @@ import {
   planTone,
 } from "@/components/common/plan-badge";
 import { RowsSelect } from "@/components/common/rows-select";
-import { StatusBadge } from "@/components/common/status-badge";
+import { Pill, StatusBadge } from "@/components/common/status-badge";
 import { TableSearch } from "@/components/common/table-search";
 import { Button } from "@/components/ui/button";
 import type { Page } from "@/lib/api/types";
@@ -36,13 +35,16 @@ import { cn } from "@/lib/utils";
 import type {
   AdminWebsite,
   Deploy,
+  Payment,
   PlanCode,
+  Subscription,
   UserAccount,
   UserStats,
 } from "../types";
 import { AdminPageHeader } from "./admin-page-header";
-import { DetailCard, HeroDecor } from "./detail-hero";
+import { DetailCard, HeroDecor, InfoTile } from "./detail-hero";
 import { UserRowMenu } from "./user-row-menu";
+import { SubscriptionDetail } from "./subscriptions-view";
 import { WebsiteDetail } from "./websites-view";
 const count = new Intl.NumberFormat("en-US");
 const PLANS: PlanCode[] = ["FREE_TRIAL", "PLUS", "PRO", "ULTRA"];
@@ -52,14 +54,24 @@ export function UsersView({
   searchParams,
   detail,
   websiteDetail,
+  subscriptionDetail,
 }: {
   users: Page<UserAccount>;
   stats: UserStats;
   searchParams: SearchParams;
   /** The account opened with `?user=<id>`, with its websites. */
-  detail: { user: UserAccount; websites: Page<AdminWebsite> } | null;
+  detail: {
+    user: UserAccount;
+    websites: Page<AdminWebsite>;
+    subscriptions: Subscription[];
+  } | null;
   /** A website of that account opened with `?website=<id>`: its popup replaces the account popup. */
   websiteDetail: { website: AdminWebsite; deploys: Page<Deploy> } | null;
+  /** The subscription opened with `?subscription=<id>`: its popup also replaces the account popup. */
+  subscriptionDetail: {
+    subscription: Subscription;
+    payments: Page<Payment>;
+  } | null;
 }) {
   const q = typeof searchParams.q === "string" ? searchParams.q : "";
   const plan =
@@ -180,6 +192,7 @@ export function UsersView({
           {
             key: "account",
             header: "Account",
+            className: "w-[28%]",
             sortField: "fullName",
             cell: (u) => (
               // Stretched link: the whole row opens the popup.
@@ -245,7 +258,13 @@ export function UsersView({
           },
         ]}
       />
-      {websiteDetail ? (
+      {subscriptionDetail ? (
+        <SubscriptionDetail
+          subscription={subscriptionDetail.subscription}
+          payments={subscriptionDetail.payments}
+          closeHref={tableHref(searchParams, { subscription: null })}
+        />
+      ) : websiteDetail ? (
         // Closing it goes back to the account popup.
         <WebsiteDetail
           website={websiteDetail.website}
@@ -257,6 +276,15 @@ export function UsersView({
           <UserDetail
             user={detail.user}
             websites={detail.websites}
+            subscriptionHref={(() => {
+              // Open the active plan first; an account with none shows a disabled button.
+              const sub =
+                detail.subscriptions.find((x) => x.status === "ACTIVE") ??
+                detail.subscriptions[0];
+              return sub
+                ? tableHref(searchParams, { subscription: sub.id, website: null })
+                : null;
+            })()}
             closeHref={tableHref(searchParams, { user: null })}
             websiteHref={(id) => tableHref(searchParams, { website: id })}
           />
@@ -268,11 +296,14 @@ export function UsersView({
 function UserDetail({
   user,
   websites,
+  subscriptionHref,
   closeHref,
   websiteHref,
 }: {
   user: UserAccount;
   websites: Page<AdminWebsite>;
+  /** Opens the account's subscription popup on this same page; null when it has none. */
+  subscriptionHref: string | null;
   closeHref: string;
   websiteHref: (websiteId: string) => string;
 }) {
@@ -303,17 +334,14 @@ function UserDetail({
             </p>
             <div className="flex flex-wrap items-center gap-1.5 pt-2">
               <StatusBadge status={user.status} />
-              <span className="inline-flex h-6 items-center gap-1.5 rounded-full bg-brand-soft px-2.5 text-xs font-semibold text-info">
-                <Sms aria-hidden className="size-3.5" />
-                {user.signInMethod === "GOOGLE"
-                  ? "Google sign-in"
-                  : "Email sign-in"}
-              </span>
+              <Pill tone="info" icon={<Sms aria-hidden />}>
+                {user.signInMethod === "GOOGLE" ? "Google sign-in" : "Email sign-in"}
+              </Pill>
             </div>
           </div>
         </div>
         <DetailCard title="Account details" icon={<Profile />}>
-          <dl className="grid gap-3 px-4 pt-3.5 pb-4 sm:grid-cols-3">
+          <dl className="grid gap-3 pt-3.5 pb-4 sm:grid-cols-3">
             <InfoTile
               icon={<DocumentText />}
               label="Account ID"
@@ -337,7 +365,7 @@ function UserDetail({
           </dl>
         </DetailCard>
         <DetailCard
-          title="Projects & website status"
+          title="Websites & status"
           icon={<Global />}
           aside={`${websites.totalItems} ${websites.totalItems === 1 ? "website" : "websites"}`}
         >
@@ -350,7 +378,7 @@ function UserDetail({
                     <Link
                       href={websiteHref(w.id)}
                       scroll={false}
-                      className="flex h-16 items-center gap-3 px-4 transition-colors outline-none hover:bg-muted focus-visible:bg-muted"
+                      className="flex h-16 items-center gap-3 rounded-lg px-1 transition-colors outline-none hover:bg-muted focus-visible:bg-muted"
                     >
                       <Thumbnail
                         src={w.thumbnailUrl}
@@ -361,7 +389,7 @@ function UserDetail({
                           {w.name}
                         </span>
                         <span className="block truncate text-[13px] text-muted-foreground">
-                          {published ? w.domain : "Not published"}
+                          {published ? w.domain : "Not deployed"}
                         </span>
                       </span>
                       <StatusBadge
@@ -375,20 +403,25 @@ function UserDetail({
               })}
             </ul>
           ) : (
-            <p className="px-4 py-6 text-center text-[13px] text-muted-foreground">
+            <p className="py-6 text-center text-[13px] text-muted-foreground">
               No websites yet.
             </p>
           )}
         </DetailCard>
         <div className="flex gap-3 pt-1">
-          <Button asChild variant="secondary" size="sm" className="flex-1">
-            <Link
-              href={`/admin/subscriptions?q=${encodeURIComponent(user.email)}`}
-            >
+          {subscriptionHref ? (
+            <Button asChild variant="secondary" size="sm" className="flex-1">
+              <Link href={subscriptionHref} scroll={false}>
+                <DocumentText />
+                View subscription
+              </Link>
+            </Button>
+          ) : (
+            <Button variant="secondary" size="sm" className="flex-1" disabled>
               <DocumentText />
-              View subscription
-            </Link>
-          </Button>
+              No subscription
+            </Button>
+          )}
           <Button asChild size="sm" className="flex-1">
             <Link href={`/admin/websites?owner=${user.id}`}>
               <ExportSquare />
@@ -398,47 +431,5 @@ function UserDetail({
         </div>
       </div>
     </Modal>
-  );
-}
-function InfoTile({
-  icon,
-  label,
-  value,
-  tone,
-}: {
-  icon: ReactNode;
-  label: string;
-  value: string;
-  /** Colours the tile, e.g. by plan with `planTone(plan)`. */
-  tone?: { surface: string; chip: string; text: string };
-}) {
-  return (
-    <div
-      className={cn(
-        "flex items-center gap-3 rounded-xl p-3",
-        tone?.surface ?? "bg-muted",
-      )}
-    >
-      <span
-        aria-hidden
-        className={cn(
-          "grid size-9 shrink-0 place-items-center rounded-[10px] [&_svg]:size-[18px]",
-          tone?.chip ?? "bg-brand-soft text-brand",
-        )}
-      >
-        {icon}
-      </span>
-      <div className="min-w-0 text-[13px] leading-5">
-        <dt className="text-muted-foreground">{label}</dt>
-        <dd
-          className={cn(
-            "truncate font-semibold",
-            tone?.text ?? "text-foreground",
-          )}
-        >
-          {value}
-        </dd>
-      </div>
-    </div>
   );
 }

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight } from "iconsax-reactjs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { withNext } from "@/lib/auth/next-path";
 import { EMAIL_MAX, FULL_NAME_MAX } from "@/lib/validation/fields";
 import { emailInput, parseForm, registerInput, type FieldErrors } from "../schemas";
 import { Field, FormFooter, OrDivider } from "./field";
@@ -15,7 +16,14 @@ import { GoogleButton } from "./google-button";
  * Step 1 of register (full name + email) and of forgot password (email only).
  * On success it goes to the code screen with the email in the URL.
  */
-export function EmailStepForm({ mode }: { mode: "register" | "forgot-password" }) {
+export function EmailStepForm({
+  mode,
+  next = null,
+}: {
+  mode: "register" | "forgot-password";
+  /** Where to go after signing in (e.g. the plans after "Choose Pro"); carried through every step. */
+  next?: string | null;
+}) {
   const router = useRouter();
   const [errors, setErrors] = useState<FieldErrors>({});
   const isRegister = mode === "register";
@@ -26,8 +34,8 @@ export function EmailStepForm({ mode }: { mode: "register" | "forgot-password" }
     if (!result.ok) return setErrors(result.fieldErrors);
     setErrors({});
     // TODO(auth): call the "send code" action first; the backend creates and emails the OTP.
-    const next = isRegister ? "/verify-otp" : "/forgot-password/verify";
-    router.push(`${next}?email=${encodeURIComponent(result.data.email)}`);
+    const step = isRegister ? "/verify-otp" : "/forgot-password/verify";
+    router.push(withNext(`${step}?email=${encodeURIComponent(result.data.email)}`, next));
   }
 
   return (
@@ -82,7 +90,7 @@ export function EmailStepForm({ mode }: { mode: "register" | "forgot-password" }
       </form>
       <FormFooter>
         {isRegister ? "Already have an account?" : "Remember your password?"}{" "}
-        <Link href="/sign-in" className="font-semibold text-primary hover:underline">
+        <Link href={withNext("/sign-in", next)} className="font-semibold text-primary hover:underline">
           Sign in
         </Link>
       </FormFooter>

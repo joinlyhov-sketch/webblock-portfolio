@@ -41,13 +41,7 @@ const THEME: Record<
 export function TrialCard({ summary }: { summary: SidebarSummary }) {
   const theme = THEME[summary.plan];
   const trial = summary.plan === "FREE_TRIAL";
-  const title = trial
-    ? summary.liveWebsiteName
-      ? `${summary.liveWebsiteName} is live on trial`
-      : "Your trial is running"
-    : summary.liveWebsiteName
-      ? `${summary.liveWebsiteName} is live on ${summary.planLabel}`
-      : `Your ${summary.planLabel} plan is active`;
+  const title = cardTitle(summary, trial);
 
   return (
     <section
@@ -93,4 +87,17 @@ export function TrialCard({ summary }: { summary: SidebarSummary }) {
       </Link>
     </section>
   );
+}
+
+/**
+ * One plan covers all the account's websites: with one site online it names it, with several it
+ * counts them against the plan's limit ("2 of 3 websites live on Pro").
+ */
+function cardTitle(summary: SidebarSummary, trial: boolean): string {
+  const on = trial ? "trial" : summary.planLabel;
+  if (summary.liveWebsiteCount > 1) {
+    return `${summary.liveWebsiteCount} of ${summary.websiteLimit} websites live on ${on}`;
+  }
+  if (summary.liveWebsiteName) return `${summary.liveWebsiteName} is live on ${on}`;
+  return trial ? "Your trial is running" : `Your ${summary.planLabel} plan is active`;
 }

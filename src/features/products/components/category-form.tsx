@@ -6,10 +6,12 @@ import { toast } from "@/components/common/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createCategoryAction } from "../actions";
-import { PRODUCT_LIMITS } from "../schemas";
+import { categoryNameError, PRODUCT_LIMITS } from "../schemas";
 import { ProductDialogHeader } from "./product-parts";
 
 const fieldClasses = "h-[38px] rounded-xl px-3 text-sm";
+/** Anything that isn't a letter, a space or & ' - (the full rule is in `schemas.ts`). */
+const BAD_CHARACTER = /[^\p{L}\p{M} &'’-]/u;
 
 /** Sends one category name to the server; keeps the pending state and the field error. */
 function useCreateCategory(websiteId: string, onAdded: (name: string) => void) {
@@ -17,6 +19,12 @@ function useCreateCategory(websiteId: string, onAdded: (name: string) => void) {
   const [error, setError] = useState<string | null>(null);
 
   function add(name: string, after?: () => void) {
+    // Same rules as the server, checked here first so the message shows without a round trip.
+    const problem = categoryNameError(name);
+    if (problem) {
+      setError(problem);
+      return;
+    }
     const formData = new FormData();
     formData.set("name", name);
     startTransition(async () => {
@@ -32,7 +40,12 @@ function useCreateCategory(websiteId: string, onAdded: (name: string) => void) {
     });
   }
 
-  return { add, pending, error, clearError: () => setError(null) };
+  /** While typing, only flag characters that can never be used (digits, emoji, symbols). */
+  function check(name: string) {
+    setError(BAD_CHARACTER.test(name) ? "Use letters only. Spaces, & and - between words are fine." : null);
+  }
+
+  return { add, check, pending, error, clearError: () => setError(null) };
 }
 
 /** "New category" popup body, opened from the Products toolbar. */
@@ -46,7 +59,7 @@ export function NewCategoryForm({
   onDone: () => void;
 }) {
   const [name, setName] = useState("");
-  const { add, pending, error, clearError } = useCreateCategory(websiteId, onAdded);
+  const { add, check, pending, error } = useCreateCategory(websiteId, onAdded);
 
   return (
     <form
@@ -75,7 +88,7 @@ export function NewCategoryForm({
           placeholder="e.g. Wedding flowers"
           onChange={(event) => {
             setName(event.target.value);
-            clearError();
+            check(event.target.value);
           }}
           aria-invalid={!!error}
           aria-describedby={error ? "category-name-error" : undefined}
@@ -117,7 +130,7 @@ export function InlineCategoryCreator({
   const open = opened || !hasCategories;
   const canCancel = hasCategories;
   const [name, setName] = useState("");
-  const { add, pending, error, clearError } = useCreateCategory(websiteId, onAdded);
+  const { add, check, pending, error, clearError } = useCreateCategory(websiteId, onAdded);
 
   function submit() {
     add(name, () => {
@@ -157,7 +170,7 @@ export function InlineCategoryCreator({
           placeholder="New category name"
           onChange={(event) => {
             setName(event.target.value);
-            clearError();
+            check(event.target.value);
           }}
           onKeyDown={onKeyDown}
           aria-invalid={!!error}

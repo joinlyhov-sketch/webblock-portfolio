@@ -37,9 +37,9 @@ export const everydayStorePage: PageData = {
     props: {
       templateId: "everyday-store",
       businessName: "Petal & Stem",
-      statusText: "Open now · until 18:00",
-      hours: "9:00 – 18:00",
-      hoursDetail: "Mon – Fri 9:00 – 18:00 · Sat 9:00 – 13:00 · Sun closed",
+      statusText: "Open now · until 6:00 PM",
+      hours: "9:00 AM – 6:00 PM",
+      hoursDetail: "Mon – Fri 9:00 AM – 6:00 PM · Sat 9:00 AM – 1:00 PM · Sun closed",
       address: "18 Garden Lane, Phnom Penh",
       phones: [{ number: "012 345 678" }],
       email: "hello@petalandstem.com",

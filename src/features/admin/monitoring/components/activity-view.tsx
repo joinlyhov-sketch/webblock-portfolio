@@ -137,6 +137,7 @@ export function ActivityView({
           {
             key: "target",
             header: "Target",
+            className: "w-[26%]",
             sortField: "targetName",
             cell: (a) => (
               <span className="block min-w-0">

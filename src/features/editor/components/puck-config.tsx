@@ -183,12 +183,12 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
       statusText: text(
         "Status badge",
         { group: "Business", optional: true },
-        "e.g. Open now · until 18:00",
+        "e.g. Open now · until 6:00 PM",
       ),
       hours: text(
         "Opening hours (short)",
         { group: "Hours", locked: true },
-        "e.g. 9:00 – 18:00",
+        "e.g. 9:00 AM – 6:00 PM",
       ),
       hoursDetail: text("Opening hours (week)", { group: "Hours", locked: true }),
       address: text("Address", { group: "Contact", locked: true }),

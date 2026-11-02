@@ -25,7 +25,7 @@ export const faqItems: FaqItem[] = [
   {
     question: "Do I need a developer?",
     answer:
-      "No. Pick a template, fill in your details and publish. If you can fill in a form, you can build your site.",
+      "No. Pick a template, fill in your details and deploy. If you can fill in a form, you can build your site.",
   },
   {
     question: "What happens after the 14-day trial?",
@@ -33,9 +33,9 @@ export const faqItems: FaqItem[] = [
       "Choose a plan to keep your website online. If you don't, it goes offline but your content is kept, so you can pick up where you left off.",
   },
   {
-    question: "Can I use my own domain?",
+    question: "What will my website’s address be?",
     answer:
-      "Not at the moment. Every site gets a free webblock.com address, like kilncoffee.webblock.com. You choose the name when you first publish, can rename it any time from the editor, and SSL is included.",
+      "Every website gets a free address on webblock.com, like kilncoffee.webblock.com, with SSL included. You choose the name when you first deploy.",
   },
   {
     question: "Can I change my website after it's live?",

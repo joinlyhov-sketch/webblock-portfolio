@@ -5,6 +5,7 @@ import { EverydayStoreContactForm } from "./everyday-store-contact-form";
 import { EverydayStoreHeader } from "./everyday-store-header";
 import { EverydayStoreProductCard } from "./everyday-store-product-card";
 import { everydayStoreCss } from "./everyday-store-styles";
+import { telHref } from "@/lib/tel";
 
 function Icon({ children }: { children: ReactNode }) {
   return (
@@ -19,7 +20,7 @@ function Icon({ children }: { children: ReactNode }) {
 export function EverydayStoreSite({ content }: { content: EverydayStoreContent }) {
   const { business: b, hero, featured, catalog, about, visit } = content;
   const directions = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(b.address)}`;
-  const tel = `tel:${b.phone.replace(/[^\d+]/g, "")}`;
+  const tel = telHref(b.phone);
   const hoursLine = b.hours.map((h) => `${h.days} ${h.hours}`);
   const featuredProducts = featured.productIds
     .map((id) => catalog.products.find((p) => p.id === id))

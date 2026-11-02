@@ -1,6 +1,7 @@
 import { ArrowRight2, Headphone, Lamp, Sms } from "iconsax-reactjs";
 import { Accordion } from "@/components/common/accordion";
 import { Breadcrumb } from "@/components/common/breadcrumb";
+import { PageHeader } from "@/components/common/page-header";
 import { siteConfig } from "@/config/site";
 import type { SupportView as SupportData } from "../service";
 import { EnvelopeArt } from "./envelope-art";
@@ -19,17 +20,18 @@ export function SupportView({ data }: { data: SupportData }) {
               aria-hidden
               className="absolute inset-0 bg-linear-to-r from-hero-fade from-0% via-hero-fade/90 via-45% to-hero-fade/0 to-70%"
             />
-            <div className="relative flex min-w-0 flex-1 flex-col gap-1.5">
-              <p className="font-heading text-xs font-semibold tracking-[0.96px] text-primary uppercase">
-                Contact support
-              </p>
-              <h1 className="font-heading text-[44px] leading-[1.15] font-semibold tracking-[-0.9px] text-foreground">
-                How can we <span className="text-primary">help?</span>
-              </h1>
-              <p className="pt-2.5 text-base leading-[22.5px] text-muted-foreground">
-                Write to the WebBlock team. A real person usually replies within one working day.
-              </p>
-            </div>
+            <PageHeader
+              size="hero"
+              tone="heading"
+              className="relative mb-0 min-w-0 flex-1"
+              eyebrow="Contact support"
+              title={
+                <>
+                  How can we <span className="text-primary">help?</span>
+                </>
+              }
+              description="Write to the WebBlock team. A real person usually replies within one working day."
+            />
             <EnvelopeArt className="relative hidden h-[187.5px] w-[380px] shrink-0 lg:block" />
           </section>
 

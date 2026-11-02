@@ -15,9 +15,9 @@ const daysLabel = (days: number) => `${days} ${days === 1 ? "day" : "days"}`;
 const DEPLOY_BLOCKED: Partial<Record<NonNullable<PlansData["reason"]>, (view: PlansData) => string>> = {
   PLAN_EXPIRED: (v) => `Your ${v.currentPlanName} plan has expired. Renew it to deploy ${v.websiteName} again.`,
   WEBSITE_LIMIT: (v) =>
-    `Your ${v.currentPlanName} plan has no room for another website. Choose a bigger plan to publish ${v.websiteName}.`,
+    `Your ${v.currentPlanName} plan has no room for another website. Choose a bigger plan to deploy ${v.websiteName}.`,
   REDEPLOY_LIMIT: (v) =>
-    `You’ve used this month’s redeploys on ${v.currentPlanName}. Choose a bigger plan to publish your changes now.`,
+    `You’ve used this month’s redeploys on ${v.currentPlanName}. Choose a bigger plan to deploy your changes now.`,
 };
 
 /**
@@ -55,13 +55,13 @@ export function PlansView({ view }: { view: PlansData }) {
           icon: <Flash aria-hidden />,
           title,
           subtitle:
-            "Your free trial covered your first deploy. Subscribe to publish your changes and keep your website online.",
+            "Your free trial covered your first deploy. Subscribe to deploy your changes and keep your website online.",
         }
       : {
           eyebrow: "Upgrade your plan",
           icon: <Crown aria-hidden />,
           title,
-          subtitle: `Your free trial ends in ${daysLabel(view.daysLeft)}. Choose a plan to keep your website online and publishing.`,
+          subtitle: `Your free trial ends in ${daysLabel(view.daysLeft)}. Choose a plan to keep your website online and keep deploying changes.`,
         };
 
   return (

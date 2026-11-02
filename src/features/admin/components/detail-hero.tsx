@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { ExportSquare } from "iconsax-reactjs";
+import { cn } from "@/lib/utils";
 
 /**
  * Top of every admin detail popup (user, website, subscription): picture on the left,
@@ -156,8 +157,9 @@ export function DetailCard({
   children: ReactNode;
 }) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-border bg-background">
-      <header className="flex items-center gap-2.5 border-b border-border px-4 py-3">
+    // Same card as the Settings screen: 20px corners, soft blue shadow, divider inset from the edges.
+    <section className="overflow-hidden rounded-[20px] border border-border bg-background shadow-surface">
+      <header className="mx-[15px] flex items-center gap-3 border-b border-border py-3.5">
         <span
           aria-hidden
           className="grid size-7 shrink-0 place-items-center rounded-full bg-brand-soft text-brand [&_svg]:size-3.5"
@@ -171,7 +173,50 @@ export function DetailCard({
           <span className="text-xs text-muted-foreground">{aside}</span>
         )}
       </header>
-      {children}
+      {/* Same inset as the header, so every divider line in the card stops short of the edges. */}
+      <div className="px-[15px]">{children}</div>
     </section>
+  );
+}
+
+/** Icon + label + value tile inside a DetailCard ("Account ID", "Joined", "Plan"). */
+export function InfoTile({
+  icon,
+  label,
+  value,
+  hint,
+  tone,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: ReactNode;
+  hint?: string;
+  /** Colours the tile, e.g. by plan with `planTone(plan)`. */
+  tone?: { surface: string; chip: string; text: string };
+}) {
+  return (
+    <div
+      className={cn(
+        "flex items-center gap-3 rounded-xl p-3",
+        tone?.surface ?? "bg-muted",
+      )}
+    >
+      <span
+        aria-hidden
+        className={cn(
+          "grid size-9 shrink-0 place-items-center rounded-[10px] [&_svg]:size-[18px]",
+          tone?.chip ?? "bg-brand-soft text-brand",
+        )}
+      >
+        {icon}
+      </span>
+      <div className="min-w-0 text-[13px] leading-5">
+        <dt className="text-muted-foreground">{label}</dt>
+        <dd className={cn("truncate font-semibold", tone?.text ?? "text-foreground")}>
+          {value}
+        </dd>
+        {hint && <dd className="truncate text-xs text-placeholder">{hint}</dd>}
+      </div>
+    </div>
   );
 }

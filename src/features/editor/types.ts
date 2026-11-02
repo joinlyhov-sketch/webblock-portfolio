@@ -87,11 +87,11 @@ export type HeroProps = LayoutProps & {
   secondaryLabel: string;
   secondaryAction: CtaAction;
   imageUrl: string | null;
-  /** Extra images (Sweet pastel side photos). */
+  /** Extra images (Candy pastel side photos). */
   sideImages: { imageUrl: string | null; label?: string }[];
-  /** Short facts (Warm & bold strip, Clean mono spec row, Sweet pastel stickers). */
+  /** Short facts (Rustic roast strip, Studio mono spec row, Candy pastel stickers). */
   highlights: Highlight[];
-  /** Badge text (Warm & bold round badge, Clean mono price tag). Empty hides it. */
+  /** Badge text (Rustic roast round badge, Studio mono price tag). Empty hides it. */
   badge: string;
 };
 
@@ -120,9 +120,9 @@ export type AboutProps = LayoutProps & {
   heading: string;
   body: string;
   imageUrl: string | null;
-  /** Second photo (Keyboards shows two boards). Optional: older pages don't have it. */
+  /** Second photo (Midnight glow shows two boards). Optional: older pages don't have it. */
   secondImageUrl?: string | null;
-  /** Caption under the photo (Clean mono) or quote attribution (Warm & bold). */
+  /** Caption under the photo (Studio mono) or quote attribution (Rustic roast). */
   caption: string;
   stats: Stat[];
 };
@@ -140,7 +140,7 @@ export type TextProps = LayoutProps & {
   eyebrow: string;
   heading: string;
   body: string;
-  /** Picture beside the text (Keyboards). Optional: older pages don't have it. */
+  /** Picture beside the text (Midnight glow). Optional: older pages don't have it. */
   imageUrl?: string | null;
 };
 

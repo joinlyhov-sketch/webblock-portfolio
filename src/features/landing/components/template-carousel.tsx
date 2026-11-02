@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import type { Carousel3DItem } from "@/components/common/carousel-3d";
-import { RevealGroup, RevealItem } from "@/components/common/motion";
+import { RevealGroup, RevealItem, useInView } from "@/components/common/motion";
 import { cn } from "@/lib/utils";
 import { BrowserMock, showcaseTemplates } from "./template-mock";
 
@@ -33,20 +33,29 @@ const START = showcaseTemplates.findIndex((template) => template.slug === "kiln-
 export function TemplateCarousel() {
   const [active, setActive] = useState(START);
   const current = showcaseTemplates[active];
+  // three.js (~140 KB gzipped) and its WebGL setup wait until the section is about to scroll in,
+  // so they stay off the main thread while the page first loads. Keep the margin small: on phones
+  // the stage starts only ~300px below the fold.
+  const stageRef = useRef<HTMLDivElement>(null);
+  const nearView = useInView(stageRef, { once: true, margin: "100px 0px" });
 
   return (
     <div className="flex w-full flex-col items-center gap-6 md:gap-8">
-      <Carousel3D
-        items={items}
-        activeIndex={active}
-        onSelect={setActive}
-        className={cn(stageClass, "cursor-grab active:cursor-grabbing")}
-        fallback={
-          <div className="mx-auto w-full max-w-[720px]">
-            <BrowserMock template={current} />
-          </div>
-        }
-      />
+      {nearView ? (
+        <Carousel3D
+          items={items}
+          activeIndex={active}
+          onSelect={setActive}
+          className={cn(stageClass, "cursor-grab active:cursor-grabbing")}
+          fallback={
+            <div className="mx-auto w-full max-w-[720px]">
+              <BrowserMock template={current} />
+            </div>
+          }
+        />
+      ) : (
+        <div ref={stageRef} aria-hidden className={stageClass} />
+      )}
 
       <RevealGroup className="flex flex-wrap justify-center gap-2" stagger={0.08}>
         {showcaseTemplates.map((template, index) => {

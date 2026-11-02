@@ -6,6 +6,7 @@ import {
   type LogLevel,
   type PipelineStage,
 } from "@/features/admin/monitoring";
+import { nullIfNotFound } from "@/lib/api/errors";
 import { requireAdmin } from "@/lib/auth/session";
 import { parseTableQuery, type SearchParams } from "@/lib/table-query";
 
@@ -27,7 +28,7 @@ export default async function AdminPipelinePage({ searchParams }: { searchParams
           logs: run.live
             ? await listLiveLogs(websiteId, { level: LEVELS.find((l) => l === query.log) }, { page: 0, size: 6 })
             : null,
-        }))
+        })).catch(nullIfNotFound)
       : null,
   ]);
 

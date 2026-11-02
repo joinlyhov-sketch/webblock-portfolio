@@ -1,16 +1,13 @@
 // Every href a customer website can produce. Zero-transaction: section anchors, tel:, mailto:,
 // Google Maps directions and external https:// links only. Blocks never build hrefs themselves.
+import { telHref } from "@/lib/tel";
 import type { CtaAction, SiteRootProps } from "../../types";
 
 /** Section anchors. The Header links to these; blocks put the matching `id` on their <section>. */
 export const SECTION_ID = { top: "top", shop: "shop", visit: "visit" } as const;
 
 /** "012 345 678" → "tel:+85512345678" (Cambodian numbers drop the leading 0). */
-export function telHref(phone: string): string {
-  const digits = phone.replace(/[^\d+]/g, "");
-  if (digits.startsWith("+")) return `tel:${digits}`;
-  return `tel:+855${digits.replace(/^0/, "")}`;
-}
+export { telHref };
 
 export function mailtoHref(email: string): string {
   return `mailto:${email}`;

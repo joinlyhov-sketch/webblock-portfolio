@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import type { PipelineRun } from "../types";
 import { STAGE_LABEL, STEP_TONE, stageOfStep } from "./stage";
 
-/** Table cell "Publish flow": 7 dots joined by lines, then "3 / 7 · Generation". */
+/** Table cell "Deploy flow": 7 dots joined by lines, then "3 / 7 · Generation". */
 export function PublishProgress({
   run,
 }: {

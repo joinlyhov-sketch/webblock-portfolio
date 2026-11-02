@@ -153,7 +153,12 @@ function LineItem({ icon, label, value }: { icon: ReactNode; label: string; valu
   );
 }
 
-const STEPS = ["Open your banking app", "Scan the QR code on the left", "Confirm — your website deploys automatically"];
+/** The last step only promises a deploy when the payment belongs to one (`order.websiteId`). */
+const steps = (deploys: boolean) => [
+  "Open your banking app",
+  "Scan the QR code on the left",
+  deploys ? "Confirm — your website deploys automatically" : "Confirm — your plan starts right away",
+];
 
 const LINE_COPY: Record<PaymentOrder["kind"], [label: string, pill: string]> = {
   SUBSCRIBE: ["Free trial", "Ended"],
@@ -220,7 +225,7 @@ export function PaymentSummary({ order, trialDaysLeft }: { order: PaymentOrder; 
         <div className="flex flex-col gap-2.5 rounded-[20px] bg-background px-[18px] py-4">
           <p className="text-[15px] leading-[20px] font-semibold text-foreground">How to pay</p>
           <ol className="flex flex-col gap-2.5">
-            {STEPS.map((step, index) => (
+            {steps(order.websiteId !== null).map((step, index) => (
               <li key={step} className="flex items-center gap-2.5 text-[15px] leading-[20px] text-muted-foreground">
                 <span className="flex size-[22px] shrink-0 items-center justify-center rounded-full bg-brand-soft text-[13px] leading-[16px] font-bold text-brand">
                   {index + 1}

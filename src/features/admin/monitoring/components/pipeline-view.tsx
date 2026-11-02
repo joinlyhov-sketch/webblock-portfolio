@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Hierarchy, SearchNormal1 } from "iconsax-reactjs";
+import { Thumbnail } from "@/components/common/avatar";
 import { CardHeader } from "@/components/common/card";
 import { DataTable } from "@/components/common/data-table";
 import { EmptyState } from "@/components/common/empty-state";
@@ -37,12 +38,12 @@ export function PipelineView({
     <>
       <AdminPageHeader
         title="Pipeline & Generation"
-        description="Every website's latest publish: generation request and release side by side. Click a row to open its publish flow."
+        description="Every website's latest deploy: generation request and release side by side. Click a row to open its deploy flow."
       />
 
       <DataTable
         fill
-        label="Latest publishes"
+        label="Latest deploys"
         itemLabel="websites"
         data={runs}
         searchParams={searchParams}
@@ -51,7 +52,7 @@ export function PipelineView({
         rowClassName="relative cursor-pointer"
         toolbar={
           <div className="w-full space-y-3">
-            <CardHeader title="Latest publishes" icon={<Hierarchy />} />
+            <CardHeader title="Latest deploys" icon={<Hierarchy />} />
             <div className="flex flex-wrap items-center gap-3">
               <SegmentedTabs
                 size="sm"
@@ -81,7 +82,7 @@ export function PipelineView({
             title={
               stage
                 ? `No websites in ${STAGE_LABEL[stage as PipelineStage] ?? "this stage"} right now`
-                : "No publishes yet"
+                : "No deploys yet"
             }
             description={
               stage ? "Nothing matches this filter. Try another stage." : undefined
@@ -99,19 +100,23 @@ export function PipelineView({
           {
             key: "website",
             header: "Website",
+            className: "w-[22%]",
             sortField: "websiteName",
             cell: (r) => (
               // Stretched link: the whole row opens the publish flow.
               <Link
                 href={runHref(r.websiteId)}
                 scroll={false}
-                className="group block min-w-0 outline-none after:absolute after:inset-0 after:content-[''] focus-visible:after:ring-3 focus-visible:after:ring-ring/40"
+                className="group flex min-w-0 items-center gap-3 outline-none after:absolute after:inset-0 after:content-[''] focus-visible:after:ring-3 focus-visible:after:ring-ring/40"
               >
-                <span className="block truncate font-semibold text-foreground group-hover:text-primary">
-                  {r.websiteName}
-                </span>
-                <span className="block truncate text-[13px] text-muted-foreground">
-                  {r.domain}
+                <Thumbnail src={r.thumbnailUrl} />
+                <span className="min-w-0">
+                  <span className="block truncate font-semibold text-foreground group-hover:text-primary">
+                    {r.websiteName}
+                  </span>
+                  <span className="block truncate text-[13px] text-muted-foreground">
+                    {r.domain}
+                  </span>
                 </span>
               </Link>
             ),
@@ -145,7 +150,7 @@ export function PipelineView({
           },
           {
             key: "flow",
-            header: "Publish flow",
+            header: "Deploy flow",
             sortField: "currentStep",
             cell: (r) => <PublishProgress run={r} />,
           },

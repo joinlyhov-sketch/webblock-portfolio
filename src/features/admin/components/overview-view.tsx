@@ -10,17 +10,10 @@ import {
 import { Thumbnail } from "@/components/common/avatar";
 import { Card, CardHeader } from "@/components/common/card";
 import { AreaTrendChart, DonutBreakdown } from "@/components/common/charts";
+import { CompactTable } from "@/components/common/compact-table";
 import { EmptyState } from "@/components/common/empty-state";
 import { KpiCard, KpiGrid } from "@/components/common/kpi-card";
 import { StatusBadge } from "@/components/common/status-badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import type { Page } from "@/lib/api/types";
 import {
   formatMonth,
@@ -54,7 +47,8 @@ const ATTENTION = {
   TRIALS_ENDING: {
     title: "Trials end in 3 days",
     color: "chart-blue",
-    href: "/admin/subscriptions?plan=FREE_TRIAL",
+    // Soonest end first, so the trials ending in 3 days are at the top.
+    href: "/admin/subscriptions?plan=FREE_TRIAL&sort=endAt,asc",
   },
 } satisfies Record<
   AttentionKind,
@@ -84,7 +78,7 @@ export function OverviewView({
           icon={<Profile2User />}
         />
         <KpiCard
-          label="Websites published"
+          label="Websites deployed"
           value={overview.websitesPublished}
           tone="teal"
           icon={<Global />}
@@ -156,53 +150,42 @@ function RecentDeploys({ deploys }: { deploys: Page<Deploy> }) {
           </Link>
         }
       />
-      {deploys.items.length === 0 ? (
-        <EmptyState
-          icon={<Send2 />}
-          title="No deploys yet"
-          description="Deploys show here as soon as an owner publishes a website."
-        />
-      ) : (
-        <Table aria-label="Recent deploys" className="min-w-[640px] text-sm">
-          <TableHeader className="bg-transparent">
-            <TableRow className="border-0 [&>th]:bg-muted [&>th:first-child]:rounded-l-[10px] [&>th:last-child]:rounded-r-[10px]">
-              {["No.", "Website", "Owner", "Release", "When"].map((h) => (
-                <TableHead
-                  key={h}
-                  className="h-[43px] text-[13px] font-semibold text-muted-foreground"
-                >
-                  {h}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody className="[&_tr:last-child]:border-b">
-            {deploys.items.map((d, i) => (
-              <TableRow key={d.id} className="hover:bg-muted/70">
-                <TableCell className="h-[53px] w-[72px] py-2">
-                  {i + 1}
-                </TableCell>
-                <TableCell className="h-[53px] py-2">
-                  <Link
-                    href={`/admin/websites?website=${d.websiteId}`}
-                    className="inline-flex items-center gap-2.5 font-semibold text-foreground hover:text-primary"
-                  >
-                    <Thumbnail src={d.websiteThumbnailUrl} size="sm" />
-                    {d.websiteName}
-                  </Link>
-                </TableCell>
-                <TableCell className="h-[53px] py-2">{d.ownerName}</TableCell>
-                <TableCell className="h-[53px] py-2">
-                  <StatusBadge status={d.status} />
-                </TableCell>
-                <TableCell className="h-[53px] py-2 text-muted-foreground">
-                  {formatRelative(d.startedAt)}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      )}
+      <CompactTable
+        label="Recent deploys"
+        rows={deploys.items}
+        rowKey={(d) => d.id}
+        empty={
+          <EmptyState
+            icon={<Send2 />}
+            title="No deploys yet"
+            description="Deploys show here as soon as an owner deploys a website."
+          />
+        }
+        columns={[
+          { key: "no", header: "No.", cell: (_, i) => i + 1, className: "w-[72px]" },
+          {
+            key: "website",
+            header: "Website",
+            cell: (d) => (
+              <Link
+                href={`/admin/websites?website=${d.websiteId}`}
+                className="inline-flex items-center gap-2.5 font-semibold text-foreground hover:text-primary"
+              >
+                <Thumbnail src={d.websiteThumbnailUrl} size="sm" />
+                {d.websiteName}
+              </Link>
+            ),
+          },
+          { key: "owner", header: "Owner", cell: (d) => d.ownerName },
+          { key: "release", header: "Release", cell: (d) => <StatusBadge status={d.status} /> },
+          {
+            key: "when",
+            header: "When",
+            cell: (d) => formatRelative(d.startedAt),
+            className: "text-muted-foreground",
+          },
+        ]}
+      />
     </Card>
   );
 }
