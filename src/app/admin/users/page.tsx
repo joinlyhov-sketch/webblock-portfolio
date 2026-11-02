@@ -1,7 +1,10 @@
 import {
+  getSubscription,
   getUser,
   getWebsite,
   listDeploys,
+  listPayments,
+  listSubscriptions,
   getUserStats,
   listUsers,
   listWebsites,
@@ -27,12 +30,12 @@ export default async function AdminUsersPage({
   const query = await searchParams;
   const userId = param(query.user);
   const websiteId = userId ? param(query.website) : undefined;
+  const subscriptionId = userId ? param(query.subscription) : undefined;
 
-  const [users, stats, detail, websiteDetail] = await Promise.all([
+  const [users, stats, detail, websiteDetail, subscriptionDetail] = await Promise.all([
     listUsers(
       { q: param(query.q), plan: PLANS.find((p) => p === query.plan) },
       parseTableQuery(query, {
-        size: 9,
         sort: { field: "joinedAt", direction: "desc" },
       }),
     ),
@@ -41,8 +44,14 @@ export default async function AdminUsersPage({
       ? Promise.all([
           getUser(userId),
           listWebsites({ ownerId: userId }, { page: 0, size: 20 }),
+          listSubscriptions({ q: undefined }, { page: 0, size: 100 }),
         ])
-          .then(([user, websites]) => ({ user, websites }))
+          .then(([user, websites, subs]) => ({
+            user,
+            websites,
+            // This account's subscriptions (one per project), for the "View subscription" button.
+            subscriptions: subs.items.filter((x) => x.userId === userId),
+          }))
           .catch(nullIfNotFound)
       : null,
     websiteId
@@ -53,6 +62,12 @@ export default async function AdminUsersPage({
           .then(([website, deploys]) => ({ website, deploys }))
           .catch(nullIfNotFound)
       : null,
+    subscriptionId
+      ? Promise.all([
+          getSubscription(subscriptionId),
+          listPayments(subscriptionId, { page: 0, size: 6 }),
+        ]).then(([subscription, payments]) => ({ subscription, payments }))
+      : null,
   ]);
 
   return (
@@ -62,6 +77,7 @@ export default async function AdminUsersPage({
       searchParams={query}
       detail={detail}
       websiteDetail={websiteDetail}
+      subscriptionDetail={subscriptionDetail}
     />
   );
 }

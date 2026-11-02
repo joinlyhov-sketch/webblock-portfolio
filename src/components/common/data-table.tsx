@@ -136,8 +136,10 @@ export function DataTable<T>({
 
       <Table
         aria-label={label}
-        containerClassName={cn("min-h-0 grow", fill && "overscroll-contain")}
+        containerClassName={cn(noItems ? "shrink-0" : "min-h-0 grow", fill && "overscroll-contain")}
         className={cn(
+          // Fixed layout: column widths come from the header, so they stay put when the row count changes.
+          "table-fixed",
           minWidth,
           compact &&
             cn(
@@ -176,12 +178,13 @@ export function DataTable<T>({
         </TableHeader>
 
         {!noItems && (
-          <TableBody>
+          // Keyed by size so the rows fade in again when "Rows" changes (10 → 20 → 50).
+          <TableBody key={data.size}>
             {data.items.map((row, i) => (
               <TableRow
                 key={rowKey(row)}
                 className={cn("hover:bg-muted/70 motion-safe:animate-row-in", rowClassName)}
-                style={{ animationDelay: `${i * 25}ms` }}
+                style={{ animationDelay: `${Math.min(i, 12) * 25}ms` }}
               >
                 <TableCell className="pr-0 pl-[21px] tabular-nums">{offset + i + 1}</TableCell>
                 {columns.map((column) => (

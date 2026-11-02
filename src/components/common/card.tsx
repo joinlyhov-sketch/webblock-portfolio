@@ -88,7 +88,7 @@ export function DetailList({
   items,
   className,
 }: {
-  items: { label: string; value: ReactNode }[];
+  items: { label: string; value: ReactNode; icon?: ReactNode }[];
   className?: string;
 }) {
   return (
@@ -103,7 +103,14 @@ export function DetailList({
           key={item.label}
           className="flex items-center justify-between gap-4 px-3.5 py-2.5 text-[13px]"
         >
-          <dt className="text-muted-foreground">{item.label}</dt>
+          <dt className="flex items-center gap-2 text-muted-foreground">
+            {item.icon && (
+              <span aria-hidden className="text-brand [&_svg]:size-4">
+                {item.icon}
+              </span>
+            )}
+            {item.label}
+          </dt>
           <dd className="text-right font-semibold text-foreground">
             {item.value}
           </dd>

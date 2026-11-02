@@ -176,7 +176,8 @@ function TitledModal({
           )}
           {children}
         </div>
-        {footer && <div className="flex justify-end gap-2.5 border-t border-border px-6 py-4">{footer}</div>}
+        {footer && // The divider is inset from the card edges, like the section headers.
+        <div className="mx-[15px] flex justify-end gap-2.5 border-t border-border px-[9px] py-4">{footer}</div>}
       </DialogContent>
     </Dialog>
   );

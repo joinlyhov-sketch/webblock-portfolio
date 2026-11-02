@@ -4,7 +4,8 @@ import { ApiError } from "@/lib/api/errors";
 import type { Page } from "@/lib/api/types";
 import { toPage, type TableQuery } from "@/lib/table-query";
 import { activityLog } from "@/mocks/admin-activity";
-import { liveLogs, pipelineRuns } from "@/mocks/admin-pipeline";
+import { liveLogs, pipelineRuns as pipelineMocks } from "@/mocks/admin-pipeline";
+import { adminWebsites } from "@/mocks/admin-websites";
 import type {
   ActivityEntry,
   ActivityFilters,
@@ -13,6 +14,13 @@ import type {
   PipelineFilters,
   PipelineRun,
 } from "./types";
+
+// The website's image comes from the website itself, so it is the same everywhere.
+const pipelineRuns: PipelineRun[] = pipelineMocks.map((r) => ({
+  ...r,
+  thumbnailUrl:
+    adminWebsites.find((w) => w.id === r.websiteId)?.thumbnailUrl ?? null,
+}));
 
 const delay = (ms = 250) => new Promise((resolve) => setTimeout(resolve, ms));
 
