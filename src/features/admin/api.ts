@@ -407,7 +407,17 @@ export async function listDeploys(
   const items = adminDeploys
     .filter((d) => !filters.websiteId || d.websiteId === filters.websiteId)
     .sort((a, b) => b.startedAt.localeCompare(a.startedAt));
-  return toPage(items, query);
+  const page = toPage(items, query);
+  // Mock only: Spring returns the website's logo on each deploy.
+  const withLogos = await Promise.all(
+    page.items.map(async (d) => {
+      const website = adminWebsites.find((w) => w.id === d.websiteId);
+      if (!website) return d;
+      const { logoUrl, templateSlug } = await withLogo(website);
+      return { ...d, websiteLogoUrl: logoUrl, websiteTemplateSlug: templateSlug };
+    }),
+  );
+  return { ...page, items: withLogos };
 }
 
 const redeployKeys = new Map<string, Deploy>();

@@ -373,9 +373,14 @@ export function WebsiteDetail({
               {deploys.items.map((d) => (
                 <li
                   key={d.id}
-                  className="grid grid-cols-[40px_96px_1fr_auto] items-center gap-3 px-1 py-3"
+                  className="grid grid-cols-[40px_32px_96px_1fr_auto] items-center gap-3 px-1 py-3"
                 >
                   <span className="font-semibold text-brand">#{d.number}</span>
+                  <WebsiteLogo
+                    logoUrl={website.logoUrl}
+                    templateSlug={website.templateSlug}
+                    className="size-8 text-[16px]"
+                  />
                   <span className="text-foreground-soft">
                     {formatDayMonthYear(d.startedAt)}
                   </span>
@@ -485,7 +490,11 @@ export function WebsiteDetail({
             />
             <HostingTile
               icon={<Danger variant="Outline" />}
-              iconTone={SITE_ICON_TONE[website.siteStatus]}
+              iconTone={
+                website.siteStatus === "ONLINE"
+                  ? "muted"
+                  : SITE_ICON_TONE[website.siteStatus]
+              }
               label="Offline reason"
               value={offline.reason}
               hint={offline.hint}

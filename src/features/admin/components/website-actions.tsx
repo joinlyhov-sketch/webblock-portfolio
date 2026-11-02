@@ -38,10 +38,15 @@ type WebsiteRef = Pick<
   | "redeploysLeft"
 >;
 
+/** Disabled reason for a live site: the button keeps its normal label. */
+const LIVE_BLOCKED = "Site is live";
+
 /** Why redeploy is unavailable, or null when it can run. The backend re-checks all of this. */
 function redeployBlocked(website: WebsiteRef): string | null {
-  if (website.siteStatus === "SUSPENDED") return "Resume hosting first";
   if (website.releaseStatus === "GOING_LIVE") return "Deploying…";
+  // A suspended site can be redeployed; a healthy live one has nothing to redeploy.
+  if (website.siteStatus !== "SUSPENDED" && website.releaseStatus === "LIVE")
+    return LIVE_BLOCKED;
   if (website.redeploysLeft <= 0) return "No redeploys left";
   return null;
 }
@@ -74,8 +79,8 @@ export function WebsiteRowMenu({
           },
         ]
       : []),
-    // A live site needs no redeploy: it is only offered after a failed release.
-    ...(website.releaseStatus === "FAILED"
+    // A live site needs no redeploy: it is only offered after a failed release or while suspended.
+    ...(website.releaseStatus === "FAILED" || suspended
       ? [
           {
             label: "Redeploy",
@@ -155,7 +160,7 @@ export function WebsiteDetailActions({ website }: { website: WebsiteRef }) {
         onClick={() => run(redeploy(website), `Redeploying ${website.name}`)}
       >
         {!pending && <Refresh2 variant="Outline" />}
-        {blocked ?? "Redeploy website"}
+        {blocked && blocked !== LIVE_BLOCKED ? blocked : "Redeploy website"}
       </Button>
     </>
   );
