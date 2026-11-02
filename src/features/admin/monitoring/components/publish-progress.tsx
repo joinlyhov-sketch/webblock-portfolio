@@ -34,6 +34,7 @@ export function PublishProgress({
               className={cn(
                 "size-[7px] shrink-0 rounded-full border-[1.5px]",
                 STEP_TONE[step.status].dot,
+                step.status === "RUNNING" && "motion-safe:animate-pulse",
               )}
             />
           </Fragment>

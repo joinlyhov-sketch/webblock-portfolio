@@ -14,6 +14,7 @@ import { tableHref, type SearchParams } from "@/lib/table-query";
 import type { LogLine, PipelineRun, PipelineStage } from "../types";
 import { PublishFlowSheet } from "./publish-flow-sheet";
 import { PublishProgress } from "./publish-progress";
+import { RowPending } from "./row-pending";
 import { RowsMenu } from "./rows-menu";
 import { STAGE_LABEL } from "./stage";
 
@@ -118,6 +119,7 @@ export function PipelineView({
                     {r.domain}
                   </span>
                 </span>
+                <RowPending />
               </Link>
             ),
           },
