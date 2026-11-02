@@ -37,7 +37,8 @@ const id = z.string().min(1).max(100);
 
 const product = z.object({
   name: text(80).min(1, "Every product needs a name."),
-  description: text(160),
+  // Some templates (e.g. Keyboards) append spec chips after a "|" in the description, so it needs room.
+  description: text(240),
   price: z
     .string()
     .regex(/^\d{1,9}(\.\d{1,2})?$/, "Prices are numbers like 6.00."),
