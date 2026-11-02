@@ -193,6 +193,7 @@ function BusinessInfoForm({
             <div className="h-[336px] w-[244px] rotate-3 overflow-clip rounded-2xl border-[6px] border-background bg-background shadow-[0_24px_48px_rgb(60_120_207/0.2),0_6px_14px_rgb(60_120_207/0.1)]">
               <Image
                 src={desktop.url}
+                sizes="(max-width: 639px) 100vw, 440px"
                 alt={`${template.name} template preview`}
                 width={desktop.width}
                 height={desktop.height}

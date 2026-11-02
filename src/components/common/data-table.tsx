@@ -1,3 +1,4 @@
+import { Skeleton } from "@/components/ui/skeleton";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { ArrowDown, ArrowDown2, ArrowUp, ArrowUp2 } from "iconsax-reactjs";
@@ -116,6 +117,7 @@ export function DataTable<T>({
 
   return (
     <section
+      data-responsive-table={columns.length >= 4 ? "cards" : "scroll"}
       className={cn(
         "flex min-h-0 flex-col overflow-hidden rounded-[20px] border border-border bg-background shadow-table",
         fill && "min-h-[420px] flex-1",
@@ -178,17 +180,15 @@ export function DataTable<T>({
         </TableHeader>
 
         {!noItems && (
-          // Keyed by size so the rows fade in again when "Rows" changes (10 → 20 → 50).
-          <TableBody key={data.size}>
+          <TableBody>
             {data.items.map((row, i) => (
               <TableRow
                 key={rowKey(row)}
-                className={cn("hover:bg-muted/70 motion-safe:animate-row-in", rowClassName)}
-                style={{ animationDelay: `${Math.min(i, 12) * 25}ms` }}
+                className={cn("hover:bg-muted/70", rowClassName)}
               >
                 <TableCell className="pr-0 pl-[21px] tabular-nums">{offset + i + 1}</TableCell>
                 {columns.map((column) => (
-                  <TableCell key={column.key} className={column.className}>
+                  <TableCell key={column.key} data-label={typeof column.header === "string" ? column.header : column.key} className={column.className}>
                     {column.cell(row)}
                   </TableCell>
                 ))}
@@ -310,11 +310,11 @@ export function DataTableSkeleton({ columns = 5, rows = 8 }: { columns?: number;
       className="overflow-hidden rounded-[20px] border border-border bg-background shadow-table"
     >
       <div className="h-11 border-b border-border bg-muted" />
-      <div className="animate-pulse">
+      <div>
         {Array.from({ length: rows }, (_, r) => (
           <div key={r} className="flex h-[68px] items-center gap-6 border-b border-border px-5 last:border-0">
             {Array.from({ length: columns }, (_, c) => (
-              <div key={c} className={cn("h-3.5 rounded-full bg-surface", c === 0 ? "w-6" : "flex-1")} />
+              <Skeleton key={c} className={cn("h-3.5 rounded-full", c === 0 ? "w-6" : "flex-1")} />
             ))}
           </div>
         ))}

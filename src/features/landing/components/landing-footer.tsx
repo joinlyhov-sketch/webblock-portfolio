@@ -33,9 +33,9 @@ export function LandingFooter() {
                 <ul className="flex flex-col gap-3.5">
                   {column.links.map((link) => (
                     <li key={link.label}>
-                      <a href={link.href} className="text-[15px] leading-6 text-muted-foreground hover:text-foreground">
+                      <Link href={link.href} className="text-[15px] leading-6 text-muted-foreground hover:text-foreground">
                         {link.label}
-                      </a>
+                      </Link>
                     </li>
                   ))}
                 </ul>

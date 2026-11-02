@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, type ReactNode } from "react";
 import Link from "next/link";
 import { ArrowLeft, ExportSquare, Logout, SidebarLeft } from "iconsax-reactjs";
 import { signOutAction } from "@/features/auth/actions";
@@ -14,15 +14,19 @@ import { cn } from "@/lib/utils";
 import type { Profile } from "@/features/account";
 import type { Website } from "@/features/websites";
 import { BrandLogo } from "./brand-logo";
+import { BottomNav } from "./bottom-nav";
+import { MobileHeader } from "./mobile-header";
 import { SidebarNav } from "./sidebar-nav";
 
 /** Interactive part of the Owner Portal sidebar: collapse toggle and the log out confirmation. */
 export function OwnerSidebarShell({
   website,
   profile,
+  notifications,
 }: {
   website: Pick<Website, "id" | "name" | "domain" | "status">;
   profile: Pick<Profile, "fullName" | "initials" | "avatarUrl">;
+  notifications: ReactNode;
 }) {
   const { narrow, collapsed, toggle: toggleSidebar } = useSidebarCollapse();
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -39,10 +43,19 @@ export function OwnerSidebarShell({
       : { href: `/websites/${website.id}/edit`, label: "Back to editor" };
 
   return (
+    <>
+    <MobileHeader profile={profile} homeHref="/websites" notifications={notifications}>
+      <Link href={back.href} prefetch className="flex min-h-12 items-center rounded-xl px-3">{back.label}</Link>
+      {live && <Link href={liveSiteHref(website.id)} target="_blank" rel="noopener noreferrer" className="flex min-h-12 items-center rounded-xl px-3">Go to website</Link>}
+      <Link href="/websites" prefetch className="flex min-h-12 items-center rounded-xl px-3">My Websites</Link>
+    </MobileHeader>
+    <BottomNav items={ownerNav(website.id)} />
     <aside
+      id="owner-sidebar"
       className={cn(
         "sticky top-0 flex h-dvh shrink-0 flex-col overflow-hidden border-r border-border bg-background px-4 pt-5 pb-4 transition-[width] duration-200 ease-out motion-reduce:transition-none",
         narrow ? "w-[84px]" : "w-[260px]",
+        "max-lg:hidden",
       )}
     >
       <div className={cn("flex items-center", collapsed ? "flex-col gap-3" : "justify-between pl-1")}>
@@ -52,7 +65,7 @@ export function OwnerSidebarShell({
           aria-label={narrow ? "Expand sidebar" : "Collapse sidebar"}
           aria-expanded={!narrow}
           onClick={toggleSidebar}
-          className="flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-background text-foreground-soft outline-none transition-colors hover:bg-primary-soft focus-visible:ring-3 focus-visible:ring-ring/40"
+          className="flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-background text-foreground-soft outline-none transition-colors hover:bg-primary-soft focus-visible:ring-3 focus-visible:ring-ring/40 max-md:hidden"
         >
           <SidebarLeft variant="Outline" aria-hidden className="size-4" />
         </button>
@@ -146,5 +159,6 @@ export function OwnerSidebarShell({
         look="soft"
       />
     </aside>
+    </>
   );
 }

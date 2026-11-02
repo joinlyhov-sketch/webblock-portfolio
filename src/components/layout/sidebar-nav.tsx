@@ -40,7 +40,7 @@ const ICONS = {
   monitoring: Monitor,
 } satisfies Record<NavIcon, ComponentType<{ className?: string; variant?: "Outline" }>>;
 
-function isActive(pathname: string, item: NavItem) {
+export function isActive(pathname: string, item: NavItem) {
   if (pathname === item.href) return true;
   return !item.exact && pathname.startsWith(`${item.href}/`);
 }
@@ -89,7 +89,7 @@ export function SidebarNav({
   );
 }
 
-function NavIconGlyph({ item, compact }: { item: NavItem; compact: boolean }) {
+export function NavIconGlyph({ item, compact = false }: { item: NavItem; compact?: boolean }) {
   const Icon = item.icon ? ICONS[item.icon] : null;
   return Icon ? <Icon variant="Outline" aria-hidden className={cn("shrink-0", compact ? "size-4" : "size-[18px]")} /> : null;
 }

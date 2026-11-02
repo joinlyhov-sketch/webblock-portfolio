@@ -6,6 +6,7 @@ import { listVersionsAction, restoreVersionAction } from "../actions";
 import { ConfirmDialog } from "@/components/common/confirm-dialog";
 import { Modal } from "@/components/common/modal";
 import { toast } from "@/components/common/toast";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { formatDateTime, formatRelativeTime } from "@/lib/format";
 import type { PageVersion } from "../types";
@@ -83,7 +84,7 @@ export function VersionHistoryDialog({
 
         <ul className="flex max-h-[360px] flex-col gap-2 overflow-y-auto px-6 pb-6" aria-busy={versions === null && !error}>
           {versions === null && !error && [0, 1, 2].map((i) => (
-            <li key={i} className="h-[60px] animate-pulse rounded-xl bg-muted" />
+            <li key={i}><Skeleton className="h-[60px] rounded-xl" /></li>
           ))}
           {error && <li role="alert" className="py-6 text-center text-[13px] text-danger">{error}</li>}
           {versions?.length === 0 && (
