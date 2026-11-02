@@ -587,8 +587,9 @@
 @theme static {
   --color-chart-red: #d4736b;
   --color-chart-pink: #ebaaa6;
-  --color-chart-yellow: #e9c45e;
-  --color-chart-blue: #7fa6e6;
+  --color-chart-purple: #8b6fd9;
+  --color-chart-yellow: #eab030;
+  --color-chart-blue: #4f86e0;
 }
 
 @theme inline {

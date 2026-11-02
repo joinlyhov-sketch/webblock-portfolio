@@ -38,7 +38,7 @@ const ATTENTION = {
   },
   PLAN_EXPIRED: {
     title: "Plan expired · site offline",
-    color: "chart-pink",
+    color: "chart-purple",
     href: "/admin/subscriptions?status=EXPIRED",
   },
   PAYMENTS_PAST_DUE: {

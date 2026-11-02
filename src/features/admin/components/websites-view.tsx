@@ -459,7 +459,7 @@ export function WebsiteDetail({
             />
             <HostingTile
               icon={<Routing />}
-              iconTone={website.routingStatus === "UPDATING" ? "brand" : "success"}
+              iconTone="brand"
               label="Routing"
               value={<StatusBadge status={website.routingStatus} />}
               hint={
@@ -470,7 +470,7 @@ export function WebsiteDetail({
             />
             <HostingTile
               icon={<Link21 />}
-              iconTone={website.liveRelease ? "brand" : "muted"}
+              iconTone={website.liveRelease ? "violet" : "muted"}
               label="Live release"
               value={website.liveRelease ?? "—"}
               hint={
@@ -483,7 +483,7 @@ export function WebsiteDetail({
             />
             <HostingTile
               icon={<Danger />}
-              iconTone={SITE_ICON_TONE[website.siteStatus]}
+              iconTone={website.siteStatus === "ONLINE" ? "warning" : SITE_ICON_TONE[website.siteStatus]}
               label="Offline reason"
               value={offline.reason}
               hint={offline.hint}
@@ -494,14 +494,16 @@ export function WebsiteDetail({
     </Modal>
   );
 }
-// Soft icon colour says what the state means (green = healthy, blue = in progress, amber = not started,
-// red = problem). The cards stay white so the tinted icon still shows.
-const ICON_TONE = {
-  success: "bg-success-soft text-success",
-  brand: "bg-brand-soft text-brand",
-  warning: "bg-warning-soft text-warning",
-  danger: "bg-danger-soft text-danger",
-  muted: "bg-muted text-muted-foreground",
+// Same look as the KPI card, without its tinted glass: a white card, a short accent bar on the left edge
+// and an icon tile with a thin tinted ring. Green = healthy, blue = routing, violet = release,
+// amber = not started, red = problem.
+const TILE_TONE = {
+  success: { bar: "bg-success", icon: "text-success inset-ring-success/15" },
+  brand: { bar: "bg-brand", icon: "text-brand inset-ring-brand/15" },
+  violet: { bar: "bg-violet", icon: "text-violet inset-ring-violet/15" },
+  warning: { bar: "bg-warning", icon: "text-warning inset-ring-warning/15" },
+  danger: { bar: "bg-danger", icon: "text-danger inset-ring-danger/15" },
+  muted: { bar: "bg-border", icon: "text-muted-foreground inset-ring-border" },
 };
 
 const SITE_ICON_TONE = {
@@ -509,11 +511,9 @@ const SITE_ICON_TONE = {
   NOT_DEPLOYED: "warning",
   OFFLINE_BILLING: "danger",
   SUSPENDED: "danger",
-} satisfies Record<SiteStatus, keyof typeof ICON_TONE>;
+} satisfies Record<SiteStatus, keyof typeof TILE_TONE>;
 
-const TILE_CARD = "border-border bg-background";
-
-/** One card of "Hosting & routing": round icon on the left; label, value and hint stacked beside it. */
+/** One card of "Hosting & routing": label and icon on top, value below, hint under it. */
 function HostingTile({
   icon,
   label,
@@ -525,20 +525,24 @@ function HostingTile({
   label: string;
   value: ReactNode;
   hint?: string;
-  iconTone: keyof typeof ICON_TONE;
+  iconTone: keyof typeof TILE_TONE;
 }) {
+  const tone = TILE_TONE[iconTone];
   return (
-    <div className={`flex min-w-0 items-center gap-3 rounded-2xl border px-3.5 py-3 ${TILE_CARD}`}>
-      <span
-        aria-hidden
-        className={`grid size-10 shrink-0 place-items-center rounded-full [&_svg]:size-5 ${ICON_TONE[iconTone]}`}
-      >
-        {icon}
-      </span>
-      <div className="min-w-0 space-y-0.5">
-        <dt className="text-[15px] text-muted-foreground">{label}</dt>
-        <dd className="text-lg leading-6 font-bold break-words text-foreground">{value}</dd>
-        {hint && <dd className="truncate text-sm text-placeholder">{hint}</dd>}
+    <div className="relative flex min-w-0 flex-col justify-between gap-3 overflow-hidden rounded-2xl border border-border/80 bg-background px-5 py-4 shadow-kpi">
+      <span aria-hidden className={`absolute top-4 bottom-4 left-0 w-1 rounded-r-full ${tone.bar}`} />
+      <div className="flex items-start justify-between gap-3">
+        <dt className="pt-1 text-sm leading-5 font-medium text-muted-foreground">{label}</dt>
+        <span
+          aria-hidden
+          className={`grid size-9 shrink-0 place-items-center rounded-xl bg-background shadow-button inset-ring-1 [&_svg]:size-[18px] ${tone.icon}`}
+        >
+          {icon}
+        </span>
+      </div>
+      <div className="min-w-0">
+        <dd className="font-heading text-lg leading-7 font-bold break-words text-foreground">{value}</dd>
+        {hint && <dd className="truncate text-[13px] text-muted-foreground">{hint}</dd>}
       </div>
     </div>
   );

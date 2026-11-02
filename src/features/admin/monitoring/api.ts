@@ -5,7 +5,8 @@ import type { Page } from "@/lib/api/types";
 import { toPage, type TableQuery } from "@/lib/table-query";
 import { activityLog } from "@/mocks/admin-activity";
 import { liveLogs, pipelineRuns as pipelineMocks } from "@/mocks/admin-pipeline";
-import { adminWebsites } from "@/mocks/admin-websites";
+import { adminDeploys, adminWebsites } from "@/mocks/admin-websites";
+import { redeployedIds, settleDeploys } from "../api";
 import type {
   ActivityEntry,
   ActivityFilters,
@@ -22,7 +23,45 @@ const pipelineRuns: PipelineRun[] = pipelineMocks.map((r) => ({
     adminWebsites.find((w) => w.id === r.websiteId)?.thumbnailUrl ?? null,
 }));
 
-const delay = (ms = 250) => new Promise((resolve) => setTimeout(resolve, ms));
+const delay = async (ms = 250) => {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+  settleDeploys();
+};
+
+/**
+ * A redeploy started from User Websites moves its website's publish flow too: the steps before the current
+ * one are done, the current one is running, and at step 7 the site is live. The backend reports the same.
+ */
+function withRedeploy(run: PipelineRun): PipelineRun {
+  const latest = adminDeploys
+    .filter((d) => d.websiteId === run.websiteId)
+    .sort((a, b) => b.startedAt.localeCompare(a.startedAt))[0];
+  if (!latest || !redeployedIds.has(latest.id)) return run;
+
+  const live = latest.status === "LIVE";
+  const step = live ? 7 : (latest.currentStep ?? 1);
+  return {
+    ...run,
+    stage: live ? "LIVE" : step <= 1 ? "REQUEST" : step <= 3 ? "GENERATION" : "RELEASE",
+    requestStatus: step <= 3 && !live ? "PUBLISHING" : "PUBLISHED",
+    requestStuckMinutes: null,
+    releaseState: live ? "LIVE" : step < 4 ? "NONE_YET" : step === 4 ? "BUILDING" : "DEPLOYING",
+    currentStep: step,
+    steps: run.steps.map((s) => ({
+      ...s,
+      status: live || s.number < step ? "DONE" : s.number === step ? "RUNNING" : "NOT_STARTED",
+    })),
+    current: {
+      ...run.current,
+      title: run.steps[step - 1].title,
+      status: live ? "DONE" : "RUNNING",
+      tags: [],
+      checkGroup: null,
+    },
+    live: live ? (run.live ?? null) : null,
+    updatedAt: new Date().toISOString(),
+  };
+}
 
 /** Spring-style sort on a top-level field. */
 function sorted<T>(items: T[], sort: TableQuery["sort"]): T[] {
@@ -44,9 +83,9 @@ export async function listPipelineRuns(
   query: TableQuery,
 ): Promise<Page<PipelineRun>> {
   await delay();
-  const items = pipelineRuns.filter(
-    (r) => !filters.stage || r.stage === filters.stage,
-  );
+  const items = pipelineRuns
+    .map(withRedeploy)
+    .filter((r) => !filters.stage || r.stage === filters.stage);
   return toPage(
     sorted(items, query.sort ?? { field: "currentStep", direction: "asc" }),
     query,
@@ -56,7 +95,8 @@ export async function listPipelineRuns(
 /** GET /api/admin/monitoring/pipeline/{websiteId} — the publish flow of one website. */
 export async function getPipelineRun(websiteId: string): Promise<PipelineRun> {
   await delay(150);
-  const run = pipelineRuns.find((r) => r.websiteId === websiteId);
+  const found = pipelineRuns.find((r) => r.websiteId === websiteId);
+  const run = found && withRedeploy(found);
   if (!run)
     throw new ApiError({
       title: "Not found",
