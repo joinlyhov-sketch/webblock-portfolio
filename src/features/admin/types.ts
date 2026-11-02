@@ -76,6 +76,10 @@ export type Deploy = {
   websiteId: string;
   websiteName: string;
   websiteThumbnailUrl: string | null;
+  /** Logo the owner set in Business information; `null` when none. Filled by the API. */
+  websiteLogoUrl?: string | null;
+  /** Template the site was built from (its default logo shows without an uploaded one). */
+  websiteTemplateSlug?: string;
   ownerName: string;
   number: number;
   status: DeployStatus;

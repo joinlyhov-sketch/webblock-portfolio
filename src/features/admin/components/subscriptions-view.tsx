@@ -339,7 +339,7 @@ export function SubscriptionDetail({
         }
         badge={<StatusBadge status={s.status} />}
         title={s.userName}
-        link={{ href: `https://${s.websiteDomain}`, label: s.websiteDomain }}
+        link={{ href: `/sites/${s.websiteId}`, label: s.websiteDomain }}
         chips={
           <>
             <HeroChip icon={<Sms variant="Outline" />}>{s.userEmail}</HeroChip>

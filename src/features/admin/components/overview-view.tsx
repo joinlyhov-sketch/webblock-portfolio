@@ -7,7 +7,6 @@ import {
   Profile2User,
   Send2,
 } from "iconsax-reactjs";
-import { Thumbnail } from "@/components/common/avatar";
 import { Card, CardHeader } from "@/components/common/card";
 import { AreaTrendChart, DonutBreakdown } from "@/components/common/charts";
 import { CompactTable } from "@/components/common/compact-table";
@@ -28,6 +27,7 @@ import type {
 } from "../types";
 import { AdminPageHeader } from "./admin-page-header";
 import { WebsiteDetail } from "./websites-view";
+import { WebsiteLogo } from "./website-logo";
 
 // Figma "Needs attention": soft red, pink, yellow, blue — used for the donut and its legend.
 const ATTENTION = {
@@ -185,7 +185,11 @@ function RecentDeploys({ deploys }: { deploys: Page<Deploy> }) {
                 scroll={false}
                 className="inline-flex items-center gap-2.5 font-semibold text-foreground hover:text-primary after:absolute after:inset-0 after:content-['']"
               >
-                <Thumbnail src={d.websiteThumbnailUrl} size="sm" />
+                <WebsiteLogo
+                  logoUrl={d.websiteLogoUrl}
+                  templateSlug={d.websiteTemplateSlug}
+                  className="size-8 text-[16px]"
+                />
                 {d.websiteName}
               </Link>
             ),
