@@ -216,13 +216,11 @@ export function SubscriptionsView({
           {
             key: "plan",
             header: "Plan",
-            sortField: "plan",
             cell: (s) => <PlanBadge plan={s.plan} />,
           },
           {
             key: "status",
             header: "Status",
-            sortField: "status",
             cell: (s) => <StatusBadge status={s.status} />,
           },
           {

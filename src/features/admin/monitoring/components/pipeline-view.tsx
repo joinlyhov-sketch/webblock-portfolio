@@ -130,7 +130,6 @@ export function PipelineView({
           {
             key: "request",
             header: "Generation request",
-            sortField: "requestStatus",
             cell: (r) => (
               <StatusBadge
                 status={r.requestStatus}
@@ -145,7 +144,6 @@ export function PipelineView({
           {
             key: "release",
             header: "Release",
-            sortField: "releaseState",
             cell: (r) => <StatusBadge status={r.releaseState} />,
           },
           {

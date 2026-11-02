@@ -178,7 +178,6 @@ export function ActivityView({
           {
             key: "result",
             header: "Result",
-            sortField: "result",
             cell: (a) => <StatusBadge status={a.result} />,
           },
         ]}

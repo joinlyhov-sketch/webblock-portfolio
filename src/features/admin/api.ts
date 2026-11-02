@@ -1,5 +1,8 @@
 // Admin Portal data access. Mock now; when Spring is ready only the function bodies change.
 // Every function maps to one endpoint under /api/admin (noted above each).
+import { getBusinessInfo } from "@/features/business-info/api";
+import { getTemplateSite } from "@/features/templates/api";
+import { getWebsite as getOwnedWebsite } from "@/features/websites/api";
 import { ApiError } from "@/lib/api/errors";
 import type { Page } from "@/lib/api/types";
 import { toPage, type TableQuery } from "@/lib/table-query";
@@ -64,8 +67,10 @@ const runningDeploys = new Map<string, number>();
 export const redeployedIds = new Set<string>();
 
 // Deploys already in progress in the seed data keep moving from the step they are on.
+// Mao Print House's run is stuck (Monitoring shows no heartbeat): it stays at its step until the backend retries it.
+const STALLED_DEPLOY_IDS = new Set(["c7e1a3b5-2d4f-4e6a-9b8c-1d3f5a7c0321"]);
 for (const d of adminDeploys) {
-  if (d.status !== "GOING_LIVE") continue;
+  if (d.status !== "GOING_LIVE" || STALLED_DEPLOY_IDS.has(d.id)) continue;
   runningDeploys.set(d.id, Date.now() - ((d.currentStep ?? 1) - 1) * STEP_MS);
   redeployedIds.add(d.id);
 }
@@ -99,6 +104,9 @@ export function settleDeploys() {
     website.routingStatus = "STABLE";
     website.liveRelease = `R-${2900 + Math.floor(startedMs / 1000) % 1000}`;
     if (website.siteStatus === "NOT_DEPLOYED") website.siteStatus = "ONLINE";
+    website.lastDeployAt = deploy.startedAt;
+    // A first deploy also gets its SSL certificate (90 days, like Let's Encrypt).
+    website.sslValidUntil ??= new Date(now + 90 * 86_400_000).toISOString();
     runningDeploys.delete(deployId);
   }
 }
@@ -367,13 +375,27 @@ export async function listWebsites(
       (!filters.plan || w.plan === filters.plan) &&
       (!filters.ownerId || w.ownerId === filters.ownerId),
   );
-  return toPage(sorted(items, query.sort), query);
+  const page = toPage(sorted(items, query.sort), query);
+  return { ...page, items: await Promise.all(page.items.map(withLogo)) };
+}
+
+/** Adds the logo from the website's Business information (GET /projects/{id}/business-info). */
+async function withLogo(website: AdminWebsite): Promise<AdminWebsite> {
+  const [info, owned] = await Promise.all([
+    getBusinessInfo(website.id).catch(() => null),
+    getOwnedWebsite(website.id).catch(() => null),
+  ]);
+  // Mock only: sites the websites mock does not know get a template picked from their id.
+  const hash = [...website.id].reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
+  const templateId = owned?.templateId ?? `c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c0${(hash % 8) + 1}`;
+  const template = await getTemplateSite(templateId).catch(() => null);
+  return { ...website, logoUrl: info?.logoUrl ?? null, templateSlug: template?.slug };
 }
 
 /** GET /api/admin/projects/{projectId} */
 export async function getWebsite(websiteId: string): Promise<AdminWebsite> {
   await delay(150);
-  return adminWebsites.find((w) => w.id === websiteId) ?? notFound("Website");
+  return withLogo(adminWebsites.find((w) => w.id === websiteId) ?? notFound("Website"));
 }
 
 /** GET /api/admin/deploys?projectId=&page=&size= — newest first. */

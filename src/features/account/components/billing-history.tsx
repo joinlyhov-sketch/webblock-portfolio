@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { DocumentDownload, Filter, Receipt2 } from "iconsax-reactjs";
-import { DataTable } from "@/components/common/data-table";
+import { DataTable, SortChevrons } from "@/components/common/data-table";
 import { EmptyState } from "@/components/common/empty-state";
 import { PillSelect } from "@/components/common/filter-select";
 import { RowsSelect } from "@/components/common/rows-select";
@@ -179,7 +179,7 @@ export function BillingHistory({
           {
             key: "status",
             header: "Status",
-            headerIcon: <Filter variant="Outline" aria-hidden className="size-3.5" />,
+            headerIcon: <SortChevrons />,
             className: "w-[190px] px-0",
             cell: (order) => <StatusBadge status={order.status} />,
           },

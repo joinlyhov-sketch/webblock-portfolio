@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { ArrowDown, ArrowSwapVertical, ArrowUp } from "iconsax-reactjs";
+import { ArrowDown, ArrowDown2, ArrowUp, ArrowUp2 } from "iconsax-reactjs";
 import { TablePagination } from "@/components/common/table-pagination";
 import {
   Table,
@@ -245,6 +245,16 @@ export function DataTable<T>({
   );
 }
 
+/** Stacked up/down chevrons: the header sort/filter glyph used by every table. */
+export function SortChevrons({ className }: { className?: string }) {
+  return (
+    <span aria-hidden className={cn("inline-flex flex-col items-center -space-y-1.5", className)}>
+      <ArrowUp2 variant="Outline" className="size-3" />
+      <ArrowDown2 variant="Outline" className="size-3" />
+    </span>
+  );
+}
+
 /** Header link: inactive → asc → desc → asc… Changing sort goes back to page 1. */
 function SortLink({
   field,
@@ -260,7 +270,7 @@ function SortLink({
   children: ReactNode;
 }) {
   const next = active === "asc" ? "desc" : "asc";
-  const Icon = active === "asc" ? ArrowUp : active === "desc" ? ArrowDown : ArrowSwapVertical;
+  const Icon = active === "asc" ? ArrowUp : active === "desc" ? ArrowDown : null;
   const className = cn(
     "group inline-flex items-center gap-1.5 rounded-full outline-none transition-colors duration-150 focus-visible:ring-3 focus-visible:ring-ring/40",
     active ? "text-primary" : "hover:text-foreground",
@@ -268,13 +278,11 @@ function SortLink({
   const content = (
     <>
       {children}
-      <Icon variant="Outline"
-        aria-hidden
-        className={cn(
-          "transition-[opacity,transform] duration-150",
-          active ? "size-3 opacity-100" : "size-3.5 opacity-80 group-hover:opacity-100",
-        )}
-      />
+      {Icon ? (
+        <Icon variant="Outline" aria-hidden className="size-3 transition-opacity duration-150" />
+      ) : (
+        <SortChevrons className="opacity-80 transition-opacity duration-150 group-hover:opacity-100" />
+      )}
       <span className="sr-only">
         {active ? `, sorted ${active === "asc" ? "ascending" : "descending"}` : ", sort"}
       </span>

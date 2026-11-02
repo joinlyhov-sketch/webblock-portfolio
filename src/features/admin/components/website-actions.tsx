@@ -70,7 +70,7 @@ export function WebsiteRowMenu({
           {
             label: "Open live site",
             icon: <Global variant="Outline" />,
-            externalHref: `https://${website.domain}`,
+            externalHref: `/sites/${website.id}`,
           },
         ]
       : []),

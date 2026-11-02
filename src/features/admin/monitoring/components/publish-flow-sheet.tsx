@@ -97,7 +97,7 @@ export function PublishFlowSheet({
           />
         </div>
         <a
-          href={`https://${run.domain}`}
+          href={`/sites/${run.websiteId}`}
           target="_blank"
           rel="noopener noreferrer"
           className="mt-1 inline-flex items-center gap-1.5 text-sm text-brand hover:underline"

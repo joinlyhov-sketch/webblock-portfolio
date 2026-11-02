@@ -20,7 +20,8 @@ import {
   Timer1,
   Wifi,
 } from "iconsax-reactjs";
-import { Avatar, Thumbnail } from "@/components/common/avatar";
+import { Avatar } from "@/components/common/avatar";
+import { WebsiteLogo } from "./website-logo";
 import { Callout } from "@/components/common/callout";
 import { DetailList } from "@/components/common/card";
 import { DataTable } from "@/components/common/data-table";
@@ -188,7 +189,7 @@ export function WebsitesView({
                 scroll={false}
                 className="group flex min-w-0 items-center gap-3 outline-none after:absolute after:inset-0 after:content-[''] focus-visible:after:ring-3 focus-visible:after:ring-ring/40"
               >
-                <Thumbnail src={w.thumbnailUrl} />
+                <WebsiteLogo logoUrl={w.logoUrl} templateSlug={w.templateSlug} />
                 <span className="min-w-0">
                   <span className="block max-w-[260px] truncate font-semibold text-foreground group-hover:text-primary">
                     {w.name}
@@ -209,13 +210,11 @@ export function WebsitesView({
           {
             key: "site",
             header: "Site",
-            sortField: "siteStatus",
             cell: (w) => <StatusBadge status={w.siteStatus} />,
           },
           {
             key: "release",
             header: "Latest release",
-            sortField: "releaseStatus",
             cell: (w) =>
               w.releaseStatus ? (
                 <StatusBadge status={w.releaseStatus} />
@@ -325,23 +324,23 @@ export function WebsiteDetail({
     >
       <DetailHero
         media={
-          <Thumbnail
-            src={website.thumbnailUrl}
-            size="lg"
-            className="aspect-square w-[128px] rounded-[22px] border-4 border-background shadow-card"
+          <WebsiteLogo
+            logoUrl={website.logoUrl}
+            templateSlug={website.templateSlug}
+            className="size-[128px] border-4 border-background text-[56px] shadow-card"
           />
         }
         badge={
           website.releaseStatus ? (
             <StatusBadge status={website.releaseStatus} />
           ) : (
-            <StatusBadge status="NOT_DEPLOYED" />
+            <StatusBadge status="DRAFT" />
           )
         }
         title={website.name}
         link={
           website.liveRelease
-            ? { href: `https://${website.domain}`, label: website.domain }
+            ? { href: `/sites/${website.id}`, label: website.domain }
             : undefined
         }
         chips={
@@ -439,7 +438,10 @@ export function WebsiteDetail({
               {
                 icon: <Timer1 variant="Outline" />,
                 label: "Redeploys left",
-                value: `${website.redeploysLeft} of ${website.redeployLimit}`,
+                value:
+                  website.redeployLimit === 0
+                    ? "First deploy only"
+                    : `${website.redeploysLeft} of ${website.redeployLimit}`,
               },
             ]}
           />
@@ -472,6 +474,10 @@ export function WebsiteDetail({
               icon={<Link21 variant="Outline" />}
               iconTone={website.liveRelease ? "brand" : "muted"}
               label="Live release"
+              value={website.liveRelease ?? "None"}
+              hint={
+                liveDeploy && liveDeploy === latest
+                  ? "latest deploy"
                   : website.liveRelease
                     ? "earlier deploy"
                     : "not live yet"

@@ -53,7 +53,7 @@ export function SidebarShell({
             className={cn(
               "flex shrink-0 items-center justify-center rounded-full border border-border bg-background text-foreground-soft outline-none transition-colors hover:bg-primary-soft focus-visible:ring-3 focus-visible:ring-ring/40",
               // In the icon rail it is as wide and as tall as the nav buttons below it.
-              collapsed ? cn("w-full", compact ? "h-9" : "h-[42px]") : "size-8",
+              collapsed ? "h-[42px] w-full" : "size-8",
             )}
           >
             <SidebarLeft variant="Outline" aria-hidden className="size-4" />

@@ -12,7 +12,8 @@ import {
   Sms,
   Timer1,
 } from "iconsax-reactjs";
-import { Avatar, Thumbnail } from "@/components/common/avatar";
+import { Avatar } from "@/components/common/avatar";
+import { WebsiteLogo } from "./website-logo";
 import { DataTable } from "@/components/common/data-table";
 import { EmptyState } from "@/components/common/empty-state";
 import { KpiCard, KpiGrid } from "@/components/common/kpi-card";
@@ -226,7 +227,6 @@ export function UsersView({
           {
             key: "plan",
             header: "Plan",
-            sortField: "plan",
             cell: (u) => <PlanBadge plan={u.plan} />,
           },
           {
@@ -242,7 +242,6 @@ export function UsersView({
           {
             key: "status",
             header: "Status",
-            sortField: "status",
             cell: (u) => <StatusBadge status={u.status} />,
           },
           {
@@ -309,7 +308,7 @@ function UserDetail({
 }) {
   return (
     <Modal title={user.fullName} hideTitle size="xl" closeHref={closeHref}>
-      <div className="relative isolate space-y-4 px-6 pt-7 pb-6">
+      <div className="relative isolate space-y-4 overflow-x-clip px-6 pt-7 pb-6">
         <HeroDecor layout="card" />
         <div className="flex items-center gap-[22px] pr-11 pl-2">
           <span className="relative shrink-0">
@@ -370,9 +369,8 @@ function UserDetail({
           aside={`${websites.totalItems} ${websites.totalItems === 1 ? "website" : "websites"}`}
         >
           {websites.items.length ? (
-            <ul className="max-h-[192px] divide-y divide-border overflow-y-auto">
+            <ul className="divide-y divide-border">
               {websites.items.map((w) => {
-                const published = w.liveRelease !== null;
                 return (
                   <li key={w.id}>
                     <Link
@@ -380,23 +378,20 @@ function UserDetail({
                       scroll={false}
                       className="flex h-16 items-center gap-3 rounded-lg px-1 transition-colors outline-none hover:bg-muted focus-visible:bg-muted"
                     >
-                      <Thumbnail
-                        src={w.thumbnailUrl}
-                        className="h-8 w-10 rounded-lg"
+                      <WebsiteLogo
+                        logoUrl={w.logoUrl}
+                        templateSlug={w.templateSlug}
+                        className="size-9"
                       />
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-sm font-bold text-foreground">
                           {w.name}
                         </span>
                         <span className="block truncate text-sm text-muted-foreground">
-                          {published ? w.domain : "Not deployed"}
+                          {w.domain || "Not deployed"}
                         </span>
                       </span>
-                      <StatusBadge
-                        status={
-                          published ? (w.releaseStatus ?? "LIVE") : "DRAFT"
-                        }
-                      />
+                      <StatusBadge status={w.releaseStatus ?? "DRAFT"} />
                     </Link>
                   </li>
                 );
@@ -422,12 +417,19 @@ function UserDetail({
               No subscription
             </Button>
           )}
-          <Button asChild size="sm" className="flex-1">
-            <Link href={`/admin/websites?owner=${user.id}`}>
+          {websites.totalItems > 0 ? (
+            <Button asChild size="sm" className="flex-1">
+              <Link href={`/admin/websites?owner=${user.id}`}>
+                <ExportSquare variant="Outline" />
+                View websites
+              </Link>
+            </Button>
+          ) : (
+            <Button size="sm" className="flex-1" disabled>
               <ExportSquare variant="Outline" />
               View websites
-            </Link>
-          </Button>
+            </Button>
+          )}
         </div>
       </div>
     </Modal>
