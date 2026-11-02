@@ -55,7 +55,7 @@ export function ImageField({
         </div>
         <div className="min-w-0">
           <p className="truncate text-[13px] font-semibold text-foreground">{name}</p>
-          <p className="text-xs text-muted-foreground">{value ? "Shown at 4:3" : "A placeholder is shown"}</p>
+          {!value && <p className="text-xs text-muted-foreground">A placeholder is shown</p>}
         </div>
       </div>
 

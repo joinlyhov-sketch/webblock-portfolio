@@ -219,7 +219,7 @@ export function PropertiesPanel({
               </div>
             </div>
 
-            <div role="tabpanel" className="min-h-0 flex-1 overflow-y-auto pb-6">
+            <div role="tabpanel" className="min-h-0 flex-1 overflow-y-auto pb-6 [--puck-field-radius:14px]">
               <FieldList
                 key={`${selectedItem?.props.id ?? "root"}-${tab}`}
                 fields={fields}

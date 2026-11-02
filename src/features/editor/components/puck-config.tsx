@@ -13,7 +13,9 @@ import type {
   SiteRootProps,
   TemplateKey,
 } from "../types";
+import { HighlightsField } from "./editor/highlights-field";
 import { ImageField } from "./editor/image-field";
+import { ImagesField } from "./editor/images-field";
 import { SAMPLE_CATALOGUE, SAMPLE_CATEGORIES, SAMPLE_FEATURED } from "./site/sample-products";
 import { SiteRoot } from "./site/site-root";
 import { useSite } from "./site/site-context";
@@ -276,28 +278,24 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
           ],
         }),
         sideImages: {
-          type: "array",
+          type: "custom",
           label: "Side photos",
-          arrayFields: {
-            imageUrl: imageField("Photo"),
-            label: text("Label", { optional: true }) as unknown as Field<string | undefined>,
-          },
-          defaultItemProps: { imageUrl: null },
-          max: 4,
+          render: ({ value, onChange, readOnly, id }) => (
+            <ImagesField id={id} value={value} onChange={onChange} readOnly={readOnly} max={2} />
+          ),
           ...meta({ group: "Image", templates: ["sweet-pastel", "jackets", "iced-coffee", "plates"] }),
-        },
+        } as CustomField<{ imageUrl: string | null; label?: string }[]>,
         highlights: {
-          type: "array",
+          type: "custom",
           label: "Highlights",
-          arrayFields: { text: text("Text") },
-          defaultItemProps: { text: "New highlight" },
-          getItemSummary: (item: { text?: string }) => item.text || "Highlight",
-          max: 3,
+          render: ({ value, onChange, readOnly, id }) => (
+            <HighlightsField id={id} value={value} onChange={onChange} readOnly={readOnly} max={3} />
+          ),
           ...meta({
             group: "Extras",
             templates: ["sweet-pastel", "warm-bold", "clean-mono", "jackets", "iced-coffee", "plates"],
           }),
-        },
+        } as CustomField<{ text: string }[]>,
         badge: text("Badge", {
           group: "Extras",
           optional: true,
