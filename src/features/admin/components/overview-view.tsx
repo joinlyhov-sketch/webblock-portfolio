@@ -22,10 +22,12 @@ import {
 } from "@/lib/format";
 import type {
   AdminOverview,
+  AdminWebsite,
   AttentionKind,
   Deploy,
 } from "../types";
 import { AdminPageHeader } from "./admin-page-header";
+import { WebsiteDetail } from "./websites-view";
 
 // Figma "Needs attention": soft red, pink, yellow, blue — used for the donut and its legend.
 const ATTENTION = {
@@ -58,9 +60,12 @@ const ATTENTION = {
 export function OverviewView({
   overview,
   deploys,
+  detail,
 }: {
   overview: AdminOverview;
   deploys: Page<Deploy>;
+  /** The website opened with `?website=<id>`, shown as a popup on this page. */
+  detail: { website: AdminWebsite; deploys: Page<Deploy> } | null;
 }) {
 
   return (
@@ -130,6 +135,13 @@ export function OverviewView({
       </div>
 
       <RecentDeploys deploys={deploys} />
+      {detail && (
+        <WebsiteDetail
+          website={detail.website}
+          deploys={detail.deploys}
+          closeHref="/admin"
+        />
+      )}
     </>
   );
 }
@@ -154,6 +166,7 @@ function RecentDeploys({ deploys }: { deploys: Page<Deploy> }) {
         label="Recent deploys"
         rows={deploys.items}
         rowKey={(d) => d.id}
+        rowClassName={() => "relative cursor-pointer"}
         empty={
           <EmptyState
             icon={<Send2 />}
@@ -168,8 +181,9 @@ function RecentDeploys({ deploys }: { deploys: Page<Deploy> }) {
             header: "Website",
             cell: (d) => (
               <Link
-                href={`/admin/websites?website=${d.websiteId}`}
-                className="inline-flex items-center gap-2.5 font-semibold text-foreground hover:text-primary"
+                href={`/admin?website=${d.websiteId}`}
+                scroll={false}
+                className="inline-flex items-center gap-2.5 font-semibold text-foreground hover:text-primary after:absolute after:inset-0 after:content-['']"
               >
                 <Thumbnail src={d.websiteThumbnailUrl} size="sm" />
                 {d.websiteName}
