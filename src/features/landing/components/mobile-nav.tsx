@@ -17,7 +17,7 @@ export function MobileNav({ links }: { links: NavLink[] }) {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon-lg" aria-label="Open menu" className="ml-auto lg:hidden">
-          <HamburgerMenu />
+          <HamburgerMenu variant="Outline" />
         </Button>
       </SheetTrigger>
       <SheetContent side="right" className="px-5 pt-5 pb-6">

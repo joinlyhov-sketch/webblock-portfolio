@@ -90,11 +90,11 @@ export function BusinessIdentity({ website, children }: { website: BusinessInfoV
       <p className="font-heading text-xl leading-7 font-semibold text-foreground">{website.name}</p>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-0.5 text-[13px] leading-5 text-muted-foreground">
         <span className="inline-flex items-center gap-1.5 text-foreground-soft">
-          <Global aria-hidden className="size-3.5" />
+          <Global variant="Outline" aria-hidden className="size-3.5" />
           {website.domain ?? "Not deployed yet"}
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <Shop aria-hidden className="size-3.5" />
+          <Shop variant="Outline" aria-hidden className="size-3.5" />
           Business type: <span className="text-foreground-soft">{website.businessType}</span>
         </span>
       </div>

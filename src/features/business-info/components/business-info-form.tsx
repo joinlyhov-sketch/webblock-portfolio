@@ -141,7 +141,7 @@ export function BusinessInfoForm({
                 aria-hidden
                 className="absolute -right-1 -bottom-1 flex size-6 items-center justify-center rounded-full border-2 border-background bg-brand-soft text-brand-strong transition-colors group-hover:bg-primary-soft"
               >
-                <Camera className="size-3" />
+                <Camera variant="Outline" className="size-3" />
               </span>
             </button>
             {/* Holds the picked logo for the form submit; people choose it in the popup. */}
@@ -207,7 +207,7 @@ export function BusinessInfoForm({
                 id="info-phone"
                 name="phone"
                 type="tel"
-                icon={<Mobile />}
+                icon={<Mobile variant="Outline" />}
                 iconClassName="left-3"
                 defaultValue={values?.phone ?? info.phone}
                 aria-invalid={!!error("phone")}
@@ -221,7 +221,7 @@ export function BusinessInfoForm({
                 name="email"
                 maxLength={LIMITS.email}
                 type="email"
-                icon={<Sms />}
+                icon={<Sms variant="Outline" />}
                 iconClassName="left-3"
                 defaultValue={values?.email ?? info.email}
                 aria-invalid={!!error("email")}
@@ -238,7 +238,7 @@ export function BusinessInfoForm({
                 id="info-address"
                 name="address"
                 maxLength={LIMITS.address}
-                icon={<Location />}
+                icon={<Location variant="Outline" />}
                 iconClassName="left-3"
                 defaultValue={values?.address ?? info.address}
                 aria-invalid={!!error("address")}
@@ -254,7 +254,7 @@ export function BusinessInfoForm({
                 type="url"
                 inputMode="url"
                 placeholder="https://maps.app.goo.gl/…"
-                icon={<LinkIcon />}
+                icon={<LinkIcon variant="Outline" />}
                 iconClassName="left-3"
                 defaultValue={values?.mapsUrl ?? info.mapsUrl ?? ""}
                 aria-invalid={!!error("mapsUrl")}

@@ -93,25 +93,25 @@ export function UsersView({
           label="Total accounts"
           value={count.format(stats.totalAccounts)}
           tone="brand"
-          icon={<Profile2User />}
+          icon={<Profile2User variant="Outline" />}
         />
         <KpiCard
           label="On free trial"
           value={count.format(stats.onFreeTrial)}
           tone="violet"
-          icon={<Timer1 />}
+          icon={<Timer1 variant="Outline" />}
         />
         <KpiCard
           label="Paying"
           value={count.format(stats.paying)}
           tone="success"
-          icon={<CardIcon />}
+          icon={<CardIcon variant="Outline" />}
         />
         <KpiCard
           label="Live websites"
           value={count.format(stats.liveWebsites)}
           tone="teal"
-          icon={<Global />}
+          icon={<Global variant="Outline" />}
         />
       </KpiGrid>
       <DataTable
@@ -152,7 +152,7 @@ export function UsersView({
                 href={`/admin/users/export${exportQuery ? `?${exportQuery}` : ""}`}
                 download
               >
-                <ExportSquare />
+                <ExportSquare variant="Outline" />
                 Export CSV
               </a>
             </Button>
@@ -161,7 +161,7 @@ export function UsersView({
         empty={
           q || plan ? (
             <EmptyState
-              icon={<SearchNormal1 />}
+              icon={<SearchNormal1 variant="Outline" />}
               title={
                 q
                   ? `No accounts match “${q}”`
@@ -182,7 +182,7 @@ export function UsersView({
             />
           ) : (
             <EmptyState
-              icon={<Profile2User />}
+              icon={<Profile2User variant="Outline" />}
               title="No accounts yet"
               description="People who sign up show here."
             />
@@ -334,26 +334,26 @@ function UserDetail({
             </p>
             <div className="flex flex-wrap items-center gap-1.5 pt-2">
               <StatusBadge status={user.status} />
-              <Pill tone="info" icon={<Sms aria-hidden />}>
+              <Pill tone="info" icon={<Sms variant="Outline" aria-hidden />}>
                 {user.signInMethod === "GOOGLE" ? "Google sign-in" : "Email sign-in"}
               </Pill>
             </div>
           </div>
         </div>
-        <DetailCard title="Account details" icon={<Profile />}>
+        <DetailCard title="Account details" icon={<Profile variant="Outline" />}>
           <dl className="grid gap-3 pt-3.5 pb-4 sm:grid-cols-3">
             <InfoTile
-              icon={<DocumentText />}
+              icon={<DocumentText variant="Outline" />}
               label="Account ID"
               value={user.accountCode}
             />
             <InfoTile
-              icon={<Calendar1 />}
+              icon={<Calendar1 variant="Outline" />}
               label="Joined"
               value={formatDate(user.joinedAt)}
             />
             <InfoTile
-              icon={<Crown1 />}
+              icon={<Crown1 variant="Outline" />}
               label="Plan"
               value={
                 user.plan === "FREE_TRIAL"
@@ -366,7 +366,7 @@ function UserDetail({
         </DetailCard>
         <DetailCard
           title="Websites & status"
-          icon={<Global />}
+          icon={<Global variant="Outline" />}
           aside={`${websites.totalItems} ${websites.totalItems === 1 ? "website" : "websites"}`}
         >
           {websites.items.length ? (
@@ -412,19 +412,19 @@ function UserDetail({
           {subscriptionHref ? (
             <Button asChild variant="secondary" size="sm" className="flex-1">
               <Link href={subscriptionHref} scroll={false}>
-                <DocumentText />
+                <DocumentText variant="Outline" />
                 View subscription
               </Link>
             </Button>
           ) : (
             <Button variant="secondary" size="sm" className="flex-1" disabled>
-              <DocumentText />
+              <DocumentText variant="Outline" />
               No subscription
             </Button>
           )}
           <Button asChild size="sm" className="flex-1">
             <Link href={`/admin/websites?owner=${user.id}`}>
-              <ExportSquare />
+              <ExportSquare variant="Outline" />
               View websites
             </Link>
           </Button>

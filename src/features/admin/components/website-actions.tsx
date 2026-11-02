@@ -64,12 +64,12 @@ export function WebsiteRowMenu({
   const suspended = website.siteStatus === "SUSPENDED";
 
   const items: ActionMenuItem[] = [
-    { label: "View details", icon: <Eye />, href: detailHref },
+    { label: "View details", icon: <Eye variant="Outline" />, href: detailHref },
     ...(website.liveRelease && !suspended
       ? [
           {
             label: "Open live site",
-            icon: <Global />,
+            icon: <Global variant="Outline" />,
             externalHref: `https://${website.domain}`,
           },
         ]
@@ -79,7 +79,7 @@ export function WebsiteRowMenu({
       ? [
           {
             label: "Redeploy",
-            icon: <Refresh2 />,
+            icon: <Refresh2 variant="Outline" />,
             disabled: redeployBlocked(website) !== null || pending,
             onSelect: () =>
               run(redeploy(website), `Redeploying ${website.name}`),
@@ -88,13 +88,13 @@ export function WebsiteRowMenu({
       : []),
     {
       label: "Contact owner",
-      icon: <Sms />,
+      icon: <Sms variant="Outline" />,
       onSelect: () => setContact(true),
     },
     suspended
       ? {
           label: "Resume hosting",
-          icon: <PlayCircle />,
+          icon: <PlayCircle variant="Outline" />,
           onSelect: () =>
             run(
               () => resumeWebsiteAction(website.id),
@@ -103,7 +103,7 @@ export function WebsiteRowMenu({
         }
       : {
           label: "Suspend website",
-          icon: <Forbidden2 />,
+          icon: <Forbidden2 variant="Outline" />,
           danger: true,
           onSelect: () => setConfirm(true),
         },
@@ -117,7 +117,7 @@ export function WebsiteRowMenu({
         open={confirm}
         onOpenChange={setConfirm}
         pending={pending}
-        icon={<Forbidden2 />}
+        icon={<Forbidden2 variant="Outline" />}
         title="Suspend this website?"
         description="It will be taken offline and visitors won't be able to see it. Its pages and content are kept, so you can resume hosting any time."
         confirmLabel="Suspend website"
@@ -143,7 +143,7 @@ export function WebsiteDetailActions({ website }: { website: WebsiteRef }) {
   return (
     <>
       <Button variant="secondary" size="sm" className="flex-1" onClick={() => setContact(true)}>
-        <Profile />
+        <Profile variant="Outline" />
         Contact owner
       </Button>
       <ContactOwnerDialog website={website} open={contact} onOpenChange={setContact} />
@@ -154,7 +154,7 @@ export function WebsiteDetailActions({ website }: { website: WebsiteRef }) {
         disabled={blocked !== null}
         onClick={() => run(redeploy(website), `Redeploying ${website.name}`)}
       >
-        {!pending && <Refresh2 />}
+        {!pending && <Refresh2 variant="Outline" />}
         {blocked ?? "Redeploy website"}
       </Button>
     </>

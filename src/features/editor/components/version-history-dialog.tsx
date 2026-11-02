@@ -77,7 +77,7 @@ export function VersionHistoryDialog({
             onClick={onClose}
             className="flex size-6 shrink-0 items-center justify-center rounded-full text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/40"
           >
-            <Add aria-hidden className="size-5 rotate-45" />
+            <Add variant="Outline" aria-hidden className="size-5 rotate-45" />
           </button>
         </div>
 
@@ -92,7 +92,7 @@ export function VersionHistoryDialog({
           {versions?.map((version) => (
             <li key={version.id} className="flex items-center gap-3 rounded-xl border border-border px-4 py-3">
               <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-primary-soft text-brand">
-                {version.current ? <TickCircle className="size-[18px]" /> : <Clock className="size-[18px]" />}
+                {version.current ? <TickCircle variant="Outline" className="size-[18px]" /> : <Clock variant="Outline" className="size-[18px]" />}
               </span>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold">{formatDateTime(version.publishedAt)}</p>
@@ -116,7 +116,7 @@ export function VersionHistoryDialog({
         onConfirm={restore}
         loading={pending}
         tone="primary"
-        icon={<Clock />}
+        icon={<Clock variant="Outline" />}
         title="Restore this version?"
         description={
           target

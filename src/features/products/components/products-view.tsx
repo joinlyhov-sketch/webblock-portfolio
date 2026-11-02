@@ -115,7 +115,7 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
 
   const heading = (
     <h2 className="flex items-center gap-3 text-lg font-semibold">
-      <Box aria-hidden className="size-[22px] text-brand" /> All products
+      <Box variant="Outline" aria-hidden className="size-[22px] text-brand" /> All products
     </h2>
   );
 
@@ -172,13 +172,13 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
 
   const empty = noProducts ? (
     <EmptyState
-      icon={<Box />}
+      icon={<Box variant="Outline" />}
       title="No products yet"
       action={<AddProductButton label="Add your first product" />}
     />
   ) : (
     <EmptyState
-      icon={<SearchStatus />}
+      icon={<SearchStatus variant="Outline" />}
       title="No results found"
       description={
         filtered
@@ -310,8 +310,8 @@ function ProductGridFrame({
 /** Grid / list switch. */
 function LayoutToggle({ layout, onChange }: { layout: ProductsLayout; onChange: (layout: ProductsLayout) => void }) {
   const options = [
-    { value: "grid", label: "Grid view", icon: <Element4 /> },
-    { value: "list", label: "List view", icon: <RowVertical /> },
+    { value: "grid", label: "Grid view", icon: <Element4 variant="Outline" /> },
+    { value: "list", label: "List view", icon: <RowVertical variant="Outline" /> },
   ] as const;
 
   return (

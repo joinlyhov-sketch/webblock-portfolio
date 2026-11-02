@@ -123,7 +123,7 @@ export function ProductForm({
             ) : (
               <>
                 <span aria-hidden className="flex size-8 items-center justify-center rounded-lg bg-brand-soft">
-                  <Export className="size-4" />
+                  <Export variant="Outline" className="size-4" />
                 </span>
                 Add a photo
               </>

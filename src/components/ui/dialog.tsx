@@ -35,7 +35,7 @@ export function DialogContent({
             aria-label="Close"
             className="absolute top-4 right-4 z-10 grid size-8 place-items-center rounded-full border border-border bg-background text-foreground-soft shadow-button transition-colors outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/40"
           >
-            <Add aria-hidden className="size-5 rotate-45" />
+            <Add variant="Outline" aria-hidden className="size-5 rotate-45" />
           </DialogPrimitive.Close>
         )}
       </DialogPrimitive.Content>

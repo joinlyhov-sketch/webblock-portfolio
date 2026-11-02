@@ -19,7 +19,7 @@ export function LandingFooter() {
             </p>
             <Button asChild size="lp-md" className="h-[42px] px-[18px] text-[15px]">
               <Link href="/register">
-                Start free · 14 days <ArrowRight aria-hidden className="size-[15px]!" />
+                Start free · 14 days <ArrowRight variant="Outline" aria-hidden className="size-[15px]!" />
               </Link>
             </Button>
           </div>

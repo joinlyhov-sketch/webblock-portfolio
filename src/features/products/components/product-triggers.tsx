@@ -14,7 +14,7 @@ export function AddProductButton({ label = "Add product" }: { label?: string }) 
   const { openAdd } = useProductDialogs();
   return (
     <Button onClick={openAdd} className="shadow-upload">
-      <Add aria-hidden /> {label}
+      <Add variant="Outline" aria-hidden /> {label}
     </Button>
   );
 }
@@ -24,7 +24,7 @@ export function NewCategoryButton() {
   const { openNewCategory } = useProductDialogs();
   return (
     <Button variant="ghost" size="sm" onClick={openNewCategory} className="rounded-full text-primary hover:text-primary">
-      <Add aria-hidden /> New category
+      <Add variant="Outline" aria-hidden /> New category
     </Button>
   );
 }
@@ -56,8 +56,8 @@ export function ProductCard({ product }: { product: Product }) {
             <ActionMenu
               label={`More actions for ${product.name}`}
               items={[
-                { label: "Edit product", icon: <Edit2 aria-hidden />, onSelect: () => openEdit(product) },
-                { label: "Delete product", icon: <Trash aria-hidden />, danger: true, onSelect: () => openDelete(product) },
+                { label: "Edit product", icon: <Edit2 variant="Outline" aria-hidden />, onSelect: () => openEdit(product) },
+                { label: "Delete product", icon: <Trash variant="Outline" aria-hidden />, danger: true, onSelect: () => openDelete(product) },
               ]}
             />
           </div>
@@ -96,7 +96,7 @@ export function ProductRowActions({ product }: { product: Product }) {
   return (
     <div className="flex items-center justify-end gap-1">
       <Button variant="ghost" size="icon" aria-label={`Edit ${product.name}`} onClick={() => openEdit(product)}>
-        <Edit2 aria-hidden />
+        <Edit2 variant="Outline" aria-hidden />
       </Button>
       <Button
         variant="ghost"
@@ -105,7 +105,7 @@ export function ProductRowActions({ product }: { product: Product }) {
         onClick={() => openDelete(product)}
         className="hover:bg-danger-soft hover:text-danger active:bg-danger-soft"
       >
-        <Trash aria-hidden />
+        <Trash variant="Outline" aria-hidden />
       </Button>
     </div>
   );

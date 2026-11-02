@@ -38,7 +38,7 @@ const ICONS = {
   users: Profile2User,
   subscriptions: Card,
   monitoring: Monitor,
-} satisfies Record<NavIcon, ComponentType<{ className?: string }>>;
+} satisfies Record<NavIcon, ComponentType<{ className?: string; variant?: "Outline" }>>;
 
 function isActive(pathname: string, item: NavItem) {
   if (pathname === item.href) return true;
@@ -91,7 +91,7 @@ export function SidebarNav({
 
 function NavIconGlyph({ item, compact }: { item: NavItem; compact: boolean }) {
   const Icon = item.icon ? ICONS[item.icon] : null;
-  return Icon ? <Icon aria-hidden className={cn("shrink-0", compact ? "size-4" : "size-[18px]")} /> : null;
+  return Icon ? <Icon variant="Outline" aria-hidden className={cn("shrink-0", compact ? "size-4" : "size-[18px]")} /> : null;
 }
 
 function NavLink({
@@ -151,7 +151,7 @@ function NavGroup({
       >
         <NavIconGlyph item={item} compact={compact} />
         <span className="flex-1 text-left">{item.label}</span>
-        <ArrowRight2 aria-hidden className={cn("size-4 transition-transform duration-150", expanded && "rotate-90")} />
+        <ArrowRight2 variant="Outline" aria-hidden className={cn("size-4 transition-transform duration-150", expanded && "rotate-90")} />
       </button>
       {/* Slides open/closed (grid rows 0fr ⇄ 1fr) instead of popping; `inert` keeps hidden links out of Tab. */}
       <div

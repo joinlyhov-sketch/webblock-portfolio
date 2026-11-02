@@ -47,7 +47,7 @@ export function LiveBadge({ online }: { online: boolean }) {
         online ? "bg-success-soft text-success" : "bg-danger-soft text-danger",
       )}
     >
-      <Global aria-hidden />
+      <Global variant="Outline" aria-hidden />
       {online ? "Live" : "Offline"}
     </span>
   );

@@ -116,7 +116,7 @@ export function WebsitesView({
                 className="inline-flex h-8 items-center gap-1.5 rounded-full bg-brand-soft px-3 text-xs font-medium text-brand-strong hover:bg-brand/20"
               >
                 Owner: {websites.items[0].ownerName}
-                <Add
+                <Add variant="Outline"
                   aria-label="Remove owner filter"
                   className="size-4 rotate-45"
                 />
@@ -158,7 +158,7 @@ export function WebsitesView({
         empty={
           filtered ? (
             <EmptyState
-              icon={<SearchNormal1 />}
+              icon={<SearchNormal1 variant="Outline" />}
               title="No websites found"
               description="Nothing matches this filter. Try another status or clear your search."
               action={
@@ -169,7 +169,7 @@ export function WebsitesView({
             />
           ) : (
             <EmptyState
-              icon={<Global />}
+              icon={<Global variant="Outline" />}
               title="No websites yet"
               description="Websites show here once owners create them."
             />
@@ -260,7 +260,7 @@ function deployCallout(latest: Deploy | undefined) {
     return (
       <Callout
         tone="neutral"
-        icon={<Edit2 />}
+        icon={<Edit2 variant="Outline" />}
         title="Not deployed yet"
         description="The owner hasn't deployed this website."
       />
@@ -274,7 +274,7 @@ function deployCallout(latest: Deploy | undefined) {
     case "GOING_LIVE":
       return (
         <Callout
-          icon={<Clock />}
+          icon={<Clock variant="Outline" />}
           title={`Deploy #${latest.number} in progress`}
           description={`Step ${latest.currentStep} of ${latest.totalSteps} · ${latest.stepLabel}`}
         />
@@ -283,7 +283,7 @@ function deployCallout(latest: Deploy | undefined) {
       return (
         <Callout
           tone="danger"
-          icon={<Danger />}
+          icon={<Danger variant="Outline" />}
           title={`Deploy #${latest.number} failed`}
           description={`Stopped at step ${latest.currentStep} of ${latest.totalSteps} · ${latest.stepLabel}${took}`}
         />
@@ -293,7 +293,7 @@ function deployCallout(latest: Deploy | undefined) {
       return (
         <Callout
           tone="success"
-          icon={<TickCircle variant="Bold" />}
+          icon={<TickCircle variant="Outline" />}
           title={`Deploy #${latest.number} succeeded`}
           description={`All ${latest.totalSteps} steps passed${took}`}
         />
@@ -359,7 +359,7 @@ export function WebsiteDetail({
               {website.ownerName}
             </HeroChip>
             {latest && (
-              <HeroChip icon={<Calendar1 />}>
+              <HeroChip icon={<Calendar1 variant="Outline" />}>
                 Deploy #{latest.number} · {formatDayMonthYear(latest.startedAt)}
               </HeroChip>
             )}
@@ -368,7 +368,7 @@ export function WebsiteDetail({
       />
       <div className="space-y-5 px-6 py-5">
         {deployCallout(latest)}
-        <DetailCard title="Recent deploys" icon={<Refresh2 />} aside={`${deploys.items.length} deploys`}>
+        <DetailCard title="Recent deploys" icon={<Refresh2 variant="Outline" />} aside={`${deploys.items.length} deploys`}>
           {deploys.items.length ? (
             <ul className="divide-y divide-border text-sm">
               {deploys.items.map((d) => (
@@ -397,12 +397,12 @@ export function WebsiteDetail({
             </p>
           )}
         </DetailCard>
-        <DetailCard title="Site details" icon={<Setting2 />}>
+        <DetailCard title="Site details" icon={<Setting2 variant="Outline" />}>
           <DetailList
             className="rounded-none border-0 [&>div]:px-1 [&>div]:py-3"
             items={[
               {
-                icon: <ShieldTick />,
+                icon: <ShieldTick variant="Outline" />,
                 label: "SSL certificate",
                 value: website.sslValidUntil ? (
                   <span className="inline-flex items-center gap-2">
@@ -417,7 +417,7 @@ export function WebsiteDetail({
                 ),
               },
               {
-                icon: <Crown1 />,
+                icon: <Crown1 variant="Outline" />,
                 label: "Plan",
                 // The plan keeps its colour (grey, blue, gold, violet) like everywhere else.
                 value: (
@@ -432,22 +432,22 @@ export function WebsiteDetail({
                 ),
               },
               {
-                icon: <Box />,
+                icon: <Box variant="Outline" />,
                 label: "Products",
                 value: `${website.productCount} of ${website.productLimit.toLocaleString("en-US")}`,
               },
               {
-                icon: <Timer1 />,
+                icon: <Timer1 variant="Outline" />,
                 label: "Redeploys left",
                 value: `${website.redeploysLeft} of ${website.redeployLimit}`,
               },
             ]}
           />
         </DetailCard>
-        <DetailCard title="Hosting & routing" icon={<Hierarchy />}>
+        <DetailCard title="Hosting & routing" icon={<Hierarchy variant="Outline" />}>
           <dl className="grid grid-cols-2 gap-2.5 py-3.5">
             <HostingTile
-              icon={<Wifi />}
+              icon={<Wifi variant="Outline" />}
               iconTone={SITE_ICON_TONE[website.siteStatus]}
               label="Hosting"
               value={<StatusBadge status={website.siteStatus} />}
@@ -458,7 +458,7 @@ export function WebsiteDetail({
               }
             />
             <HostingTile
-              icon={<Routing />}
+              icon={<Routing variant="Outline" />}
               iconTone={website.routingStatus === "UPDATING" ? "brand" : "success"}
               label="Routing"
               value={<StatusBadge status={website.routingStatus} />}
@@ -469,7 +469,7 @@ export function WebsiteDetail({
               }
             />
             <HostingTile
-              icon={<Link21 />}
+              icon={<Link21 variant="Outline" />}
               iconTone={website.liveRelease ? "brand" : "muted"}
               label="Live release"
               value={website.liveRelease ?? "—"}
@@ -482,7 +482,7 @@ export function WebsiteDetail({
               }
             />
             <HostingTile
-              icon={<Danger />}
+              icon={<Danger variant="Outline" />}
               iconTone={SITE_ICON_TONE[website.siteStatus]}
               label="Offline reason"
               value={offline.reason}

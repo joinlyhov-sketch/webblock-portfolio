@@ -268,7 +268,7 @@ function SortLink({
   const content = (
     <>
       {children}
-      <Icon
+      <Icon variant="Outline"
         aria-hidden
         className={cn(
           "transition-[opacity,transform] duration-150",

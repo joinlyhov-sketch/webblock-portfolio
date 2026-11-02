@@ -64,7 +64,7 @@ export function SearchInput({
         className,
       )}
     >
-      <SearchNormal1
+      <SearchNormal1 variant="Outline"
         aria-hidden
         className="size-[17px] shrink-0 text-placeholder"
       />
@@ -85,7 +85,7 @@ export function SearchInput({
           aria-label="Search"
           className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[0_6px_14px_rgb(47_107_196/0.35)] transition-colors outline-none hover:bg-brand focus-visible:ring-3 focus-visible:ring-ring/40 focus-visible:ring-offset-2"
         >
-          <SearchNormal1 aria-hidden className="size-[18px]" />
+          <SearchNormal1 variant="Outline" aria-hidden className="size-[18px]" />
         </button>
       )}
     </form>

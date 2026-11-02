@@ -131,7 +131,7 @@ export function WebsitesView({
         {filtering && visible.length === 0 ? (
           <div className="flex flex-1 items-center justify-center">
             <EmptyState
-              icon={<SearchNormal1 />}
+              icon={<SearchNormal1 variant="Outline" />}
               title={q ? "No results found" : "No websites here yet"}
               description={q ? "Try a different keyword." : "Nothing matches this tab. Try another status."}
             />

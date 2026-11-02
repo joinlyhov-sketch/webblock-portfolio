@@ -94,8 +94,8 @@ export function MonitorView({ data, websiteId }: { data: MonitorData; websiteId:
           )}
         </MonitorCard>
 
-        <StatCard icon={<Activity />} label="Uptime" value={status ? `${status.uptimePercent}%` : "—"} />
-        <StatCard icon={<TickCircle />} label="Deploy success" value={successRate} />
+        <StatCard icon={<Activity variant="Outline" />} label="Uptime" value={status ? `${status.uptimePercent}%` : "—"} />
+        <StatCard icon={<TickCircle variant="Outline" />} label="Deploy success" value={successRate} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
@@ -158,7 +158,7 @@ function RecentDeploys({ rows, compact, websiteId }: { rows: DeployRow[]; compac
           rowKey={(row) => row.id}
           empty={
             <EmptyState
-              icon={<Send2 />}
+              icon={<Send2 variant="Outline" />}
               title="No deploys yet"
               description="When you deploy your website, each deploy and its result shows here."
               action={
@@ -210,12 +210,12 @@ const ACTIVITY_TYPE = {
 function ActivityIcon({ event }: { event: ActivityEvent }) {
   const [icon, className] =
     event.outcome === "FAILED"
-      ? [<CloseCircle key="i" />, "bg-danger-soft text-danger"]
+      ? [<CloseCircle variant="Outline" key="i" />, "bg-danger-soft text-danger"]
       : event.type === "DEPLOY"
-        ? [<TickCircle key="i" />, "bg-success-soft text-success"]
+        ? [<TickCircle variant="Outline" key="i" />, "bg-success-soft text-success"]
         : event.type === "PRODUCT"
-          ? [<Box key="i" />, "bg-brand-soft text-brand"]
-          : [<Edit2 key="i" />, "bg-tier-ultra-soft text-tier-ultra"];
+          ? [<Box variant="Outline" key="i" />, "bg-brand-soft text-brand"]
+          : [<Edit2 variant="Outline" key="i" />, "bg-tier-ultra-soft text-tier-ultra"];
   return (
     <span aria-hidden className={cn("flex size-7 shrink-0 items-center justify-center rounded-full [&_svg]:size-3.5", className)}>
       {icon}
@@ -234,7 +234,7 @@ function ActivityLog({ events }: { events: ActivityEvent[] }) {
           rowKey={(event) => event.id}
           empty={
             <EmptyState
-              icon={<Activity />}
+              icon={<Activity variant="Outline" />}
               title="No activity yet"
               description="Deploys and changes to your products and business details show here."
             />

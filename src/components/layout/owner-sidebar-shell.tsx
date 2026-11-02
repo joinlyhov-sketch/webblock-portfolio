@@ -54,7 +54,7 @@ export function OwnerSidebarShell({
           onClick={toggleSidebar}
           className="flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-background text-foreground-soft outline-none transition-colors hover:bg-primary-soft focus-visible:ring-3 focus-visible:ring-ring/40"
         >
-          <SidebarLeft aria-hidden className="size-4" />
+          <SidebarLeft variant="Outline" aria-hidden className="size-4" />
         </button>
       </div>
 
@@ -74,7 +74,7 @@ export function OwnerSidebarShell({
               title={collapsed ? `Go to website (${website.domain})` : (website.domain ?? undefined)}
               aria-label={collapsed ? "Go to website" : undefined}
             >
-              <ExportSquare aria-hidden />
+              <ExportSquare variant="Outline" aria-hidden />
               {!collapsed && siteLabel}
             </Link>
           </Button>
@@ -87,7 +87,7 @@ export function OwnerSidebarShell({
             aria-label={collapsed ? siteLabel : undefined}
             className={cn(!collapsed && "w-full")}
           >
-            <ExportSquare aria-hidden />
+            <ExportSquare variant="Outline" aria-hidden />
             {!collapsed && siteLabel}
           </Button>
         )}
@@ -104,7 +104,7 @@ export function OwnerSidebarShell({
             collapsed && "justify-center px-0",
           )}
         >
-          <ArrowLeft aria-hidden className="size-[18px] shrink-0" />
+          <ArrowLeft variant="Outline" aria-hidden className="size-[18px] shrink-0" />
           <span className={cn("whitespace-nowrap", collapsed && "sr-only")}>{back.label}</span>
         </Link>
         <div className="py-2.5">
@@ -129,7 +129,7 @@ export function OwnerSidebarShell({
             onClick={() => setConfirmOpen(true)}
             className="flex size-8 shrink-0 items-center justify-center rounded-lg text-foreground-soft outline-none transition-colors hover:bg-primary-soft hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/40"
           >
-            <Logout aria-hidden className="size-[18px]" />
+            <Logout variant="Outline" aria-hidden className="size-[18px]" />
           </button>
         </div>
       </div>
@@ -139,7 +139,7 @@ export function OwnerSidebarShell({
         onClose={() => setConfirmOpen(false)}
         onConfirm={() => startSignOut(() => signOutAction())}
         loading={signingOut}
-        icon={<Logout />}
+        icon={<Logout variant="Outline" />}
         title="Log out of WebBlock?"
         description="You’ll need to sign in again to manage and deploy your websites."
         confirmLabel="Log out"

@@ -75,25 +75,25 @@ export function OverviewView({
           label="New accounts"
           value={overview.newAccounts}
           tone="brand"
-          icon={<Profile2User />}
+          icon={<Profile2User variant="Outline" />}
         />
         <KpiCard
           label="Websites deployed"
           value={overview.websitesPublished}
           tone="teal"
-          icon={<Global />}
+          icon={<Global variant="Outline" />}
         />
         <KpiCard
           label="Monthly revenue"
           value={formatPriceShort(overview.monthlyRevenue, "USD")}
           tone="success"
-          icon={<DollarCircle />}
+          icon={<DollarCircle variant="Outline" />}
         />
         <KpiCard
           label="Failed deploys"
           value={overview.failedDeploys}
           tone="danger"
-          icon={<Danger />}
+          icon={<Danger variant="Outline" />}
         />
       </KpiGrid>
 
@@ -116,7 +116,7 @@ export function OverviewView({
         <Card className="flex flex-col gap-3 px-[22px] py-4">
           <CardHeader
             title="Needs attention"
-            icon={<Notification />}
+            icon={<Notification variant="Outline" />}
           />
           <DonutBreakdown
             segments={overview.attention.map((a) => ({
@@ -156,7 +156,7 @@ function RecentDeploys({ deploys }: { deploys: Page<Deploy> }) {
         rowKey={(d) => d.id}
         empty={
           <EmptyState
-            icon={<Send2 />}
+            icon={<Send2 variant="Outline" />}
             title="No deploys yet"
             description="Deploys show here as soon as an owner deploys a website."
           />
