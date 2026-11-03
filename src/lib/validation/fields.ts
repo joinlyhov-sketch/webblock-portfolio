@@ -6,10 +6,12 @@ export type Validated<T> = { ok: true; data: T } | { ok: false; fieldErrors: Fie
 
 /** Longest valid email address (RFC 5321). Used by every email field, in the schema and as `maxLength`. */
 export const EMAIL_MAX = 254;
+/** Minimum length for a new password. */
+export const PASSWORD_MIN = 8;
 /** Longest password accepted; anything longer is not a real password and only slows hashing down. */
 export const PASSWORD_MAX = 128;
 /** A person's full name: sign-up and Settings → Profile share it, so a name that registers can be saved. */
-export const FULL_NAME_MAX = 60;
+export const FULL_NAME_MAX = 35;
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE = /^[+()\d\s-]{6,20}$/;

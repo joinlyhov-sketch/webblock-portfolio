@@ -45,7 +45,7 @@ export function SheetContent({
         {children}
         <SheetPrimitive.Close
           aria-label="Close"
-          className="absolute top-4 right-4 rounded-md text-muted-foreground outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/40"
+          className="absolute top-4 right-4 rounded-md text-muted-foreground opacity-0 outline-none transition-[transform,opacity,color] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] data-[state=open]:scale-100 data-[state=open]:opacity-100 data-[state=closed]:scale-90 data-[state=closed]:opacity-0 hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/40 motion-reduce:transition-none"
         >
           <CloseSquare variant="Outline" aria-hidden className="size-5" />
         </SheetPrimitive.Close>

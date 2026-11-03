@@ -1,4 +1,4 @@
-import { ArrowRight2, Headphone, Lamp, Sms } from "iconsax-reactjs";
+import { ArrowRight2, Headphone, MessageQuestion, Sms } from "iconsax-reactjs";
 import { Accordion } from "@/components/common/accordion";
 import { PageHeader } from "@/components/common/page-header";
 import { siteConfig } from "@/config/site";
@@ -38,7 +38,7 @@ export function SupportView({ data }: { data: SupportData }) {
         <aside className="flex flex-col gap-5">
           <section className="rounded-[20px] border border-border bg-background p-5 shadow-panel-sm">
             <h2 className="flex h-[23px] items-center gap-2.5 text-lg leading-[22.1px] font-semibold tracking-[-0.17px] text-foreground">
-              <Lamp variant="Outline" aria-hidden className="size-[22px] text-primary" /> Quick answers
+              <MessageQuestion variant="Outline" aria-hidden className="size-[22px] text-primary" /> Quick answers
             </h2>
             <Accordion items={data.faq} defaultOpenId={data.faq[0]?.id} />
           </section>

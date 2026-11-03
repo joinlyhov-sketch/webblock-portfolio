@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useUrlParam } from "@/hooks/use-url-param";
 import { cn } from "@/lib/utils";
 import { startDeployAction } from "../actions";
-import { DOMAIN_SUFFIX, plansHref, SUBDOMAIN_MAX } from "../schemas";
+import { DOMAIN_SUFFIX, plansHref, SUBDOMAIN_MAX, SUBDOMAIN_MIN } from "../schemas";
 import type { DomainCheck } from "../types";
 
 const PERKS = [
@@ -125,6 +125,8 @@ export function ChooseDomainView({
             <input
               value={value}
               onChange={(event) => setValue(event.target.value)}
+              required
+              minLength={SUBDOMAIN_MIN}
               maxLength={SUBDOMAIN_MAX}
               aria-label="Web address"
               aria-invalid={settled && !check.available}

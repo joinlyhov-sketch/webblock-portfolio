@@ -63,7 +63,7 @@ export function SidebarShell({
               collapsed ? "h-[42px] w-full" : "size-8",
             )}
           >
-            <SidebarLeft variant="Outline" aria-hidden className="size-4" />
+            <SidebarLeft variant="Outline" aria-hidden className={cn("size-4 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none", narrow && "rotate-180")} />
           </button>
         )}
       </div>

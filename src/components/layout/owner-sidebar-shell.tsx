@@ -67,7 +67,7 @@ export function OwnerSidebarShell({
           onClick={toggleSidebar}
           className="flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-background text-foreground-soft outline-none transition-colors hover:bg-primary-soft focus-visible:ring-3 focus-visible:ring-ring/40 max-md:hidden"
         >
-          <SidebarLeft variant="Outline" aria-hidden className="size-4" />
+          <SidebarLeft variant="Outline" aria-hidden className={cn("size-4 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none", narrow && "rotate-180")} />
         </button>
       </div>
 

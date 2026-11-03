@@ -33,6 +33,8 @@ export function ProfileCard({
 }) {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [removing, startRemove] = useTransition();
+  const [nameValue, setNameValue] = useState(profile.fullName);
+  const [nameTouched, setNameTouched] = useState(false);
   // What the card shows. Name and initials come from the last saved result, the photo from the last
   // upload or removal, so a change appears without a re-render from the server.
   const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl);
@@ -49,8 +51,11 @@ export function ProfileCard({
 
   useEffect(() => {
     if (!state) return;
-    if (state.ok) toast.success(state.message ?? "Profile saved");
-    else toast.error("Could not save", state.message);
+    if (state.ok) {
+      setNameValue(state.data.fullName);
+      toast.success(state.message ?? "Profile saved");
+    }
+    else if (!state.fieldErrors) toast.error("Could not save your profile", state.message);
   }, [state]);
 
   async function upload(file: File): Promise<boolean> {
@@ -75,7 +80,11 @@ export function ProfileCard({
     });
   }
 
-  const nameError = state && !state.ok ? state.fieldErrors?.fullName?.[0] : undefined;
+  const nameError = nameTouched && !nameValue.trim()
+    ? "Enter your full name."
+    : state && !state.ok && state.values?.fullName === nameValue
+      ? state.fieldErrors?.fullName?.[0]
+      : undefined;
 
   return (
     <SettingsCard
@@ -121,7 +130,7 @@ export function ProfileCard({
               </div>
               <div aria-hidden className="h-[17px]" />
             </div>
-            <div className="flex flex-col items-end gap-2">
+            <div className="flex flex-col items-end">
               <div className="flex items-center gap-2">
                 <Button size="sm" onClick={() => setUploadOpen(true)}>
                   Upload photo
@@ -136,7 +145,6 @@ export function ProfileCard({
                   Remove
                 </Button>
               </div>
-              <p className="text-xs text-hint">JPG or PNG, up to 2 MB</p>
             </div>
           </div>
           <dl className="flex gap-6 border-t border-border bg-background/60 px-[22px] pt-3.5 pb-4">
@@ -152,18 +160,35 @@ export function ProfileCard({
           </dl>
         </div>
 
-        <form action={formAction} className="flex flex-col gap-5">
+        <form
+          action={formAction}
+          className="flex flex-col gap-5"
+          onSubmit={(event) => {
+            if (!nameValue.trim()) {
+              event.preventDefault();
+              setNameTouched(true);
+            }
+          }}
+        >
           <Field id="fullName" label="Full name" hint="Shown on your website header." error={nameError}>
             <Input
               id="fullName"
               name="fullName"
               maxLength={FULL_NAME_MAX}
-              defaultValue={state && !state.ok ? (state.values?.fullName ?? profile.fullName) : profile.fullName}
+              value={nameValue}
+              onChange={(event) => setNameValue(event.target.value)}
+              onBlur={() => setNameTouched(true)}
               autoComplete="name"
               aria-invalid={!!nameError}
-              aria-describedby="fullName-hint"
+              aria-required="true"
+              aria-describedby={nameValue.length >= FULL_NAME_MAX ? "fullName-hint fullName-limit" : "fullName-hint"}
               className={SETTINGS_FIELD}
             />
+            {nameValue.length >= FULL_NAME_MAX && (
+              <p id="fullName-limit" role="status" className="text-xs text-danger">
+                You’ve reached the {FULL_NAME_MAX}-character limit.
+              </p>
+            )}
           </Field>
           <Field id="email" label="Email" hint="Your email can’t be changed.">
             <Input

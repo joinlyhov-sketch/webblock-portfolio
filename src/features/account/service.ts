@@ -19,7 +19,7 @@ import { formFile, imageToDataUrl } from "@/lib/files";
 import { AVATAR_RULE, checkImage } from "@/lib/image-rules";
 import { daysUntil } from "@/lib/format";
 import { parseTableQuery, type SearchParams, type TableQuery } from "@/lib/table-query";
-import { createCollector, FULL_NAME_MAX, formText } from "@/lib/validation/fields";
+import { createCollector, FULL_NAME_MAX, formText, PASSWORD_MAX, PASSWORD_MIN } from "@/lib/validation/fields";
 import type {
   OrderStatus,
   PlanCode,
@@ -29,8 +29,6 @@ import type {
   SidebarSummary,
   Subscription,
 } from "./types";
-
-const MIN_PASSWORD_LENGTH = 8;
 
 // ── Reads ────────────────────────────────────────────────────────────────────
 
@@ -198,7 +196,7 @@ function identityOf(profile: Profile): ProfileIdentity {
 export async function saveProfile(userId: string, formData: FormData): Promise<ActionResult<ProfileIdentity>> {
   const fullName = formText(formData, "fullName");
   const c = createCollector();
-  c.text("fullName", fullName, "Full name", { min: 2, max: FULL_NAME_MAX });
+  c.text("fullName", fullName, "Full name", { max: FULL_NAME_MAX });
   if (c.hasErrors) {
     return {
       ok: false,
@@ -224,8 +222,15 @@ export async function changePassword(userId: string, formData: FormData): Promis
 
   const c = createCollector();
   if (profile.hasPassword && !currentPassword) c.add("currentPassword", "Enter your current password.");
-  if (password.length < MIN_PASSWORD_LENGTH) {
-    c.add("password", `Use at least ${MIN_PASSWORD_LENGTH} characters.`);
+  if (!password) {
+    c.add("password", "Enter a new password.");
+  } else {
+    const requirements: string[] = [];
+    if (password.length < PASSWORD_MIN) requirements.push(`at least ${PASSWORD_MIN} characters`);
+    if (!/[A-Z]/.test(password)) requirements.push("one uppercase letter");
+    if (!/[^A-Za-z0-9]/.test(password)) requirements.push("one symbol");
+    if (requirements.length) c.add("password", `Use ${requirements.join(", ")}.`);
+    if (password.length > PASSWORD_MAX) c.add("password", `Use ${PASSWORD_MAX} characters or fewer.`);
   }
   if (confirm !== password) c.add("confirmPassword", "The passwords do not match.");
   if (c.hasErrors) {

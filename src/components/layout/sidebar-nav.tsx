@@ -10,7 +10,7 @@ import {
   Card,
   Element3,
   Global,
-  MessageQuestion,
+  Headphone,
   Monitor,
   Profile2User,
   Setting5,
@@ -30,7 +30,7 @@ const ICONS = {
   websites: Global,
   templates: Element3,
   settings: Setting5,
-  support: MessageQuestion,
+  support: Headphone,
   products: Box,
   business: Shop,
   monitor: Activity,
@@ -47,9 +47,10 @@ export function isActive(pathname: string, item: NavItem) {
 
 const itemClass = (active: boolean, compact = false, collapsed = false) =>
   cn(
-    "flex w-full items-center gap-3 rounded-full px-3 transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
+    // Icon keeps one fixed spot: padding eases to the rail's centre while the label fades out, so nothing snaps.
+    "flex w-full items-center rounded-full transition-[color,background-color,padding,gap] duration-200 ease-out outline-none focus-visible:ring-3 focus-visible:ring-ring/40 motion-reduce:transition-none",
     compact ? "h-9 text-[13px]" : "h-[42px] text-sm",
-    collapsed && "justify-center px-0",
+    collapsed ? (compact ? "gap-0 px-[18px]" : "gap-0 px-[17px]") : "gap-3 px-3",
     active
       ? "bg-brand-soft font-semibold text-brand-deep"
       : "font-medium text-foreground-soft hover:bg-muted hover:text-foreground",
@@ -90,6 +91,10 @@ export function SidebarNav({
 }
 
 export function NavIconGlyph({ item, compact = false }: { item: NavItem; compact?: boolean }) {
+  if (item.icon === "support") {
+    return <Headphone variant="Bold" aria-hidden className={cn("shrink-0", compact ? "size-4" : "size-[18px]")} />;
+  }
+
   const Icon = item.icon ? ICONS[item.icon] : null;
   return Icon ? <Icon variant="Outline" aria-hidden className={cn("shrink-0", compact ? "size-4" : "size-[18px]")} /> : null;
 }
@@ -113,7 +118,14 @@ function NavLink({
       className={itemClass(active, compact, collapsed)}
     >
       <NavIconGlyph item={item} compact={compact} />
-      <span className={cn(collapsed && "sr-only")}>{item.label}</span>
+      <span
+        className={cn(
+          "overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200 ease-out motion-reduce:transition-none",
+          collapsed ? "max-w-0 opacity-0" : "max-w-[200px] opacity-100",
+        )}
+      >
+        {item.label}
+      </span>
     </Link>
   );
 }

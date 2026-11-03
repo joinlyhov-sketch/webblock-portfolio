@@ -137,7 +137,6 @@ function BusinessInfoForm({
         router.push(`/websites/${result.data.id}/edit`);
         return;
       }
-      toast.error("Could not create the website", result.message);
       if (result.fieldErrors) {
         setErrors(result.fieldErrors);
         if (result.fieldErrors.businessName || result.fieldErrors.businessType || result.fieldErrors.description) {
@@ -146,6 +145,8 @@ function BusinessInfoForm({
       } else if (result.message.includes("business name")) {
         setErrors({ businessName: [result.message] });
         setStep(1);
+      } else {
+        toast.error("Could not create the website", result.message);
       }
     });
   }
