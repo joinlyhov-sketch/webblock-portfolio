@@ -2,7 +2,7 @@ import type { FaqItem, SupportTopic } from "@/features/support/types";
 
 export const supportTopics: SupportTopic[] = [
   { id: "editing", label: "Editing my website" },
-  { id: "publishing", label: "Publishing & deploys" },
+  { id: "publishing", label: "Deploying my website" },
   { id: "domain", label: "Domain" },
   { id: "billing", label: "Billing" },
   { id: "other", label: "Something else" },

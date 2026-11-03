@@ -27,7 +27,11 @@ export function DetailHero({
       <div className="shrink-0">{media}</div>
       <div className="min-w-0 flex-1 space-y-1.5 pr-8">
         {badge}
-        <h2 className="text-[26px] leading-8 font-semibold tracking-[-0.4px] break-words text-foreground">
+        {/* Long website names: at most 2 lines, the full name on hover. */}
+        <h2
+          title={title}
+          className="line-clamp-2 text-[26px] leading-8 font-semibold tracking-[-0.4px] break-words text-foreground"
+        >
           {title}
         </h2>
         {subtitle && (
@@ -43,7 +47,7 @@ export function DetailHero({
             className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-brand-soft bg-background px-3 py-1 text-sm font-medium text-brand hover:bg-primary-soft focus-visible:ring-3 focus-visible:ring-ring/40 focus-visible:outline-none"
           >
             <span className="truncate">{link.label}</span>
-            <ExportSquare aria-hidden className="size-3.5 shrink-0" />
+            <ExportSquare variant="Outline" aria-hidden className="size-3.5 shrink-0" />
           </a>
         )}
         {chips && <div className="flex flex-wrap gap-1.5 pt-0.5">{chips}</div>}

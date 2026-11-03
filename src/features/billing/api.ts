@@ -4,8 +4,10 @@
 import { activatePlan, getSubscription, recordPlanOrder } from "@/features/account/api";
 import { delay } from "@/lib/api/delay";
 import { ApiError } from "@/lib/api/errors";
-import { billingPlans, MOCK_AUTO_PAY_MS, MOCK_QR_IMAGE_URL, QR_LIFETIME_MS } from "@/mocks/billing";
-import type { BillingPlan, CreatePaymentBody, PaymentKind, PaymentOrder } from "./types";
+import type { Plan } from "@/features/admin/types";
+import { MOCK_AUTO_PAY_MS, MOCK_QR_IMAGE_URL, QR_LIFETIME_MS } from "@/mocks/billing";
+import { hasLogs, planCatalogue, planLines } from "@/mocks/plans";
+import type { BillingPlan, CreatePaymentBody, PaymentKind, PaymentOrder, PlanFeature } from "./types";
 
 const DAY_MS = 24 * 3_600_000;
 
@@ -15,9 +17,37 @@ type StoredOrder = { userId: string; order: PaymentOrder; payAt: number | null }
 const globalForStore = globalThis as typeof globalThis & { __wbPayments?: StoredOrder[] };
 const store: StoredOrder[] = (globalForStore.__wbPayments ??= []);
 
+/**
+ * MOCK ONLY: Spring returns each plan with its card lines. Here they come from the shared plan catalogue
+ * (the one Admin → Plans edits), so a new price or limit shows on the cards at once. A paid plan lists
+ * "Everything in <the plan below>" plus what it adds; logs are named on the first plan that has them.
+ */
+function toBillingPlan(plan: Plan): BillingPlan {
+  const lines = planLines(plan);
+  const paid = planCatalogue.filter((p) => p.code !== "FREE_TRIAL");
+  const below = paid[paid.findIndex((p) => p.code === plan.code) - 1];
+  const features: PlanFeature[] =
+    plan.code === "FREE_TRIAL"
+      ? [
+          { icon: "clock", text: `Free for ${plan.trialDays ?? 0} days` },
+          { icon: "box", text: lines.products },
+          { icon: "pulse", text: "Basic status monitoring" },
+          { icon: "check", text: "No payment needed" },
+        ]
+      : [
+          ...(below ? [{ icon: "check", text: `Everything in ${below.name}` } as const] : []),
+          { icon: "globe", text: lines.websites },
+          { icon: "rocket", text: lines.redeploys },
+          { icon: "box", text: lines.products },
+          ...(below ? [] : [{ icon: "pulse", text: "Basic status monitoring" } as const]),
+          ...(hasLogs(plan) && !(below && hasLogs(below)) ? [{ icon: "file", text: "Logs" } as const] : []),
+        ];
+  return { code: plan.code, name: plan.name, monthlyPrice: plan.priceMonthly, popular: plan.mostPopular, features };
+}
+
 export async function listPlans(): Promise<BillingPlan[]> {
   await delay(80);
-  return billingPlans;
+  return planCatalogue.map(toBillingPlan);
 }
 
 function reference(id: string): string {
@@ -46,7 +76,8 @@ async function nextPeriodStart(userId: string, kind: PaymentKind, from: number):
 /** Creates a pending order with a QR code that is valid for 10 minutes. */
 export async function createPayment(userId: string, body: CreatePaymentBody): Promise<PaymentOrder> {
   await delay(200);
-  const plan = billingPlans.find((p) => p.code === body.plan);
+  const found = planCatalogue.find((p) => p.code === body.plan);
+  const plan = found && toBillingPlan(found);
   if (!plan) {
     throw new ApiError({ title: "Unknown plan", status: 400, detail: "That plan does not exist." });
   }

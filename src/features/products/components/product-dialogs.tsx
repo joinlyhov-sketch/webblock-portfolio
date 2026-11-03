@@ -2,21 +2,22 @@
 
 import { createContext, useContext, useState, useTransition, type ReactNode } from "react";
 import { Edit2, Trash } from "iconsax-reactjs";
-import { deleteProductAction } from "../actions";
+import { deleteCategoryAction, deleteProductAction } from "../actions";
 import { ConfirmDialog } from "@/components/common/confirm-dialog";
 import { Modal } from "@/components/common/modal";
 import { ProductImage } from "@/components/common/product-image";
 import { toast } from "@/components/common/toast";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/format";
-import type { Product } from "../types";
-import { NewCategoryForm } from "./category-form";
+import type { Product, ProductCategoryCount } from "../types";
+import { CategoriesForm } from "./category-form";
 import { ProductForm } from "./product-form";
 import { CategoryChip, ProductDialogHeader } from "./product-parts";
 
 type Dialog =
   | { kind: "add" | "category" }
   | { kind: "details" | "edit" | "delete"; product: Product }
+  | { kind: "delete-category"; category: string }
   | null;
 
 type ProductDialogs = {
@@ -24,7 +25,7 @@ type ProductDialogs = {
   openDetails: (product: Product) => void;
   openEdit: (product: Product) => void;
   openDelete: (product: Product) => void;
-  openNewCategory: () => void;
+  openCategories: () => void;
 };
 
 const ProductDialogsContext = createContext<ProductDialogs | null>(null);
@@ -41,30 +42,36 @@ export function ProductDialogsProvider({
   websiteId,
   domain,
   categories,
+  categoryCounts,
   onSaved,
   onDeleted,
   onCategoryAdded,
+  onCategoryDeleted,
   children,
 }: {
   websiteId: string;
   domain: string | null;
   categories: string[];
+  /** Products per category, for the "Categories" popup (a used category can't be deleted). */
+  categoryCounts: ProductCategoryCount[];
   /** The list adds or replaces this product right away. */
   onSaved: (product: Product) => void;
   onDeleted: (productId: string) => void;
   onCategoryAdded: (name: string) => void;
+  onCategoryDeleted: (name: string) => void;
   children: ReactNode;
 }) {
   const [dialog, setDialog] = useState<Dialog>(null);
   const [deleting, startDelete] = useTransition();
   const close = () => setDialog(null);
+  const backToCategories = () => setDialog({ kind: "category" });
 
   const api: ProductDialogs = {
     openAdd: () => setDialog({ kind: "add" }),
     openDetails: (product) => setDialog({ kind: "details", product }),
     openEdit: (product) => setDialog({ kind: "edit", product }),
     openDelete: (product) => setDialog({ kind: "delete", product }),
-    openNewCategory: () => setDialog({ kind: "category" }),
+    openCategories: () => setDialog({ kind: "category" }),
   };
 
   const product = dialog && "product" in dialog ? dialog.product : null;
@@ -81,6 +88,18 @@ export function ProductDialogsProvider({
       else toast.error("Could not delete the product", result.message);
     });
   }
+
+  function removeCategory(category: string) {
+    startDelete(async () => {
+      const result = await deleteCategoryAction(websiteId, category);
+      backToCategories();
+      if (result.ok) {
+        onCategoryDeleted(category);
+        toast.success("Category deleted", result.message);
+      } else toast.error("Could not delete the category", result.message);
+    });
+  }
+  const categoryToDelete = dialog?.kind === "delete-category" ? dialog.category : null;
 
   return (
     <ProductDialogsContext value={api}>
@@ -131,16 +150,36 @@ export function ProductDialogsProvider({
         )}
       </Modal>
 
-      <Modal open={dialog?.kind === "category"} onClose={close} label="New category" className="max-w-[440px] rounded-[20px]">
-        {dialog?.kind === "category" && <NewCategoryForm websiteId={websiteId} onAdded={onCategoryAdded} onDone={close} />}
+      <Modal open={dialog?.kind === "category"} onClose={close} label="Categories" className="max-w-[440px] rounded-[20px]">
+        {dialog?.kind === "category" && (
+          <CategoriesForm
+            websiteId={websiteId}
+            categories={categoryCounts}
+            onAdded={onCategoryAdded}
+            onDelete={(category) => setDialog({ kind: "delete-category", category })}
+            onDone={close}
+          />
+        )}
       </Modal>
+
+      {/* Cancel goes back to the Categories popup it was opened from. */}
+      <ConfirmDialog
+        open={dialog?.kind === "delete-category"}
+        onClose={backToCategories}
+        onConfirm={() => categoryToDelete && removeCategory(categoryToDelete)}
+        loading={deleting}
+        icon={<Trash variant="Outline" />}
+        title={`Delete “${categoryToDelete ?? ""}”?`}
+        description="Its filter tab will be removed from your website the next time you deploy."
+        confirmLabel="Delete category"
+      />
 
       <ConfirmDialog
         open={dialog?.kind === "delete"}
         onClose={close}
         onConfirm={() => product && remove(product)}
         loading={deleting}
-        icon={<Trash />}
+        icon={<Trash variant="Outline" />}
         title={`Delete “${product?.name ?? ""}”?`}
         description="It will be removed from your website the next time you deploy. This can’t be undone."
         confirmLabel="Delete product"
@@ -170,8 +209,11 @@ function ProductDetails({
         <ProductImage src={product.imageUrl} alt={product.name} sizes="292px" className="w-full rounded-xl" />
         <div className="flex min-w-0 flex-col items-start">
           <CategoryChip category={product.category} />
-          <h3 className="pt-3 text-xl leading-[26px] font-semibold break-words text-foreground">{product.name}</h3>
-          <p className="pt-2 text-[13px] leading-[18px] text-muted-foreground">{product.description}</p>
+          {/* Names can be 120 characters: at most 2 lines here, the full name on hover. */}
+          <h3 title={product.name} className="mt-3 line-clamp-2 text-xl leading-[26px] font-semibold break-words text-foreground">
+            {product.name}
+          </h3>
+          <p className="pt-2 text-[13px] leading-[18px] break-words text-muted-foreground">{product.description}</p>
           <p className="mt-auto pt-4 font-heading text-[26px] leading-8 font-semibold text-foreground">
             {formatPrice(product.price, "USD")}
           </p>
@@ -180,14 +222,14 @@ function ProductDetails({
 
       <div className="flex items-center justify-between gap-2 pt-4">
         <Button variant="ghost" size="sm" className="text-danger hover:bg-danger-soft hover:text-danger active:bg-danger-soft" onClick={onDelete}>
-          <Trash aria-hidden /> Delete
+          <Trash variant="Outline" aria-hidden /> Delete
         </Button>
         <div className="flex items-center gap-2">
           <Button variant="secondary" size="sm" onClick={onClose}>
             Close
           </Button>
           <Button size="sm" onClick={onEdit}>
-            <Edit2 aria-hidden /> Edit product
+            <Edit2 variant="Outline" aria-hidden /> Edit product
           </Button>
         </div>
       </div>

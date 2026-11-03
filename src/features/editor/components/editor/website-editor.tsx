@@ -129,6 +129,14 @@ function EditorShell({
   // Both panels can be dragged narrower, or folded into an icon strip, to see more of the website.
   const viewport = useViewportWidth();
   const [open, setOpen] = useState<Record<Panel, boolean>>({ structure: true, properties: true });
+  // Below 1024px both panels can't fit beside the website: they start folded into their icon strips
+  // (once, when the real width is known after hydration) and only one opens at a time.
+  const narrowScreen = viewport < 1024;
+  const [foldedForSmallScreen, setFoldedForSmallScreen] = useState(false);
+  if (narrowScreen && !foldedForSmallScreen) {
+    setFoldedForSmallScreen(true);
+    setOpen({ structure: false, properties: false });
+  }
   const [widths, setWidths] = useState<Record<Panel, number>>({
     structure: PANEL.structure.max,
     properties: PANEL.properties.max,
@@ -136,7 +144,8 @@ function EditorShell({
   const maxOf = (panel: Panel) =>
     Math.max(PANEL[panel].min, Math.min(PANEL[panel].max, Math.round(viewport * PANEL[panel].share)));
   const widthOf = (panel: Panel) => Math.min(widths[panel], maxOf(panel));
-  const setPanelOpen = (panel: Panel) => (next: boolean) => setOpen((o) => ({ ...o, [panel]: next }));
+  const setPanelOpen = (panel: Panel) => (next: boolean) =>
+    setOpen((o) => (narrowScreen && next ? { structure: false, properties: false, [panel]: true } : { ...o, [panel]: next }));
   const handleFor = (panel: Panel, label: string, side: "left" | "right") => (
     <ResizeHandle
       label={label}

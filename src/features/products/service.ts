@@ -12,6 +12,7 @@ import {
   createProduct,
   createProductCategory,
   deleteProduct,
+  deleteProductCategory,
   listProductCategories,
   listProducts,
   updateProduct,
@@ -152,6 +153,19 @@ export async function addCategory(websiteId: string, formData: FormData): Promis
   } catch (e) {
     // A duplicate name belongs under the field, like any other validation message.
     if (e instanceof ApiError) return { ok: false, message: e.message, fieldErrors: { name: [e.message] }, values };
+    throw e;
+  }
+}
+
+/** Deletes a product category. The API refuses while products still use it; its message says why. */
+export async function removeCategory(websiteId: string, name: string): Promise<ActionResult> {
+  // Server Action arguments come from the browser, so check the shape before calling the API.
+  if (typeof name !== "string" || !name.trim()) return { ok: false, message: "Choose a category to delete." };
+  try {
+    await deleteProductCategory(websiteId, name);
+    return { ok: true, data: undefined, message: `${name} was removed from your categories` };
+  } catch (e) {
+    if (e instanceof ApiError) return { ok: false, message: e.message };
     throw e;
   }
 }

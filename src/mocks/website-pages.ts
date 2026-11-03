@@ -46,6 +46,15 @@ export function summarizeHours(hours: OpeningHour[]): { hours: string; hoursDeta
 }
 
 /**
+ * Status badge built from the real opening hours ("Open 9:00 AM – 7:00 PM"). It replaces the template's
+ * sample text ("Open now · until 8:00 PM"), which would contradict the hours shown further down the page.
+ * The owner can still change the badge in the editor afterwards.
+ */
+function statusFromHours(hours: string): string {
+  return hours === "Closed" ? "" : `Open ${hours}`;
+}
+
+/**
  * What the backend does on "Use template": copy the template's default page into the new website and
  * fill in the business details from the form (name, contacts, opening hours).
  */
@@ -59,13 +68,14 @@ export function newWebsitePage(
   if (!site) throw new Error(`Mock: no template page for template ${templateId}`);
   const draft = structuredClone(templatePages[site.slug]);
   if (details) {
+    const summary = details.hours.length > 0 ? summarizeHours(details.hours) : null;
     draft.root.props = {
       ...draft.root.props,
       businessName: details.businessName,
       address: details.address,
       email: details.email,
       phones: [{ number: details.phone }],
-      ...(details.hours.length > 0 ? summarizeHours(details.hours) : {}),
+      ...(summary ? { ...summary, statusText: statusFromHours(summary.hours) } : {}),
     } as SiteRootProps;
   }
   return {
@@ -141,6 +151,8 @@ function seedBusinessData(websiteId: string): SiteBusinessData {
 function seeded(page: WebsitePage, businessName: string): WebsitePage {
   page.draft.root.props = { ...page.draft.root.props, businessName } as SiteRootProps;
   page.draft = fillBusinessData(page.draft, seedBusinessData(page.websiteId));
+  const root = page.draft.root.props as SiteRootProps;
+  page.draft.root.props = { ...root, statusText: statusFromHours(root.hours) } as SiteRootProps;
   return page;
 }
 

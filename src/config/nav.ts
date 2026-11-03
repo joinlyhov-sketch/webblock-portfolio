@@ -22,6 +22,8 @@ export type NavItem = {
   icon?: NavIcon;
   /** Sub-pages shown under the item; the item itself is then a group toggle, not a link. */
   children?: NavItem[];
+  /** Shorter name for the phone bottom tabs, when `label` is one long word that can't fit a tab. */
+  shortLabel?: string;
 };
 
 export const userNav: NavItem[] = [
@@ -45,7 +47,7 @@ export const adminNav: NavItem[] = [
   { label: "Overview", href: "/admin", exact: true, icon: "overview" },
   { label: "User Accounts", href: "/admin/users", icon: "users" },
   { label: "User Websites", href: "/admin/websites", icon: "websites" },
-  { label: "Subscriptions", href: "/admin/subscriptions", icon: "subscriptions" },
+  { label: "Subscriptions", shortLabel: "Billing", href: "/admin/subscriptions", icon: "subscriptions" },
   {
     label: "Monitoring",
     href: "/admin/monitoring",

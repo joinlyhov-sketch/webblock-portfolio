@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Box, Element4, RowVertical, SearchStatus } from "iconsax-reactjs";
 import { DataTable } from "@/components/common/data-table";
 import { EmptyState } from "@/components/common/empty-state";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { PageHeader } from "@/components/common/page-header";
 import { RowsSelect } from "@/components/common/rows-select";
 import { SearchInput } from "@/components/common/search-input";
@@ -19,7 +20,7 @@ import { ProductDialogsProvider } from "./product-dialogs";
 import { CategoryChip } from "./product-parts";
 import {
   AddProductButton,
-  NewCategoryButton,
+  CategoriesButton,
   ProductCard,
   ProductCellButton,
   ProductRowActions,
@@ -39,7 +40,7 @@ function sortProducts(items: Product[], sort: Sort): Product[] {
 }
 
 /**
- * Owner Portal → Products, rendered in the browser. The product list, search, category tabs, sort,
+ * Owner Portal â†’ Products, rendered in the browser. The product list, search, category tabs, sort,
  * page, rows per page and grid/list switch all live in state, so none of them reloads the page, and
  * add / edit / delete update the list from the saved product. The URL is kept in sync with
  * `history.replaceState` (no navigation) so a refresh or a shared link opens on the same view.
@@ -48,6 +49,7 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
   const [products, setProducts] = useState(data.products);
   const [categories, setCategories] = useState(data.categories);
   const [q, setQ] = useState(initialFilter.q);
+  const debouncedQ = useDebouncedValue(q);
   const [category, setCategory] = useState(
     initialFilter.category && categories.includes(initialFilter.category) ? initialFilter.category : null,
   );
@@ -58,7 +60,7 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
 
   useEffect(() => {
     const params = new URLSearchParams();
-    if (q.trim()) params.set("q", q.trim());
+    if (debouncedQ.trim()) params.set("q", debouncedQ.trim());
     if (category) params.set("category", category);
     if (layout === "list") params.set("view", "list");
     if (size !== DEFAULT_PRODUCT_PAGE_SIZE) params.set("size", String(size));
@@ -66,9 +68,9 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
     if (sort) params.set("sort", `${sort.field},${sort.direction}`);
     const search = params.toString();
     window.history.replaceState(window.history.state, "", search ? `?${search}` : window.location.pathname);
-  }, [q, category, layout, size, pageIndex, sort]);
+  }, [debouncedQ, category, layout, size, pageIndex, sort]);
 
-  const needle = q.trim().toLowerCase();
+  const needle = debouncedQ.trim().toLowerCase();
   const matches = useMemo(
     () =>
       sortProducts(
@@ -112,11 +114,38 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
   function addCategory(name: string) {
     setCategories((current) => (current.includes(name) ? current : [...current, name]));
   }
+  function deleteCategory(name: string) {
+    setCategories((current) => current.filter((c) => c !== name));
+    // Its tab is gone: if it was the open one, show every product again.
+    if (category === name) {
+      setCategory(null);
+      setPageIndex(0);
+    }
+  }
 
+  // View switch and page size sit on the title row, so the toolbar below stays on one line.
   const heading = (
-    <h2 className="flex items-center gap-3 text-lg font-semibold">
-      <Box aria-hidden className="size-[22px] text-brand" /> All products
-    </h2>
+    <div className="flex flex-wrap items-center justify-between gap-2.5">
+      <h2 className="flex items-center gap-3 text-lg font-semibold">
+        <Box variant="Outline" aria-hidden className="size-[22px] text-brand" /> All products
+      </h2>
+      <div className="flex items-center gap-2.5">
+        <LayoutToggle layout={layout} onChange={setLayout} />
+        {/* Page size is a laptop detail: phones keep the default so the header stays compact. */}
+        <div className="max-sm:hidden">
+          <RowsSelect
+            value={size}
+            options={PRODUCT_PAGE_SIZES}
+            editable
+            defaultSize={DEFAULT_PRODUCT_PAGE_SIZE}
+            onChange={(next) => {
+              setSize(next);
+              setPageIndex(0);
+            }}
+          />
+        </div>
+      </div>
+    </div>
   );
 
   const toolbar = (
@@ -129,10 +158,13 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
         }}
         placeholder="Search products"
         label="Search products"
-        className="h-9"
+        // Shrinks to 200px before anything wraps, so search, tabs and "New category" stay on one line.
+        className="h-9 w-auto max-w-[360px] min-w-[200px] flex-1 basis-[200px]"
       />
       <SegmentedTabs
         label="Filter by category"
+        // "All" + 4 categories; more categories slide in with the arrows.
+        visible={5}
         className="p-[3px]"
         tabs={[
           {
@@ -153,32 +185,19 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
           })),
         ]}
       />
-      <NewCategoryButton />
-      <div className="ml-auto flex items-center gap-2.5">
-        <LayoutToggle layout={layout} onChange={setLayout} />
-        <RowsSelect
-          value={size}
-          options={PRODUCT_PAGE_SIZES}
-          editable
-          defaultSize={DEFAULT_PRODUCT_PAGE_SIZE}
-          onChange={(next) => {
-            setSize(next);
-            setPageIndex(0);
-          }}
-        />
-      </div>
+      <CategoriesButton />
     </>
   );
 
   const empty = noProducts ? (
     <EmptyState
-      icon={<Box />}
+      icon={<Box variant="Outline" />}
       title="No products yet"
       action={<AddProductButton label="Add your first product" />}
     />
   ) : (
     <EmptyState
-      icon={<SearchStatus />}
+      icon={<SearchStatus variant="Outline" />}
       title="No results found"
       description={
         filtered
@@ -198,9 +217,11 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
       websiteId={data.websiteId}
       domain={data.domain}
       categories={categories}
+      categoryCounts={counts.categories}
       onSaved={saveProduct}
       onDeleted={removeProduct}
       onCategoryAdded={addCategory}
+      onCategoryDeleted={deleteCategory}
     >
       <PageHeader
         className="mb-0 items-center"
@@ -212,6 +233,8 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
       />
 
       {layout === "list" ? (
+        // Fit the table to the screen so only its rows scroll and the pagination footer stays visible.
+        <div data-fit-viewport className="flex min-h-0 flex-1 flex-col">
         <DataTable
           className="flex-1"
           label="Products"
@@ -260,14 +283,15 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
             },
           ]}
         />
+        </div>
       ) : (
         <ProductGridFrame heading={heading} toolbar={toolbar}>
           {page.items.length === 0 ? (
             <div className="flex min-h-[300px] flex-1 items-center justify-center">{empty}</div>
           ) : (
-            <ul className="grid flex-1 content-start gap-6 p-6 [grid-template-columns:repeat(auto-fill,minmax(250px,1fr))]">
-              {page.items.map((product, i) => (
-                <li key={product.id} className="motion-safe:animate-row-in" style={{ animationDelay: `${i * 30}ms` }}>
+            <ul className="grid min-h-0 flex-1 grid-cols-2 content-start gap-3 overflow-y-auto p-3 [scrollbar-color:var(--color-border)_transparent] [scrollbar-width:thin] sm:gap-6 sm:p-6 sm:grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
+              {page.items.map((product) => (
+                <li key={product.id}>
                   <ProductCard product={product} />
                 </li>
               ))}
@@ -275,7 +299,7 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
           )}
           {/* No products at all: no "Showing 0" footer, so the empty state sits in the middle of the card. */}
           {!noProducts && (
-            <div className="border-t border-border">
+            <div className="shrink-0 border-t border-border">
               <TablePagination data={page} onPageChange={setPageIndex} itemLabel="products" itemLabelOne="product" />
             </div>
           )}
@@ -285,7 +309,10 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
   );
 }
 
-/** Same card frame as `DataTable`, holding the product grid instead of rows. */
+/**
+ * Same card frame as `DataTable`, holding the product grid instead of rows. Like the table it fits one
+ * screen (`data-fit-viewport`): only the cards scroll, the heading, toolbar and footer stay in place.
+ */
 function ProductGridFrame({
   heading,
   toolbar,
@@ -298,10 +325,11 @@ function ProductGridFrame({
   return (
     <section
       aria-label="Products"
-      className="flex flex-1 flex-col overflow-hidden rounded-[20px] border border-border bg-background shadow-table"
+      data-fit-viewport
+      className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[20px] border border-border bg-background shadow-table"
     >
-      <div className="px-4 pt-5 pb-1">{heading}</div>
-      <div className="flex flex-wrap items-center gap-2.5 border-b border-border px-4 py-3.5">{toolbar}</div>
+      <div className="shrink-0 px-4 pt-5 pb-1">{heading}</div>
+      <div className="flex shrink-0 flex-wrap items-center gap-2.5 border-b border-border px-4 py-3.5">{toolbar}</div>
       {children}
     </section>
   );
@@ -310,8 +338,8 @@ function ProductGridFrame({
 /** Grid / list switch. */
 function LayoutToggle({ layout, onChange }: { layout: ProductsLayout; onChange: (layout: ProductsLayout) => void }) {
   const options = [
-    { value: "grid", label: "Grid view", icon: <Element4 /> },
-    { value: "list", label: "List view", icon: <RowVertical /> },
+    { value: "grid", label: "Grid view", icon: <Element4 variant="Outline" /> },
+    { value: "list", label: "List view", icon: <RowVertical variant="Outline" /> },
   ] as const;
 
   return (

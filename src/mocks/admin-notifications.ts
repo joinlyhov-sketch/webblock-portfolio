@@ -30,12 +30,12 @@ export const adminNotifications: AdminNotification[] = [
   {
     id: "d2f4a6c8-6e8a-4b1c-9d3e-4f6a8c0e0703",
     kind: "REDEPLOY_REQUESTED",
-    actorId: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0106",
-    actorName: "Lina Tha",
-    actorAvatarUrl: "/mock/avatars/lina-tha.jpg",
-    message: "Requested a redeploy for FixRight Repairs.",
-    link: "/admin/websites?website=9b2d4f6a-1c3e-4a5b-8d7f-2e4c6a8b0207",
-    createdAt: ago(32),
+    actorId: "3f6c1e2a-8b4d-4c1e-9a2f-5d0e7b1c0104",
+    actorName: "Endy Ong",
+    actorAvatarUrl: "/mock/avatars/endy-ong.jpg",
+    message: "Requested a redeploy for Corner Chair.",
+    link: "/admin/websites?website=9b2d4f6a-1c3e-4a5b-8d7f-2e4c6a8b0204",
+    createdAt: at("2026-11-01T11:20:00Z"),
     readAt: null,
   },
   {

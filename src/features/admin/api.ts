@@ -1,25 +1,31 @@
 // Admin Portal data access. Mock now; when Spring is ready only the function bodies change.
 // Every function maps to one endpoint under /api/admin (noted above each).
+import { getBusinessInfo } from "@/features/business-info/api";
+import { getTemplateSite } from "@/features/templates/api";
+import { getWebsite as getOwnedWebsite } from "@/features/websites/api";
 import { ApiError } from "@/lib/api/errors";
 import type { Page } from "@/lib/api/types";
 import { toPage, type TableQuery } from "@/lib/table-query";
+import { activityLog } from "@/mocks/admin-activity";
 import { adminNotifications } from "@/mocks/admin-notifications";
 import { adminOverview } from "@/mocks/admin-overview";
 import { adminProfile } from "@/mocks/admin-profile";
 import {
   payments,
-  plans,
   subscriptions,
 } from "@/mocks/admin-subscriptions";
+import { planCatalogue as plans } from "@/mocks/plans";
 import { userAccounts } from "@/mocks/admin-users";
 import { adminDeploys, adminWebsites } from "@/mocks/admin-websites";
 import { daysAgo } from "@/mocks/time";
+import type { ActivityAction } from "./monitoring/types";
 import type {
   AdminNotification,
   AdminOverview,
   AdminProfile,
   AttentionItem,
   NotificationFilters,
+  NotificationKind,
   AdminWebsite,
   Deploy,
   Payment,
@@ -34,7 +40,109 @@ import type {
   WebsiteFilters,
 } from "./types";
 
-const delay = (ms = 250) => new Promise((resolve) => setTimeout(resolve, ms));
+/** Every read waits a moment, then first lets running deploys move forward (the backend does this on its own). */
+const delay = async (ms = 250) => {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+  settleDeploys();
+};
+
+// ── Live state: deploys that progress, and events that other screens show ────
+
+const PIPELINE_STEPS = 7;
+/** How long each of the 7 pipeline steps takes in the mock, so a deploy visibly finishes in about 30 seconds. */
+const STEP_MS = 4_000;
+const STEP_TITLES = [
+  "Request received",
+  "Generate code",
+  "Save to Git",
+  "Build",
+  "Start privately",
+  "Go live",
+  "Live",
+];
+
+/** Deploys started from this portal, with when they started. Spring runs the real pipeline instead. */
+const runningDeploys = new Map<string, number>();
+/** Every deploy started here, finished or not (the Monitoring screen shows their steps). */
+export const redeployedIds = new Set<string>();
+
+// Deploys already in progress in the seed data keep moving from the step they are on.
+// Mao Print House's run is stuck (Monitoring shows no heartbeat): it stays at its step until the backend retries it.
+const STALLED_DEPLOY_IDS = new Set(["c7e1a3b5-2d4f-4e6a-9b8c-1d3f5a7c0321"]);
+for (const d of adminDeploys) {
+  if (d.status !== "GOING_LIVE" || STALLED_DEPLOY_IDS.has(d.id)) continue;
+  runningDeploys.set(d.id, Date.now() - ((d.currentStep ?? 1) - 1) * STEP_MS);
+  redeployedIds.add(d.id);
+}
+
+/** Moves each running deploy to the step its age says; at the last step it goes live and updates its website. */
+export function settleDeploys() {
+  const now = Date.now();
+  for (const [deployId, startedMs] of runningDeploys) {
+    const deploy = adminDeploys.find((d) => d.id === deployId);
+    const website = adminWebsites.find((w) => w.id === deploy?.websiteId);
+    if (!deploy || !website) {
+      runningDeploys.delete(deployId);
+      continue;
+    }
+    const elapsed = now - startedMs;
+    const step = Math.min(PIPELINE_STEPS, 1 + Math.floor(elapsed / STEP_MS));
+    if (step < PIPELINE_STEPS) {
+      deploy.currentStep = step;
+      deploy.stepLabel = STEP_TITLES[step - 1];
+      continue;
+    }
+    // Went live: this release replaces the one before it.
+    for (const d of adminDeploys) {
+      if (d.websiteId === deploy.websiteId && d.status === "LIVE") d.status = "REPLACED";
+    }
+    deploy.status = "LIVE";
+    deploy.currentStep = null;
+    deploy.stepLabel = null;
+    deploy.durationSeconds = Math.round(elapsed / 1000);
+    website.releaseStatus = "LIVE";
+    website.routingStatus = "STABLE";
+    website.liveRelease = `R-${2900 + Math.floor(startedMs / 1000) % 1000}`;
+    if (website.siteStatus === "NOT_DEPLOYED") website.siteStatus = "ONLINE";
+    website.lastDeployAt = deploy.startedAt;
+    // A first deploy also gets its SSL certificate (90 days, like Let's Encrypt).
+    website.sslValidUntil ??= new Date(now + 90 * 86_400_000).toISOString();
+    runningDeploys.delete(deployId);
+  }
+}
+
+/** One line in Monitoring > Activity log, done by the signed-in admin. Newest first. */
+function logActivity(
+  action: ActivityAction,
+  targetName: string,
+  targetDetail: string,
+  actorEmail: string | null = adminProfile.email,
+) {
+  activityLog.unshift({
+    id: crypto.randomUUID(),
+    action,
+    targetName,
+    targetDetail,
+    actorEmail,
+    result: "SUCCEEDED",
+    createdAt: new Date().toISOString(),
+  });
+}
+
+/** One unread item in the notification bell and the Notifications page. */
+function notify(kind: NotificationKind, website: AdminWebsite, message: string) {
+  adminNotifications.unshift({
+    id: crypto.randomUUID(),
+    kind,
+    actorId: website.ownerId,
+    actorName: website.ownerName,
+    actorAvatarUrl: website.ownerAvatarUrl,
+    message,
+    link: `/admin/websites?website=${website.id}`,
+    createdAt: new Date().toISOString(),
+    readAt: null,
+  });
+}
 
 /** Spring-style sort on any top-level field; nulls last. */
 function sorted<T>(items: T[], sort: TableQuery["sort"]): T[] {
@@ -233,6 +341,9 @@ export async function suspendUser(userId: string): Promise<UserAccount> {
     });
   }
   user.status = "SUSPENDED";
+  // Their websites go offline with the account. Content is kept.
+  for (const w of adminWebsites.filter((x) => x.ownerId === user.id)) w.siteStatus = "SUSPENDED";
+  logActivity("SUSPEND_USER", user.fullName, user.email);
   return user;
 }
 
@@ -241,6 +352,11 @@ export async function reactivateUser(userId: string): Promise<UserAccount> {
   await delay();
   const user = userAccounts.find((u) => u.id === userId) ?? notFound("User");
   user.status = "ACTIVE";
+  // Websites that went offline with the account come back.
+  for (const w of adminWebsites.filter((x) => x.ownerId === user.id && x.siteStatus === "SUSPENDED")) {
+    w.siteStatus = w.liveRelease ? "ONLINE" : "NOT_DEPLOYED";
+  }
+  logActivity("REACTIVATE_USER", user.fullName, user.email);
   return user;
 }
 
@@ -259,13 +375,27 @@ export async function listWebsites(
       (!filters.plan || w.plan === filters.plan) &&
       (!filters.ownerId || w.ownerId === filters.ownerId),
   );
-  return toPage(sorted(items, query.sort), query);
+  const page = toPage(sorted(items, query.sort), query);
+  return { ...page, items: await Promise.all(page.items.map(withLogo)) };
+}
+
+/** Adds the logo from the website's Business information (GET /projects/{id}/business-info). */
+async function withLogo(website: AdminWebsite): Promise<AdminWebsite> {
+  const [info, owned] = await Promise.all([
+    getBusinessInfo(website.id).catch(() => null),
+    getOwnedWebsite(website.id).catch(() => null),
+  ]);
+  // Mock only: sites the websites mock does not know get a template picked from their id.
+  const hash = [...website.id].reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
+  const templateId = owned?.templateId ?? `c1a7e3f0-4b2d-4a6c-9e18-5d3f7b2a1c0${(hash % 8) + 1}`;
+  const template = await getTemplateSite(templateId).catch(() => null);
+  return { ...website, logoUrl: info?.logoUrl ?? null, templateSlug: template?.slug };
 }
 
 /** GET /api/admin/projects/{projectId} */
 export async function getWebsite(websiteId: string): Promise<AdminWebsite> {
   await delay(150);
-  return adminWebsites.find((w) => w.id === websiteId) ?? notFound("Website");
+  return withLogo(adminWebsites.find((w) => w.id === websiteId) ?? notFound("Website"));
 }
 
 /** GET /api/admin/deploys?projectId=&page=&size= — newest first. */
@@ -277,7 +407,17 @@ export async function listDeploys(
   const items = adminDeploys
     .filter((d) => !filters.websiteId || d.websiteId === filters.websiteId)
     .sort((a, b) => b.startedAt.localeCompare(a.startedAt));
-  return toPage(items, query);
+  const page = toPage(items, query);
+  // Mock only: Spring returns the website's logo on each deploy.
+  const withLogos = await Promise.all(
+    page.items.map(async (d) => {
+      const website = adminWebsites.find((w) => w.id === d.websiteId);
+      if (!website) return d;
+      const { logoUrl, templateSlug } = await withLogo(website);
+      return { ...d, websiteLogoUrl: logoUrl, websiteTemplateSlug: templateSlug };
+    }),
+  );
+  return { ...page, items: withLogos };
 }
 
 const redeployKeys = new Map<string, Deploy>();
@@ -328,8 +468,8 @@ export async function redeployWebsite(
     number: Math.max(0, ...previous.map((d) => d.number)) + 1,
     status: "GOING_LIVE",
     currentStep: 1,
-    totalSteps: 5,
-    stepLabel: "Request received",
+    totalSteps: PIPELINE_STEPS,
+    stepLabel: STEP_TITLES[0],
     startedAt: new Date().toISOString(),
     durationSeconds: null,
   };
@@ -339,6 +479,9 @@ export async function redeployWebsite(
   website.lastDeployAt = deploy.startedAt;
   website.redeploysLeft -= 1;
   redeployKeys.set(idempotencyKey, deploy);
+  runningDeploys.set(deploy.id, Date.now());
+  redeployedIds.add(deploy.id);
+  notify("REDEPLOY_REQUESTED", website, `Requested a redeploy for ${website.name}.`);
   return deploy;
 }
 
@@ -348,6 +491,7 @@ export async function suspendWebsite(websiteId: string): Promise<AdminWebsite> {
   const website =
     adminWebsites.find((w) => w.id === websiteId) ?? notFound("Website");
   website.siteStatus = "SUSPENDED";
+  logActivity("SUSPEND_HOSTING", website.name, website.domain);
   return website;
 }
 
@@ -369,7 +513,15 @@ export async function resumeWebsite(websiteId: string): Promise<AdminWebsite> {
   await delay();
   const website =
     adminWebsites.find((w) => w.id === websiteId) ?? notFound("Website");
+  if (userAccounts.find((u) => u.id === website.ownerId)?.status === "SUSPENDED") {
+    throw new ApiError({
+      title: "Conflict",
+      status: 409,
+      detail: `Reactivate ${website.ownerName}'s account first.`,
+    });
+  }
   website.siteStatus = website.liveRelease ? "ONLINE" : "NOT_DEPLOYED";
+  logActivity("RESUME_HOSTING", website.name, website.domain);
   return website;
 }
 
@@ -426,16 +578,27 @@ export async function listPayments(
 
 // ── Plans ────────────────────────────────────────────────────────────────────
 
+/**
+ * Subscribers per plan, counted the same way as the Users stats: every account on the free trial,
+ * and only active accounts on a paid plan (so the paid plans add up to "Paying").
+ */
+function withSubscribers(plan: Plan): Plan {
+  const subscriberCount = userAccounts.filter(
+    (u) => u.plan === plan.code && (!isPaid(u.plan) || u.status === "ACTIVE"),
+  ).length;
+  return { ...plan, subscriberCount };
+}
+
 /** GET /api/admin/plans */
 export async function listPlans(): Promise<Page<Plan>> {
   await delay();
-  return toPage(plans, { page: 0, size: plans.length });
+  return toPage(plans.map(withSubscribers), { page: 0, size: plans.length });
 }
 
 /** GET /api/admin/plans/{planId} */
 export async function getPlan(planId: string): Promise<Plan> {
   await delay(150);
-  return plans.find((p) => p.id === planId) ?? notFound("Plan");
+  return withSubscribers(plans.find((p) => p.id === planId) ?? notFound("Plan"));
 }
 
 /** PUT /api/admin/plans/{planId} — applies to new subscriptions and renewals. */
@@ -446,7 +609,7 @@ export async function updatePlan(
   await delay();
   const plan = plans.find((p) => p.id === planId) ?? notFound("Plan");
   Object.assign(plan, input);
-  return plan;
+  return withSubscribers(plan);
 }
 
 // ── Notifications ────────────────────────────────────────────────────────────

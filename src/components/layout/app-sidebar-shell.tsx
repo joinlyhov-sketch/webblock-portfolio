@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { Logout, SidebarLeft } from "iconsax-reactjs";
 import { signOutAction } from "@/features/auth/actions";
 import { Avatar } from "@/components/common/avatar";
@@ -10,7 +11,9 @@ import { useProfileUpdates } from "@/hooks/use-profile-updates";
 import { useSidebarCollapse } from "@/hooks/use-sidebar-collapse";
 import { cn } from "@/lib/utils";
 import type { Profile, SidebarSummary } from "@/features/account";
+import { BottomNav } from "./bottom-nav";
 import { BrandLogo } from "./brand-logo";
+import { MobileHeader } from "./mobile-header";
 import { SidebarNav } from "./sidebar-nav";
 import { TrialCard } from "./trial-card";
 
@@ -28,9 +31,18 @@ export function AppSidebarShell({
   const [signingOut, startSignOut] = useTransition();
 
   return (
+    <>
+    {/* Below 1024px the sidebar is replaced by a header (account menu) and bottom tabs, like the Owner Portal.
+        No bell here: My Websites shows its own in the page header. */}
+    <MobileHeader profile={profile} homeHref="/websites" notifications={null}>
+      <Link href="/billing/plans" prefetch className="flex min-h-12 items-center rounded-xl px-3">
+        View plans
+      </Link>
+    </MobileHeader>
+    <BottomNav items={userNav} />
     <aside
       className={cn(
-        "sticky top-0 flex h-dvh shrink-0 flex-col gap-1.5 overflow-hidden border-r border-border bg-background px-4 py-[22px] transition-[width] duration-200 ease-out motion-reduce:transition-none",
+        "sticky top-0 flex h-dvh shrink-0 flex-col gap-1.5 overflow-hidden border-r border-border bg-background px-4 py-[22px] transition-[width] duration-200 ease-out motion-reduce:transition-none max-lg:hidden",
         narrow ? "w-[84px]" : "w-[260px]",
       )}
     >
@@ -43,7 +55,7 @@ export function AppSidebarShell({
           onClick={toggle}
           className="flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-background text-foreground-soft outline-none transition-colors hover:bg-primary-soft focus-visible:ring-3 focus-visible:ring-ring/40"
         >
-          <SidebarLeft aria-hidden className="size-4" />
+          <SidebarLeft variant="Outline" aria-hidden className="size-4" />
         </button>
       </div>
 
@@ -65,7 +77,7 @@ export function AppSidebarShell({
             onClick={() => setConfirmOpen(true)}
             className="flex size-[18px] shrink-0 items-center justify-center rounded-md text-foreground-soft outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/40"
           >
-            <Logout aria-hidden className="size-[18px]" />
+            <Logout variant="Outline" aria-hidden className="size-[18px]" />
           </button>
         </div>
       </div>
@@ -75,12 +87,13 @@ export function AppSidebarShell({
         onClose={() => setConfirmOpen(false)}
         onConfirm={() => startSignOut(() => signOutAction())}
         loading={signingOut}
-        icon={<Logout />}
+        icon={<Logout variant="Outline" />}
         title="Log out of WebBlock?"
         description="You’ll need to sign in again to manage and deploy your websites."
         confirmLabel="Log out"
         look="soft"
       />
     </aside>
+    </>
   );
 }

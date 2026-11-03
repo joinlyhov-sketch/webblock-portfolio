@@ -18,24 +18,25 @@ export function BillingTopBar({
   chip?: { label: string; tone: "brand" | "success" };
 }) {
   return (
-    <header className="relative z-10 flex h-[72px] shrink-0 items-center gap-4 border-b border-border bg-background px-8">
+    <header className="relative z-10 flex h-[72px] shrink-0 items-center gap-4 border-b border-border bg-background px-8 max-sm:gap-2 max-sm:px-4">
       <Button asChild variant="ghost" size="sm" className="shadow-button">
         <Link href={backHref}>
-          <ArrowLeft aria-hidden /> {backLabel}
+          <ArrowLeft variant="Outline" aria-hidden /> {backLabel}
         </Link>
       </Button>
       {chip && (
         <span
           className={cn(
-            "ml-auto inline-flex h-6 items-center gap-1.5 rounded-full px-2.5 text-[14px] leading-[20px] font-semibold whitespace-nowrap",
+            // On phones it shares the bar with the back button: smaller text, and it never pushes past the edge.
+            "ml-auto inline-flex h-6 min-w-0 items-center gap-1.5 rounded-full px-2.5 text-[14px] leading-[20px] font-semibold whitespace-nowrap max-sm:text-xs",
             chip.tone === "brand" ? "bg-brand-soft text-brand-strong" : "bg-success-soft text-success",
           )}
         >
           <span
             aria-hidden
-            className={cn("size-1.5 rounded-[3px]", chip.tone === "brand" ? "bg-brand-strong" : "bg-success")}
+            className={cn("size-1.5 shrink-0 rounded-[3px]", chip.tone === "brand" ? "bg-brand-strong" : "bg-success")}
           />
-          {chip.label}
+          <span className="truncate">{chip.label}</span>
         </span>
       )}
     </header>
@@ -120,12 +121,12 @@ function ChangeBackdrop() {
     <div className="absolute inset-y-0 left-1/2 w-[1728px] -translate-x-1/2">
       <div className="absolute top-[50px] left-0 h-[908px] w-[1728px] bg-[url('/images/billing/dot-grid.svg')] bg-no-repeat" />
       <div className="absolute top-[70px] left-[1540px] flex size-20 items-center justify-center rounded-[40px] bg-linear-[135deg] from-bubble-from to-bubble-to to-71% text-primary-foreground shadow-bubble">
-        <Tag className="size-8" />
+        <Tag variant="Outline" className="size-8" />
       </div>
       <div className="absolute top-[106px] left-[1616px] h-[88px] w-[133px] bg-[url('/images/billing/dashed-path-right.svg')] bg-no-repeat" />
       <div className="absolute top-[510px] left-28 flex size-[84px] items-center justify-center rounded-[42px] bg-background drop-shadow-[0_10px_15px_rgb(60_120_207/0.1)]">
         <span className="flex size-[60px] items-center justify-center rounded-[30px] bg-brand-soft text-brand">
-          <ShieldTick className="size-7" />
+          <ShieldTick variant="Outline" className="size-7" />
         </span>
         <span className="absolute top-[59px] left-[59px] size-[22px] bg-[url('/images/billing/online-dot.svg')] bg-no-repeat" />
       </div>
@@ -181,9 +182,16 @@ export function BillingBackdrop({ variant }: { variant: "payment" | "deploy" | "
   );
 }
 
-/** Exactly one screen high: the page never scrolls, the content is fitted by `BillingContent`. */
+/**
+ * Exactly one screen high on laptops: the page never scrolls, the content is fitted by `BillingContent`.
+ * Below 1024px the page grows with its content and scrolls instead.
+ */
 export function BillingScreen({ children }: { children: ReactNode }) {
-  return <div className="relative flex h-dvh flex-col overflow-hidden bg-background">{children}</div>;
+  return (
+    <div className="relative flex h-dvh flex-col overflow-hidden bg-background max-lg:h-auto max-lg:min-h-dvh max-lg:overflow-visible">
+      {children}
+    </div>
+  );
 }
 
 /** Content shared by the plans and payment pages: centred under the top bar and scaled to fit the screen. */

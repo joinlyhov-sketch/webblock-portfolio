@@ -17,7 +17,10 @@ export function SidebarShell({
   collapsed = false,
   narrow = collapsed,
   onToggleCollapsed,
+  className,
 }: {
+  /** Extra classes for the sidebar, e.g. `max-lg:hidden` when a bottom nav replaces it on small screens. */
+  className?: string;
   homeHref: string;
   children: ReactNode;
   footer?: ReactNode;
@@ -34,6 +37,7 @@ export function SidebarShell({
         // Same frame as the user sidebar: 260px open, 84px icon rail, same padding.
         "px-4 py-[22px]",
         narrow ? "w-[84px]" : "w-[260px]",
+        className,
       )}
     >
       <div className={cn("mb-4 flex items-center pt-1", collapsed ? "flex-col gap-3" : "justify-between gap-2")}>
@@ -56,7 +60,7 @@ export function SidebarShell({
               collapsed ? "h-[42px] w-full" : "size-8",
             )}
           >
-            <SidebarLeft aria-hidden className="size-4" />
+            <SidebarLeft variant="Outline" aria-hidden className="size-4" />
           </button>
         )}
       </div>
