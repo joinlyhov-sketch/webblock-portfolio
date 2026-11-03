@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { SearchNormal1 } from "iconsax-reactjs";
-import type { PlanTier } from "@/components/common/plan-badge";
 import { EmptyState } from "@/components/common/empty-state";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { PageHeader } from "@/components/common/page-header";
@@ -34,15 +33,12 @@ export function WebsitesView({
   notifications,
   templates,
   businessTypes,
-  plan,
   initialFilter,
 }: {
   websites: Website[];
   notifications: NotificationsView;
   templates: Template[];
   businessTypes: string[];
-  /** The account's plan, shown on every live website. */
-  plan: PlanTier;
   initialFilter: { status: StatusFilter; q: string };
 }) {
   const [websites, setWebsites] = useState(initialWebsites);
@@ -145,7 +141,6 @@ export function WebsitesView({
               <WebsiteCard
                 key={website.id}
                 website={website}
-                plan={plan}
                 filtered={status !== "ALL"}
                 onPatch={(patch) => patchWebsite(website.id, patch)}
                 onRemove={() => removeWebsite(website.id)}

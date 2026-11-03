@@ -9,7 +9,7 @@ import type { BlockName, SiteRootProps } from "../../types";
 import { AiChat } from "./ai-chat";
 import { BLOCK_META } from "./block-meta";
 import { FieldControl, fieldMeta } from "./field-control";
-import { PanelRail } from "./panel-rail";
+import { PanelFrame, PanelRail } from "./panel-rail";
 import { useEditorPuck } from "./use-editor-puck";
 import { VisualStyle } from "./visual-style";
 
@@ -114,23 +114,26 @@ export function PropertiesPanel({
   };
 
   return (
-    <>
-      {!open && (
+    <PanelFrame
+      open={open}
+      width={width}
+      side="right"
+      rail={
         <PanelRail
           label="Block settings"
-          show={{ label: "Show settings panel", icon: <SidebarRight variant="Outline" />, onClick: () => onOpenChange(true) }}
+          show={{ label: "Show settings panel", icon: <SidebarRight variant="Outline" className={cn("transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none", open && "-rotate-180")} />, onClick: () => onOpenChange(true) }}
           items={[
             { label: "WebBlock AI", icon: <Magicpen variant="Outline" />, onClick: () => openAt("ai") },
             { label: "Content", icon: <Edit2 variant="Outline" />, onClick: () => openAt("content") },
             { label: "Layout & Design", icon: <Colorfilter variant="Outline" />, onClick: () => openAt("layout") },
           ]}
         />
-      )}
-      {/* Hidden rather than unmounted while folded, so it reopens where it was (tab, scroll position). */}
+      }
+    >
       <aside
         aria-label="Block settings"
         style={{ width }}
-        className={cn("flex shrink-0 flex-col overflow-hidden rounded-[20px] bg-background shadow-card", !open && "hidden")}
+        className="flex h-full min-w-0 flex-col overflow-hidden rounded-[20px] bg-background shadow-card"
       >
         {/* Figma "Panel header · WebBlock AI switch": opens the AI chat in place of the settings. */}
         <div className="px-4 pt-3 pb-2">
@@ -240,6 +243,6 @@ export function PropertiesPanel({
           </>
         )}
       </aside>
-    </>
+    </PanelFrame>
   );
 }

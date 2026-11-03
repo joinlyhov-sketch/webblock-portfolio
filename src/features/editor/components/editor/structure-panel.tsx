@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { BlockName } from "../../types";
 import { BLOCK_META, BLOCK_ORDER } from "./block-meta";
-import { PanelRail } from "./panel-rail";
+import { PanelFrame, PanelRail } from "./panel-rail";
 import { useEditorPuck } from "./use-editor-puck";
 
 /** Puck's zone for top-level blocks. */
@@ -81,22 +81,25 @@ export function StructurePanel({
   };
 
   return (
-    <>
-      {!open && (
+    <PanelFrame
+      open={open}
+      width={width}
+      side="left"
+      rail={
         <PanelRail
           label="Page"
-          show={{ label: "Show page panel", icon: <SidebarLeft variant="Outline" />, onClick: () => onOpenChange(true) }}
+          show={{ label: "Show page panel", icon: <SidebarLeft variant="Outline" className={cn("transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none", open && "rotate-180")} />, onClick: () => onOpenChange(true) }}
           items={[
             { label: "Page structure", icon: <Layer variant="Outline" />, onClick: () => openAt("page-structure") },
             { label: "Add a block", icon: <AddSquare variant="Outline" />, onClick: () => openAt("add-block-list") },
           ]}
         />
-      )}
-      {/* Hidden rather than unmounted while folded, so it reopens where it was (scroll position). */}
+      }
+    >
       <aside
         aria-label="Page"
         style={{ width }}
-        className={cn("flex shrink-0 flex-col overflow-hidden rounded-[20px] bg-background shadow-card", !open && "hidden")}
+        className="flex h-full min-w-0 flex-col overflow-hidden rounded-[20px] bg-background shadow-card"
       >
         <section className="p-4">
           <div className="flex items-center gap-2.5">
@@ -111,7 +114,7 @@ export function StructurePanel({
               className="size-7 [&_svg]:size-4"
               onClick={() => onOpenChange(false)}
             >
-              <SidebarLeft variant="Outline" />
+              <SidebarLeft variant="Outline" className="transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none" />
             </Button>
           </div>
 
@@ -244,7 +247,7 @@ export function StructurePanel({
           </div>
         </section>
       </aside>
-    </>
+    </PanelFrame>
   );
 }
 

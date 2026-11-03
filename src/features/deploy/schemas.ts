@@ -4,7 +4,7 @@ import { z } from "zod";
 export const DOMAIN_SUFFIX = ".webblock.com";
 
 export const SUBDOMAIN_MIN = 3;
-export const SUBDOMAIN_MAX = 40;
+export const SUBDOMAIN_MAX = 20;
 
 export const subdomainSchema = z
   .string()

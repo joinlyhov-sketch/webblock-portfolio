@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { Edit2, Global } from "iconsax-reactjs";
 import { CategoryBadge } from "@/components/common/category-badge";
-import { PlanBadge, type PlanTier } from "@/components/common/plan-badge";
 import { StatusBadge } from "@/components/common/status-badge";
 import { Button } from "@/components/ui/button";
 import { liveSiteHref } from "@/config/site";
@@ -33,17 +32,15 @@ function activityText(website: Website): string {
 /**
  * One website: screenshot with status, name, address, last change and the main actions.
  * `filtered` is the status-tab view, which drops the category pill (Figma filter screens).
- * A live website also shows the plan it is online on (one plan covers all of the account's sites).
+ * The screenshot shows its status; account plan details live in the sidebar.
  */
 export function WebsiteCard({
   website,
-  plan,
   filtered = false,
   onPatch,
   onRemove,
 }: {
   website: Website;
-  plan: PlanTier;
   filtered?: boolean;
   /** Called after an action worked, with the fields that changed, so the list updates at once. */
   onPatch: (patch: Partial<Website>) => void;
@@ -79,7 +76,6 @@ export function WebsiteCard({
           />
         </div>
         <div className="absolute top-3 right-[11px] flex items-center gap-1.5">
-          {website.status === "LIVE" && <PlanBadge plan={plan} className="shadow-button" />}
           <StatusBadge status={website.status} />
         </div>
       </div>
