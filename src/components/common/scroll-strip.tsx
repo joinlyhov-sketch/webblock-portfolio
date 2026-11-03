@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
  * drag it or click the track to scroll. Keyboard: focus the row and use the arrow keys.
  *
  * @example
- * <ScrollStrip label="Publish steps"><ol className="flex w-max">…</ol></ScrollStrip>
+ * <ScrollStrip label="Deploy steps"><ol className="flex w-max">…</ol></ScrollStrip>
  */
 export function ScrollStrip({
   label,

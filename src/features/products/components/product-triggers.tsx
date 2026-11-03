@@ -1,6 +1,6 @@
 "use client";
 
-import { Add, Edit2, Trash } from "iconsax-reactjs";
+import { Add, Category, Edit2, Trash } from "iconsax-reactjs";
 import { ActionMenu } from "@/components/common/action-menu";
 import { ProductImage } from "@/components/common/product-image";
 import { Button } from "@/components/ui/button";
@@ -19,12 +19,12 @@ export function AddProductButton({ label = "Add product" }: { label?: string }) 
   );
 }
 
-/** Toolbar link after the category tabs: opens the "New category" popup. */
-export function NewCategoryButton() {
-  const { openNewCategory } = useProductDialogs();
+/** Toolbar link after the category tabs: opens the "Categories" popup (add or delete a category). */
+export function CategoriesButton() {
+  const { openCategories } = useProductDialogs();
   return (
-    <Button variant="ghost" size="sm" onClick={openNewCategory} className="rounded-full text-primary hover:text-primary">
-      <Add variant="Outline" aria-hidden /> New category
+    <Button variant="ghost" size="sm" onClick={openCategories} className="rounded-full text-primary hover:text-primary">
+      <Category variant="Outline" aria-hidden /> Categories
     </Button>
   );
 }

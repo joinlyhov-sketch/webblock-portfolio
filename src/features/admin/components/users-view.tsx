@@ -325,10 +325,13 @@ function UserDetail({
             />
 </span>
           <div className="min-w-0">
-            <h2 className="truncate text-[22px] leading-[30px] font-semibold tracking-[-0.17px] text-foreground">
+            <h2
+              title={user.fullName}
+              className="line-clamp-2 text-[22px] leading-[30px] font-semibold tracking-[-0.17px] break-words text-foreground"
+            >
               {user.fullName}
             </h2>
-            <p className="truncate text-sm text-muted-foreground">
+            <p title={user.email} className="truncate text-sm text-muted-foreground">
               {user.email}
             </p>
             <div className="flex flex-wrap items-center gap-1.5 pt-2">

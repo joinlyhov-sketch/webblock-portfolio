@@ -20,7 +20,7 @@ import { ProductDialogsProvider } from "./product-dialogs";
 import { CategoryChip } from "./product-parts";
 import {
   AddProductButton,
-  NewCategoryButton,
+  CategoriesButton,
   ProductCard,
   ProductCellButton,
   ProductRowActions,
@@ -114,11 +114,38 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
   function addCategory(name: string) {
     setCategories((current) => (current.includes(name) ? current : [...current, name]));
   }
+  function deleteCategory(name: string) {
+    setCategories((current) => current.filter((c) => c !== name));
+    // Its tab is gone: if it was the open one, show every product again.
+    if (category === name) {
+      setCategory(null);
+      setPageIndex(0);
+    }
+  }
 
+  // View switch and page size sit on the title row, so the toolbar below stays on one line.
   const heading = (
-    <h2 className="flex items-center gap-3 text-lg font-semibold">
-      <Box variant="Outline" aria-hidden className="size-[22px] text-brand" /> All products
-    </h2>
+    <div className="flex flex-wrap items-center justify-between gap-2.5">
+      <h2 className="flex items-center gap-3 text-lg font-semibold">
+        <Box variant="Outline" aria-hidden className="size-[22px] text-brand" /> All products
+      </h2>
+      <div className="flex items-center gap-2.5">
+        <LayoutToggle layout={layout} onChange={setLayout} />
+        {/* Page size is a laptop detail: phones keep the default so the header stays compact. */}
+        <div className="max-sm:hidden">
+          <RowsSelect
+            value={size}
+            options={PRODUCT_PAGE_SIZES}
+            editable
+            defaultSize={DEFAULT_PRODUCT_PAGE_SIZE}
+            onChange={(next) => {
+              setSize(next);
+              setPageIndex(0);
+            }}
+          />
+        </div>
+      </div>
+    </div>
   );
 
   const toolbar = (
@@ -131,10 +158,13 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
         }}
         placeholder="Search products"
         label="Search products"
-        className="h-9"
+        // Shrinks to 200px before anything wraps, so search, tabs and "New category" stay on one line.
+        className="h-9 w-auto max-w-[360px] min-w-[200px] flex-1 basis-[200px]"
       />
       <SegmentedTabs
         label="Filter by category"
+        // "All" + 4 categories; more categories slide in with the arrows.
+        visible={5}
         className="p-[3px]"
         tabs={[
           {
@@ -155,23 +185,7 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
           })),
         ]}
       />
-      <NewCategoryButton />
-      <div className="ml-auto flex items-center gap-2.5">
-        <LayoutToggle layout={layout} onChange={setLayout} />
-        {/* Page size is a laptop detail: phones keep the default so the toolbar stays on two rows. */}
-        <div className="max-sm:hidden">
-          <RowsSelect
-            value={size}
-            options={PRODUCT_PAGE_SIZES}
-            editable
-            defaultSize={DEFAULT_PRODUCT_PAGE_SIZE}
-            onChange={(next) => {
-              setSize(next);
-              setPageIndex(0);
-            }}
-          />
-        </div>
-      </div>
+      <CategoriesButton />
     </>
   );
 
@@ -203,9 +217,11 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
       websiteId={data.websiteId}
       domain={data.domain}
       categories={categories}
+      categoryCounts={counts.categories}
       onSaved={saveProduct}
       onDeleted={removeProduct}
       onCategoryAdded={addCategory}
+      onCategoryDeleted={deleteCategory}
     >
       <PageHeader
         className="mb-0 items-center"
@@ -217,6 +233,8 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
       />
 
       {layout === "list" ? (
+        // Fit the table to the screen so only its rows scroll and the pagination footer stays visible.
+        <div data-fit-viewport className="flex min-h-0 flex-1 flex-col">
         <DataTable
           className="flex-1"
           label="Products"
@@ -265,12 +283,13 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
             },
           ]}
         />
+        </div>
       ) : (
         <ProductGridFrame heading={heading} toolbar={toolbar}>
           {page.items.length === 0 ? (
             <div className="flex min-h-[300px] flex-1 items-center justify-center">{empty}</div>
           ) : (
-            <ul className="grid flex-1 grid-cols-2 content-start gap-3 p-3 sm:gap-6 sm:p-6 sm:grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
+            <ul className="grid min-h-0 flex-1 grid-cols-2 content-start gap-3 overflow-y-auto p-3 [scrollbar-color:var(--color-border)_transparent] [scrollbar-width:thin] sm:gap-6 sm:p-6 sm:grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
               {page.items.map((product) => (
                 <li key={product.id}>
                   <ProductCard product={product} />
@@ -280,7 +299,7 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
           )}
           {/* No products at all: no "Showing 0" footer, so the empty state sits in the middle of the card. */}
           {!noProducts && (
-            <div className="border-t border-border">
+            <div className="shrink-0 border-t border-border">
               <TablePagination data={page} onPageChange={setPageIndex} itemLabel="products" itemLabelOne="product" />
             </div>
           )}
@@ -290,7 +309,10 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
   );
 }
 
-/** Same card frame as `DataTable`, holding the product grid instead of rows. */
+/**
+ * Same card frame as `DataTable`, holding the product grid instead of rows. Like the table it fits one
+ * screen (`data-fit-viewport`): only the cards scroll, the heading, toolbar and footer stay in place.
+ */
 function ProductGridFrame({
   heading,
   toolbar,
@@ -303,10 +325,11 @@ function ProductGridFrame({
   return (
     <section
       aria-label="Products"
-      className="flex flex-1 flex-col overflow-hidden rounded-[20px] border border-border bg-background shadow-table"
+      data-fit-viewport
+      className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[20px] border border-border bg-background shadow-table"
     >
-      <div className="px-4 pt-5 pb-1">{heading}</div>
-      <div className="flex flex-wrap items-center gap-2.5 border-b border-border px-4 py-3.5">{toolbar}</div>
+      <div className="shrink-0 px-4 pt-5 pb-1">{heading}</div>
+      <div className="flex shrink-0 flex-wrap items-center gap-2.5 border-b border-border px-4 py-3.5">{toolbar}</div>
       {children}
     </section>
   );

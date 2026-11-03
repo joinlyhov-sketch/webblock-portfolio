@@ -2,7 +2,7 @@
 
 import { requireWebsiteOwner } from "@/lib/auth/session";
 import type { ActionResult } from "@/lib/actions/result";
-import { addCategory, removeProduct, saveProduct } from "./service";
+import { addCategory, removeCategory, removeProduct, saveProduct } from "./service";
 import type { Product } from "./types";
 
 // No revalidatePath here: the Products screen keeps its list in state and updates it from the
@@ -35,4 +35,9 @@ export async function deleteProductAction(websiteId: string, productId: string):
 export async function createCategoryAction(websiteId: string, formData: FormData): Promise<ActionResult<string>> {
   await requireWebsiteOwner(websiteId);
   return addCategory(websiteId, formData);
+}
+
+export async function deleteCategoryAction(websiteId: string, name: string): Promise<ActionResult> {
+  await requireWebsiteOwner(websiteId);
+  return removeCategory(websiteId, name);
 }

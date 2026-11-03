@@ -72,6 +72,28 @@ export async function createProductCategory(websiteId: string, name: string): Pr
   return name;
 }
 
+/**
+ * DELETE /projects/{projectId}/product-categories/{name} — refused (409) while any product uses it:
+ * every product needs a category, so the owner moves those products first.
+ */
+export async function deleteProductCategory(websiteId: string, name: string): Promise<void> {
+  await delay(300);
+  const categories = categoryStore[websiteId] ?? [];
+  const index = categories.indexOf(name);
+  if (index === -1) {
+    throw new ApiError({ title: "Category not found", status: 404, detail: `“${name}” is no longer one of your categories.` });
+  }
+  const used = store.filter((p) => p.websiteId === websiteId && p.category === name).length;
+  if (used > 0) {
+    throw new ApiError({
+      title: "Category in use",
+      status: 409,
+      detail: `${used} ${used === 1 ? "product uses" : "products use"} “${name}”. Move ${used === 1 ? "it" : "them"} to another category first.`,
+    });
+  }
+  categories.splice(index, 1);
+}
+
 export async function getProduct(websiteId: string, productId: string): Promise<Product> {
   await delay(100);
   const product = store.find((p) => p.id === productId && p.websiteId === websiteId);

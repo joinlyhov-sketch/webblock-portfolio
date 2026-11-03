@@ -1,57 +1,81 @@
-import type { Plan } from "@/features/landing/types";
+import type { Plan } from "@/features/admin/types";
 
-export const plans: Plan[] = [
+/**
+ * The one plan catalogue. Admin → Plans edits it, and the landing pricing, the billing plan cards and
+ * the account plan details all read it, so a price or limit change shows everywhere at once (Spring has
+ * one `plans` table). Kept on globalThis so dev hot reloads don't drop an admin's edit.
+ * `subscriberCount` is counted from the user accounts in features/admin/api.ts.
+ */
+const store = globalThis as typeof globalThis & { __wbPlans?: Plan[] };
+
+export const planCatalogue: Plan[] = (store.__wbPlans ??= [
   {
-    id: "5b0f7a52-2a3e-4c1d-9f35-6c2d1e8a4b01",
+    id: "a0c2e4f6-5d7b-4c9e-8f1a-2b4d6f8a0601",
     code: "FREE_TRIAL",
     name: "Free trial",
     priceMonthly: "0.00",
-    currency: "USD",
     trialDays: 14,
     websiteLimit: 1,
     // First deploy only: the trial has no redeploys.
     redeploysPerMonth: 0,
     productLimit: 30,
-    logsEnabled: false,
-    popular: false,
+    monitoring: "Basic status monitoring",
+    subscriberCount: 0,
+    mostPopular: false,
   },
   {
-    id: "8d4c2e19-7b6a-4f0e-a1d3-2e9f5c7b8a02",
+    id: "a0c2e4f6-5d7b-4c9e-8f1a-2b4d6f8a0602",
     code: "PLUS",
     name: "Plus",
     priceMonthly: "9.99",
-    currency: "USD",
     trialDays: null,
     websiteLimit: 1,
     redeploysPerMonth: 3,
     productLimit: 30,
-    logsEnabled: false,
-    popular: false,
+    monitoring: "Basic status monitoring",
+    subscriberCount: 0,
+    mostPopular: false,
   },
   {
-    id: "c3a9e6f1-4d2b-4a8c-b7e5-9f1d3c6a2b03",
+    id: "a0c2e4f6-5d7b-4c9e-8f1a-2b4d6f8a0603",
     code: "PRO",
     name: "Pro",
     priceMonthly: "19.99",
-    currency: "USD",
     trialDays: null,
     websiteLimit: 3,
     redeploysPerMonth: 30,
     productLimit: 200,
-    logsEnabled: true,
-    popular: true,
+    monitoring: "Logs",
+    subscriberCount: 0,
+    mostPopular: true,
   },
   {
-    id: "f7e2b8d4-1c5a-4e9f-8a6b-3d7c9e2f1a04",
+    id: "a0c2e4f6-5d7b-4c9e-8f1a-2b4d6f8a0604",
     code: "ULTRA",
     name: "Ultra",
     priceMonthly: "39.99",
-    currency: "USD",
     trialDays: null,
     websiteLimit: 10,
     redeploysPerMonth: 100,
     productLimit: 1000,
-    logsEnabled: true,
-    popular: false,
+    monitoring: "Logs",
+    subscriberCount: 0,
+    mostPopular: false,
   },
-];
+]);
+
+/** Pro and Ultra include deploy logs on top of basic status monitoring. */
+export const hasLogs = (plan: Plan) => plan.monitoring === "Logs";
+
+/**
+ * The plan's limits as the sentences the plan cards and the account page show ("Up to 3 websites").
+ * MOCK ONLY: Spring returns these lines with the plan; here they are built from the numbers so an admin
+ * edit changes the wording too.
+ */
+export function planLines(plan: Plan) {
+  return {
+    websites: plan.websiteLimit === 1 ? "1 website" : `Up to ${plan.websiteLimit.toLocaleString("en-US")} websites`,
+    redeploys: `${plan.redeploysPerMonth.toLocaleString("en-US")} redeploys a month`,
+    products: `Up to ${plan.productLimit.toLocaleString("en-US")} products`,
+  };
+}

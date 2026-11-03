@@ -6,10 +6,10 @@ import { toPage, type TableQuery } from "@/lib/table-query";
 import {
   planFilterOptions,
   planOrders as ordersSeed,
-  planLimits,
   profiles as seed,
   subscriptions as subscriptionsSeed,
 } from "@/mocks/account";
+import { hasLogs, planCatalogue, planLines } from "@/mocks/plans";
 import { buildReceiptPdf } from "@/mocks/receipt-pdf";
 import { websitePages } from "@/mocks/website-pages";
 import { formatDayMonthYear, formatPrice } from "@/lib/format";
@@ -191,9 +191,27 @@ export async function getOrderReceipt(
   return { filename: `webblock-receipt-${number}.pdf`, type: "application/pdf", bytes };
 }
 
+/**
+ * Price, limits and "includes" list of a paid plan, from the shared plan catalogue (the one Admin → Plans
+ * edits), so the account page always agrees with the plan cards.
+ */
+function planMeta(code: PaidPlanCode) {
+  const plan = planCatalogue.find((p) => p.code === code);
+  if (!plan) throw new ApiError({ title: "Unknown plan", status: 400, detail: "That plan does not exist." });
+  const lines = planLines(plan);
+  return {
+    name: plan.name,
+    price: plan.priceMonthly,
+    websites: plan.websiteLimit,
+    redeploys: plan.redeploysPerMonth,
+    products: plan.productLimit,
+    includes: [lines.websites, lines.redeploys, lines.products, "Basic status monitoring", ...(hasLogs(plan) ? ["Logs"] : [])],
+  };
+}
+
 /** How many websites a paid plan may have online at once. */
 export function websiteLimitOf(plan: PaidPlanCode): number {
-  return planLimits[plan].websites;
+  return planMeta(plan).websites;
 }
 
 export async function listPlanOptions(): Promise<{ value: PlanCode; label: string }[]> {
@@ -213,7 +231,7 @@ export async function activatePlan(
   if (!current) {
     throw new ApiError({ title: "No subscription", status: 404, detail: "This account has no plan yet." });
   }
-  const meta = planLimits[plan];
+  const meta = planMeta(plan);
   const used = (key: string) => current.usage.find((u) => u.key === key)?.used ?? 0;
   const next: Subscription = {
     ...current,
@@ -238,7 +256,7 @@ export async function activatePlan(
       },
       { key: "products", label: "Products", cardLabel: "Products", used: used("products"), limit: meta.products },
     ],
-    includes: [...meta.includes],
+    includes: meta.includes,
   };
   subscriptions[userId] = next;
   find(userId).plan = plan;

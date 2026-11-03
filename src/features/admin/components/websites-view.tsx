@@ -205,7 +205,11 @@ export function WebsitesView({
             key: "owner",
             header: "Owner",
             sortField: "ownerName",
-            cell: (w) => w.ownerName,
+            cell: (w) => (
+              <span className="block truncate" title={w.ownerName}>
+                {w.ownerName}
+              </span>
+            ),
           },
           {
             key: "site",

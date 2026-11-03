@@ -12,9 +12,9 @@ import { adminOverview } from "@/mocks/admin-overview";
 import { adminProfile } from "@/mocks/admin-profile";
 import {
   payments,
-  plans,
   subscriptions,
 } from "@/mocks/admin-subscriptions";
+import { planCatalogue as plans } from "@/mocks/plans";
 import { userAccounts } from "@/mocks/admin-users";
 import { adminDeploys, adminWebsites } from "@/mocks/admin-websites";
 import { daysAgo } from "@/mocks/time";
@@ -578,16 +578,27 @@ export async function listPayments(
 
 // ── Plans ────────────────────────────────────────────────────────────────────
 
+/**
+ * Subscribers per plan, counted the same way as the Users stats: every account on the free trial,
+ * and only active accounts on a paid plan (so the paid plans add up to "Paying").
+ */
+function withSubscribers(plan: Plan): Plan {
+  const subscriberCount = userAccounts.filter(
+    (u) => u.plan === plan.code && (!isPaid(u.plan) || u.status === "ACTIVE"),
+  ).length;
+  return { ...plan, subscriberCount };
+}
+
 /** GET /api/admin/plans */
 export async function listPlans(): Promise<Page<Plan>> {
   await delay();
-  return toPage(plans, { page: 0, size: plans.length });
+  return toPage(plans.map(withSubscribers), { page: 0, size: plans.length });
 }
 
 /** GET /api/admin/plans/{planId} */
 export async function getPlan(planId: string): Promise<Plan> {
   await delay(150);
-  return plans.find((p) => p.id === planId) ?? notFound("Plan");
+  return withSubscribers(plans.find((p) => p.id === planId) ?? notFound("Plan"));
 }
 
 /** PUT /api/admin/plans/{planId} — applies to new subscriptions and renewals. */
@@ -598,7 +609,7 @@ export async function updatePlan(
   await delay();
   const plan = plans.find((p) => p.id === planId) ?? notFound("Plan");
   Object.assign(plan, input);
-  return plan;
+  return withSubscribers(plan);
 }
 
 // ── Notifications ────────────────────────────────────────────────────────────

@@ -125,6 +125,7 @@ export function BusinessInfoForm({
           preview={preview}
           logoUrl={logoPreview}
           label="Preview: goes live on your next deploy"
+          compactLabel="Preview"
         />
         <div className="flex flex-col gap-4 px-4 pt-4 pb-3 sm:flex-row sm:items-center">
           <div className="flex min-w-0 flex-1 items-center gap-4">

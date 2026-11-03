@@ -183,18 +183,28 @@ function RecentDeploys({ deploys }: { deploys: Page<Deploy> }) {
               <Link
                 href={`/admin?website=${d.websiteId}`}
                 scroll={false}
-                className="inline-flex items-center gap-2.5 font-semibold text-foreground hover:text-primary after:absolute after:inset-0 after:content-['']"
+                className="flex min-w-0 items-center gap-2.5 font-semibold text-foreground hover:text-primary after:absolute after:inset-0 after:content-['']"
               >
                 <WebsiteLogo
                   logoUrl={d.websiteLogoUrl}
                   templateSlug={d.websiteTemplateSlug}
-                  className="size-8 text-[16px]"
+                  className="size-8 shrink-0 text-[16px]"
                 />
-                {d.websiteName}
+                <span className="truncate" title={d.websiteName}>
+                  {d.websiteName}
+                </span>
               </Link>
             ),
           },
-          { key: "owner", header: "Owner", cell: (d) => d.ownerName },
+          {
+            key: "owner",
+            header: "Owner",
+            cell: (d) => (
+              <span className="block truncate" title={d.ownerName}>
+                {d.ownerName}
+              </span>
+            ),
+          },
           { key: "release", header: "Release", cell: (d) => <StatusBadge status={d.status} /> },
           {
             key: "when",

@@ -78,14 +78,17 @@ export function PublishFlowSheet({
 
   return (
     <Modal
-      title={`${run.websiteName} publish flow`}
+      title={`${run.websiteName} deploy flow`}
       hideTitle
       side="right"
       closeHref={closeHref}
     >
       <header className="border-b border-border px-7 pt-6 pb-4 pr-20">
         <div className="flex flex-wrap items-center gap-2.5">
-          <h2 className="text-2xl font-semibold tracking-[-0.3px] text-foreground">
+          <h2
+            title={run.websiteName}
+            className="line-clamp-2 min-w-0 text-2xl font-semibold tracking-[-0.3px] break-words text-foreground"
+          >
             {run.websiteName}
           </h2>
           <StatusBadge
@@ -100,11 +103,11 @@ export function PublishFlowSheet({
           href={`/sites/${run.websiteId}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-1 inline-flex items-center gap-1.5 text-sm text-brand hover:underline"
+          className="mt-1 inline-flex max-w-full items-center gap-1.5 text-sm text-brand hover:underline"
         >
-          <Global variant="Outline" aria-hidden className="size-4" />
-          {run.domain}
-          <ExportSquare variant="Outline" aria-hidden className="size-3.5" />
+          <Global variant="Outline" aria-hidden className="size-4 shrink-0" />
+          <span className="truncate">{run.domain}</span>
+          <ExportSquare variant="Outline" aria-hidden className="size-3.5 shrink-0" />
         </a>
       </header>
 
@@ -130,7 +133,7 @@ function FlowStrip({ steps }: { steps: PipelineStep[] }) {
   return (
     <div className="rounded-[22px] border border-border bg-primary-soft/50 bg-[radial-gradient(var(--color-canvas-dot)_1.2px,transparent_1.4px)] bg-size-[16px_16px] px-5 pt-1 pb-4">
       {/* Own thin scrollbar, on one row with "Scroll →" (Figma shows the track under the steps). */}
-      <ScrollStrip label="Publish steps" className="pt-5 pb-3">
+      <ScrollStrip label="Deploy steps" className="pt-5 pb-3">
         <ol className="flex w-max items-stretch pr-1">
           {GROUPS.map((group, g) => {
             const groupSteps = group.steps

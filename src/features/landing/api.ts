@@ -1,12 +1,28 @@
 import { delay } from "@/lib/api/delay";
 import type { Page } from "@/lib/api/types";
-import { plans } from "@/mocks/plans";
+import { hasLogs, planCatalogue } from "@/mocks/plans";
 import type { ContactMessage, Plan } from "./types";
 
-/** Public plan list for the pricing section, cheapest first. Spring: `GET /plans`. */
+/**
+ * Public plan list for the pricing section, cheapest first. Spring: `GET /plans`. The mock reads the
+ * same catalogue Admin → Plans edits, so a new price shows here at once.
+ */
 export async function listPublicPlans(): Promise<Page<Plan>> {
   await delay(250);
-  return { items: plans, page: 0, size: plans.length, totalItems: plans.length };
+  const items: Plan[] = planCatalogue.map((p) => ({
+    id: p.id,
+    code: p.code,
+    name: p.name,
+    priceMonthly: p.priceMonthly,
+    currency: "USD",
+    trialDays: p.trialDays,
+    websiteLimit: p.websiteLimit,
+    redeploysPerMonth: p.redeploysPerMonth,
+    productLimit: p.productLimit,
+    logsEnabled: hasLogs(p),
+    popular: p.mostPopular,
+  }));
+  return { items, page: 0, size: items.length, totalItems: items.length };
 }
 
 const globalForStore = globalThis as typeof globalThis & { __wbContact?: ContactMessage[] };

@@ -54,3 +54,6 @@ CLAUDE.local.md
 /playwright-report
 /tests/.auth
 /screenshots
+
+#VSCode
+.vscode/*

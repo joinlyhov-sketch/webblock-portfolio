@@ -161,7 +161,11 @@ export function ActivityView({
             header: "Done by",
             sortField: "actorEmail",
             cell: (a) =>
-              a.actorEmail ?? (
+              a.actorEmail ? (
+                <span className="block truncate" title={a.actorEmail}>
+                  {a.actorEmail}
+                </span>
+              ) : (
                 <span className="text-muted-foreground">System</span>
               ),
           },

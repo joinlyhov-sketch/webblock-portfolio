@@ -81,6 +81,8 @@ export function ProductForm({
   const values = state && !state.ok ? state.values : undefined;
   const errors = state && !state.ok ? state.fieldErrors : undefined;
   const [category, setCategory] = useState(product?.category ?? "");
+  // Live "120/300" counter next to the Description label.
+  const [descriptionLength, setDescriptionLength] = useState((values?.description ?? product?.description ?? "").length);
   const error = (name: string) => errors?.[name]?.[0];
   const photoError = imageError ?? error("image");
 
@@ -195,9 +197,14 @@ export function ProductForm({
           </div>
 
           <div>
-            <label htmlFor="product-description" className={labelClasses}>
-              Description
-            </label>
+            <div className="flex items-baseline justify-between gap-2">
+              <label htmlFor="product-description" className={labelClasses}>
+                Description
+              </label>
+              <span id="product-description-count" className="text-xs text-muted-foreground tabular-nums">
+                {descriptionLength}/{LIMITS.description}
+              </span>
+            </div>
             <Textarea
               id="product-description"
               name="description"
@@ -205,8 +212,9 @@ export function ProductForm({
               rows={3}
               placeholder="Tell customers what it is, what’s included and how to care for it."
               defaultValue={values?.description ?? product?.description}
+              onChange={(event) => setDescriptionLength(event.target.value.length)}
               aria-invalid={!!error("description")}
-              aria-describedby={error("description") ? "product-description-error" : undefined}
+              aria-describedby={["product-description-count", error("description") && "product-description-error"].filter(Boolean).join(" ")}
               className="min-h-[92px] resize-none rounded-xl px-3 py-2.5 text-sm"
             />
             <FieldError id="product-description-error" message={error("description")} />

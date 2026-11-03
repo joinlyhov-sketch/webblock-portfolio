@@ -1,4 +1,4 @@
-import type { Payment, Plan, Subscription, SubscriptionStats } from "@/features/admin/types";
+import type { Payment, Subscription, SubscriptionStats } from "@/features/admin/types";
 import { PETAL_AND_STEM_ID, SOVANNARITH_ID } from "./session";
 import { at, daysAgo, daysFromNow } from "./time";
 
@@ -186,60 +186,4 @@ export const payments: Payment[] = [
   pay("0506", "0406", "PLUS", at("2026-10-01T00:00:00Z"), "9.99", "FAILED", at("2026-10-20T08:45:00Z")),
   pay("0507", "0407", "ULTRA", at("2026-10-01T00:00:00Z"), "39.99", "PAID", at("2026-10-26T11:00:00Z")),
   pay("0508", "0409", "ULTRA", at("2026-10-01T00:00:00Z"), "39.99", "PAID", at("2026-10-08T09:15:00Z")),
-];
-
-export const plans: Plan[] = [
-  {
-    id: "a0c2e4f6-5d7b-4c9e-8f1a-2b4d6f8a0601",
-    code: "FREE_TRIAL",
-    name: "Free trial",
-    priceMonthly: "0.00",
-    trialDays: 14,
-    websiteLimit: 1,
-    // First deploy only: the trial has no redeploys.
-    redeploysPerMonth: 0,
-    productLimit: 30,
-    monitoring: "Basic status monitoring",
-    subscriberCount: 212,
-    mostPopular: false,
-  },
-  {
-    id: "a0c2e4f6-5d7b-4c9e-8f1a-2b4d6f8a0602",
-    code: "PLUS",
-    name: "Plus",
-    priceMonthly: "9.99",
-    trialDays: null,
-    websiteLimit: 1,
-    redeploysPerMonth: 3,
-    productLimit: 30,
-    monitoring: "Basic status monitoring",
-    subscriberCount: 412,
-    mostPopular: false,
-  },
-  {
-    id: "a0c2e4f6-5d7b-4c9e-8f1a-2b4d6f8a0603",
-    code: "PRO",
-    name: "Pro",
-    priceMonthly: "19.99",
-    trialDays: null,
-    websiteLimit: 3,
-    redeploysPerMonth: 30,
-    productLimit: 200,
-    monitoring: "Logs",
-    subscriberCount: 301,
-    mostPopular: true,
-  },
-  {
-    id: "a0c2e4f6-5d7b-4c9e-8f1a-2b4d6f8a0604",
-    code: "ULTRA",
-    name: "Ultra",
-    priceMonthly: "39.99",
-    trialDays: null,
-    websiteLimit: 10,
-    redeploysPerMonth: 100,
-    productLimit: 1000,
-    monitoring: "Logs",
-    subscriberCount: 123,
-    mostPopular: false,
-  },
 ];

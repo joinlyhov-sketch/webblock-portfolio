@@ -77,6 +77,10 @@ function BareModal({ open, onClose, label, children, className }: BareModalProps
   // Keeps the content on screen while the card fades out (otherwise an empty card fades).
   const [mounted, setMounted] = useState(open);
   if (open && !mounted) setMounted(true);
+  // Callers often render `{open && <Form />}`, so their children vanish the moment `open` turns false.
+  // Keep showing the last open content during the exit fade, or the card collapses to a thin line.
+  const [exitChildren, setExitChildren] = useState(children);
+  if (open && exitChildren !== children) setExitChildren(children);
 
   useEffect(() => {
     const dialog = ref.current;
@@ -116,7 +120,7 @@ function BareModal({ open, onClose, label, children, className }: BareModalProps
         className,
       )}
     >
-      <PortalContainerContext value={dialogEl}>{(open || mounted) && children}</PortalContainerContext>
+      <PortalContainerContext value={dialogEl}>{open ? children : mounted && exitChildren}</PortalContainerContext>
     </dialog>
   );
 }

@@ -27,7 +27,11 @@ export function DetailHero({
       <div className="shrink-0">{media}</div>
       <div className="min-w-0 flex-1 space-y-1.5 pr-8">
         {badge}
-        <h2 className="text-[26px] leading-8 font-semibold tracking-[-0.4px] break-words text-foreground">
+        {/* Long website names: at most 2 lines, the full name on hover. */}
+        <h2
+          title={title}
+          className="line-clamp-2 text-[26px] leading-8 font-semibold tracking-[-0.4px] break-words text-foreground"
+        >
           {title}
         </h2>
         {subtitle && (

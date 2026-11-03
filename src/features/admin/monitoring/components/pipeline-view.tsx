@@ -127,7 +127,11 @@ export function PipelineView({
             key: "owner",
             header: "Owner",
             sortField: "ownerName",
-            cell: (r) => r.ownerName,
+            cell: (r) => (
+              <span className="block truncate" title={r.ownerName}>
+                {r.ownerName}
+              </span>
+            ),
           },
           {
             key: "request",

@@ -1,5 +1,5 @@
 import { TableSkeleton } from "@/components/common/page-skeleton";
 
 export default function Loading() {
-  return <TableSkeleton compact />;
+  return <TableSkeleton />;
 }
