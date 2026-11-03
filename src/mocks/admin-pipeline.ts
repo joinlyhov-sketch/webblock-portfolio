@@ -44,7 +44,7 @@ function steps(
 }
 
 // No image here: `features/admin/monitoring/api.ts` adds it from the website itself.
-export const pipelineRuns: Omit<PipelineRun, "thumbnailUrl">[] = [
+export const pipelineRuns: Omit<PipelineRun, "logoUrl" | "templateSlug">[] = [
   {
     id: "7a1c3e5f-9b2d-4f6a-8c1e-3a5c7e9b0801",
     websiteId: "9b2d4f6a-1c3e-4a5b-8d7f-2e4c6a8b0220",

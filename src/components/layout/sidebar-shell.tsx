@@ -14,6 +14,7 @@ export function SidebarShell({
   homeHref,
   children,
   footer,
+  aboveFooter,
   collapsed = false,
   narrow = collapsed,
   onToggleCollapsed,
@@ -24,6 +25,8 @@ export function SidebarShell({
   homeHref: string;
   children: ReactNode;
   footer?: ReactNode;
+  /** Pinned above the footer line, e.g. the user sidebar's trial card. */
+  aboveFooter?: ReactNode;
   /** Icon-only rail: logo mark, nav icons, footer stacked. */
   collapsed?: boolean;
   /** Rail width. Defaults to `collapsed`; pass it separately (see `useSidebarCollapse`) to stage the animation. */
@@ -65,8 +68,9 @@ export function SidebarShell({
         )}
       </div>
       {children}
+      {aboveFooter && <div className="mt-auto">{aboveFooter}</div>}
       {footer && (
-        <div className="mt-auto border-t border-border pt-2.5">{footer}</div>
+        <div className={cn("border-t border-border pt-2.5", !aboveFooter && "mt-auto", aboveFooter && "mt-3")}>{footer}</div>
       )}
     </aside>
   );

@@ -6,7 +6,7 @@ import { toPage, type TableQuery } from "@/lib/table-query";
 import { activityLog } from "@/mocks/admin-activity";
 import { liveLogs, pipelineRuns as pipelineMocks } from "@/mocks/admin-pipeline";
 import { adminDeploys, adminWebsites } from "@/mocks/admin-websites";
-import { redeployedIds, settleDeploys } from "../api";
+import { redeployedIds, settleDeploys, withLogo } from "../api";
 import type {
   ActivityEntry,
   ActivityFilters,
@@ -16,12 +16,15 @@ import type {
   PipelineRun,
 } from "./types";
 
-// The website's image comes from the website itself, so it is the same everywhere.
-const pipelineRuns: PipelineRun[] = pipelineMocks.map((r) => ({
-  ...r,
-  thumbnailUrl:
-    adminWebsites.find((w) => w.id === r.websiteId)?.thumbnailUrl ?? null,
-}));
+const pipelineRuns: PipelineRun[] = pipelineMocks.map((r) => ({ ...r, logoUrl: null }));
+
+/** The logo comes from the website itself (business details, else its template's mark), so it is the same everywhere. */
+async function withWebsiteLogo(run: PipelineRun): Promise<PipelineRun> {
+  const website = adminWebsites.find((w) => w.id === run.websiteId);
+  if (!website) return run;
+  const { logoUrl, templateSlug } = await withLogo(website);
+  return { ...run, logoUrl: logoUrl ?? null, templateSlug };
+}
 
 const delay = async (ms = 250) => {
   await new Promise((resolve) => setTimeout(resolve, ms));
@@ -86,10 +89,11 @@ export async function listPipelineRuns(
   const items = pipelineRuns
     .map(withRedeploy)
     .filter((r) => !filters.stage || r.stage === filters.stage);
-  return toPage(
+  const page = toPage(
     sorted(items, query.sort ?? { field: "currentStep", direction: "asc" }),
     query,
   );
+  return { ...page, items: await Promise.all(page.items.map(withWebsiteLogo)) };
 }
 
 /** GET /api/admin/monitoring/pipeline/{websiteId} — the publish flow of one website. */
@@ -103,7 +107,7 @@ export async function getPipelineRun(websiteId: string): Promise<PipelineRun> {
       status: 404,
       detail: "No deploy found for this website.",
     });
-  return run;
+  return withWebsiteLogo(run);
 }
 
 /** GET /api/admin/monitoring/pipeline/{websiteId}/logs?level=&size= — newest first. */

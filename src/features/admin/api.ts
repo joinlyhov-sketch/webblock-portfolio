@@ -380,7 +380,7 @@ export async function listWebsites(
 }
 
 /** Adds the logo from the website's Business information (GET /projects/{id}/business-info). */
-async function withLogo(website: AdminWebsite): Promise<AdminWebsite> {
+export async function withLogo(website: AdminWebsite): Promise<AdminWebsite> {
   const [info, owned] = await Promise.all([
     getBusinessInfo(website.id).catch(() => null),
     getOwnedWebsite(website.id).catch(() => null),

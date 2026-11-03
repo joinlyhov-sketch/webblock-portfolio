@@ -21,7 +21,7 @@ import {
   Wifi,
 } from "iconsax-reactjs";
 import { Avatar } from "@/components/common/avatar";
-import { WebsiteLogo } from "./website-logo";
+import { WebsiteLogo } from "@/components/common/website-logo";
 import { Callout } from "@/components/common/callout";
 import { DetailList } from "@/components/common/card";
 import { DataTable } from "@/components/common/data-table";

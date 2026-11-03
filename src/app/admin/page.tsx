@@ -21,7 +21,7 @@ export default async function AdminOverviewPage({
     typeof query.website === "string" && query.website ? query.website : undefined;
   const [overview, deploys, detail] = await Promise.all([
     getOverview(),
-    listDeploys({}, { page: 0, size: 3 }),
+    listDeploys({}, { page: 0, size: 10 }),
     websiteId
       ? Promise.all([
           getWebsite(websiteId),
