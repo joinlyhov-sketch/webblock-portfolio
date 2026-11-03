@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ChangeEvent, type FocusEvent, type FormEvent } from "react";
+import Link from "next/link";
 import { CloseCircle, Profile, Sms, TickCircle } from "iconsax-reactjs";
 import { FormField } from "@/components/common/form-field";
 import { Modal } from "@/components/common/modal";
@@ -12,6 +13,7 @@ import { siteConfig } from "@/config/site";
 import { CONTACT_HASH } from "../content";
 import {
   CONTACT_LIMITS as LIMITS,
+  CONTACT_MESSAGE_MIN,
   contactFieldError,
   contactNameTypingError,
   parseContact,
@@ -30,9 +32,23 @@ function useContactHash(): [boolean, () => void] {
 
   useEffect(() => {
     const sync = () => setOpen(window.location.hash === CONTACT_HASH);
+    const openFromLink = (event: MouseEvent) => {
+      if (!(event.target instanceof Element)) return;
+      const link = event.target.closest<HTMLAnchorElement>("a[href]");
+      if (!link) return;
+      const target = new URL(link.href, window.location.href);
+      if (target.hash === CONTACT_HASH) setOpen(true);
+    };
+
     sync();
     window.addEventListener("hashchange", sync);
-    return () => window.removeEventListener("hashchange", sync);
+    window.addEventListener("popstate", sync);
+    document.addEventListener("click", openFromLink, true);
+    return () => {
+      window.removeEventListener("hashchange", sync);
+      window.removeEventListener("popstate", sync);
+      document.removeEventListener("click", openFromLink, true);
+    };
   }, []);
 
   function close() {
@@ -47,7 +63,7 @@ function useContactHash(): [boolean, () => void] {
 
 /**
  * "Talk to us" popup on the landing, privacy and terms pages: name, email and message, sent to
- * `/api/contact`. Every "Talk to us", "Email support" and "Contact" link points at `#contact-form`.
+ * `/api/contact`. The navbar has a dedicated contact page; email and "Mail to us" links open this popup.
  */
 export function ContactDialog() {
   const [open, close] = useContactHash();
@@ -63,11 +79,12 @@ export function ContactDialog() {
 const FIELDS: ContactField[] = ["name", "email", "message"];
 
 /** Mounted fresh each time the popup opens (Modal unmounts closed content), so it always starts empty. */
-function ContactForm({ onClose }: { onClose: () => void }) {
+export function ContactForm({ onClose }: { onClose?: () => void } = {}) {
   const [errors, setErrors] = useState<FieldErrors>({});
   const [failure, setFailure] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [sentTo, setSentTo] = useState<string | null>(null);
+  const [values, setValues] = useState({ name: "", email: "", message: "" });
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -99,40 +116,43 @@ function ContactForm({ onClose }: { onClose: () => void }) {
   }
 
   const error = (field: string) => errors[field]?.[0];
+  const messageLength = values.message.trim().length;
 
   function setFieldError(field: ContactField, message: string | null) {
     setErrors((current) => ({ ...current, [field]: message ? [message] : undefined }));
   }
 
-  /**
-   * While typing: a field already marked wrong is re-checked on every key, so the message goes away
-   * as soon as it's fixed. A name also flags digits and symbols right away; nothing else nags yet.
-   */
+  /** Keep visible errors current while typing; names also flag invalid characters immediately. */
   function onFieldChange(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     const field = e.target.name as ContactField;
     const value = e.target.value;
-    if (errors[field]?.length) setFieldError(field, contactFieldError(field, value));
+    setValues((current) => ({ ...current, [field]: value }));
+    if (errors[field]?.length || (field === "message" && value.trim())) {
+      setFieldError(field, contactFieldError(field, value));
+    }
     else if (field === "name") setFieldError(field, contactNameTypingError(value));
   }
 
-  /** Leaving a field checks it fully. Empty fields wait for "Send message" so tabbing past doesn't nag. */
+  /** Leaving a field checks it fully, including required fields, before the visitor submits. */
   function onFieldBlur(e: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) {
     const field = e.target.name as ContactField;
-    if (e.target.value.trim()) setFieldError(field, contactFieldError(field, e.target.value));
+    setFieldError(field, contactFieldError(field, e.target.value));
   }
 
   const fieldEvents = { onChange: onFieldChange, onBlur: onFieldBlur };
 
   return (
     <div className="relative flex flex-col gap-5 p-6 sm:p-8">
-      <button
-        type="button"
-        aria-label="Close"
-        onClick={onClose}
-        className="absolute top-4 right-4 flex size-9 items-center justify-center rounded-full text-foreground outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/40"
-      >
-        <CloseCircle variant="Outline" aria-hidden className="size-5" />
-      </button>
+      {onClose && (
+        <button
+          type="button"
+          aria-label="Close"
+          onClick={onClose}
+          className="absolute top-4 right-4 flex size-9 items-center justify-center rounded-full text-foreground outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/40"
+        >
+          <CloseCircle variant="Outline" aria-hidden className="size-5" />
+        </button>
+      )}
 
       {sentTo ? (
         <div className="flex flex-col items-center gap-4 py-4 text-center">
@@ -144,9 +164,13 @@ function ContactForm({ onClose }: { onClose: () => void }) {
             Thanks for writing. We usually reply to <strong className="font-semibold text-foreground">{sentTo}</strong>{" "}
             within 48 hours.
           </p>
-          <Button onClick={onClose} className="mt-2">
-            Done
-          </Button>
+          {onClose ? (
+            <Button onClick={onClose} className="mt-2">Done</Button>
+          ) : (
+            <Button asChild className="mt-2">
+              <Link href="/">Back to home</Link>
+            </Button>
+          )}
         </div>
       ) : (
         <>
@@ -158,48 +182,85 @@ function ContactForm({ onClose }: { onClose: () => void }) {
           </div>
 
           <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
-            <FormField id="contact-name" label="Your name" labelClassName={labelClass} error={error("name")}>
+            <FormField
+              id="contact-name"
+              label="Your name"
+              labelClassName={labelClass}
+              hint={`Required · Up to ${LIMITS.name} characters.`}
+              error={error("name")}
+            >
               <Input
                 id="contact-name"
                 name="name"
                 autoComplete="name"
+                required
                 maxLength={LIMITS.name}
+                value={values.name}
                 icon={<Profile variant="Outline" />}
                 iconClassName={fieldIconClass}
                 className={fieldClass}
                 placeholder="e.g. Sokha Chan"
                 {...fieldEvents}
                 aria-invalid={!!error("name") || undefined}
-                aria-describedby={error("name") ? "contact-name-hint" : undefined}
+                aria-describedby="contact-name-count contact-name-hint"
               />
+              <p
+                id="contact-name-count"
+                className={`text-right text-xs ${values.name.length >= LIMITS.name ? "text-danger" : "text-placeholder"}`}
+              >
+                {values.name.length}/{LIMITS.name}
+              </p>
             </FormField>
-            <FormField id="contact-email" label="Email" labelClassName={labelClass} error={error("email")}>
+            <FormField
+              id="contact-email"
+              label="Email"
+              labelClassName={labelClass}
+              hint="Enter a valid email address, like you@example.com."
+              error={error("email")}
+            >
               <Input
                 id="contact-email"
                 name="email"
                 type="email"
                 autoComplete="email"
+                required
                 maxLength={LIMITS.email}
+                value={values.email}
                 icon={<Sms variant="Outline" />}
                 iconClassName={fieldIconClass}
                 className={fieldClass}
                 placeholder="you@example.com"
                 {...fieldEvents}
                 aria-invalid={!!error("email") || undefined}
-                aria-describedby={error("email") ? "contact-email-hint" : undefined}
+                aria-describedby="contact-email-hint"
               />
             </FormField>
-            <FormField id="contact-message" label="Message" labelClassName={labelClass} error={error("message")}>
+            <FormField
+              id="contact-message"
+              label="Message"
+              labelClassName={labelClass}
+              hint={`Write ${CONTACT_MESSAGE_MIN}–${LIMITS.message} characters.`}
+              error={error("message")}
+            >
               <Textarea
                 id="contact-message"
                 name="message"
+                required
                 maxLength={LIMITS.message}
-                placeholder="How can we help?"
+                value={values.message}
+                placeholder="Tell us what you need help with."
                 {...fieldEvents}
                 className="min-h-[140px] rounded-xl px-3.5 py-3 text-sm leading-[21.7px]"
                 aria-invalid={!!error("message") || undefined}
-                aria-describedby={error("message") ? "contact-message-hint" : undefined}
+                aria-describedby="contact-message-count contact-message-hint"
               />
+              <p
+                id="contact-message-count"
+                className={`text-right text-xs ${error("message") || (messageLength > 0 && messageLength < CONTACT_MESSAGE_MIN) ? "text-danger" : "text-placeholder"}`}
+              >
+                {messageLength}/{LIMITS.message} characters
+                {messageLength < CONTACT_MESSAGE_MIN && ` · ${CONTACT_MESSAGE_MIN - messageLength} more needed`}
+              </p>
             </FormField>
 
             {failure && (
@@ -209,9 +270,11 @@ function ContactForm({ onClose }: { onClose: () => void }) {
             )}
 
             <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-              <Button type="button" variant="secondary" onClick={onClose}>
-                Cancel
-              </Button>
+              {onClose && (
+                <Button type="button" variant="secondary" onClick={onClose}>
+                  Cancel
+                </Button>
+              )}
               <Button type="submit" loading={pending}>
                 Send message
               </Button>

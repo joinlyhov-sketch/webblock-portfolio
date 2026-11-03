@@ -2,6 +2,7 @@ import { PaymentSummary, PaymentCardHeader, PaymentProgress, KhqrPanel, PaymentS
 import { Lock1 } from "iconsax-reactjs";
 import { BillingBackdrop, BillingContent, BillingScreen, BillingTitle, BillingTopBar } from "./billing-shell";
 import { PendingPayment } from "./pending-payment";
+import { PaymentConfetti } from "./payment-confetti";
 import type { PaymentView as PaymentData } from "../service";
 
 /** Payment screen: waiting for payment, paid, or code expired. The API decides which. */
@@ -11,6 +12,7 @@ export function PaymentView({ view }: { view: PaymentData }) {
     <BillingScreen>
       <BillingTopBar backHref={view.backHref} backLabel={view.backLabel} />
       <BillingBackdrop variant="payment" />
+      {order.status === "PAID" && <PaymentConfetti />}
       <BillingContent>
         <BillingTitle eyebrow="Secure payment" icon={<Lock1 variant="Outline" aria-hidden />} title="Payment" subtitle={view.subtitle} />
         <div className="mt-2 w-[960px] max-w-full overflow-hidden rounded-[24px] border border-border bg-background shadow-payment-card motion-safe:animate-fade-up sm:mt-3 sm:rounded-[32px]">

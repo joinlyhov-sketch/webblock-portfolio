@@ -19,7 +19,7 @@ function show(variant: Variant, title: string, message?: string) {
   return sonner.custom((id) => (
     <div
       role={variant === "error" ? "alert" : "status"}
-      className="flex w-[356px] animate-toast-in overflow-hidden rounded-lg border border-border bg-background shadow-sm"
+      className="flex w-[356px] animate-toast-in overflow-hidden rounded-xl border border-border bg-background shadow-sm"
     >
       <span aria-hidden className={cn("w-1 shrink-0", styles.bar)} />
       <div className="flex-1 px-4 py-3">

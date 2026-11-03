@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowDown2, MessageQuestion } from "iconsax-reactjs";
+import { ArrowDown2, Message } from "iconsax-reactjs";
 import { cn } from "@/lib/utils";
 
 export type AccordionItem = { id: string; question: string; answer: string };
@@ -37,7 +37,7 @@ export function Accordion({
                 onClick={() => setOpenId(open ? null : item.id)}
                 className="flex w-full items-center gap-2.5 rounded-xl p-3 text-left text-[13px] leading-[19.5px] outline-none focus-visible:ring-3 focus-visible:ring-ring/40"
               >
-                <MessageQuestion variant="Outline" aria-hidden className="size-[18px] shrink-0 text-primary" />
+                <Message variant="Outline" aria-hidden className="size-[18px] shrink-0 text-primary" />
                 <span className={cn("min-w-0 flex-1", open ? "font-semibold text-faq-open-text" : "text-foreground")}>
                   {item.question}
                 </span>

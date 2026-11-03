@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, type CSSProperties } from "react";
 import dynamic from "next/dynamic";
 import type { Carousel3DItem } from "@/components/common/carousel-3d";
 import { useInView } from "@/components/common/motion";
@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { BrowserMock, showcaseTemplates } from "./template-mock";
 
 const stageClass = "h-[300px] w-full sm:h-[400px] md:h-[480px] lg:h-[560px]";
+const floatStyle = { "--float-y": "8px", "--float-duration": "6s", "--float-delay": "-1.5s" } as CSSProperties;
 
 // WebGL only exists in the browser, so the three.js carousel loads on the client.
 const Carousel3D = dynamic(() => import("@/components/common/carousel-3d").then((m) => m.Carousel3D), {
@@ -41,17 +42,19 @@ export function TemplateCarousel() {
   return (
     <div className="flex w-full flex-col items-center gap-6 md:gap-8">
       {nearView ? (
-        <Carousel3D
-          items={items}
-          activeIndex={active}
-          onSelect={setActive}
-          className={cn(stageClass, "cursor-grab active:cursor-grabbing")}
-          fallback={
-            <div className="mx-auto w-full max-w-[720px]">
-              <BrowserMock template={current} />
-            </div>
-          }
-        />
+        <div className={cn(stageClass, "motion-safe:animate-landing-float")} style={floatStyle}>
+          <Carousel3D
+            items={items}
+            activeIndex={active}
+            onSelect={setActive}
+            className="size-full cursor-grab active:cursor-grabbing"
+            fallback={
+              <div className="mx-auto w-full max-w-[720px]">
+                <BrowserMock template={current} />
+              </div>
+            }
+          />
+        </div>
       ) : (
         <div ref={stageRef} aria-hidden className={stageClass} />
       )}

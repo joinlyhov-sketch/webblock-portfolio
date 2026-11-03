@@ -33,21 +33,40 @@ export function SupportForm({ view }: { view: Pick<SupportView, "email" | "websi
   const formRef = useRef<HTMLFormElement>(null);
   const [topic, setTopic] = useState(view.topics[0]?.id ?? "");
   const [state, formAction, pending] = useActionState(sendSupportMessageAction, null);
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [touched, setTouched] = useState({ subject: false, message: false });
   // The popup shows for the newest successful result until the user dismisses that result.
   const [dismissed, setDismissed] = useState<unknown>(null);
 
   useEffect(() => {
-    if (state && !state.ok) toast.error("Could not send your message", state.message);
+    if (state && !state.ok && !state.fieldErrors) {
+      toast.error("Could not send your message", state.message);
+    }
   }, [state]);
 
   const receipt = state?.ok ? state.data : null;
   const sentOpen = receipt !== null && dismissed !== state;
   const error = (field: string) => (state && !state.ok ? state.fieldErrors?.[field]?.[0] : undefined);
   const kept = (field: string) => (state && !state.ok ? state.values?.[field] : undefined);
+  const savedError = (field: string, value: string) =>
+    kept(field)?.trim() === value.trim() ? error(field) : undefined;
+  const subjectError = touched.subject && !subject.trim()
+    ? "Subject is required."
+    : savedError("subject", subject);
+  const trimmedMessage = message.trim();
+  const messageError = touched.message && !trimmedMessage
+    ? "Message is required."
+    : touched.message && trimmedMessage.length < 10
+      ? "Message must be at least 10 characters."
+      : savedError("message", message);
 
   function writeAnother() {
     setDismissed(state);
     formRef.current?.reset();
+    setSubject("");
+    setMessage("");
+    setTouched({ subject: false, message: false });
     setTopic(view.topics[0]?.id ?? "");
   }
 
@@ -57,6 +76,10 @@ export function SupportForm({ view }: { view: Pick<SupportView, "email" | "websi
         ref={formRef}
         action={formAction}
         className="flex flex-col gap-5 overflow-clip rounded-[20px] border border-border bg-background p-6 shadow-support"
+        onSubmit={(event) => {
+          setTouched({ subject: true, message: true });
+          if (!subject.trim() || trimmedMessage.length < 10) event.preventDefault();
+        }}
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <FormField id="from" label="From" labelClassName={labelClass}>
@@ -119,7 +142,7 @@ export function SupportForm({ view }: { view: Pick<SupportView, "email" | "websi
           )}
         </fieldset>
 
-        <FormField id="subject" label="Subject" labelClassName={labelClass} error={error("subject")}>
+        <FormField id="subject" label="Subject" labelClassName={labelClass} error={subjectError}>
           <Input
             id="subject"
             name="subject"
@@ -127,24 +150,50 @@ export function SupportForm({ view }: { view: Pick<SupportView, "email" | "websi
             icon={<Tag variant="Outline" />}
             iconClassName={fieldIconClass}
             className={fieldClass}
-            defaultValue={kept("subject")}
+            value={subject}
+            onChange={(event) => {
+              setSubject(event.target.value);
+              setTouched((current) => ({ ...current, subject: true }));
+            }}
+            onBlur={() => setTouched((current) => ({ ...current, subject: true }))}
             placeholder="e.g. My last deploy failed"
-            aria-invalid={!!error("subject")}
-            aria-describedby={error("subject") ? "subject-hint" : undefined}
+            aria-invalid={!!subjectError}
+            aria-describedby={cn(subjectError && "subject-hint", subject.length > 0 && "subject-count") || undefined}
           />
+          {subject.length > 0 && (
+            <p
+              id="subject-count"
+              className={cn("text-right text-xs", subject.length >= LIMITS.subject ? "text-danger" : "text-placeholder")}
+            >
+              {subject.length}/{LIMITS.subject}
+            </p>
+          )}
         </FormField>
 
-        <FormField id="message" label="Message" labelClassName={labelClass} error={error("message")}>
+        <FormField id="message" label="Message" labelClassName={labelClass} error={messageError}>
           <Textarea
             id="message"
             name="message"
             maxLength={LIMITS.message}
-            defaultValue={kept("message")}
+            value={message}
+            onChange={(event) => {
+              setMessage(event.target.value);
+              setTouched((current) => ({ ...current, message: true }));
+            }}
+            onBlur={() => setTouched((current) => ({ ...current, message: true }))}
             placeholder="Tell us what happened and what you expected."
             className="min-h-[150px] rounded-xl px-3.5 py-3 text-sm leading-[21.7px]"
-            aria-invalid={!!error("message")}
-            aria-describedby={error("message") ? "message-hint" : undefined}
+            aria-invalid={!!messageError}
+            aria-describedby={cn(messageError && "message-hint", message.length > 0 && "message-count") || undefined}
           />
+          {message.length > 0 && (
+            <p
+              id="message-count"
+              className={cn("text-right text-xs", message.length >= LIMITS.message ? "text-danger" : "text-placeholder")}
+            >
+              {message.length}/{LIMITS.message}
+            </p>
+          )}
         </FormField>
 
         <div className="flex justify-end">
@@ -168,10 +217,7 @@ export function SupportForm({ view }: { view: Pick<SupportView, "email" | "websi
                 Message sent
               </h2>
               <p className="text-center text-sm leading-[21px] text-body-soft">
-                We’ve received your message about{" "}
-                <strong className="font-bold text-ink">“{receipt.subject}”</strong>. A copy was sent to{" "}
-                <strong className="font-bold text-ink">{receipt.email}</strong> and we usually send the reply into
-                your email within 48 hours.
+                Thank you for contacting us! We will get back to you with an answer within 48 hours.
               </p>
               <div className="w-full max-w-[460px] rounded-[14px] border border-dashed border-border bg-faq-row px-4 py-3 text-left">
                 <p className="text-xs leading-[18px] text-muted-foreground">Ticket</p>

@@ -49,7 +49,7 @@ export async function submitSupport(
   };
 
   const c = createCollector();
-  c.text("subject", values.subject, "Subject", { min: 3, max: SUPPORT_LIMITS.subject });
+  c.text("subject", values.subject, "Subject", { max: SUPPORT_LIMITS.subject });
   c.text("message", values.message, "Message", { min: 10, max: SUPPORT_LIMITS.message });
   if (!values.topic) c.add("topic", "Pick a topic.");
   if (c.hasErrors) {

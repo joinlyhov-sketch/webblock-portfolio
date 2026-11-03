@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { Field } from "@puckeditor/core";
-import { Add, ArrowDown2, Colorfilter, Edit2, Magicpen, Setting2, SidebarRight } from "iconsax-reactjs";
+import { Add, ArrowRight2, Colorfilter, Edit2, Magicpen, Setting2, SidebarRight } from "iconsax-reactjs";
 import { AiAvatar } from "@/components/common/ai-avatar";
 import { cn } from "@/lib/utils";
 import type { BlockName, SiteRootProps } from "../../types";
@@ -136,29 +136,42 @@ export function PropertiesPanel({
         className="flex h-full min-w-0 flex-col overflow-hidden rounded-[20px] bg-background shadow-card"
       >
         {/* Figma "Panel header · WebBlock AI switch": opens the AI chat in place of the settings. */}
-        <div className="px-4 pt-3 pb-2">
-          {/* The whole card is the toggle: the button's ::after stretches over the padding and the chevron, so a
+        <div className="px-3 pt-3 pb-2">
+          {/* The whole card is the toggle: the button's ::after stretches over the padding and its CTA, so a
               click anywhere on it works. Only the ✕ sits above it (z-10) with its own action. */}
           <div
             className={cn(
-              "group/ai relative flex w-full items-center gap-2.5 rounded-[14px] border py-2 pr-2.5 pl-2",
-              "transition-[background-color,border-color,scale] duration-150 ease-out motion-safe:has-[>button:first-child:active]:scale-[0.99]",
-              aiOpen ? "border-brand-border bg-primary-soft" : "border-border bg-background hover:border-brand-border hover:bg-primary-soft",
+              "group/ai relative flex w-full items-center gap-3 rounded-[16px] border p-3 shadow-[0_6px_18px_-12px_rgba(47,107,196,0.5)]",
+              "transition-[background-color,border-color,box-shadow,scale] duration-200 ease-out motion-safe:has-[>button:first-child:active]:scale-[0.99]",
+              aiOpen
+                ? "border-brand-border bg-primary-soft"
+                : "border-brand/20 bg-[linear-gradient(125deg,#f0f6ff_0%,#ffffff_60%,#f5f2ff_100%)] hover:border-brand/40 hover:shadow-[0_5px_14px_-10px_rgba(47,107,196,0.3)]",
             )}
           >
             <button
               type="button"
+              aria-label={aiOpen ? "Close WebBlock AI chat" : "Edit your site with WebBlock AI"}
               aria-expanded={aiOpen}
               onClick={() => setAiOpen((open) => !open)}
-              className="flex min-w-0 flex-1 items-center gap-2.5 text-left outline-none after:absolute after:inset-0 after:rounded-[14px] focus-visible:after:ring-3 focus-visible:after:ring-ring/40"
+              className="flex min-w-0 flex-1 items-center gap-3 text-left outline-none after:absolute after:inset-0 after:rounded-[16px] focus-visible:after:ring-3 focus-visible:after:ring-ring/40"
             >
-              <AiAvatar className="size-9" />
+              <AiAvatar className="size-11 ring-2 ring-white shadow-[0_2px_8px_rgba(47,107,196,0.16)]" />
               <span className="min-w-0 flex-1">
-                <span className={cn("block text-sm leading-5 font-semibold", aiOpen ? "text-brand-deep" : "text-foreground")}>WebBlock AI</span>
-                <span className="block truncate text-xs leading-4 text-muted-foreground">
-                  {aiOpen ? "Describe a change" : "Ask AI to edit your site"}
+                <span className="mb-1 inline-flex items-center gap-1 rounded-full bg-brand/10 px-1.5 py-0.5 text-[9px] leading-none font-bold tracking-[0.08em] text-brand-strong">
+                  <Magicpen variant="Outline" aria-hidden className="size-3" /> AI SITE EDITOR
+                </span>
+                <span className={cn("block truncate text-[14px] leading-[18px] font-semibold", aiOpen ? "text-brand-deep" : "text-foreground")}>
+                  {aiOpen ? "WebBlock AI" : "Edit your site with AI"}
+                </span>
+                <span className="block truncate text-[11px] leading-4 text-muted-foreground">
+                  {aiOpen ? "Describe a change to continue" : "Tell AI what you’d like to change"}
                 </span>
               </span>
+              {!aiOpen && (
+                <span className="relative z-10 inline-flex h-8 shrink-0 items-center gap-1 rounded-full bg-brand-strong px-2.5 text-[11px] font-semibold text-primary-foreground shadow-button transition-[background-color,translate] group-hover/ai:bg-brand-deep motion-safe:group-hover/ai:-translate-y-px">
+                  Try AI <ArrowRight2 variant="Outline" aria-hidden className="size-3.5" />
+                </span>
+              )}
             </button>
             {aiOpen ? (
               <button
@@ -169,14 +182,7 @@ export function PropertiesPanel({
               >
                 <Add variant="Outline" aria-hidden className="size-4 rotate-45" />
               </button>
-            ) : (
-              <span
-                aria-hidden
-                className="pointer-events-none flex size-7 shrink-0 items-center justify-center rounded-full bg-segment transition-colors group-hover/ai:bg-background"
-              >
-                <ArrowDown2 variant="Outline" className="size-3.5 text-foreground-soft transition-transform duration-200 group-hover/ai:translate-y-0.5" />
-              </span>
-            )}
+            ) : null}
           </div>
         </div>
 

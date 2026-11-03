@@ -6,12 +6,11 @@ import { cn } from "@/lib/utils";
 type TocSection = { id: string; heading: string };
 
 /**
- * "On this page" list of /privacy and /terms. The section being read gets the brand background:
- * the last heading that has scrolled past the top third of the screen.
+ * Compact section navigation for /privacy and /terms. The active item follows the section passing
+ * the top third of the screen while the document scrolls.
  */
 export function LegalToc({ sections }: { sections: TocSection[] }) {
   const [activeId, setActiveId] = useState(sections[0]?.id ?? "");
-
   useEffect(() => {
     const headings = sections
       .map((section) => document.getElementById(section.id))
@@ -38,27 +37,36 @@ export function LegalToc({ sections }: { sections: TocSection[] }) {
   }, [sections]);
 
   return (
-    <ol className="flex flex-col gap-1">
-      {sections.map((section) => {
-        const active = section.id === activeId;
-        return (
-          <li key={section.id}>
-            <a
-              href={`#${section.id}`}
-              aria-current={active ? "location" : undefined}
-              onClick={() => setActiveId(section.id)}
-              className={cn(
-                "block rounded-lg px-3 py-1.5 text-sm leading-5 transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
-                active
-                  ? "bg-brand-soft font-medium text-brand-strong"
-                  : "text-foreground-soft hover:bg-muted hover:text-brand-strong",
-              )}
-            >
-              {section.heading}
-            </a>
-          </li>
-        );
-      })}
-    </ol>
+    <div className="flex flex-col gap-3 rounded-2xl border border-background/80 bg-linear-to-br from-background/90 via-brand-soft/35 to-background/70 p-3.5 shadow-[0_8px_28px_rgb(15_23_42/0.07)] backdrop-blur-xl">
+      <p className="px-2.5 text-[13px] font-medium text-muted-foreground">On this page</p>
+      <ol className="flex flex-col gap-0.5">
+        {sections.map((section) => {
+          const active = section.id === activeId;
+          return (
+            <li key={section.id}>
+              <a
+                href={`#${section.id}`}
+                aria-current={active ? "location" : undefined}
+                className={cn(
+                  "group/toc-link flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm leading-5 transition-colors duration-200 ease-out outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
+                  active
+                    ? "bg-brand-soft/70 font-semibold text-brand-strong"
+                    : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+                )}
+              >
+                <span
+                  aria-hidden
+                  className={cn(
+                    "h-5 w-[3px] shrink-0 rounded-full transition-colors duration-200",
+                    active ? "bg-brand" : "bg-transparent group-hover/toc-link:bg-border",
+                  )}
+                />
+                {section.heading}
+              </a>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
   );
 }

@@ -11,7 +11,7 @@ export const navLinks: NavLink[] = [
   { label: "How it works", href: "/#how-it-works" },
   { label: "Pricing", href: "/#pricing" },
   { label: "FAQ", href: "/#faq" },
-  { label: "Contact", href: CONTACT_HASH },
+  { label: "Contact", href: "/contact" },
 ];
 
 export type FaqItem = { question: string; answer: string };

@@ -124,7 +124,7 @@ function ProductTile({ product, sizes }: { product: Product; sizes: string }) {
             {product.name}
           </h3>
           {product.description && (
-            <p className="mt-0.5 text-[12px] leading-snug text-site-muted">{product.description}</p>
+            <p className="mt-0.5 line-clamp-1 text-[12px] leading-snug text-site-muted">{product.description}</p>
           )}
         </div>
         <p className="shrink-0 text-[13px] font-semibold text-site-ink @5xl:text-[14px]">
