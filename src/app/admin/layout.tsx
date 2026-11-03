@@ -11,11 +11,12 @@ export default async function AdminLayout({
   await requireAdmin();
   const profile = await getAdminProfile();
   return (
-    // The sidebar stays put; only the page content scrolls.
-    <div className="flex h-dvh overflow-hidden">
+    // The sidebar stays put; only the page content scrolls. Below 1024px (`data-mobile-ui`) the sidebar
+    // becomes bottom tabs and the whole page scrolls, like the Owner Portal.
+    <div data-mobile-ui className="flex h-dvh overflow-hidden max-lg:h-auto max-lg:min-h-dvh max-lg:flex-col max-lg:overflow-visible">
       <AdminSidebar user={profile} />
       {/* Flex column so a `DataTable fill` can stretch to the bottom of the screen. */}
-      <main className="flex min-w-0 flex-1 flex-col overflow-y-auto overscroll-contain px-page pt-7 pb-page">
+      <main className="dashboard-content flex min-w-0 flex-1 flex-col overflow-y-auto overscroll-contain px-page pt-7 pb-page">
         {children}
       </main>
     </div>

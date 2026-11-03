@@ -18,7 +18,7 @@ export function BillingTopBar({
   chip?: { label: string; tone: "brand" | "success" };
 }) {
   return (
-    <header className="relative z-10 flex h-[72px] shrink-0 items-center gap-4 border-b border-border bg-background px-8">
+    <header className="relative z-10 flex h-[72px] shrink-0 items-center gap-4 border-b border-border bg-background px-8 max-sm:gap-2 max-sm:px-4">
       <Button asChild variant="ghost" size="sm" className="shadow-button">
         <Link href={backHref}>
           <ArrowLeft variant="Outline" aria-hidden /> {backLabel}
@@ -27,15 +27,16 @@ export function BillingTopBar({
       {chip && (
         <span
           className={cn(
-            "ml-auto inline-flex h-6 items-center gap-1.5 rounded-full px-2.5 text-[14px] leading-[20px] font-semibold whitespace-nowrap",
+            // On phones it shares the bar with the back button: smaller text, and it never pushes past the edge.
+            "ml-auto inline-flex h-6 min-w-0 items-center gap-1.5 rounded-full px-2.5 text-[14px] leading-[20px] font-semibold whitespace-nowrap max-sm:text-xs",
             chip.tone === "brand" ? "bg-brand-soft text-brand-strong" : "bg-success-soft text-success",
           )}
         >
           <span
             aria-hidden
-            className={cn("size-1.5 rounded-[3px]", chip.tone === "brand" ? "bg-brand-strong" : "bg-success")}
+            className={cn("size-1.5 shrink-0 rounded-[3px]", chip.tone === "brand" ? "bg-brand-strong" : "bg-success")}
           />
-          {chip.label}
+          <span className="truncate">{chip.label}</span>
         </span>
       )}
     </header>
@@ -181,9 +182,16 @@ export function BillingBackdrop({ variant }: { variant: "payment" | "deploy" | "
   );
 }
 
-/** Exactly one screen high: the page never scrolls, the content is fitted by `BillingContent`. */
+/**
+ * Exactly one screen high on laptops: the page never scrolls, the content is fitted by `BillingContent`.
+ * Below 1024px the page grows with its content and scrolls instead.
+ */
 export function BillingScreen({ children }: { children: ReactNode }) {
-  return <div className="relative flex h-dvh flex-col overflow-hidden bg-background">{children}</div>;
+  return (
+    <div className="relative flex h-dvh flex-col overflow-hidden bg-background max-lg:h-auto max-lg:min-h-dvh max-lg:overflow-visible">
+      {children}
+    </div>
+  );
 }
 
 /** Content shared by the plans and payment pages: centred under the top bar and scaled to fit the screen. */

@@ -4,6 +4,7 @@ import { adminNav } from "@/config/nav";
 import { Avatar } from "@/components/common/avatar";
 import { useSidebarCollapse } from "@/hooks/use-sidebar-collapse";
 import { cn } from "@/lib/utils";
+import { BottomNav } from "./bottom-nav";
 import { SidebarNav } from "./sidebar-nav";
 import { SidebarShell } from "./sidebar-shell";
 import { SignOutButton } from "./sign-out-button";
@@ -19,7 +20,11 @@ export function AdminSidebar({ user }: { user: SidebarUser }) {
   const { narrow, collapsed, toggle } = useSidebarCollapse();
 
   return (
+    <>
+    {/* Below 1024px: bottom tabs instead of the sidebar. The page header keeps the bell and account menu. */}
+    <BottomNav items={adminNav} />
     <SidebarShell
+      className="max-lg:hidden"
       homeHref="/admin"
       narrow={narrow}
       collapsed={collapsed}
@@ -43,5 +48,6 @@ export function AdminSidebar({ user }: { user: SidebarUser }) {
     >
       <SidebarNav items={adminNav} collapsed={collapsed} />
     </SidebarShell>
+    </>
   );
 }

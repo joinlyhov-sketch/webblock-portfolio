@@ -5,6 +5,8 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 /**
  * Keeps billing content inside the screen: centred in the space under the top bar, and scaled down
  * (never up) when the window is too small, so the page itself never scrolls.
+ * Below 1024px it does nothing: phones and tablets show the content at normal size and scroll the page,
+ * since a scaled-down page there would be too small to read or tap.
  */
 export function FitScreen({ children }: { children: ReactNode }) {
   const outerRef = useRef<HTMLDivElement>(null);
@@ -33,7 +35,8 @@ export function FitScreen({ children }: { children: ReactNode }) {
     <div ref={outerRef} className="relative min-h-0 w-full flex-1">
       <div
         ref={innerRef}
-        className="absolute top-1/2 left-1/2 flex w-full max-w-[1292px] flex-col items-center px-4 pt-2 pb-12"
+        // `transform-none!` beats the inline scale below 1024px; the content then sits in normal flow.
+        className="absolute top-1/2 left-1/2 flex w-full max-w-[1292px] flex-col items-center px-4 pt-2 pb-12 max-lg:static max-lg:mx-auto max-lg:transform-none!"
         style={{ transform: `translate(-50%, -50%) scale(${scale})` }}
       >
         {children}

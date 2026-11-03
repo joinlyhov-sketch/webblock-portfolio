@@ -26,11 +26,11 @@ export function BottomNav({ items }: { items: NavItem[] }) {
     <nav aria-label="Bottom navigation" className="mobile-glass fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-40 mx-auto flex gap-1 rounded-[22px] border border-border/60 p-1.5 shadow-float md:max-w-xl lg:hidden">
       {visible.map((item) => item.children ? (
         <button key={item.href} type="button" aria-label={item.label} aria-current={isActive(pathname, item) ? "page" : undefined} aria-haspopup="dialog" onClick={() => setSheet({ title: item.label, items: item.children! })} className={tabClass(isActive(pathname, item))}>
-          <NavIconGlyph item={item} /><span className="max-w-full break-words text-center">{item.label}</span>
+          <NavIconGlyph item={item} /><span className="max-w-full break-words text-center">{item.shortLabel ?? item.label}</span>
         </button>
       ) : (
         <Link key={item.href} href={item.href} prefetch aria-current={isActive(pathname, item) ? "page" : undefined} className={tabClass(isActive(pathname, item))}>
-          <NavIconGlyph item={item} /><span className="max-w-full break-words text-center">{item.label}</span>
+          <NavIconGlyph item={item} /><span className="max-w-full break-words text-center">{item.shortLabel ?? item.label}</span>
         </Link>
       ))}
       {rest.length > 0 && <button type="button" aria-haspopup="dialog" onClick={() => setSheet({ title: "More", items: rest })} className={tabClass(rest.some((item) => isActive(pathname, item)))}>

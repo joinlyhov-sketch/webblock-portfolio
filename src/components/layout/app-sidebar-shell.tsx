@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { Logout, SidebarLeft } from "iconsax-reactjs";
 import { signOutAction } from "@/features/auth/actions";
 import { Avatar } from "@/components/common/avatar";
@@ -10,7 +11,9 @@ import { useProfileUpdates } from "@/hooks/use-profile-updates";
 import { useSidebarCollapse } from "@/hooks/use-sidebar-collapse";
 import { cn } from "@/lib/utils";
 import type { Profile, SidebarSummary } from "@/features/account";
+import { BottomNav } from "./bottom-nav";
 import { BrandLogo } from "./brand-logo";
+import { MobileHeader } from "./mobile-header";
 import { SidebarNav } from "./sidebar-nav";
 import { TrialCard } from "./trial-card";
 
@@ -28,9 +31,18 @@ export function AppSidebarShell({
   const [signingOut, startSignOut] = useTransition();
 
   return (
+    <>
+    {/* Below 1024px the sidebar is replaced by a header (account menu) and bottom tabs, like the Owner Portal.
+        No bell here: My Websites shows its own in the page header. */}
+    <MobileHeader profile={profile} homeHref="/websites" notifications={null}>
+      <Link href="/billing/plans" prefetch className="flex min-h-12 items-center rounded-xl px-3">
+        View plans
+      </Link>
+    </MobileHeader>
+    <BottomNav items={userNav} />
     <aside
       className={cn(
-        "sticky top-0 flex h-dvh shrink-0 flex-col gap-1.5 overflow-hidden border-r border-border bg-background px-4 py-[22px] transition-[width] duration-200 ease-out motion-reduce:transition-none",
+        "sticky top-0 flex h-dvh shrink-0 flex-col gap-1.5 overflow-hidden border-r border-border bg-background px-4 py-[22px] transition-[width] duration-200 ease-out motion-reduce:transition-none max-lg:hidden",
         narrow ? "w-[84px]" : "w-[260px]",
       )}
     >
@@ -82,5 +94,6 @@ export function AppSidebarShell({
         look="soft"
       />
     </aside>
+    </>
   );
 }

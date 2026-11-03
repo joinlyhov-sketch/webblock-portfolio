@@ -59,13 +59,14 @@ export function EditorTopBar({
   const history = useEditorPuck((s) => s.history);
 
   return (
-    <header className="flex h-16 shrink-0 items-center gap-3 border-b border-border bg-background px-5">
+    // Below 768px the actions wrap onto a second row so Save / Preview / Deploy are never cut off.
+    <header className="flex h-16 shrink-0 items-center gap-3 border-b border-border bg-background px-5 max-md:h-auto max-md:flex-wrap max-md:gap-2 max-md:px-3 max-md:py-2">
       <Button asChild variant="ghost" size="icon" aria-label="Back to my websites">
         <Link href="/websites" onClick={onBack}>
           <ArrowLeft variant="Outline" />
         </Link>
       </Button>
-      <LogoMark className="h-[30px]" />
+      <LogoMark className="h-[30px] shrink-0 max-sm:hidden" />
       <div className="min-w-0">
         <p className="truncate text-[13px] leading-[19.5px] font-semibold text-foreground">{siteName}</p>
         {portalHref && domain ? (
@@ -96,29 +97,35 @@ export function EditorTopBar({
           <Redo variant="Outline" />
         </Button>
       </div>
-      <DeviceSwitcher value={device} onChange={onDeviceChange} />
-      <div className="flex-1" />
+      {/* Previewing other devices only makes sense on a laptop-sized screen. */}
+      <div className="max-lg:hidden">
+        <DeviceSwitcher value={device} onChange={onDeviceChange} />
+      </div>
+      <div className="flex-1 max-md:hidden" />
 
-      <Button variant={portalHref ? "ghost" : "secondary"} onClick={onSave} loading={busy === "save"} disabled={busy !== null}>
-        {busy !== "save" && <Export variant="Outline" />} Save draft
-      </Button>
-      {portalHref && (
-        <>
-          <span aria-hidden className="h-7 w-px shrink-0 bg-border" />
-          <Button asChild variant="secondary">
-            {/* The portal opens in its own tab, so the editor (and any unsaved work) stays open here. */}
-            <Link href={portalHref} target="_blank" rel="noopener noreferrer">
-              <ExportSquare variant="Outline" /> Portal
-            </Link>
-          </Button>
-        </>
-      )}
-      <Button variant="secondary" onClick={onPreview} loading={busy === "preview"} disabled={busy !== null}>
-        {busy !== "preview" && <Eye variant="Outline" />} Preview
-      </Button>
-      <Button onClick={onDeploy} loading={busy === "deploy"} disabled={busy !== null}>
-        {busy !== "deploy" && <Rocket variant="Outline" />} Deploy
-      </Button>
+      {/* On phones: a full-width second row, icon-only except Deploy (labels stay for screen readers). */}
+      <div className="flex items-center gap-3 max-md:basis-full max-md:justify-end max-md:gap-2">
+        <Button variant={portalHref ? "ghost" : "secondary"} onClick={onSave} loading={busy === "save"} disabled={busy !== null}>
+          {busy !== "save" && <Export variant="Outline" />} <span className="max-sm:sr-only">Save draft</span>
+        </Button>
+        {portalHref && (
+          <>
+            <span aria-hidden className="h-7 w-px shrink-0 bg-border" />
+            <Button asChild variant="secondary">
+              {/* The portal opens in its own tab, so the editor (and any unsaved work) stays open here. */}
+              <Link href={portalHref} target="_blank" rel="noopener noreferrer">
+                <ExportSquare variant="Outline" /> <span className="max-sm:sr-only">Portal</span>
+              </Link>
+            </Button>
+          </>
+        )}
+        <Button variant="secondary" onClick={onPreview} loading={busy === "preview"} disabled={busy !== null}>
+          {busy !== "preview" && <Eye variant="Outline" />} <span className="max-sm:sr-only">Preview</span>
+        </Button>
+        <Button onClick={onDeploy} loading={busy === "deploy"} disabled={busy !== null}>
+          {busy !== "deploy" && <Rocket variant="Outline" />} Deploy
+        </Button>
+      </div>
     </header>
   );
 }
