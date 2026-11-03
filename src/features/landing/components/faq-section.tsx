@@ -48,8 +48,8 @@ export function FaqSection() {
           </div>
         </Reveal>
 
-        <RevealGroup className="min-w-0 flex-1">
-          <Accordion type="single" collapsible defaultValue="faq-0" className="flex flex-col gap-2.5">
+        <RevealGroup className="min-w-0 flex-1 lg:pt-24">
+          <Accordion type="single" collapsible className="flex flex-col gap-2.5">
             {faqItems.map((item, i) => (
               <RevealItem key={item.question} y={12}>
                 <AccordionItem value={`faq-${i}`} className="rounded-[14px] border-b-0 bg-background px-5 py-[18px]">
