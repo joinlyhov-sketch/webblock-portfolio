@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useTransition, type ReactNode } from "react";
-import Link from "next/link";
-import { Notification, NotificationBing, TickCircle } from "iconsax-reactjs";
+import { Add, Notification, NotificationBing, TickCircle } from "iconsax-reactjs";
 import { EmptyState } from "@/components/common/empty-state";
+import { HeroDecor } from "@/components/common/hero-decor";
+import { Modal } from "@/components/common/modal";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 /** One row of the notification list, already shaped by the feature that owns the data. */
@@ -18,7 +20,7 @@ export type NotificationEntry = {
   createdAt: string;
   /** "2 mins ago". */
   timeLabel: string;
-  /** Opening the row goes here; without it the row is a button that only marks it read. */
+  /** Where the notification points. Opening a row only shows its detail popup; it does not navigate. */
   href?: string | null;
   /** Round 40px picture on the left (avatar, screenshot or tinted circle). */
   avatar: ReactNode;
@@ -36,6 +38,7 @@ export function useNotifications(
 ) {
   const [readIds, setReadIds] = useState<ReadonlySet<string>>(() => new Set());
   const [, startTransition] = useTransition();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const items = entries.map((n) => (n.read || readIds.has(n.id) ? { ...n, read: true } : n));
   const unread = items.filter((n) => !n.read).length;
@@ -45,14 +48,55 @@ export function useNotifications(
     startTransition(actions.markAll);
   }
 
+  /** Opens the detail popup for a row and marks it read. */
   function open(entry: NotificationEntry) {
+    setSelectedId(entry.id);
     if (entry.read) return;
     setReadIds((current) => new Set(current).add(entry.id));
     const markRead = actions.markRead;
     if (markRead) startTransition(() => markRead(entry.id));
   }
 
-  return { items, unread, markAll, open };
+  const selected = items.find((n) => n.id === selectedId) ?? null;
+
+  return { items, unread, markAll, open, selected, closeDetail: () => setSelectedId(null) };
+}
+
+/** Popup with the whole notification: sender, full time, the full message and a link when there is one. */
+export function NotificationDetailModal({ state }: { state: NotificationsState }) {
+  const { selected, closeDetail } = state;
+  return (
+    // Same card as the account "Plan details" dialog.
+    <Modal open={selected !== null} onClose={closeDetail} label="Notification details" className="max-w-[520px] rounded-[18px] shadow-dialog">
+      {selected && (
+        <div className="relative isolate flex flex-col gap-5 overflow-hidden px-7 pt-7 pb-7">
+          <HeroDecor layout="card" behindPicture={false} />
+          <div className="flex items-center gap-3.5">
+            <span className="relative grid size-16 shrink-0 place-items-center overflow-hidden rounded-full">{selected.avatar}</span>
+            <div className="flex min-w-0 flex-1 flex-col gap-1 pr-10">
+              <h2 className="text-xl font-semibold break-words">{selected.title}</h2>
+              <time dateTime={selected.createdAt} suppressHydrationWarning className="text-[13px] text-muted-foreground">
+                {formatDateTime(selected.createdAt)} · {selected.timeLabel}
+              </time>
+            </div>
+            <button
+              type="button"
+              aria-label="Close"
+              onClick={closeDetail}
+              className="absolute top-4 right-4 flex size-[34px] items-center justify-center rounded-[10px] bg-panel text-muted-foreground outline-none transition-colors hover:bg-primary-soft hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/40"
+            >
+              <Add variant="Outline" aria-hidden className="size-[18px] rotate-45" />
+            </button>
+          </div>
+          <hr className="border-border" />
+
+          <p className="text-sm leading-6 break-words whitespace-pre-line text-foreground-soft">
+            {selected.message}
+          </p>
+        </div>
+      )}
+    </Modal>
+  );
 }
 
 /** Header bell: a dot and a gentle swing while anything is unread; opens the list in a popover. */
@@ -61,6 +105,7 @@ export function NotificationBell({ state, className }: { state: NotificationsSta
   const { unread } = state;
 
   return (
+    <>
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
@@ -86,6 +131,9 @@ export function NotificationBell({ state, className }: { state: NotificationsSta
         <NotificationList state={state} onNavigate={() => setOpen(false)} />
       </PopoverContent>
     </Popover>
+    {/* Outside the popover so the detail stays open after the list closes. */}
+    <NotificationDetailModal state={state} />
+    </>
   );
 }
 
@@ -193,6 +241,7 @@ export function NotificationList({
             "flex w-full items-center gap-3 px-5 py-2.5 text-left transition-colors outline-none hover:bg-muted focus-visible:bg-muted",
             !n.read && "bg-primary-soft/70",
           );
+          // Opening a row shows its detail popup (the bell popover closes first); the popup holds the link.
           const onClick = () => {
             onNavigate?.();
             open(n);
@@ -200,19 +249,14 @@ export function NotificationList({
           return (
             // Rows slide in one after another when the panel opens or the tab changes.
             <li key={n.id} className="motion-safe:animate-row-in" style={{ animationDelay: `${Math.min(index, 8) * 35}ms` }}>
-              {n.href ? (
-                <Link href={n.href} scroll={false} onClick={onClick} className={className}>
-                  {row}
-                </Link>
-              ) : (
-                <button type="button" onClick={onClick} className={className}>
-                  {row}
-                </button>
-              )}
+              <button type="button" aria-haspopup="dialog" onClick={onClick} className={className}>
+                {row}
+              </button>
             </li>
           );
         })}
       </ul>
+      {variant === "page" && <NotificationDetailModal state={state} />}
     </div>
   );
 }
