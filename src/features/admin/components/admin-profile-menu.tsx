@@ -1,9 +1,12 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
-import { Calendar, Copy, MagicStar, Personalcard, ShieldTick, Sms, TickCircle } from "iconsax-reactjs";
+import { useState, useTransition, type ReactNode } from "react";
+import { Calendar, Copy, Logout, MagicStar, Personalcard, ShieldTick, Sms, TickCircle } from "iconsax-reactjs";
 import { Avatar } from "@/components/common/avatar";
+import { ConfirmDialog } from "@/components/common/confirm-dialog";
 import { Pill } from "@/components/common/status-badge";
+import { Button } from "@/components/ui/button";
+import { signOutAction } from "@/features/auth/actions";
 import {
   Popover,
   PopoverContent,
@@ -13,9 +16,15 @@ import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { AdminProfile } from "../types";
 
-/** Header avatar (Figma "Header · Admin profile"): opens the read-only "Admin profile" card. */
+/**
+ * Header avatar (Figma "Header · Admin profile"): opens the "Admin profile" card. The card ends with
+ * Log out, the only way to sign out below 1024px, where the sidebar (and its log out button) is hidden.
+ */
 export function AdminProfileMenu({ profile }: { profile: AdminProfile }) {
   const [copied, setCopied] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [signingOut, startSignOut] = useTransition();
 
   async function copyId() {
     try {
@@ -28,7 +37,8 @@ export function AdminProfileMenu({ profile }: { profile: AdminProfile }) {
   }
 
   return (
-    <Popover>
+    <>
+    <Popover open={menuOpen} onOpenChange={setMenuOpen}>
       <PopoverTrigger asChild>
         <button
           type="button"
@@ -111,11 +121,38 @@ export function AdminProfileMenu({ profile }: { profile: AdminProfile }) {
             value={formatDate(profile.joinedAt)}
           />
         </ul>
+        <div className="px-4 pb-4">
+          <Button
+            variant="secondary"
+            className="w-full"
+            onClick={() => {
+              // Close the card first: the confirm popup lives outside it, so it survives the close.
+              setMenuOpen(false);
+              setConfirmOpen(true);
+            }}
+          >
+            <Logout variant="Outline" aria-hidden />
+            Log out
+          </Button>
+        </div>
         <span aria-live="polite" className="sr-only">
           {copied ? "Account ID copied" : ""}
         </span>
       </PopoverContent>
     </Popover>
+
+    <ConfirmDialog
+      open={confirmOpen}
+      onClose={() => setConfirmOpen(false)}
+      onConfirm={() => startSignOut(() => signOutAction())}
+      loading={signingOut}
+      icon={<Logout variant="Outline" />}
+      title="Log out of WebBlock?"
+      description="You’ll need to sign in again to manage the platform."
+      confirmLabel="Log out"
+      look="soft"
+    />
+    </>
   );
 }
 
