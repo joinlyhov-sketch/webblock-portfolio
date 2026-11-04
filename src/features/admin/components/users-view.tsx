@@ -208,10 +208,10 @@ export function UsersView({
                   className={planRing(u.plan)}
                 />
                 <span className="min-w-0">
-                  <span className="block max-w-[260px] truncate font-semibold text-foreground group-hover:text-primary">
+                  <span title={u.fullName} className="block max-w-[260px] truncate font-semibold text-foreground group-hover:text-primary">
                     {u.fullName}
                   </span>
-                  <span className="block max-w-[260px] truncate text-sm text-muted-foreground">
+                  <span title={u.email} className="block max-w-[260px] truncate text-sm text-muted-foreground">
                     {u.email}
                   </span>
                 </span>
@@ -387,10 +387,10 @@ function UserDetail({
                         className="size-9"
                       />
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-[15px] leading-6 font-semibold text-foreground">
+                        <span title={w.name} className="block truncate text-[15px] leading-6 font-semibold text-foreground">
                           {w.name}
                         </span>
-                        <span className="block truncate text-sm text-muted-foreground">
+                        <span title={w.domain || undefined} className="block truncate text-sm text-muted-foreground">
                           {w.domain || "Not deployed"}
                         </span>
                       </span>

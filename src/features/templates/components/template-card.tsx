@@ -19,7 +19,7 @@ export function TemplateCard({
   previewClassName?: string;
 }) {
   return (
-    <article className="flex flex-col gap-[15px] rounded-[20px] border border-border bg-background p-3 shadow-card transition-[border-color,box-shadow,translate] duration-200 ease-out hover:border-primary/30 hover:shadow-float motion-safe:hover:-translate-y-0.5">
+    <article className="flex min-w-0 flex-col gap-[15px] rounded-[20px] border border-border bg-background p-3 shadow-card transition-[border-color,box-shadow,translate] duration-200 ease-out hover:border-primary/30 hover:shadow-float motion-safe:hover:-translate-y-0.5">
       <div className="relative overflow-hidden rounded-[14px] bg-[#f1f5fc]">
         <div className={cn("relative overflow-hidden rounded-t-lg bg-background shadow-[0_10px_30px_rgb(60_120_207/0.12),0_2px_6px_rgb(60_120_207/0.05)]", previewClassName)}>
           <Image
@@ -34,10 +34,10 @@ export function TemplateCard({
       </div>
       <div className="flex flex-col gap-2.5 px-1.5 pb-1.5">
         <div className="flex flex-col gap-[7px]">
-          <h3 className="font-heading text-[17px] font-semibold break-words text-foreground">{template.name}</h3>
-          <p className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
+          <h3 title={template.name} className="truncate font-heading text-[17px] font-semibold text-foreground">{template.name}</h3>
+          <p className="flex min-w-0 items-center gap-1.5 text-[13px] text-muted-foreground">
             <Layer variant="Outline" aria-hidden className="size-3.5 shrink-0" />
-            <span className="truncate">{template.description}</span>
+            <span title={template.description} className="min-w-0 truncate">{template.description}</span>
           </p>
         </div>
         <div className="flex gap-2.5">

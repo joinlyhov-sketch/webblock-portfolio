@@ -120,12 +120,13 @@ export function WebsitesView({
             {owner && websites.items[0] && (
               <Link
                 href={tableHref(searchParams, { owner: null, page: null })}
-                className="inline-flex h-8 items-center gap-1.5 rounded-full bg-brand-soft px-3 text-[13px] font-medium text-brand-strong hover:bg-brand/20"
+                title={websites.items[0].ownerName}
+                className="inline-flex h-8 max-w-[260px] min-w-0 items-center gap-1.5 rounded-full bg-brand-soft px-3 text-[13px] font-medium text-brand-strong hover:bg-brand/20"
               >
-                Owner: {websites.items[0].ownerName}
+                <span className="truncate">Owner: {websites.items[0].ownerName}</span>
                 <Add variant="Outline"
                   aria-label="Remove owner filter"
-                  className="size-4 rotate-45"
+                  className="size-4 shrink-0 rotate-45"
                 />
               </Link>
             )}
@@ -169,10 +170,10 @@ export function WebsitesView({
               >
                 <WebsiteLogo logoUrl={w.logoUrl} templateSlug={w.templateSlug} />
                 <span className="min-w-0">
-                  <span className="block max-w-[260px] truncate font-semibold text-foreground group-hover:text-primary">
+                  <span title={w.name} className="block max-w-[260px] truncate font-semibold text-foreground group-hover:text-primary">
                     {w.name}
                   </span>
-                  <span className="block max-w-[260px] truncate text-sm text-muted-foreground">
+                  <span title={w.domain} className="block max-w-[260px] truncate text-sm text-muted-foreground">
                     {w.domain}
                   </span>
                 </span>
@@ -184,7 +185,7 @@ export function WebsitesView({
             header: "Owner",
             sortField: "ownerName",
             cell: (w) => (
-              <span className="block truncate" title={w.ownerName}>
+              <span className="block max-w-[220px] truncate" title={w.ownerName}>
                 {w.ownerName}
               </span>
             ),

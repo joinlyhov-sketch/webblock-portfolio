@@ -34,7 +34,7 @@ export function ProductCard({ product }: { product: Product }) {
   const { openDetails, openEdit, openDelete } = useProductDialogs();
 
   return (
-    <article className="relative flex flex-col rounded-2xl border border-border bg-background p-1.5 sm:p-2 transition-[border-color,box-shadow] focus-within:border-primary/40 hover:border-primary/40 hover:shadow-card">
+    <article className="relative flex min-w-0 flex-col rounded-2xl border border-border bg-background p-1.5 sm:p-2 transition-[border-color,box-shadow] focus-within:border-primary/40 hover:border-primary/40 hover:shadow-card">
       <ProductImage src={product.imageUrl} alt="" sizes="(min-width: 1280px) 25vw, 50vw" className="w-full" />
       <div className="flex flex-col gap-1.5 pt-2 pr-0.5 pb-1 pl-1.5 sm:gap-3 sm:pt-3 sm:pr-1 sm:pb-1.5 sm:pl-2">
         <div className="flex items-start gap-2">
@@ -42,18 +42,19 @@ export function ProductCard({ product }: { product: Product }) {
             <h3 className="truncate font-sans text-sm leading-5 font-semibold text-foreground sm:text-[15px] sm:leading-[22px]">
               <button
                 type="button"
+                title={product.name}
                 onClick={() => openDetails(product)}
-                className="text-left outline-none after:absolute after:inset-0 after:rounded-2xl after:content-[''] focus-visible:after:ring-3 focus-visible:after:ring-ring/40"
+                className="block w-full truncate text-left outline-none after:absolute after:inset-0 after:rounded-2xl after:content-[''] focus-visible:after:ring-3 focus-visible:after:ring-ring/40"
               >
                 {product.name}
               </button>
             </h3>
-            <p className="truncate text-[13px] leading-[19.5px] text-muted-foreground">
+            <p title={`${product.category} · ${product.description}`} className="truncate text-[13px] leading-[19.5px] text-muted-foreground">
               {product.category}
               <span className="max-sm:hidden"> · {product.description}</span>
             </p>
           </div>
-          <div className="relative z-10">
+          <div className="relative z-10 shrink-0">
             <ActionMenu
               label={`More actions for ${product.name}`}
               items={[
@@ -82,10 +83,10 @@ export function ProductCellButton({ product }: { product: Product }) {
     >
       <ProductImage src={product.imageUrl} alt="" sizes="64px" className="w-16 rounded-lg" />
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-[15px] leading-[22px] font-semibold text-foreground group-hover:text-primary">
+        <span title={product.name} className="block truncate text-[15px] leading-[22px] font-semibold text-foreground group-hover:text-primary">
           {product.name}
         </span>
-        <span className="block truncate text-sm leading-[21px] text-muted-foreground">{product.description}</span>
+        <span title={product.description} className="block truncate text-sm leading-[21px] text-muted-foreground">{product.description}</span>
       </span>
     </button>
   );

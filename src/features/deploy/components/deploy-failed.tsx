@@ -71,7 +71,7 @@ export function DeployFailed({ deployment, editorHref }: { deployment: Deploymen
       </div>
 
       {error && (
-        <p role="alert" className="rounded-xl bg-danger-soft px-3 py-2 text-[13px] leading-[18px] text-danger">
+        <p role="alert" className="rounded-xl bg-danger-soft px-3 py-2 text-[13px] leading-[18px] break-words text-danger">
           {error}
         </p>
       )}

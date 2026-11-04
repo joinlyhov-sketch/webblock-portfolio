@@ -18,7 +18,7 @@ export default async function ForgotPasswordVerifyPage({ searchParams }: { searc
         title="Check your email"
         description={
           <>
-            We sent a 6-digit code to <b className="font-bold text-foreground">{email}</b>. Enter it below to
+            We sent a 6-digit code to <b className="font-bold wrap-anywhere text-foreground">{email}</b>. Enter it below to
             reset your password.
           </>
         }

@@ -292,7 +292,7 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
           ) : (
             <ul key={`${category}|${pageIndex}`} className="swap-in grid min-h-0 flex-1 grid-cols-2 content-start gap-3 overflow-y-auto p-3 [scrollbar-color:var(--color-border)_transparent] [scrollbar-width:thin] sm:gap-6 sm:p-6 sm:grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
               {page.items.map((product) => (
-                <li key={product.id}>
+                <li key={product.id} className="min-w-0">
                   <ProductCard product={product} />
                 </li>
               ))}

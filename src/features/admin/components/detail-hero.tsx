@@ -36,7 +36,7 @@ export function DetailHero({
           {title}
         </h2>
         {subtitle && (
-          <p className="truncate text-sm text-muted-foreground">
+          <p title={subtitle} className="truncate text-sm text-muted-foreground">
             {subtitle}
           </p>
         )}
@@ -47,7 +47,7 @@ export function DetailHero({
             rel="noopener noreferrer"
             className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-brand-soft bg-background px-3 py-1 text-sm font-medium text-brand hover:bg-primary-soft focus-visible:ring-3 focus-visible:ring-ring/40 focus-visible:outline-none"
           >
-            <span className="truncate">{link.label}</span>
+            <span title={link.label} className="truncate">{link.label}</span>
             <ExportSquare variant="Outline" aria-hidden className="size-3.5 shrink-0" />
           </a>
         )}
@@ -71,7 +71,9 @@ export function HeroChip({
   return (
     <span className="inline-flex h-7 max-w-full items-center gap-1.5 rounded-full border border-border bg-background px-2.5 text-[13px] font-medium text-foreground-soft [&_svg]:size-3.5 [&_svg]:shrink-0">
       {icon}
-      <span className="truncate">{children}</span>
+      <span title={typeof children === "string" ? children : undefined} className="truncate">
+        {children}
+      </span>
     </span>
   );
 }
@@ -140,7 +142,7 @@ export function DetailCard({
           {title}
         </h3>
         {aside && (
-          <span className="text-xs text-muted-foreground">{aside}</span>
+          <span className="shrink-0 text-xs text-muted-foreground">{aside}</span>
         )}
       </header>
       {/* Same inset as the header, so every divider line in the card stops short of the edges. */}
@@ -167,7 +169,7 @@ export function InfoTile({
   return (
     <div
       className={cn(
-        "flex items-center gap-3 rounded-xl p-3",
+        "flex min-w-0 items-center gap-3 rounded-xl p-3",
         tone?.surface ?? "bg-muted",
       )}
     >
@@ -182,10 +184,13 @@ export function InfoTile({
       </span>
       <div className="min-w-0">
         <dt className="text-xs text-muted-foreground">{label}</dt>
-        <dd className={cn("truncate text-[15px] leading-6 font-medium", tone?.text ?? "text-foreground")}>
+        <dd
+          title={typeof value === "string" ? value : undefined}
+          className={cn("truncate text-[15px] leading-6 font-medium", tone?.text ?? "text-foreground")}
+        >
           {value}
         </dd>
-        {hint && <dd className="truncate text-[13px] text-placeholder">{hint}</dd>}
+        {hint && <dd title={hint} className="truncate text-[13px] text-placeholder">{hint}</dd>}
       </div>
     </div>
   );

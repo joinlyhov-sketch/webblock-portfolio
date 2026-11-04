@@ -118,11 +118,16 @@ export function AdminProfileMenu({ profile }: { profile: AdminProfile }) {
               <Camera variant="Outline" aria-hidden className="size-3.5" />
             </button>
           </span>
-          <p className="mt-3 max-w-full truncate font-heading text-lg leading-6 font-semibold text-foreground">
+          <p
+            title={profile.fullName}
+            className="mt-3 max-w-full truncate font-heading text-lg leading-6 font-semibold text-foreground"
+          >
             {profile.fullName}
           </p>
-          <Pill tone="brand" icon={<ShieldTick variant="Outline" aria-hidden />} className="mt-1.5">
-            {profile.title}
+          <Pill tone="brand" icon={<ShieldTick variant="Outline" aria-hidden />} className="mt-1.5 max-w-full">
+            <span title={profile.title} className="truncate">
+              {profile.title}
+            </span>
           </Pill>
         </div>
 

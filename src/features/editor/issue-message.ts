@@ -3,7 +3,7 @@
 import type { z } from "zod";
 
 /** "ProductCards" or "heading" becomes "Product Cards" / "Heading". */
-function words(name: string): string {
+export function words(name: string): string {
   const spaced = name.replace(/([a-z0-9])([A-Z])/g, "$1 $2");
   return spaced.charAt(0).toUpperCase() + spaced.slice(1);
 }
@@ -22,6 +22,8 @@ export function describeIssue(
 ): string {
   if (!issue) return "Some content is not valid.";
   const { path } = issue;
+  // Whole-page rules (block counts, Footer last) already read as a full sentence.
+  if (path.length === 1 && path[0] === "content") return issue.message;
 
   let where = "Page settings";
   let rest = path;

@@ -60,11 +60,11 @@ export function TemplatePreviewer({
         backLabel="Back to templates"
         title={
           <>
-            <h1 className="font-heading text-[17px] font-semibold text-foreground">
+            <h1 title={template.name} className="min-w-0 truncate font-heading text-[17px] font-semibold text-foreground">
               {template.name}
             </h1>
             {template.badge ? (
-              <span className="text-xs font-semibold text-primary">
+              <span className="shrink-0 text-xs font-semibold text-primary">
                 {template.badge}
               </span>
             ) : null}

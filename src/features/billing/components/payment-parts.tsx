@@ -19,17 +19,21 @@ const PLAN_BADGE: Record<PaidPlanCode, string> = {
 export function PaymentCardHeader({ order, aside }: { order: PaymentOrder; aside: ReactNode }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 bg-background px-5 pt-[22px] pb-[18px] sm:px-8">
-      <div className="flex items-center gap-3.5">
+      {/* Plan names can be renamed in Admin: badge and title stay on one line, "…" when too long. */}
+      <div className="flex min-w-0 items-center gap-3.5">
         <span
+          title={order.planName}
           className={cn(
-            "rounded-full px-3 py-[5px] text-lg font-bold tracking-[1.28px] uppercase",
+            "max-w-[160px] shrink-0 truncate rounded-full px-3 py-[5px] text-lg font-bold tracking-[1.28px] uppercase",
             PLAN_BADGE[order.plan],
           )}
         >
           {order.planName}
         </span>
-        <div className="flex flex-col gap-0.5">
-          <p className="text-lg leading-[24px] font-semibold text-foreground">{order.planName} plan · monthly</p>
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <p title={`${order.planName} plan · monthly`} className="truncate text-lg leading-[24px] font-semibold text-foreground">
+            {order.planName} plan · monthly
+          </p>
           <p className="text-[15px] leading-[20px] text-muted-foreground">Billed monthly · cancel anytime</p>
         </div>
       </div>
@@ -181,15 +185,21 @@ export function PaymentSummary({ order, trialDaysLeft }: { order: PaymentOrder; 
           ? `${trialDaysLeft} ${trialDaysLeft === 1 ? "day" : "days"} left`
           : defaultPill;
   return (
-    <div className="flex w-full flex-1 flex-col gap-5 rounded-3xl bg-muted p-5 motion-safe:animate-fade-up sm:p-6">
+    <div className="flex w-full min-w-0 flex-1 flex-col gap-5 rounded-3xl bg-muted p-5 motion-safe:animate-fade-up sm:p-6">
       <div className="flex items-center gap-3 rounded-[18px] bg-background p-3">
         <div className="relative h-14 w-[72px] shrink-0 overflow-hidden rounded-xl">
           <Image src={order.websiteImageUrl} alt="" fill sizes="72px" className="object-cover" />
         </div>
-        <div className="flex min-w-0 flex-col gap-0.5">
-          <p className="text-base leading-[21.5px] font-bold text-foreground">{order.websiteName}</p>
-          <p className="flex items-center gap-[5px] text-[14px] leading-[20px] text-muted-foreground">
-            <Global variant="Outline" aria-hidden className="size-3" /> {order.websiteDomain}
+        {/* Name and subdomain come from the API: one line each, "…" when too long (full text on hover). */}
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <p title={order.websiteName} className="truncate text-base leading-[21.5px] font-bold text-foreground">
+            {order.websiteName}
+          </p>
+          <p className="flex min-w-0 items-center gap-[5px] text-[14px] leading-[20px] text-muted-foreground">
+            <Global variant="Outline" aria-hidden className="size-3 shrink-0" />
+            <span title={order.websiteDomain} className="truncate">
+              {order.websiteDomain}
+            </span>
           </p>
         </div>
       </div>
@@ -269,9 +279,11 @@ export function PaymentSuccessPanel({ order, next }: { order: PaymentOrder; next
         <hr className="h-px border-0 bg-border" />
         <dl className="flex flex-col gap-2.5 text-[15px]">
           {rows.map(([label, value]) => (
-            <div key={label} className="flex items-start justify-between">
-              <dt className="text-muted-foreground">{label}</dt>
-              <dd className="text-right font-semibold text-foreground">{value}</dd>
+            <div key={label} className="flex items-start justify-between gap-4">
+              <dt className="shrink-0 text-muted-foreground">{label}</dt>
+              <dd title={value} className="min-w-0 truncate text-right font-semibold text-foreground">
+                {value}
+              </dd>
             </div>
           ))}
         </dl>

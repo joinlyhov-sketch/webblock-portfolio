@@ -21,9 +21,12 @@ export function GoogleCard({
           </span>
           <div className="min-w-0 flex-1">
             <p className="text-[13px] leading-[19.5px] font-bold">Google</p>
-            <p className={cn("flex h-[18px] items-center gap-1.5 text-xs", googleEmail ? "text-success" : "text-hint")}>
-              <span aria-hidden className={cn("size-[7px] rounded-full", googleEmail ? "bg-success" : "bg-hint")} />
-              {googleEmail ? `Connected · ${googleEmail}` : "Not connected"}
+            <p className={cn("flex h-[18px] min-w-0 items-center gap-1.5 text-xs", googleEmail ? "text-success" : "text-hint")}>
+              <span aria-hidden className={cn("size-[7px] shrink-0 rounded-full", googleEmail ? "bg-success" : "bg-hint")} />
+              {/* The email comes from Google: one line, "…" when too long (full text on hover). */}
+              <span title={googleEmail ?? undefined} className="truncate">
+                {googleEmail ? `Connected · ${googleEmail}` : "Not connected"}
+              </span>
             </p>
           </div>
           {!googleEmail && (

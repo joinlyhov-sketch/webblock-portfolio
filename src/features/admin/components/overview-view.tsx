@@ -194,7 +194,7 @@ function RecentDeploys({ deploys }: { deploys: Page<Deploy> }) {
                   templateSlug={d.websiteTemplateSlug}
                   className="size-8 shrink-0 text-[16px]"
                 />
-                <span className="truncate" title={d.websiteName}>
+                <span className="max-w-[300px] truncate" title={d.websiteName}>
                   {d.websiteName}
                 </span>
               </Link>
@@ -204,7 +204,7 @@ function RecentDeploys({ deploys }: { deploys: Page<Deploy> }) {
             key: "owner",
             header: "Owner",
             cell: (d) => (
-              <span className="block truncate" title={d.ownerName}>
+              <span className="block max-w-[220px] truncate" title={d.ownerName}>
                 {d.ownerName}
               </span>
             ),

@@ -215,14 +215,24 @@ export function BillingTitle({
     <PageHeader
       align="center"
       size="hero"
-      className="mb-0 h-[160px] w-full"
+      className="mb-0 min-h-[160px] w-full"
       eyebrow={
         <Pill outline icon={icon}>
           {eyebrow}
         </Pill>
       }
-      title={title}
-      description={subtitle}
+      // Title and subtitle can hold the website name (API data): at most two lines each, "…" when too
+      // long (full text on hover). `wrap-anywhere` lets a name without spaces wrap instead of widening the page.
+      title={
+        <span title={title} className="line-clamp-2 wrap-anywhere">
+          {title}
+        </span>
+      }
+      description={
+        <span title={subtitle} className="line-clamp-2 wrap-anywhere">
+          {subtitle}
+        </span>
+      }
     />
   );
 }

@@ -134,10 +134,10 @@ export function ProfileCard({
             </span>
             <div className="flex min-w-0 flex-1 flex-col gap-1.5">
               <div className="flex items-center gap-2">
-                <p className="truncate font-heading text-lg font-semibold">{fullName}</p>
+                <p title={fullName} className="min-w-0 truncate font-heading text-lg font-semibold">{fullName}</p>
                 {/* Same colours as the plan card: blue for Free trial and Plus, gold for Pro, violet for Ultra. */}
                 <span
-                  className={`relative inline-flex h-[22px] items-center overflow-hidden rounded-md px-2 text-[11px] font-semibold tracking-[0.66px] whitespace-nowrap text-primary-foreground uppercase ${planStyle.badge}`}
+                  className={`relative inline-flex h-[22px] shrink-0 items-center overflow-hidden rounded-md px-2 text-[11px] font-semibold tracking-[0.66px] whitespace-nowrap text-primary-foreground uppercase ${planStyle.badge}`}
                 >
                   {PLAN_TONE[profile.plan] !== "brand" && (
                     <span

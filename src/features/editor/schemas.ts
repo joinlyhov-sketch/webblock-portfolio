@@ -1,6 +1,9 @@
 // Validates the page document before it is saved. This is where website links are enforced:
 // buttons can only use the CtaAction list, social links must be https://, no free-form hrefs.
 import { z } from "zod";
+import { BLOCK_TYPE_LIMITS, PAGE_BLOCK_LIMIT, countOfType, footerIndex } from "./block-limits";
+import { words } from "./issue-message";
+import type { BlockName } from "./types";
 
 const text = (max: number) => z.string().max(max);
 const imageUrl = z
@@ -184,7 +187,24 @@ export const siteRootSchema = z.object({
 /** The whole Puck document. Unknown block types or props are rejected. */
 export const pageDataSchema = z.object({
   root: z.object({ props: siteRootSchema }),
-  content: z.array(blocksSchema).max(40),
+  content: z
+    .array(blocksSchema)
+    .max(PAGE_BLOCK_LIMIT, `A page holds up to ${PAGE_BLOCK_LIMIT} blocks. Remove some and try again.`)
+    .superRefine((content, ctx) => {
+      for (const [type, limit] of Object.entries(BLOCK_TYPE_LIMITS)) {
+        const count = countOfType(content, type as BlockName);
+        if (count > limit) {
+          ctx.addIssue({
+            code: "custom",
+            message: `A page can have ${limit === 1 ? "one" : `up to ${limit}`} ${words(type)} block${limit === 1 ? "" : "s"}, yours has ${count}. Remove ${count - limit} and try again.`,
+          });
+        }
+      }
+      const footer = footerIndex(content);
+      if (footer !== -1 && footer !== content.length - 1) {
+        ctx.addIssue({ code: "custom", message: "The Footer must be the last block on the page." });
+      }
+    }),
   zones: z.record(z.string(), z.array(blocksSchema)).optional(),
 });
 

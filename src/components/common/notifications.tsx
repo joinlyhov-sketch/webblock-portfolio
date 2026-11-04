@@ -222,8 +222,8 @@ export function NotificationList({
                 {n.avatar}
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-semibold text-foreground">{n.title}</span>
-                <span className="block truncate text-[13px] text-muted-foreground">{n.message}</span>
+                <span title={n.title} className="block truncate text-sm font-semibold text-foreground">{n.title}</span>
+                <span title={n.message} className="block truncate text-[13px] text-muted-foreground">{n.message}</span>
               </span>
               <span className="flex shrink-0 flex-col items-end gap-1.5 self-stretch py-0.5">
                 <span

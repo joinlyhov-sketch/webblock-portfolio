@@ -135,7 +135,7 @@ export function PublishFlowSheet({
           className="mt-1 inline-flex max-w-full items-center gap-1.5 text-sm text-brand hover:underline"
         >
           <Global variant="Outline" aria-hidden className="size-4 shrink-0" />
-          <span className="truncate">{run.domain}</span>
+          <span title={run.domain} className="truncate">{run.domain}</span>
           <ExportSquare variant="Outline" aria-hidden className="size-3.5 shrink-0" />
         </a>
       </header>
@@ -288,6 +288,7 @@ function StepCard({ step }: { step: PipelineStep }) {
         </span>
       </div>
       <p
+        title={step.title}
         className={cn(
           "mt-3 truncate text-sm leading-5 font-semibold",
           notStarted ? "text-foreground-soft" : "text-foreground",
@@ -372,24 +373,29 @@ function CurrentStepPanel({
             <StepIcon variant="Outline" />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="text-[13px] font-medium tracking-wide text-muted-foreground uppercase">
+            <p
+              title={current.phase}
+              className="truncate text-[13px] font-medium tracking-wide text-muted-foreground uppercase"
+            >
               Step {run.currentStep} · {current.phase}
             </p>
             <h3
               id="current-step-title"
-              className="mt-0.5 font-heading text-2xl leading-8 font-semibold text-foreground"
+              title={current.title}
+              className="mt-0.5 line-clamp-2 font-heading text-2xl leading-8 font-semibold wrap-anywhere text-foreground"
             >
               {current.title}
             </h3>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex max-w-full min-w-0 flex-wrap items-center gap-2">
             <StatusBadge status={live ? "LIVE" : current.status} />
             {current.tags.map((tag) => (
               <span
                 key={tag}
-                className="inline-flex h-6 items-center rounded-full bg-neutral-soft px-2.5 text-[13px] font-medium text-foreground-soft"
+                title={tag}
+                className="inline-flex h-6 max-w-full min-w-0 items-center rounded-full bg-neutral-soft px-2.5 text-[13px] font-medium text-foreground-soft"
               >
-                {tag}
+                <span className="truncate">{tag}</span>
               </span>
             ))}
           </div>
@@ -407,7 +413,7 @@ function CurrentStepPanel({
               return (
                 <div
                   key={f.label}
-                  className="flex items-start gap-3 rounded-2xl border border-border bg-primary-soft/60 px-4 py-3.5"
+                  className="flex min-w-0 items-start gap-3 rounded-2xl border border-border bg-primary-soft/60 px-4 py-3.5"
                 >
                   <span
                     aria-hidden
@@ -418,8 +424,9 @@ function CurrentStepPanel({
                   <div className="min-w-0">
                     <dt className="text-[13px] text-muted-foreground">{f.label}</dt>
                     <dd
+                      title={f.value}
                       className={cn(
-                        "text-[15px] leading-6 font-medium",
+                        "truncate text-[15px] leading-6 font-medium",
                         f.tone === "danger"
                           ? "text-danger"
                           : f.tone === "info"
@@ -430,7 +437,9 @@ function CurrentStepPanel({
                       {f.value}
                     </dd>
                     {f.hint && (
-                      <dd className="text-[13px] text-muted-foreground">{f.hint}</dd>
+                      <dd title={f.hint} className="line-clamp-2 text-[13px] wrap-anywhere text-muted-foreground">
+                        {f.hint}
+                      </dd>
                     )}
                   </div>
                 </div>
@@ -478,14 +487,14 @@ function LiveLogs({
       className="overflow-hidden rounded-2xl border border-border"
     >
       <header className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-        <div>
+        <div className="min-w-0">
           <h4
             id="live-logs-title"
             className="text-base font-semibold text-foreground"
           >
             Live logs
           </h4>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm wrap-anywhere text-muted-foreground">
             What {run.domain} is logging as visitors use it · newest first
           </p>
         </div>
@@ -540,15 +549,19 @@ function LiveLogs({
               key: "request",
               header: "Request",
               className: "text-foreground",
+              // Paths and notes come from the site's requests: at most 2 lines, long URLs break anywhere.
               cell: (line) => (
-                <>
+                <span
+                  title={`${line.method} ${line.path}${line.note ? ` · ${line.note}` : ""}`}
+                  className="line-clamp-2 max-w-[420px] wrap-anywhere"
+                >
                   {line.method} &nbsp;{line.path}
                   {line.note && (
                     <span className={cn("ml-3", line.level === "ERROR" ? "text-danger" : "text-warning")}>
                       {line.note}
                     </span>
                   )}
-                </>
+                </span>
               ),
             },
             {
@@ -591,7 +604,7 @@ function StepChecks({
 }) {
   return (
     <div className="space-y-2.5">
-      <h4 className="font-heading text-lg font-semibold text-foreground">
+      <h4 className="font-heading text-lg font-semibold wrap-anywhere text-foreground">
         {group.title}
       </h4>
       <ul className="grid gap-2.5 sm:grid-cols-2">
@@ -599,7 +612,7 @@ function StepChecks({
           <li
             key={check.title}
             className={cn(
-              "flex items-center gap-3.5 rounded-xl border px-4 py-3",
+              "flex min-w-0 items-center gap-3.5 rounded-xl border px-4 py-3",
               check.status === "PASSED"
                 ? "border-success/20 bg-success-soft"
                 : check.status === "FAILED"
@@ -628,10 +641,10 @@ function StepChecks({
               </span>
             )}
             <span className="min-w-0">
-              <span className="block truncate text-sm font-semibold text-foreground">
+              <span title={check.title} className="block truncate text-sm font-semibold text-foreground">
                 {check.title}
               </span>
-              <span className="block truncate text-sm text-muted-foreground">
+              <span title={check.detail} className="block truncate text-sm text-muted-foreground">
                 {check.detail}
               </span>
             </span>

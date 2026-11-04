@@ -200,7 +200,9 @@ export function DataTable<T>({
               >
                 <TableCell className="pr-0 pl-[21px] tabular-nums">{offset + i + 1}</TableCell>
                 {columns.map((column) => (
-                  <TableCell key={column.key} data-label={typeof column.header === "string" ? column.header : column.key} className={column.className}>
+                  // `break-words`: the layout is fixed, so a long name or URL without spaces wraps inside its
+                  // column instead of running over the next one. Cells that should end in "…" use `truncate`.
+                  <TableCell key={column.key} data-label={typeof column.header === "string" ? column.header : column.key} className={cn("break-words", column.className)}>
                     {column.cell(row)}
                   </TableCell>
                 ))}

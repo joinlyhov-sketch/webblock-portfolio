@@ -21,17 +21,18 @@ function show(variant: Variant, title: string, message?: string) {
       className="flex w-[356px] animate-toast-in overflow-hidden rounded-xl border border-border bg-background shadow-sm"
     >
       <span aria-hidden className={cn("w-1 shrink-0", styles.bar)} />
-      <div className="flex-1 px-4 py-3">
-        <p className={cn("text-sm font-semibold", styles.title)}>{title}</p>
+      {/* Titles and messages can carry names or URLs: clamp them so a long one can't stretch the toast. */}
+      <div className="min-w-0 flex-1 px-4 py-3">
+        <p title={title} className={cn("line-clamp-2 text-sm font-semibold wrap-anywhere", styles.title)}>{title}</p>
         {message && (
-          <p className="mt-0.5 text-sm text-muted-foreground">{message}</p>
+          <p title={message} className="mt-0.5 line-clamp-3 text-sm wrap-anywhere text-muted-foreground">{message}</p>
         )}
       </div>
       <button
         type="button"
         aria-label="Close notification"
         onClick={() => sonner.dismiss(id)}
-        className="px-3 text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary"
+        className="shrink-0 px-3 text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary"
       >
         ✕
       </button>

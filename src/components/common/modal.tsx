@@ -138,7 +138,7 @@ function TitledModal({
             {title}
           </DialogTitle>
           {description ? (
-            <DialogDescription className={cn(hideTitle ? "sr-only" : "mt-1 text-[13px] text-muted-foreground")}>
+            <DialogDescription className={cn(hideTitle ? "sr-only" : "mt-1 text-[13px] break-words text-muted-foreground")}>
               {description}
             </DialogDescription>
           ) : (

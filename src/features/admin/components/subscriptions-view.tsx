@@ -204,10 +204,10 @@ export function SubscriptionsView({
                   className={planRing(s.plan)}
                 />
                 <span className="min-w-0">
-                  <span className="block max-w-[240px] truncate font-semibold text-foreground group-hover:text-primary">
+                  <span title={s.userName} className="block max-w-[240px] truncate font-semibold text-foreground group-hover:text-primary">
                     {s.userName}
                   </span>
-                  <span className="block max-w-[240px] truncate text-sm text-muted-foreground">
+                  <span title={s.websiteName || undefined} className="block max-w-[240px] truncate text-sm text-muted-foreground">
                     {s.websiteName || "No website yet"}
                   </span>
                 </span>

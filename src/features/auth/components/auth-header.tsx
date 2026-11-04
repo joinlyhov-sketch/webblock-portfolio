@@ -43,7 +43,8 @@ export function AuthHeader({
         <h1 className="pt-2 text-[36px] leading-[1.15] font-semibold tracking-[-0.72px] text-foreground first:pt-0">
           {title}
         </h1>
-        <p className="pt-1.5 text-base text-muted-foreground">{description}</p>
+        {/* Can hold the email the user typed: long addresses wrap instead of overflowing the form. */}
+        <p className="pt-1.5 text-base break-words text-muted-foreground">{description}</p>
       </header>
     </>
   );

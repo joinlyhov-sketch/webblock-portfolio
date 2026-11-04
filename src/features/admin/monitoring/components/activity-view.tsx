@@ -142,10 +142,10 @@ export function ActivityView({
             sortField: "targetName",
             cell: (a) => (
               <span className="block min-w-0">
-                <span className="block max-w-[300px] truncate font-semibold text-foreground">
+                <span title={a.targetName} className="block max-w-[300px] truncate font-semibold text-foreground">
                   {a.targetName}
                 </span>
-                <span className="block max-w-[300px] truncate text-sm text-muted-foreground">
+                <span title={a.targetDetail} className="block max-w-[300px] truncate text-sm text-muted-foreground">
                   {a.targetDetail}
                 </span>
               </span>
@@ -163,7 +163,7 @@ export function ActivityView({
             sortField: "actorEmail",
             cell: (a) =>
               a.actorEmail ? (
-                <span className="block truncate" title={a.actorEmail}>
+                <span className="block max-w-[240px] truncate" title={a.actorEmail}>
                   {a.actorEmail}
                 </span>
               ) : (

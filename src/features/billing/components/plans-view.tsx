@@ -96,7 +96,7 @@ const CARD = cn(
 );
 
 function CardLabel({ className, children }: { className: string; children: ReactNode }) {
-  return <span className={cn("rounded-full px-2.5 py-1 text-xs font-medium", className)}>{children}</span>;
+  return <span className={cn("shrink-0 rounded-full px-2.5 py-1 text-xs font-medium", className)}>{children}</span>;
 }
 
 function modeFor(plan: PaidPlanCode, view: PlansData): PlanMode {
@@ -125,7 +125,11 @@ function TierCard({ plan, view }: { plan: BillingPlan; view: PlansData }) {
       )}
     >
       <div className="flex h-[26px] items-center justify-between">
-        <span className={cn("rounded-full px-2.5 py-1 text-xs font-bold tracking-[0.72px] uppercase", theme.pill)}>
+        {/* Plan names are editable in Admin: one line, "…" when too long (full text on hover). */}
+        <span
+          title={plan.name}
+          className={cn("min-w-0 truncate rounded-full px-2.5 py-1 text-xs font-bold tracking-[0.72px] uppercase", theme.pill)}
+        >
           {plan.name}
         </span>
         {current && <CardLabel className={theme.current.pill}>Current plan</CardLabel>}
@@ -143,7 +147,7 @@ function TierCard({ plan, view }: { plan: BillingPlan; view: PlansData }) {
         mode={mode}
         from={view.from}
         forWebsite={view.websiteId ?? undefined}
-        label={current ? `Renew ${plan.name}` : `Choose ${plan.name}`}
+        label={<span className="min-w-0 truncate">{current ? `Renew ${plan.name}` : `Choose ${plan.name}`}</span>}
         className={cn("h-[46px] w-full rounded-3xl text-[15px] font-medium text-primary-foreground", theme.cta)}
       />
       <ul className="flex flex-col gap-3.5">
@@ -168,7 +172,10 @@ function TrialCard({ plan, daysLeft }: { plan: BillingPlan; daysLeft: number }) 
       )}
     >
       <div className="flex h-[26px] items-center justify-between">
-        <span className="rounded-full border border-primary/35 bg-primary-soft px-2.5 py-1 text-xs font-bold tracking-[0.72px] text-primary uppercase">
+        <span
+          title={plan.name}
+          className="min-w-0 truncate rounded-full border border-primary/35 bg-primary-soft px-2.5 py-1 text-xs font-bold tracking-[0.72px] text-primary uppercase"
+        >
           {plan.name}
         </span>
         <CardLabel className="bg-primary/14 text-primary">Current plan</CardLabel>

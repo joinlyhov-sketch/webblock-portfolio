@@ -128,10 +128,10 @@ export function PipelineView({
               >
                 <WebsiteLogo logoUrl={r.logoUrl} templateSlug={r.templateSlug} className="size-10 text-[18px]" />
                 <span className="min-w-0">
-                  <span className="block truncate font-semibold text-foreground group-hover:text-primary">
+                  <span title={r.websiteName} className="block max-w-[240px] truncate font-semibold text-foreground group-hover:text-primary">
                     {r.websiteName}
                   </span>
-                  <span className="block truncate text-sm text-muted-foreground">
+                  <span title={r.domain} className="block max-w-[240px] truncate text-sm text-muted-foreground">
                     {r.domain}
                   </span>
                 </span>
@@ -144,7 +144,7 @@ export function PipelineView({
             header: "Owner",
             sortField: "ownerName",
             cell: (r) => (
-              <span className="block truncate" title={r.ownerName}>
+              <span className="block max-w-[220px] truncate" title={r.ownerName}>
                 {r.ownerName}
               </span>
             ),

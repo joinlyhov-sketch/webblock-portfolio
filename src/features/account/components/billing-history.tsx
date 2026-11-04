@@ -149,8 +149,8 @@ export function BillingHistory({
                   {order.planName.charAt(0)}
                 </span>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold">{order.planName}</p>
-                  <p className="truncate text-[13px] text-placeholder">
+                  <p title={order.planName} className="truncate text-sm font-semibold">{order.planName}</p>
+                  <p title={order.websiteName} className="truncate text-[13px] text-placeholder">
                     {order.period ? `${order.period} · ` : ""}
                     {order.websiteName}
                   </p>

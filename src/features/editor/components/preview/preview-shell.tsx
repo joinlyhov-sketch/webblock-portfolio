@@ -38,10 +38,10 @@ export function PreviewShell({
       backLabel={backLabel}
       title={
         <>
-          <h1 className="truncate font-heading text-[17px] font-semibold text-foreground">
+          <h1 title={siteName} className="min-w-0 truncate font-heading text-[17px] font-semibold text-foreground">
             {siteName}
           </h1>
-          <StatusBadge status={status} />
+          <StatusBadge status={status} className="shrink-0" />
         </>
       }
       action={action}

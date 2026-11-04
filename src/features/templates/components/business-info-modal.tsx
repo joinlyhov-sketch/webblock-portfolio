@@ -186,9 +186,11 @@ function BusinessInfoForm({
           aria-hidden
           className="pointer-events-none absolute right-0 bottom-0"
         />
-        <span className="relative inline-flex h-6 w-fit shrink-0 items-center gap-1.5 rounded-full bg-background px-2.5 text-xs leading-[18px] font-semibold text-primary shadow-[0_4px_5px_rgb(60_120_207/0.12)]">
-          <Layer variant="Outline" aria-hidden className="size-[13px]" />
-          {template.name} template
+        <span className="relative inline-flex h-6 w-fit max-w-full shrink-0 items-center gap-1.5 rounded-full bg-background px-2.5 text-xs leading-[18px] font-semibold text-primary shadow-[0_4px_5px_rgb(60_120_207/0.12)]">
+          <Layer variant="Outline" aria-hidden className="size-[13px] shrink-0" />
+          <span title={`${template.name} template`} className="min-w-0 truncate">
+            {template.name} template
+          </span>
         </span>
         <div className="relative h-[336px] w-full shrink-0">
           <div className="absolute top-2 left-[-15.58px] flex h-[348.31px] w-[261.25px] items-center justify-center">
@@ -262,9 +264,20 @@ function BusinessInfoForm({
                   placeholder="e.g. Petal & Stem"
                   className={fieldClass}
                   aria-invalid={!!err("businessName")}
-                  aria-describedby={err("businessName") ? "businessName-hint" : undefined}
+                  aria-describedby={cn(err("businessName") && "businessName-hint", "businessName-count")}
                   autoFocus
                 />
+                {/* Shown from the start, so the owner sees the maximum before typing. */}
+                <p
+                  id="businessName-count"
+                  className={cn(
+                    "text-right text-xs tabular-nums",
+                    values.businessName.length >= BUSINESS_LIMITS.businessName ? "text-danger" : "text-placeholder",
+                  )}
+                >
+                  {values.businessName.length}/{BUSINESS_LIMITS.businessName}
+                  <span className="sr-only"> characters, maximum {BUSINESS_LIMITS.businessName}</span>
+                </p>
               </FormField>
               <FormField
                 id="businessType"
@@ -315,7 +328,7 @@ function BusinessInfoForm({
                     </span>
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[15px] leading-[22.5px] font-medium text-foreground">{logo.name}</p>
+                    <p title={logo.name} className="truncate text-[15px] leading-[22.5px] font-medium text-foreground">{logo.name}</p>
                     <p className="text-[13px] leading-[19.5px] text-muted-foreground">
                       {logo.type.replace("image/", "").toUpperCase()} · {Math.max(1, Math.round(logo.size / 1024))} KB
                       {" • "}

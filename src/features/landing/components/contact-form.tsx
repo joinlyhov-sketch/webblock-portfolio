@@ -120,7 +120,7 @@ export function ContactForm({ onClose }: { onClose?: () => void } = {}) {
           </span>
           <h2 className="font-heading text-2xl font-semibold text-foreground">Message sent</h2>
           <p className="text-[15px] leading-6 text-foreground-soft">
-            Thanks for writing. We usually reply to <strong className="font-semibold text-foreground">{sentTo}</strong>{" "}
+            Thanks for writing. We usually reply to <strong className="font-semibold wrap-anywhere text-foreground">{sentTo}</strong>{" "}
             within 48 hours.
           </p>
           {onClose ? (

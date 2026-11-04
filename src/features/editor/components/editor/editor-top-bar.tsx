@@ -67,21 +67,27 @@ export function EditorTopBar({
         </Link>
       </Button>
       <LogoMark className="h-[30px] shrink-0 max-sm:hidden" />
-      <div className="min-w-0">
-        <p className="truncate text-[13px] leading-[19.5px] font-semibold text-foreground">{siteName}</p>
+      {/* Capped so a long name never pushes the device switcher around. */}
+      <div className="min-w-0 max-w-[280px]">
+        {/* Name and subdomain come from the API: one line each, "…" when too long (full text on hover). */}
+        <p title={siteName} className="truncate text-[13px] leading-[19.5px] font-semibold text-foreground">
+          {siteName}
+        </p>
         {portalHref && domain ? (
-          <p className="flex items-center gap-1 text-xs leading-[18px] text-muted-foreground">
+          <p className="flex min-w-0 items-center gap-1 text-xs leading-[18px] text-muted-foreground">
             <Global variant="Outline" aria-hidden className="size-[11px] shrink-0" />
-            <span className="truncate">{domain}</span>
+            <span title={domain} className="min-w-0 truncate">
+              {domain}
+            </span>
           </p>
         ) : (
           <p className="text-xs leading-[18px] text-muted-foreground">Home page</p>
         )}
       </div>
-      {saveState === "unsaved" && <StatusBadge status={SAVE_STATE[saveState]} className="hidden xl:inline-flex" />}
+      {saveState === "unsaved" && <StatusBadge status={SAVE_STATE[saveState]} className="hidden shrink-0 xl:inline-flex" />}
 
       <div className="flex-1" />
-      <div className="flex gap-2">
+      <div className="flex shrink-0 gap-2">
         <Button variant="secondary" size="icon" className="rounded-full" aria-label="Undo" title="Undo (Ctrl+Z)" disabled={!history.hasPast} onClick={history.back}>
           <Undo variant="Outline" />
         </Button>
@@ -98,13 +104,13 @@ export function EditorTopBar({
         </Button>
       </div>
       {/* Previewing other devices only makes sense on a laptop-sized screen. */}
-      <div className="max-lg:hidden">
+      <div className="shrink-0 max-lg:hidden">
         <DeviceSwitcher value={device} onChange={onDeviceChange} />
       </div>
       <div className="flex-1 max-md:hidden" />
 
       {/* On phones: a full-width second row, icon-only except Deploy (labels stay for screen readers). */}
-      <div className="flex items-center gap-3 max-md:basis-full max-md:justify-end max-md:gap-2">
+      <div className="flex shrink-0 items-center gap-3 max-md:basis-full max-md:justify-end max-md:gap-2">
         <Button variant={portalHref ? "ghost" : "secondary"} onClick={onSave} loading={busy === "save"} disabled={busy !== null}>
           {busy !== "save" && <DocumentDownload variant="Linear" aria-hidden />} <span className="max-sm:sr-only">Save draft</span>
         </Button>

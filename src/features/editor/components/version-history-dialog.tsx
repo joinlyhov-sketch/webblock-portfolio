@@ -68,7 +68,10 @@ export function VersionHistoryDialog({
         <div className="flex items-start justify-between gap-4 px-6 pt-5 pb-3">
           <div className="min-w-0">
             <h2 className="font-heading text-base font-semibold">Version history</h2>
-            <p className="truncate text-[13px] text-muted-foreground">
+            <p
+              title={`Every time ${websiteName} was deployed. Saving a draft never changes the live site.`}
+              className="truncate text-[13px] text-muted-foreground"
+            >
               Every time {websiteName} was deployed. Saving a draft never changes the live site.
             </p>
           </div>

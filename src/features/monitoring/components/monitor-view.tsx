@@ -74,7 +74,7 @@ export function MonitorView({ data, websiteId }: { data: MonitorData; websiteId:
                     ? "Your website is online"
                     : "Your website is offline"}
               </h2>
-              <p className="truncate text-xs text-muted-foreground">{domain ?? "Deploy it to get a web address."}</p>
+              <p title={domain ?? undefined} className="truncate text-xs text-muted-foreground">{domain ?? "Deploy it to get a web address."}</p>
             </div>
             {status && <LiveBadge online={status.online} />}
           </div>
@@ -223,8 +223,10 @@ function RecentDeploys({ rows, compact, websiteId }: { rows: DeployRow[]; compac
                     header: "Started by",
                     cell: (row: DeployRow) => (
                       <span className="flex items-center gap-2">
-                        <Avatar name={row.startedBy.fullName} initials={row.startedBy.initials} src={null} className="size-6 text-[9px]" />
-                        {row.startedBy.fullName}
+                        <Avatar name={row.startedBy.fullName} initials={row.startedBy.initials} src={null} className="size-6 shrink-0 text-[9px]" />
+                        <span title={row.startedBy.fullName} className="max-w-[180px] min-w-0 truncate">
+                          {row.startedBy.fullName}
+                        </span>
                       </span>
                     ),
                   },
@@ -296,8 +298,8 @@ function ActivityLog({ events }: { events: ActivityEvent[] }) {
               <li key={event.id} className="flex items-start gap-3 px-4 py-3">
                 <ActivityIcon event={event} />
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm leading-5 text-foreground">{event.title}</p>
-                  {event.detail && <p className="text-xs text-danger">{event.detail}</p>}
+                  <p title={event.title} className="line-clamp-2 text-sm leading-5 break-words text-foreground">{event.title}</p>
+                  {event.detail && <p title={event.detail} className="line-clamp-2 text-xs break-words text-danger">{event.detail}</p>}
                   <p className="pt-0.5 text-xs text-muted-foreground">
                     {ACTIVITY_TYPE[event.type].label} · {formatDayMonthYear(event.occurredAt)}, {formatTime(event.occurredAt)}
                   </p>
@@ -328,8 +330,8 @@ function ActivityLog({ events }: { events: ActivityEvent[] }) {
                 <span className="flex items-center gap-2.5">
                   <ActivityIcon event={event} />
                   <span className="min-w-0">
-                    <span className="block text-foreground">{event.title}</span>
-                    {event.detail && <span className="block text-xs text-danger">{event.detail}</span>}
+                    <span title={event.title} className="line-clamp-2 text-foreground wrap-anywhere">{event.title}</span>
+                    {event.detail && <span title={event.detail} className="line-clamp-2 text-xs wrap-anywhere text-danger">{event.detail}</span>}
                   </span>
                 </span>
               ),
@@ -452,12 +454,12 @@ function ActivityLogDrawer({
                   <ActivityIcon event={event} />
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-baseline justify-between gap-2">
-                      <p className="text-sm font-semibold text-foreground">{event.title}</p>
+                      <p className="min-w-0 text-sm font-semibold break-words text-foreground">{event.title}</p>
                       <span className="text-xs text-muted-foreground">
                         {formatDayMonthYear(event.occurredAt)}, {formatTime(event.occurredAt)}
                       </span>
                     </div>
-                    {event.detail && <p className="pt-0.5 text-xs text-danger">{event.detail}</p>}
+                    {event.detail && <p className="pt-0.5 text-xs break-words text-danger">{event.detail}</p>}
                     <div className="mt-1.5 flex items-center gap-2">
                       <span
                         className={cn(

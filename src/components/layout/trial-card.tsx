@@ -61,7 +61,7 @@ export function TrialCard({ summary }: { summary: SidebarSummary }) {
             : `${summary.daysLeft} ${summary.daysLeft === 1 ? "day" : "days"} left`}
         </span>
       </div>
-      <p className="pt-3 text-[15px] leading-[22.5px] font-semibold text-foreground">
+      <p title={title} className="line-clamp-2 pt-3 text-[15px] leading-[22.5px] font-semibold wrap-anywhere text-foreground">
         {title}
       </p>
       <div className="pt-3 pb-3.5">

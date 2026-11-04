@@ -82,7 +82,7 @@ export function SupportForm({ view }: { view: Pick<SupportView, "email" | "websi
         }}
       >
         <div className="grid gap-4 sm:grid-cols-2">
-          <FormField id="from" label="From" labelClassName={labelClass}>
+          <FormField id="from" label="From" className="min-w-0" labelClassName={labelClass}>
             <Input
               id="from"
               value={view.email}
@@ -93,7 +93,7 @@ export function SupportForm({ view }: { view: Pick<SupportView, "email" | "websi
               readOnly
             />
           </FormField>
-          <FormField id="site" label="Website" labelClassName={labelClass}>
+          <FormField id="site" label="Website" className="min-w-0" labelClassName={labelClass}>
             <SelectField
               id="site"
               name="site"

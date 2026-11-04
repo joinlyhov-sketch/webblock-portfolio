@@ -53,8 +53,11 @@ export function ImageField({
             <Gallery variant="Outline" aria-hidden className="absolute inset-0 m-auto size-6 text-placeholder" />
           )}
         </div>
-        <div className="min-w-0">
-          <p className="truncate text-[13px] font-semibold text-foreground">{name}</p>
+        {/* Upload file names can be long: one line, "…" when too long (full name on hover). */}
+        <div className="min-w-0 flex-1">
+          <p title={name} className="truncate text-[13px] font-semibold text-foreground">
+            {name}
+          </p>
           {!value && <p className="text-xs text-muted-foreground">A placeholder is shown</p>}
         </div>
       </div>

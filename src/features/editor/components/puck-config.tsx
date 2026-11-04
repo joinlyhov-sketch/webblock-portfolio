@@ -41,6 +41,16 @@ export type FieldMeta = {
 
 const meta = (m: FieldMeta) => ({ metadata: m });
 
+/**
+ * Title of a row in a Puck list field (product, category). Owner-typed names can be long: one line,
+ * "…" when too long (full text on hover), so the row's drag and delete buttons stay in view.
+ */
+const itemSummary = (label: string) => (
+  <span title={label} className="min-w-0 truncate">
+    {label}
+  </span>
+);
+
 const text = (label: string, m: FieldMeta = {}, placeholder?: string): Field =>
   ({ type: "text", label, placeholder, ...meta(m) }) as Field;
 const textarea = (label: string, m: FieldMeta = {}): Field =>
@@ -126,7 +136,7 @@ const productFields: Field = {
     category: "",
     imageUrl: null,
   },
-  getItemSummary: (item: { name?: string }) => item.name || "Product",
+  getItemSummary: (item: { name?: string }) => itemSummary(item.name || "Product"),
   ...meta({ group: "Products" }),
 };
 
@@ -386,7 +396,7 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
           label: "Categories",
           arrayFields: { name: text("Name") },
           defaultItemProps: { name: "New category" },
-          getItemSummary: (item: { name?: string }) => item.name || "Category",
+          getItemSummary: (item: { name?: string }) => itemSummary(item.name || "Category"),
           ...meta({ group: "Products" }),
         },
         products: productFields,

@@ -84,15 +84,15 @@ export function BusinessMark({ name, logoUrl, className }: { name: string; logoU
 export function BusinessIdentity({ website, children }: { website: BusinessInfoView["website"]; children?: ReactNode }) {
   return (
     <div className="min-w-0">
-      <p className="font-heading text-lg leading-7 font-semibold break-words text-foreground sm:text-xl">{website.name}</p>
+      <p title={website.name} className="line-clamp-2 font-heading text-lg leading-7 font-semibold break-words text-foreground sm:text-xl">{website.name}</p>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-0.5 text-[13px] leading-5 text-muted-foreground">
-        <span className="inline-flex min-w-0 items-center gap-1.5 break-all text-foreground-soft">
+        <span className="inline-flex min-w-0 max-w-full items-center gap-1.5 text-foreground-soft">
           <Global variant="Outline" aria-hidden className="size-3.5 shrink-0" />
-          {website.domain ?? "Not deployed yet"}
+          <span title={website.domain ?? undefined} className="min-w-0 truncate">{website.domain ?? "Not deployed yet"}</span>
         </span>
-        <span className="inline-flex items-center gap-1.5">
-          <Shop variant="Outline" aria-hidden className="size-3.5" />
-          Business type: <span className="text-foreground-soft">{website.businessType}</span>
+        <span className="inline-flex min-w-0 max-w-full items-center gap-1.5 whitespace-nowrap">
+          <Shop variant="Outline" aria-hidden className="size-3.5 shrink-0" />
+          Business type: <span title={website.businessType} className="min-w-0 truncate text-foreground-soft">{website.businessType}</span>
         </span>
       </div>
       {children}

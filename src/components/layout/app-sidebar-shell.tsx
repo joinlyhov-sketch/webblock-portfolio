@@ -99,8 +99,8 @@ export function AppSidebarShell({
           <Avatar name={profile.fullName} initials={profile.initials} src={profile.avatarUrl} className="size-[34px] text-xs" />
           {!collapsed && (
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[13px] leading-[19.5px] font-semibold text-foreground">{profile.fullName}</p>
-              <p className="truncate text-xs leading-[18px] text-muted-foreground">{profile.email}</p>
+              <p title={profile.fullName} className="truncate text-[13px] leading-[19.5px] font-semibold text-foreground">{profile.fullName}</p>
+              <p title={profile.email} className="truncate text-xs leading-[18px] text-muted-foreground">{profile.email}</p>
             </div>
           )}
           <button

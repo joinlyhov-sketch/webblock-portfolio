@@ -381,9 +381,10 @@ export function DevicePreview({
               ["--pv-delay" as string]: "0.8s",
             }}
           >
-            <p className={cn(chip, "inline-flex")}>
-              <Lock1 variant="Outline" aria-hidden className="size-[14px]" />
-              {address}
+            {/* The subdomain can be long: keep the chip inside the stage and end it in "…". */}
+            <p className={cn(chip, "inline-flex max-w-[calc(100%-32px)] min-w-0")}>
+              <Lock1 variant="Outline" aria-hidden className="size-[14px] shrink-0" />
+              <span className="truncate">{address}</span>
             </p>
           </div>
         </div>

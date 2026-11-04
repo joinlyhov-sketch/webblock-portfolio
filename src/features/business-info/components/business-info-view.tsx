@@ -120,7 +120,7 @@ function Detail({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="border-border py-2.5 first-of-type:pt-0 not-last:border-b">
       <dt className="text-xs leading-[18px] text-muted-foreground">{label}</dt>
-      <dd className="pt-1 text-sm leading-5 text-foreground">{children}</dd>
+      <dd className="pt-1 text-sm leading-5 break-words text-foreground">{children}</dd>
     </div>
   );
 }

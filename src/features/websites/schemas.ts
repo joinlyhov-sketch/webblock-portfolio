@@ -28,7 +28,7 @@ export const TIME_OPTIONS: string[] = Array.from({ length: 38 }, (_, i) => {
 });
 
 /** Character limits, shared by the validators and the form inputs (`maxLength`). */
-export const BUSINESS_LIMITS = { businessName: 60, businessType: 60, description: 300, address: 150 };
+export const BUSINESS_LIMITS = { businessName: 25, businessType: 60, description: 300, address: 150 };
 const LIMITS = BUSINESS_LIMITS;
 
 export type BusinessDetailsInput = {

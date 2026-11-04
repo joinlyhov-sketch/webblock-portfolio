@@ -65,13 +65,13 @@ export function PageHeader({
         className,
       )}
     >
-      <div className={cn("flex flex-col max-lg:min-w-0 max-lg:max-w-full", centered && "items-center")}>
+      <div className={cn("flex min-w-0 max-w-full flex-col", centered && "items-center")}>
         {eyebrow && (
           <div className="pb-3">{typeof eyebrow === "string" ? <Pill outline>{eyebrow}</Pill> : eyebrow}</div>
         )}
-        <h1 className={cn("font-heading font-semibold", TITLE_SIZE[scale], TONE[tone])}>{title}</h1>
+        <h1 className={cn("font-heading font-semibold break-words", TITLE_SIZE[scale], TONE[tone])}>{title}</h1>
         {description && (
-          <p className={cn("text-muted-foreground", DESCRIPTION_SIZE[scale], centered && (scale === "hero" ? "max-w-[720px]" : "max-w-[560px]"))}>
+          <p className={cn("break-words text-muted-foreground", DESCRIPTION_SIZE[scale], centered && (scale === "hero" ? "max-w-[720px]" : "max-w-[560px]"))}>
             {description}
           </p>
         )}

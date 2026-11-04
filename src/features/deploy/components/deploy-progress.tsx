@@ -98,13 +98,19 @@ export function DeployProgress({
   }, [running, router]);
 
   const failedAt = deployment.steps.findIndex((s) => s.status === "FAILED");
-  const title = failed
+  const titleText = failed
     ? first
       ? `${siteName} isn’t online yet`
       : "Your changes weren’t deployed"
     : first
       ? `Putting ${siteName} online`
       : "Deploying your changes";
+  // The site name (API data) can be long, even with no spaces: at most two lines, then "…" (full text on hover).
+  const title = (
+    <span title={titleText} className="line-clamp-2 wrap-anywhere">
+      {titleText}
+    </span>
+  );
   const subtitle = failed
     ? first
       ? "Nothing went live yet. Try again, or go back to the editor."
