@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { WebsiteLogo } from "@/components/common/website-logo";
 import { LogoMark } from "@/components/common/logo";
 import { NotificationBell as Bell, useNotifications } from "@/components/common/notifications";
 import { markAllNotificationsReadAction } from "@/features/notifications/actions";
@@ -13,7 +13,7 @@ export type NotificationItem = AppNotification & {
   timeLabel: string;
 };
 
-/** Circle colour behind the screenshot, or on its own when there is none. */
+/** Circle colour behind the logo, or on its own when there is none. */
 const plainAvatar: Record<NotificationKind, string> = {
   SUCCESS: "bg-brand-soft",
   WARNING: "bg-notice-warning-soft",
@@ -38,9 +38,11 @@ export function NotificationBell({ items }: { items: NotificationItem[] }) {
           <LogoMark className="h-6" />
         </span>
       ) : (
-        <span className={cn("absolute inset-0", plainAvatar[n.kind])}>
-          {n.imageUrl && <Image src={n.imageUrl} alt="" fill unoptimized sizes="40px" className="object-cover object-top" />}
-        </span>
+        n.websiteId ? (
+          <WebsiteLogo logoUrl={n.logoUrl} templateSlug={n.templateSlug ?? undefined} className="absolute inset-0 size-auto" />
+        ) : (
+          <span className={cn("absolute inset-0", plainAvatar[n.kind])} />
+        )
       ),
     })),
     {

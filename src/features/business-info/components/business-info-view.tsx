@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { Edit2 } from "iconsax-reactjs";
 import { PageHeader } from "@/components/common/page-header";
 import { Button } from "@/components/ui/button";
 import type { BusinessInfoView as BusinessInfoData } from "../service";
@@ -53,7 +54,7 @@ export function BusinessInfoView({ data }: { data: BusinessInfoData }) {
           </div>
           <Button asChild className="max-sm:w-full">
             <Link href="?edit=1" scroll={false}>
-              Edit details
+              <Edit2 variant="Outline" aria-hidden /> Edit details
             </Link>
           </Button>
         </div>

@@ -52,12 +52,13 @@ export function ActionMenu({
       <DropdownMenuContent align="end">
         {items.map((item, i) => {
           const className = cn(
-            item.danger && "text-danger data-[highlighted]:bg-danger-soft",
+            item.danger &&
+              "mt-1 justify-center rounded-full bg-danger px-4 py-1 font-bold text-primary-foreground focus:bg-danger/90 focus:text-primary-foreground data-[highlighted]:bg-danger/90 [&_svg]:text-primary-foreground!",
           );
           const content = (
             <>
               {item.icon}
-              <span className="flex-1">{item.label}</span>
+              <span className={cn(!item.danger && "flex-1")}>{item.label}</span>
               {item.externalHref && (
                 <ArrowRight2 variant="Outline"
                   aria-hidden

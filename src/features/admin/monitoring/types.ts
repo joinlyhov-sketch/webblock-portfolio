@@ -89,8 +89,10 @@ export type PipelineRun = {
   websiteId: string;
   websiteName: string;
   domain: string;
-  /** The site's preview image; null until it has one. */
-  thumbnailUrl: string | null;
+  /** The logo from the website's business details; null until the owner uploads one. */
+  logoUrl: string | null;
+  /** Template the site was built from: its mark is the logo until one is uploaded. */
+  templateSlug?: string;
   ownerName: string;
   stage: PipelineStage;
   requestStatus: RequestStatus;

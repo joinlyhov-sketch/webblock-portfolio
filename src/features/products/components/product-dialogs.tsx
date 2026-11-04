@@ -83,7 +83,7 @@ export function ProductDialogsProvider({
       close();
       if (result.ok) {
         onDeleted(target.id);
-        toast.success("Product deleted", result.message);
+        toast.danger("Product deleted", result.message);
       }
       else toast.error("Could not delete the product", result.message);
     });
@@ -95,7 +95,7 @@ export function ProductDialogsProvider({
       backToCategories();
       if (result.ok) {
         onCategoryDeleted(category);
-        toast.success("Category deleted", result.message);
+        toast.danger("Category deleted", result.message);
       } else toast.error("Could not delete the category", result.message);
     });
   }

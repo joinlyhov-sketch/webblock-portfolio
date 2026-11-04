@@ -81,7 +81,7 @@ export function ProductForm({
   const values = state && !state.ok ? state.values : undefined;
   const errors = state && !state.ok ? state.fieldErrors : undefined;
   const [category, setCategory] = useState(product?.category ?? "");
-  // Live "120/300" counter next to the Description label.
+  // Live "120/200" counter next to the Description label.
   const [descriptionLength, setDescriptionLength] = useState((values?.description ?? product?.description ?? "").length);
   const error = (name: string) => errors?.[name]?.[0];
   const photoError = imageError ?? error("image");

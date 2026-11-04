@@ -35,7 +35,7 @@ export function TemplateCard({
       </div>
       <div className="flex flex-col gap-2.5 px-1.5 pb-1.5">
         <div className="flex flex-col gap-[7px]">
-          <h3 className="font-heading text-[17px] font-semibold text-foreground">{template.name}</h3>
+          <h3 className="font-heading text-[17px] font-semibold break-words text-foreground">{template.name}</h3>
           <p className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
             <Layer variant="Outline" aria-hidden className="size-3.5 shrink-0" />
             <span className="truncate">{template.description}</span>

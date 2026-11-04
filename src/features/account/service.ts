@@ -228,7 +228,7 @@ export async function changePassword(userId: string, formData: FormData): Promis
     const requirements: string[] = [];
     if (password.length < PASSWORD_MIN) requirements.push(`at least ${PASSWORD_MIN} characters`);
     if (!/[A-Z]/.test(password)) requirements.push("one uppercase letter");
-    if (!/[^A-Za-z0-9]/.test(password)) requirements.push("one symbol");
+    if (!/\d/.test(password)) requirements.push("one number");
     if (requirements.length) c.add("password", `Use ${requirements.join(", ")}.`);
     if (password.length > PASSWORD_MAX) c.add("password", `Use ${PASSWORD_MAX} characters or fewer.`);
   }

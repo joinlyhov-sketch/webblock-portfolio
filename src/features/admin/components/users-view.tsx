@@ -13,7 +13,7 @@ import {
   Timer1,
 } from "iconsax-reactjs";
 import { Avatar } from "@/components/common/avatar";
-import { WebsiteLogo } from "./website-logo";
+import { WebsiteLogo } from "@/components/common/website-logo";
 import { DataTable } from "@/components/common/data-table";
 import { EmptyState } from "@/components/common/empty-state";
 import { KpiCard, KpiGrid } from "@/components/common/kpi-card";

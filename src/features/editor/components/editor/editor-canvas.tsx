@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Add, Minus } from "iconsax-reactjs";
 import { Puck } from "@puckeditor/core";
 import { Button } from "@/components/ui/button";
@@ -22,12 +22,15 @@ export function EditorCanvas({ device }: { device: Device }) {
   const { ref, zoom: fitZoom } = useFitZoom<HTMLDivElement>(width, 128);
   const [manualZoom, setManualZoom] = useState<number | null>(null);
   const [zoomInput, setZoomInput] = useState<string | null>(null);
-  const zoom = manualZoom ?? fitZoom;
+  const [prevWidth, setPrevWidth] = useState(width);
 
-  useEffect(() => {
+  if (prevWidth !== width) {
+    setPrevWidth(width);
     setManualZoom(null);
     setZoomInput(null);
-  }, [width]);
+  }
+
+  const zoom = manualZoom ?? fitZoom;
 
   function commitZoomInput() {
     if (zoomInput === null) return;

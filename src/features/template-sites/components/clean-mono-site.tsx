@@ -128,8 +128,8 @@ export function CleanMonoSite({ content }: { content: CleanMonoContent }) {
                   <img src={p.imageUrl} alt={p.name} className="cm-zoom size-full object-cover" />
                 </div>
                 <div className="h-px bg-(--cm-ink)" />
-                <div className="flex items-baseline justify-between gap-3 text-(--cm-ink)">
-                  <h3 className="cm-display text-[20px] font-medium lg:text-[22px]">{p.name}</h3>
+                <div className="flex min-w-0 items-baseline justify-between gap-3 text-(--cm-ink)">
+                  <h3 className="cm-display min-w-0 break-words text-[20px] font-medium lg:text-[22px]">{p.name}</h3>
                   <span className="cm-mono text-[15px] whitespace-nowrap">{formatPrice(p.price, p.currency)}</span>
                 </div>
                 {p.note && <p className="text-[14px] text-(--cm-muted)">{p.note}</p>}

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { EMAIL_MAX, FULL_NAME_MAX } from "@/lib/validation/fields";
 
 /** Character limits of the contact form, also used as `maxLength`. */
-export const CONTACT_MESSAGE_MIN = 300;
+export const CONTACT_MESSAGE_MIN = 10;
 export const CONTACT_LIMITS = { name: FULL_NAME_MAX, email: EMAIL_MAX, message: 400 };
 
 /** Letters in any language (Khmer vowel signs are marks, so \p{M} too), spaces and . ' - (Dr. Sokha, O'Neil, Jean-Paul). */

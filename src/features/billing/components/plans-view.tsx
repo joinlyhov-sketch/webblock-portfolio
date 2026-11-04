@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Crown, Flash, Lock1, Refresh2 } from "iconsax-reactjs";
+import { Crown, Flash, Refresh2 } from "iconsax-reactjs";
 import { formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { PlansView as PlansData } from "../service";

@@ -21,6 +21,8 @@ export function AdminPageHeader({
     <PageHeader
       title={title}
       description={description}
+      // Phones: the bell and profile stay beside the title instead of dropping onto their own row.
+      className="max-sm:flex-nowrap max-sm:items-start"
       actions={
         <>
           {children}
