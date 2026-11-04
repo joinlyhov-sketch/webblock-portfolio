@@ -47,9 +47,12 @@ export function EditorCanvas({ device }: { device: Device }) {
     <div ref={ref} className="editor-scrollbar relative flex min-w-0 flex-1 flex-col overflow-auto px-16 pt-2 pb-10">
       {/* The zoom is applied by SiteRoot (inside the preview) through these variables, not here:
           Puck positions its selection overlays inside the preview, so zooming an outer box would
-          scale them twice. */}
+          scale them twice.
+          Puck's drop line (shown while dragging a block in) is placed from getBoundingClientRect, i.e.
+          in already-zoomed screen px, so the zoom would shrink its offset and width a second time and
+          draw it in the wrong gap. Un-zooming the line itself puts it back where Puck measured. */}
       <div
-        className="mx-auto shrink-0 overflow-hidden rounded-2xl border border-border bg-background shadow-card transition-[width] duration-200 ease-out motion-reduce:transition-none"
+        className="mx-auto shrink-0 overflow-hidden rounded-2xl border border-border bg-background shadow-card transition-[width] duration-200 ease-out motion-reduce:transition-none [&_[data-puck-line-placeholder]]:[zoom:calc(1/var(--canvas-zoom))]"
         style={{ width: width * zoom, "--canvas-zoom": zoom, "--canvas-width": `${width}px` } as React.CSSProperties}
       >
         <Puck.Preview id="website-canvas" />

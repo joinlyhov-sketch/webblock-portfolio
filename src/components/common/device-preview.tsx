@@ -3,14 +3,15 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Devices, Lock1, Mobile, Monitor } from "iconsax-reactjs";
+import { ArrowLeft, Lock1, Mobile, Monitor } from "iconsax-reactjs";
 import { cn } from "@/lib/utils";
+import { TabletIcon } from "./tablet-icon";
 
 export type PreviewDevice = "desktop" | "tablet" | "mobile";
 
 const devices: { id: PreviewDevice; label: string; icon: ReactNode }[] = [
   { id: "desktop", label: "Desktop", icon: <Monitor variant="Outline" /> },
-  { id: "tablet", label: "Tablet", icon: <Devices variant="Outline" /> },
+  { id: "tablet", label: "Tablet", icon: <TabletIcon /> },
   { id: "mobile", label: "Mobile", icon: <Mobile variant="Outline" /> },
 ];
 

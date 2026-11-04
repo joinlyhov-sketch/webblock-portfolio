@@ -55,7 +55,6 @@ export function SiteBanner({
         src={website.thumbnailUrl}
         alt={`Top of the ${website.name} website`}
         fill
-        unoptimized
         sizes="(min-width: 1024px) 75vw, 100vw"
         className="object-cover object-top"
       />

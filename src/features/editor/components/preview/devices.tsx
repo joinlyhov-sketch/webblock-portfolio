@@ -2,22 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Mobile, Monitor } from "iconsax-reactjs";
+import { TabletIcon } from "@/components/common/tablet-icon";
 import { cn } from "@/lib/utils";
 
 export type Device = "desktop" | "tablet" | "mobile";
 
 /** Width the website is laid out at (the editor label reads "Desktop 1280"). */
 export const DEVICE_WIDTH = { desktop: 1280, tablet: 820, mobile: 390 } satisfies Record<Device, number>;
-
-// iconsax has no tablet glyph: a small outline tablet in the same 1.5px linear style.
-function TabletIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className={className}>
-      <rect x="4.5" y="2.5" width="15" height="19" rx="3" />
-      <path d="M11 18.5h2" />
-    </svg>
-  );
-}
 
 const DEVICES = [
   { value: "desktop", label: "Desktop", icon: Monitor, iconClass: "size-[18px]" },

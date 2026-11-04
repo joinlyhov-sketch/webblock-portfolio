@@ -64,8 +64,7 @@ export function WebsiteCard({
             src={website.thumbnailUrl}
             alt={`${website.name} preview`}
             fill
-            unoptimized
-            sizes="(min-width: 1440px) 25vw, 100vw"
+            sizes="(min-width: 1440px) 25vw, (min-width: 768px) 50vw, 100vw"
             className="object-cover object-top"
           />
           {/* The real page over the template image: the live site while it is online, else the saved draft

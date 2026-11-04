@@ -22,11 +22,12 @@ const Carousel3D = dynamic(() => import("@/components/common/carousel-3d").then(
 });
 
 /**
- * Optimised copies for the 3D cards (the originals are 2560px): 1080px covers the front card on
- * phones and most laptops, 1920px large desktops. Asking for half the width makes its "2x" `src`
- * exactly that width; quality 90 keeps the screenshot text crisp, as on the other mocks.
+ * Optimised copies for the 3D cards (the originals are 2560px): 640px covers the front card on
+ * phones, 1080px tablets and most laptops, 1920px large desktops (the carousel picks the smallest one
+ * that is still sharp at 2x). Asking for half the width makes its "2x" `src` exactly that width;
+ * quality 90 keeps the screenshot text crisp, as on the other mocks.
  */
-const TEXTURE_WIDTHS = [1080, 1920];
+const TEXTURE_WIDTHS = [640, 1080, 1920];
 
 const items: Carousel3DItem[] = showcaseTemplates.map((template) => ({
   id: template.slug,

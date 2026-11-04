@@ -26,7 +26,6 @@ export function TemplateCard({
             src={template.thumbnailUrl}
             alt={`${template.name} template preview`}
             fill
-            unoptimized
             sizes="(min-width: 1280px) 300px, 50vw"
             className="object-cover object-top"
           />
