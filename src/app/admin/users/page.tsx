@@ -46,12 +46,16 @@ export default async function AdminUsersPage({
           listWebsites({ ownerId: userId }, { page: 0, size: 20 }),
           listSubscriptions({ q: undefined }, { page: 0, size: 100 }),
         ])
-          .then(([user, websites, subs]) => ({
-            user,
-            websites,
-            // Account subscriptions include plans purchased before creating a website.
-            subscriptions: subs.items.filter((x) => x.userId === userId),
-          }))
+          .then(([user, websites, subs]) => {
+            // Admins never see an owner's drafts: only sites that have been released.
+            const released = websites.items.filter((w) => w.releaseStatus !== null);
+            return {
+              user,
+              websites: { ...websites, items: released, totalItems: released.length },
+              // Account subscriptions include plans purchased before creating a website.
+              subscriptions: subs.items.filter((x) => x.userId === userId),
+            };
+          })
           .catch(nullIfNotFound)
       : null,
     websiteId

@@ -8,6 +8,7 @@ import {
   uploadAvatarAction,
 } from "../actions";
 import { Avatar } from "@/components/common/avatar";
+import { PhotoPreviewModal } from "@/components/common/photo-preview-modal";
 import { toast } from "@/components/common/toast";
 import { UploadImageModal } from "@/components/common/upload-image-modal";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,9 @@ import { FULL_NAME_MAX } from "@/lib/validation/fields";
 import type { Profile } from "../types";
 import { PLAN_TONE, TONE_STYLE } from "./plan-tone";
 import { Field, SETTINGS_FIELD, SettingsCard } from "./settings-card";
+
+const AVATAR_STYLE =
+  "size-[76px] border-4 border-background from-avatar-from to-violet-border text-[32px] leading-[33px] shadow-avatar";
 
 /** Profile card: photo, member dates and the editable full name. `memberSince` / `lastSignIn` are preformatted. */
 export function ProfileCard({
@@ -32,6 +36,7 @@ export function ProfileCard({
   lastSignIn: string;
 }) {
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [viewOpen, setViewOpen] = useState(false);
   const [removing, startRemove] = useTransition();
   const [nameValue, setNameValue] = useState(profile.fullName);
   const [nameTouched, setNameTouched] = useState(false);
@@ -104,12 +109,20 @@ export function ProfileCard({
         <div className="overflow-hidden rounded-[14px] border border-border bg-muted">
           <div className="flex flex-wrap items-center gap-[18px] p-[22px]">
             <span className="relative size-[76px] shrink-0">
-              <Avatar
-                name={fullName}
-                initials={initials}
-                src={avatarUrl}
-                className="size-[76px] border-4 border-background from-avatar-from to-violet-border text-[32px] leading-[33px] shadow-avatar"
-              />
+              {/* The photo opens a larger preview (or the upload when there is no photo yet); the camera uploads. */}
+              <button
+                type="button"
+                aria-label={avatarUrl ? "View photo" : "Add photo"}
+                onClick={() => (avatarUrl ? setViewOpen(true) : setUploadOpen(true))}
+                className="block rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/40"
+              >
+                <Avatar
+                  name={fullName}
+                  initials={initials}
+                  src={avatarUrl}
+                  className={AVATAR_STYLE}
+                />
+              </button>
               <button
                 type="button"
                 aria-label="Change photo"
@@ -222,6 +235,20 @@ export function ProfileCard({
         onUpload={upload}
         cropCircle
       />
+      <PhotoPreviewModal
+        open={viewOpen}
+        onClose={() => setViewOpen(false)}
+        title="Profile photo"
+        changeLabel="Change photo"
+        onChange={() => setUploadOpen(true)}
+      >
+        <Avatar
+          name={fullName}
+          initials={initials}
+          src={avatarUrl}
+          className={`${AVATAR_STYLE} size-60 text-6xl`}
+        />
+      </PhotoPreviewModal>
     </SettingsCard>
   );
 }

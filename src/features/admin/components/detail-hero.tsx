@@ -103,7 +103,7 @@ export function DetailSection({
           {title}
         </h3>
         {aside && (
-          <span className="text-[13px] text-muted-foreground">{aside}</span>
+          <span className="text-xs text-muted-foreground">{aside}</span>
         )}
       </header>
       {children}
@@ -132,15 +132,15 @@ export function DetailCard({
       <header className="mx-[15px] flex items-center gap-3 border-b border-border py-3.5">
         <span
           aria-hidden
-          className="grid size-7 shrink-0 place-items-center rounded-full bg-brand-soft text-brand [&_svg]:size-3.5"
+          className="grid size-9 shrink-0 place-items-center rounded-[10px] bg-brand-soft text-brand [&_svg]:size-[18px]"
         >
           {icon}
         </span>
-        <h3 className="flex-1 text-sm font-bold text-foreground">
+        <h3 className="flex-1 font-heading text-base leading-6 font-semibold text-foreground">
           {title}
         </h3>
         {aside && (
-          <span className="text-[13px] text-muted-foreground">{aside}</span>
+          <span className="text-xs text-muted-foreground">{aside}</span>
         )}
       </header>
       {/* Same inset as the header, so every divider line in the card stops short of the edges. */}
@@ -180,9 +180,9 @@ export function InfoTile({
       >
         {icon}
       </span>
-      <div className="min-w-0 text-sm leading-5">
-        <dt className="text-muted-foreground">{label}</dt>
-        <dd className={cn("truncate font-semibold", tone?.text ?? "text-foreground")}>
+      <div className="min-w-0">
+        <dt className="text-xs text-muted-foreground">{label}</dt>
+        <dd className={cn("truncate text-[15px] leading-6 font-medium", tone?.text ?? "text-foreground")}>
           {value}
         </dd>
         {hint && <dd className="truncate text-[13px] text-placeholder">{hint}</dd>}

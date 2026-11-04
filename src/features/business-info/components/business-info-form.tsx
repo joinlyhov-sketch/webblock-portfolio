@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Camera, Link as LinkIcon, Location, Mobile, Sms } from "iconsax-reactjs";
 import { updateBusinessInfoAction } from "../actions";
+import { PhotoPreviewModal } from "@/components/common/photo-preview-modal";
 import { toast } from "@/components/common/toast";
 import { UploadImageModal } from "@/components/common/upload-image-modal";
 import { Button } from "@/components/ui/button";
@@ -65,6 +66,7 @@ export function BusinessInfoForm({
   const [logoPreview, setLogoPreview] = useState<string | null>(info.logoUrl);
   const [logoError, setLogoError] = useState<string | null>(null);
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [viewOpen, setViewOpen] = useState(false);
 
   const handled = useRef(state);
   useEffect(() => {
@@ -120,32 +122,37 @@ export function BusinessInfoForm({
 
       <InfoCard className="p-2.5">
         {/* The picked logo shows in the site header right away, before Save changes. */}
-        <SiteBanner
-          website={website}
-          preview={preview}
-          logoUrl={logoPreview}
-          label="Preview: goes live on your next deploy"
-          compactLabel="Preview"
-        />
+        <SiteBanner website={website} preview={preview} logoUrl={logoPreview} />
         <div className="flex flex-col gap-4 px-4 pt-4 pb-3 sm:flex-row sm:items-center">
           <div className="flex min-w-0 flex-1 items-center gap-4">
           <div className="relative shrink-0">
-            {/* The whole logo opens the upload popup: a drop zone is easier to hit than the small badge. */}
+            {/* The logo opens a larger preview (or the upload when there is no logo yet); the camera uploads. */}
+            <button
+              type="button"
+              aria-label={logoPreview ? "View logo" : "Add logo"}
+              onClick={() => (logoPreview ? setViewOpen(true) : setUploadOpen(true))}
+              className="block rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/40"
+            >
+              <BusinessMark name={website.name} logoUrl={logoPreview} />
+            </button>
             <button
               type="button"
               aria-label="Change logo"
               aria-describedby={photoError ? "logo-error" : undefined}
               onClick={() => setUploadOpen(true)}
-              className="group relative block rounded-xl outline-none focus-visible:ring-3 focus-visible:ring-ring/40"
+              className="absolute -right-1 -bottom-1 flex size-6 items-center justify-center rounded-full border-2 border-background bg-brand-soft text-brand-strong outline-none transition-colors hover:bg-primary-soft focus-visible:ring-3 focus-visible:ring-ring/40"
             >
-              <BusinessMark name={website.name} logoUrl={logoPreview} />
-              <span
-                aria-hidden
-                className="absolute -right-1 -bottom-1 flex size-6 items-center justify-center rounded-full border-2 border-background bg-brand-soft text-brand-strong transition-colors group-hover:bg-primary-soft"
-              >
-                <Camera variant="Outline" className="size-3" />
-              </span>
+              <Camera variant="Outline" className="size-3" aria-hidden />
             </button>
+            <PhotoPreviewModal
+              open={viewOpen}
+              onClose={() => setViewOpen(false)}
+              title="Logo"
+              changeLabel="Change logo"
+              onChange={() => setUploadOpen(true)}
+            >
+              <BusinessMark name={website.name} logoUrl={logoPreview} className="size-60 text-5xl" />
+            </PhotoPreviewModal>
             {/* Holds the picked logo for the form submit; people choose it in the popup. */}
             <input
               ref={logoInput}
