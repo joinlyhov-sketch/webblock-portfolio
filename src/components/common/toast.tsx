@@ -1,17 +1,16 @@
 "use client";
 
-// The only place that imports sonner. Use `toast.success / warning / error` everywhere else.
-import { useSyncExternalStore } from "react";
-import { createPortal } from "react-dom";
+// The only place that imports sonner. Use `toast.success / warning / error / danger` everywhere else.
 import { Toaster as SonnerToaster, toast as sonner } from "sonner";
 import { cn } from "@/lib/utils";
 
-type Variant = "success" | "warning" | "error";
+type Variant = "success" | "warning" | "error" | "danger";
 
 const variants = {
   success: { bar: "bg-success", title: "text-success" },
   warning: { bar: "bg-warning", title: "text-warning" },
   error: { bar: "bg-danger", title: "text-danger" },
+  danger: { bar: "bg-danger", title: "text-danger" },
 } satisfies Record<Variant, { bar: string; title: string }>;
 
 function show(variant: Variant, title: string, message?: string) {
@@ -44,36 +43,16 @@ export const toast = {
   success: (title: string, message?: string) => show("success", title, message),
   warning: (title: string, message?: string) => show("warning", title, message),
   error: (title: string, message?: string) => show("error", title, message),
+  /** Red toast for destructive actions (e.g. deletions). */
+  danger: (title: string, message?: string) => show("danger", title, message),
 };
 
-// A native modal <dialog> sits in the browser's top layer, above <body> whatever the z-index, and makes
-// everything outside it inert. So the toasts live in one host element that moves into the open dialog
-// and back out when it closes. Moving the host keeps the toasts on screen (no remount).
-let host: HTMLDivElement | null = null;
-const openDialogs: HTMLElement[] = [];
-
-function toastHost(): HTMLDivElement {
-  if (!host) {
-    host = document.createElement("div");
-    document.body.append(host);
-  }
-  return host;
+/** Kept for compatibility; with Radix dialogs toasts stay in body at z-50+. */
+export function raiseToastsInto(): () => void {
+  return () => {};
 }
-
-/** Called by a modal <dialog> once it is open. Returns the function to call when it closes. */
-export function raiseToastsInto(dialog: HTMLElement): () => void {
-  openDialogs.push(dialog);
-  dialog.append(toastHost());
-  return () => {
-    openDialogs.splice(openDialogs.indexOf(dialog), 1);
-    (openDialogs.at(-1) ?? document.body).append(toastHost());
-  };
-}
-
-const subscribe = () => () => {};
 
 /** Mounted once in the root layout. */
 export function Toaster() {
-  const container = useSyncExternalStore(subscribe, toastHost, () => null);
-  return container && createPortal(<SonnerToaster position="top-right" />, container);
+  return <SonnerToaster position="top-right" />;
 }

@@ -81,7 +81,7 @@ export function ProfileCard({
       const result = await removeAvatarAction();
       if (result.ok) {
         setAvatarUrl(result.data.avatarUrl);
-        toast.success(result.message ?? "Photo removed");
+        toast.danger(result.message ?? "Photo removed");
       }
       else toast.error("Could not remove the photo", result.message);
     });
