@@ -47,17 +47,33 @@ export function AppSidebarShell({
         narrow ? "w-[84px]" : "w-[260px]",
       )}
     >
-      <div className={cn("flex items-center pb-5", collapsed ? "flex-col gap-3" : "justify-between pl-1")}>
-        <BrandLogo href="/websites" compact={collapsed} />
-        <button
-          type="button"
-          aria-label={narrow ? "Expand sidebar" : "Collapse sidebar"}
-          aria-expanded={!narrow}
-          onClick={toggle}
-          className={cn("flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-background text-foreground-soft outline-none transition-colors hover:bg-primary-soft focus-visible:ring-3 focus-visible:ring-ring/40", collapsed && "-translate-x-[3px]")}
-        >
-          <SidebarLeft variant="Outline" aria-hidden className={cn("size-4 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none", narrow && "rotate-180")} />
-        </button>
+      <div className={cn("flex items-center pb-5", collapsed ? "justify-center" : "justify-between pl-1")}>
+        {collapsed ? (
+          <button
+            type="button"
+            aria-label="Expand sidebar"
+            title="Expand sidebar"
+            aria-expanded={false}
+            onClick={toggle}
+            className="group/toggle flex size-[42px] shrink-0 items-center justify-center rounded-xl border border-border bg-card text-foreground shadow-xs outline-none transition-[color,background-color,border-color,transform] hover:scale-105 hover:border-brand/40 hover:bg-brand-soft hover:text-brand-deep focus-visible:ring-3 focus-visible:ring-ring/40"
+          >
+            <SidebarLeft variant="Outline" aria-hidden className="size-5 rotate-180 transition-transform duration-200 group-hover/toggle:translate-x-0.5" />
+          </button>
+        ) : (
+          <>
+            <BrandLogo href="/websites" />
+            <button
+              type="button"
+              aria-label="Collapse sidebar"
+              title="Collapse sidebar"
+              aria-expanded={true}
+              onClick={toggle}
+              className="group/toggle flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-background text-foreground-soft outline-none transition-colors hover:border-brand/40 hover:bg-brand-soft hover:text-brand-deep focus-visible:ring-3 focus-visible:ring-ring/40"
+            >
+              <SidebarLeft variant="Outline" aria-hidden className="size-4 transition-transform duration-200 group-hover/toggle:-translate-x-0.5" />
+            </button>
+          </>
+        )}
       </div>
 
       <SidebarNav items={userNav} collapsed={collapsed} />

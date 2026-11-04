@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 /** `containerClassName` styles the scrolling wrapper, e.g. `min-h-0` so it can scroll inside a fixed-height card. */
 export function Table({ className, containerClassName, ...props }: ComponentProps<"table"> & { containerClassName?: string }) {
   return (
-    <div className={cn("relative w-full overflow-x-auto", containerClassName)}>
+    <div className={cn("relative w-full overflow-auto thin-scrollbar", containerClassName)}>
       <table className={cn("w-full caption-bottom border-collapse text-sm", className)} {...props} />
     </div>
   );

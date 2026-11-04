@@ -1,9 +1,13 @@
-import type { ReactNode } from "react";
+"use client";
+
+import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { Activity, Box, CloseCircle, Edit2, Send2, TickCircle } from "iconsax-reactjs";
 import { Avatar } from "@/components/common/avatar";
 import { CompactTable } from "@/components/common/compact-table";
 import { EmptyState } from "@/components/common/empty-state";
+import { Modal } from "@/components/common/modal";
+import { SegmentedTabs } from "@/components/common/segmented-tabs";
 import { PageHeader } from "@/components/common/page-header";
 import { StatusBadge } from "@/components/common/status-badge";
 import { formatDayMonthYear, formatDuration, formatRelativeTime, formatTime } from "@/lib/format";
@@ -129,7 +133,7 @@ export function MonitorView({ data, websiteId }: { data: MonitorData; websiteId:
         <DeployResults stats={stats} />
       </div>
 
-      <div className={cn("grid gap-4", activity && "xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]")}>
+      <div className={cn("grid items-start gap-4", activity && "xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]")}>
         {activity && <ActivityLog events={activity} />}
         <RecentDeploys rows={deploys} compact={Boolean(activity)} websiteId={websiteId} />
       </div>
@@ -137,21 +141,42 @@ export function MonitorView({ data, websiteId }: { data: MonitorData; websiteId:
   );
 }
 
-function TableCard({ title, children }: { title: string; children: ReactNode }) {
+function TableCard({
+  title,
+  count,
+  aside,
+  children,
+}: {
+  title: string;
+  count?: number;
+  aside?: ReactNode;
+  children: ReactNode;
+}) {
   return (
     <section className="overflow-hidden rounded-[20px] border border-border bg-background shadow-surface">
-      <h2 className="border-b border-border px-4 py-3.5 font-sans sm:px-5 sm:py-4 text-[17px] leading-6 font-semibold text-foreground">
-        {title}
-      </h2>
+      <div className="flex items-center justify-between border-b border-border px-4 py-3.5 sm:px-5 sm:py-4">
+        <div className="flex items-center gap-2">
+          <h2 className="font-sans text-[17px] leading-6 font-semibold text-foreground">
+            {title}
+          </h2>
+          {typeof count === "number" && count > 0 && (
+            <span className="inline-flex h-5 items-center rounded-full bg-muted px-2 text-[11px] font-medium text-muted-foreground">
+              {count}
+            </span>
+          )}
+        </div>
+        {aside}
+      </div>
       {children}
     </section>
   );
 }
 
 function RecentDeploys({ rows, compact, websiteId }: { rows: DeployRow[]; compact: boolean; websiteId: string }) {
+
   return (
-    <TableCard title="Recent deploys">
-      <ul className="divide-y divide-border sm:hidden">
+    <TableCard title="Recent deploys" count={rows.length}>
+      <ul className="max-h-[340px] divide-y divide-border overflow-y-auto thin-scrollbar sm:hidden">
         {rows.length === 0 ? (
           <li className="px-4 py-6 text-center text-sm text-muted-foreground">
             No deploys yet. Deploy from the editor to put your website online.
@@ -173,6 +198,7 @@ function RecentDeploys({ rows, compact, websiteId }: { rows: DeployRow[]; compac
       <div className="hidden px-5 pt-3 pb-2 sm:block">
         <CompactTable
           label="Recent deploys"
+          containerClassName="max-h-[340px] thin-scrollbar pb-2"
           rows={rows}
           rowKey={(row) => row.id}
           empty={
@@ -243,31 +269,49 @@ function ActivityIcon({ event }: { event: ActivityEvent }) {
 }
 
 function ActivityLog({ events }: { events: ActivityEvent[] }) {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
   return (
-    <TableCard title="Recent activity log">
-      <ul className="divide-y divide-border sm:hidden">
-        {events.length === 0 ? (
-          <li className="px-4 py-6 text-center text-sm text-muted-foreground">No activity yet.</li>
-        ) : (
-          events.map((event) => (
-            <li key={event.id} className="flex items-start gap-3 px-4 py-3">
-              <ActivityIcon event={event} />
-              <div className="min-w-0 flex-1">
-                <p className="text-sm leading-5 text-foreground">{event.title}</p>
-                {event.detail && <p className="text-xs text-danger">{event.detail}</p>}
-                <p className="pt-0.5 text-xs text-muted-foreground">
-                  {ACTIVITY_TYPE[event.type].label} · {formatDayMonthYear(event.occurredAt)}, {formatTime(event.occurredAt)}
-                </p>
-              </div>
-            </li>
-          ))
-        )}
-      </ul>
-      <div className="hidden px-5 pt-3 pb-2 sm:block">
-        <CompactTable
-          label="Recent activity"
-          className="min-w-0"
-          rows={events}
+    <>
+      <TableCard
+        title="Recent activity log"
+        count={events.length}
+        aside={
+          events.length > 0 ? (
+            <button
+              type="button"
+              onClick={() => setDrawerOpen(true)}
+              className="text-xs font-semibold text-primary transition-colors hover:underline sm:text-sm"
+            >
+              View all
+            </button>
+          ) : null
+        }
+      >
+        <ul className="max-h-[340px] divide-y divide-border overflow-y-auto thin-scrollbar sm:hidden">
+          {events.length === 0 ? (
+            <li className="px-4 py-6 text-center text-sm text-muted-foreground">No activity yet.</li>
+          ) : (
+            events.map((event) => (
+              <li key={event.id} className="flex items-start gap-3 px-4 py-3">
+                <ActivityIcon event={event} />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm leading-5 text-foreground">{event.title}</p>
+                  {event.detail && <p className="text-xs text-danger">{event.detail}</p>}
+                  <p className="pt-0.5 text-xs text-muted-foreground">
+                    {ACTIVITY_TYPE[event.type].label} · {formatDayMonthYear(event.occurredAt)}, {formatTime(event.occurredAt)}
+                  </p>
+                </div>
+              </li>
+            ))
+          )}
+        </ul>
+        <div className="hidden px-5 pt-3 pb-2 sm:block">
+          <CompactTable
+            label="Recent activity"
+            className="min-w-0"
+            containerClassName="max-h-[340px] thin-scrollbar pb-2"
+            rows={events}
           rowKey={(event) => event.id}
           empty={
             <EmptyState
@@ -322,5 +366,115 @@ function ActivityLog({ events }: { events: ActivityEvent[] }) {
         />
       </div>
     </TableCard>
+
+    <ActivityLogDrawer
+      open={drawerOpen}
+      onClose={() => setDrawerOpen(false)}
+      events={events}
+    />
+  </>
+  );
+}
+
+function ActivityLogDrawer({
+  open,
+  onClose,
+  events,
+}: {
+  open: boolean;
+  onClose: () => void;
+  events: ActivityEvent[];
+}) {
+  const [filter, setFilter] = useState<"ALL" | ActivityType>("ALL");
+
+  const filtered = filter === "ALL" ? events : events.filter((e) => e.type === filter);
+
+  const counts: Record<"ALL" | ActivityType, number> = {
+    ALL: events.length,
+    DEPLOY: events.filter((e) => e.type === "DEPLOY").length,
+    PRODUCT: events.filter((e) => e.type === "PRODUCT").length,
+    BUSINESS_INFO: events.filter((e) => e.type === "BUSINESS_INFO").length,
+  };
+
+  const tabs = [
+    { value: "ALL", label: "All", count: counts.ALL },
+    { value: "DEPLOY", label: "Deploy", count: counts.DEPLOY },
+    { value: "PRODUCT", label: "Product", count: counts.PRODUCT },
+    { value: "BUSINESS_INFO", label: "Business info", count: counts.BUSINESS_INFO },
+  ];
+
+  return (
+    <Modal
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) onClose();
+      }}
+      side="right"
+      title="Recent activity log"
+      description="All deploys and changes to products and business information for this website."
+      className="w-[calc(100vw-16px)] max-w-[620px] rounded-l-3xl rounded-r-none md:w-[580px]"
+      footer={
+        <div className="flex w-full items-center justify-between text-xs text-muted-foreground">
+          <span>
+            Showing {filtered.length} of {events.length} {events.length === 1 ? "event" : "events"}
+          </span>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg border border-border px-3.5 py-1.5 text-xs font-semibold text-foreground transition-colors hover:bg-muted"
+          >
+            Close
+          </button>
+        </div>
+      }
+    >
+      <div className="flex flex-col gap-4 pt-4">
+        <SegmentedTabs
+          label="Filter activity by type"
+          size="sm"
+          tabs={tabs.map((tab) => ({
+            label: tab.label,
+            count: tab.count,
+            active: filter === tab.value,
+            onSelect: () => setFilter(tab.value as "ALL" | ActivityType),
+          }))}
+        />
+
+        <div className="thin-scrollbar divide-y divide-border pr-1">
+          {filtered.length === 0 ? (
+            <div className="py-12 text-center text-sm text-muted-foreground">
+              No {filter === "ALL" ? "activity" : `${ACTIVITY_TYPE[filter].label.toLowerCase()} activity`} recorded yet.
+            </div>
+          ) : (
+            <ul className="divide-y divide-border">
+              {filtered.map((event) => (
+                <li key={event.id} className="flex items-start gap-3 py-3.5">
+                  <ActivityIcon event={event} />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-baseline justify-between gap-2">
+                      <p className="text-sm font-semibold text-foreground">{event.title}</p>
+                      <span className="text-xs text-muted-foreground">
+                        {formatDayMonthYear(event.occurredAt)}, {formatTime(event.occurredAt)}
+                      </span>
+                    </div>
+                    {event.detail && <p className="pt-0.5 text-xs text-danger">{event.detail}</p>}
+                    <div className="mt-1.5 flex items-center gap-2">
+                      <span
+                        className={cn(
+                          "rounded-md px-2 py-0.5 text-[11px] font-medium tracking-wide",
+                          ACTIVITY_TYPE[event.type].className,
+                        )}
+                      >
+                        {ACTIVITY_TYPE[event.type].label}
+                      </span>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+    </Modal>
   );
 }

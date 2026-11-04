@@ -113,20 +113,57 @@
   body:has([data-mobile-ui]) *, body:has([data-mobile-ui]) *::before, body:has([data-mobile-ui]) *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
 
-* {
+html,
+body {
   scrollbar-width: none;
-
   -ms-overflow-style: none;
 }
 
-*::-webkit-scrollbar {
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
   width: 0;
   height: 0;
   display: none;
 }
 
-* {
+/* Ultra-thin (4px) designer hairline scrollbar */
+.thin-scrollbar {
+  scrollbar-width: thin !important;
+  scrollbar-color: rgb(148 163 184 / 0.8) rgb(226 232 240 / 0.5) !important;
+  -ms-overflow-style: auto !important;
+}
 
+.thin-scrollbar::-webkit-scrollbar {
+  width: 4px !important;
+  height: 4px !important;
+  display: block !important;
+}
+
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: rgb(226 232 240 / 0.5) !important;
+  border-radius: 9999px !important;
+  display: block !important;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 9999px !important;
+  background: rgb(148 163 184 / 0.8) !important;
+  display: block !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand) !important;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb:active {
+  background: var(--color-brand-strong) !important;
+}
+
+.thin-scrollbar::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 /*

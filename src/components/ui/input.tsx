@@ -18,6 +18,8 @@ type InputProps = Omit<ComponentProps<"input">, "size"> & {
   icon?: ReactNode;
   /** Extra classes for the icon holder, e.g. to move the icon closer to the edge. */
   iconClassName?: string;
+  /** Trailing slot shown inside the field, on the right (e.g. eye toggle, currency symbol). */
+  trailing?: ReactNode;
 };
 
 /**
@@ -28,18 +30,25 @@ type InputProps = Omit<ComponentProps<"input">, "size"> & {
  * <Input id="search" name="q" icon={<SearchNormal1 />} placeholder="Search" />
  * <Input id="email" name="email" type="email" size="lg" aria-invalid={!!error} />
  */
-export function Input({ className, size = "md", icon, iconClassName, type = "text", ...props }: InputProps) {
-  const classes = cn(fieldClasses, sizeClasses[size], icon && "pl-11", className);
-  if (!icon) return <input type={type} className={classes} {...props} />;
+export function Input({ className, size = "md", icon, iconClassName, trailing, type = "text", ...props }: InputProps) {
+  const classes = cn(fieldClasses, sizeClasses[size], className, icon && "pl-11", trailing && "pr-11");
+  if (!icon && !trailing) return <input type={type} className={classes} {...props} />;
   return (
     <div className="relative">
-      <span
-        aria-hidden
-        className={cn("pointer-events-none absolute inset-y-0 left-4 flex items-center text-muted-foreground [&_svg]:size-[18px]", iconClassName)}
-      >
-        {icon}
-      </span>
+      {icon && (
+        <span
+          aria-hidden
+          className={cn("pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-muted-foreground [&_svg]:size-[18px]", iconClassName)}
+        >
+          {icon}
+        </span>
+      )}
       <input type={type} className={classes} {...props} />
+      {trailing && (
+        <span className="absolute inset-y-0 right-3.5 flex items-center text-muted-foreground">
+          {trailing}
+        </span>
+      )}
     </div>
   );
 }

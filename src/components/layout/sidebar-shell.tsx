@@ -43,28 +43,50 @@ export function SidebarShell({
         className,
       )}
     >
-      <div className={cn("mb-4 flex items-center pt-1", collapsed ? "flex-col gap-3" : "justify-between gap-2")}>
-        <Link
-          href={homeHref}
-          aria-label={collapsed ? siteConfig.name : undefined}
-          className="flex min-w-0 items-center rounded-lg px-2 outline-none focus-visible:ring-3 focus-visible:ring-ring/40"
-        >
-          {collapsed ? <LogoMark className="h-8" /> : <Logo />}
-        </Link>
-        {onToggleCollapsed && (
-          <button
-            type="button"
-            aria-label={narrow ? "Expand sidebar" : "Collapse sidebar"}
-            aria-expanded={!narrow}
-            onClick={onToggleCollapsed}
-            className={cn(
-              "flex shrink-0 items-center justify-center rounded-full border border-border bg-background text-foreground-soft outline-none transition-colors hover:bg-primary-soft focus-visible:ring-3 focus-visible:ring-ring/40",
-              // In the icon rail it is as wide and as tall as the nav buttons below it.
-              collapsed ? "mx-auto size-[42px] -translate-x-[3px]" : "size-8",
+      <div className={cn("mb-4 flex items-center pt-1", collapsed ? "justify-center" : "justify-between gap-2")}>
+        {collapsed ? (
+          onToggleCollapsed ? (
+            <button
+              type="button"
+              aria-label="Expand sidebar"
+              title="Expand sidebar"
+              aria-expanded={false}
+              onClick={onToggleCollapsed}
+              className="group/toggle flex size-[42px] shrink-0 items-center justify-center rounded-xl border border-border bg-card text-foreground shadow-xs outline-none transition-[color,background-color,border-color,transform] hover:scale-105 hover:border-brand/40 hover:bg-brand-soft hover:text-brand-deep focus-visible:ring-3 focus-visible:ring-ring/40"
+            >
+              <SidebarLeft variant="Outline" aria-hidden className="size-5 rotate-180 transition-transform duration-200 group-hover/toggle:translate-x-0.5" />
+            </button>
+          ) : (
+            <Link
+              href={homeHref}
+              aria-label={siteConfig.name}
+              className="flex size-[42px] shrink-0 items-center justify-center rounded-xl outline-none focus-visible:ring-3 focus-visible:ring-ring/40"
+            >
+              <LogoMark className="h-8" />
+            </Link>
+          )
+        ) : (
+          <>
+            <Link
+              href={homeHref}
+              aria-label={siteConfig.name}
+              className="flex min-w-0 items-center rounded-lg px-2 outline-none focus-visible:ring-3 focus-visible:ring-ring/40"
+            >
+              <Logo />
+            </Link>
+            {onToggleCollapsed && (
+              <button
+                type="button"
+                aria-label="Collapse sidebar"
+                title="Collapse sidebar"
+                aria-expanded={true}
+                onClick={onToggleCollapsed}
+                className="group/toggle flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-background text-foreground-soft outline-none transition-colors hover:border-brand/40 hover:bg-brand-soft hover:text-brand-deep focus-visible:ring-3 focus-visible:ring-ring/40"
+              >
+                <SidebarLeft variant="Outline" aria-hidden className="size-4 transition-transform duration-200 group-hover/toggle:-translate-x-0.5" />
+              </button>
             )}
-          >
-            <SidebarLeft variant="Outline" aria-hidden className={cn("size-4 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none", narrow && "rotate-180")} />
-          </button>
+          </>
         )}
       </div>
       {children}

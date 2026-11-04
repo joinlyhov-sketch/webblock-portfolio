@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
-import { Lock1 } from "iconsax-reactjs";
+import { Eye, EyeSlash, Lock1 } from "iconsax-reactjs";
 import { setPasswordAction } from "../actions";
 import { toast } from "@/components/common/toast";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,9 @@ export function PasswordCard({ hasPassword }: { hasPassword: boolean }) {
   const [currentPassword, setCurrentPassword] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [touched, setTouched] = useState({ currentPassword: false, password: false, confirmPassword: false });
 
   const [prevState, setPrevState] = useState(state);
@@ -26,6 +29,9 @@ export function PasswordCard({ hasPassword }: { hasPassword: boolean }) {
       setCurrentPassword("");
       setPassword("");
       setConfirmPassword("");
+      setShowCurrent(false);
+      setShowPassword(false);
+      setShowConfirm(false);
       setTouched({ currentPassword: false, password: false, confirmPassword: false });
       setSubmittedValues(null);
     }
@@ -101,7 +107,19 @@ export function PasswordCard({ hasPassword }: { hasPassword: boolean }) {
             <Input
               id="currentPassword"
               name="currentPassword"
-              type="password"
+              type={showCurrent ? "text" : "password"}
+              icon={<Lock1 variant="Outline" />}
+              trailing={
+                <button
+                  type="button"
+                  onClick={() => setShowCurrent((v) => !v)}
+                  aria-label={showCurrent ? "Hide current password" : "Show current password"}
+                  aria-pressed={showCurrent}
+                  className="rounded text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary"
+                >
+                  {showCurrent ? <EyeSlash variant="Outline" className="size-[17px]" /> : <Eye variant="Outline" className="size-[17px]" />}
+                </button>
+              }
               value={currentPassword}
               onChange={(event) => {
                 setCurrentPassword(event.target.value);
@@ -121,7 +139,19 @@ export function PasswordCard({ hasPassword }: { hasPassword: boolean }) {
             <Input
               id="password"
               name="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
+              icon={<Lock1 variant="Outline" />}
+              trailing={
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? "Hide new password" : "Show new password"}
+                  aria-pressed={showPassword}
+                  className="rounded text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary"
+                >
+                  {showPassword ? <EyeSlash variant="Outline" className="size-[17px]" /> : <Eye variant="Outline" className="size-[17px]" />}
+                </button>
+              }
               value={password}
               onChange={(event) => {
                 setPassword(event.target.value);
@@ -145,7 +175,19 @@ export function PasswordCard({ hasPassword }: { hasPassword: boolean }) {
             <Input
               id="confirmPassword"
               name="confirmPassword"
-              type="password"
+              type={showConfirm ? "text" : "password"}
+              icon={<Lock1 variant="Outline" />}
+              trailing={
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm((v) => !v)}
+                  aria-label={showConfirm ? "Hide confirm password" : "Show confirm password"}
+                  aria-pressed={showConfirm}
+                  className="rounded text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary"
+                >
+                  {showConfirm ? <EyeSlash variant="Outline" className="size-[17px]" /> : <Eye variant="Outline" className="size-[17px]" />}
+                </button>
+              }
               value={confirmPassword}
               onChange={(event) => {
                 setConfirmPassword(event.target.value);

@@ -49,7 +49,7 @@ const itemClass = (active: boolean, compact = false, collapsed = false) =>
     "flex w-full items-center rounded-full transition-[color,background-color,padding,gap] duration-200 ease-out outline-none focus-visible:ring-3 focus-visible:ring-ring/40 motion-reduce:transition-none",
     compact ? "h-9 text-[13px]" : "h-[42px] text-sm",
     collapsed
-      ? cn("mx-auto justify-center gap-0 px-0 -translate-x-[3px]", compact ? "size-9" : "size-[42px]")
+      ? cn("mx-auto justify-center gap-0 px-0", compact ? "size-9" : "size-[42px]")
       : "gap-3 px-3",
     active
       ? "bg-brand-soft font-semibold text-brand-deep"
@@ -97,7 +97,7 @@ export function NavIconGlyph({ item, compact = false }: { item: NavItem; compact
         aria-hidden="true"
         viewBox="0 0 24 24"
         fill="none"
-        className={cn("shrink-0", compact ? "size-[18px]" : "size-5")}
+        className={cn("shrink-0", compact ? "size-4" : "size-5")}
       >
         <path d="M4 12v-.5a8 8 0 0 1 16 0V12M4 11.5h2.5v6H5a1 1 0 0 1-1-1v-5Zm16 0h-2.5v6H19a1 1 0 0 0 1-1v-5Z" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
         <path d="M6.5 16.5v2a2 2 0 0 0 2 2h1" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
@@ -107,7 +107,7 @@ export function NavIconGlyph({ item, compact = false }: { item: NavItem; compact
   }
 
   const Icon = item.icon ? ICONS[item.icon] : null;
-  return Icon ? <Icon variant="Outline" aria-hidden className={cn("shrink-0", compact ? "size-4" : "size-[18px]")} /> : null;
+  return Icon ? <Icon variant="Outline" aria-hidden className={cn("shrink-0", compact ? "size-4" : "size-5")} /> : null;
 }
 
 function NavLink({
@@ -128,9 +128,11 @@ function NavLink({
       aria-current={active ? "page" : undefined}
       className={itemClass(active, compact, collapsed)}
     >
-      <span className="flex shrink-0 items-center justify-center">
-        <NavIconGlyph item={item} compact={compact} />
-      </span>
+      {item.icon ? (
+        <span className={cn("flex shrink-0 items-center justify-center", compact ? "size-4" : "size-5")}>
+          <NavIconGlyph item={item} compact={compact} />
+        </span>
+      ) : null}
       <span
         className={cn(
           "overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200 ease-out motion-reduce:transition-none",
@@ -174,7 +176,11 @@ function NavGroup({
         onClick={() => setOpen((o) => !o)}
         className={cn(itemClass(false, compact), inside && "text-foreground")}
       >
-        <NavIconGlyph item={item} compact={compact} />
+        {item.icon ? (
+          <span className={cn("flex shrink-0 items-center justify-center", compact ? "size-4" : "size-5")}>
+            <NavIconGlyph item={item} compact={compact} />
+          </span>
+        ) : null}
         <span className="flex-1 text-left">{item.label}</span>
         <ArrowRight2 variant="Outline" aria-hidden className={cn("size-4 transition-transform duration-150", expanded && "rotate-90")} />
       </button>
@@ -220,9 +226,11 @@ function CollapsedNavGroup({
           aria-label={item.label}
           className={cn(itemClass(inside, compact, true), "data-[state=open]:bg-muted")}
         >
-          <span className="flex shrink-0 items-center justify-center">
-            <NavIconGlyph item={item} compact={compact} />
-          </span>
+          {item.icon ? (
+            <span className={cn("flex shrink-0 items-center justify-center", compact ? "size-4" : "size-5")}>
+              <NavIconGlyph item={item} compact={compact} />
+            </span>
+          ) : null}
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent side="right" align="start" sideOffset={12} className="min-w-[200px]">

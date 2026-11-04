@@ -14,32 +14,49 @@ type UploadImageModalProps = {
   rule: ImageRule;
   /** Return `true` when the upload worked; the modal then closes. */
   onUpload: (file: File) => Promise<boolean>;
-  /** Show a circular, adjustable crop before uploading (used for profile photos). */
+  /** Show a circular, adjustable crop before uploading (used for profile photos and logos). */
   cropCircle?: boolean;
+  /** Optional initial file to immediately preview/crop when opening. */
+  initialFile?: File | null;
 };
 
 const CROP_SIZE = 300;
-const CROP_OUTPUT_SIZE = 512;
 
 /** "Upload an image" popup with drag and drop and a file picker. */
-export function UploadImageModal({ open, onClose, rule, onUpload, cropCircle = false }: UploadImageModalProps) {
+export function UploadImageModal({
+  open,
+  onClose,
+  rule,
+  onUpload,
+  cropCircle = false,
+  initialFile = null,
+}: UploadImageModalProps) {
+  const formKey = initialFile ? `${initialFile.name}-${initialFile.lastModified}` : (open ? "open" : "closed");
   return (
     <Modal open={open} onClose={onClose} label="Upload an image" className="max-w-[420px] rounded-[18px] border border-border shadow-dialog">
-      <UploadForm rule={rule} onClose={onClose} onUpload={onUpload} cropCircle={cropCircle} />
+      <UploadForm key={formKey} rule={rule} onClose={onClose} onUpload={onUpload} cropCircle={cropCircle} initialFile={initialFile} />
     </Modal>
   );
 }
 
-function UploadForm({ rule, onClose, onUpload, cropCircle = false }: Pick<UploadImageModalProps, "rule" | "onClose" | "onUpload" | "cropCircle">) {
+function UploadForm({
+  rule,
+  onClose,
+  onUpload,
+  cropCircle = false,
+  initialFile = null,
+}: Pick<UploadImageModalProps, "rule" | "onClose" | "onUpload" | "cropCircle" | "initialFile">) {
   const inputRef = useRef<HTMLInputElement>(null);
   const cropStageRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ pointerX: number; pointerY: number; x: number; y: number } | null>(null);
-  const [file, setFile] = useState<File | null>(null);
+
+  const initialProblem = initialFile ? checkImage(initialFile, rule) : null;
+  const [file, setFile] = useState<File | null>(initialProblem ? null : initialFile);
   const [imageSize, setImageSize] = useState<{ width: number; height: number } | null>(null);
   const [cropSize, setCropSize] = useState(CROP_SIZE);
   const [zoom, setZoom] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(initialProblem);
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -111,17 +128,46 @@ function UploadForm({ rule, onClose, onUpload, cropCircle = false }: Pick<Upload
     const cropWidth = cropSize / scale;
     const sourceX = (image.naturalWidth - cropWidth) / 2 - offset.x / scale;
     const sourceY = (image.naturalHeight - cropWidth) / 2 - offset.y / scale;
+
+    // Output at high resolution (at least 1024px, up to 2048px) so zoomed crops remain sharp on Retina displays
+    const outputSize = Math.min(2048, Math.max(1024, Math.round(cropWidth)));
     const canvas = document.createElement("canvas");
-    canvas.width = CROP_OUTPUT_SIZE;
-    canvas.height = CROP_OUTPUT_SIZE;
+    canvas.width = outputSize;
+    canvas.height = outputSize;
     const context = canvas.getContext("2d");
     if (!context) throw new Error("Could not prepare the cropped photo.");
-    context.drawImage(image, sourceX, sourceY, cropWidth, cropWidth, 0, 0, CROP_OUTPUT_SIZE, CROP_OUTPUT_SIZE);
+
+    // Enable high-quality bicubic resampling for clear, non-blurry output
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = "high";
+
+    context.drawImage(
+      image,
+      Math.max(0, sourceX),
+      Math.max(0, sourceY),
+      Math.min(image.naturalWidth - Math.max(0, sourceX), cropWidth),
+      Math.min(image.naturalHeight - Math.max(0, sourceY), cropWidth),
+      0,
+      0,
+      outputSize,
+      outputSize,
+    );
+
+    const isPng = file.type === "image/png" || file.name.toLowerCase().endsWith(".png");
+    const mimeType = isPng ? "image/png" : "image/jpeg";
+    const quality = isPng ? undefined : 0.96;
+
     const blob = await new Promise<Blob>((resolve, reject) => {
-      canvas.toBlob((result) => result ? resolve(result) : reject(new Error("Could not prepare the cropped photo.")), "image/jpeg", 0.92);
+      canvas.toBlob(
+        (result) => (result ? resolve(result) : reject(new Error("Could not prepare the cropped photo."))),
+        mimeType,
+        quality,
+      );
     });
-    const name = file.name.replace(/\.[^.]+$/, "") || "profile-photo";
-    return new File([blob], `${name}-cropped.jpg`, { type: "image/jpeg", lastModified: Date.now() });
+
+    const ext = isPng ? "png" : "jpg";
+    const name = file.name.replace(/\.[^.]+$/, "") || "photo";
+    return new File([blob], `${name}-cropped.${ext}`, { type: mimeType, lastModified: Date.now() });
   }
 
   async function submit() {
@@ -186,7 +232,7 @@ function UploadForm({ rule, onClose, onUpload, cropCircle = false }: Pick<Upload
             <>
               <div
                 role="img"
-                aria-label="Circular profile photo crop preview. Drag the photo to reposition it."
+                aria-label="Circular photo crop preview. Drag the photo to reposition it."
                 onClick={(event) => event.stopPropagation()}
                 onPointerDown={startCropDrag}
                 onPointerMove={moveCropDrag}
@@ -196,21 +242,20 @@ function UploadForm({ rule, onClose, onUpload, cropCircle = false }: Pick<Upload
                 }}
                 onPointerCancel={() => { dragRef.current = null; }}
                 ref={cropStageRef}
-                className="relative aspect-square w-full max-w-[300px] touch-none cursor-grab overflow-hidden rounded-full bg-slate-200 active:cursor-grabbing"
+                className="relative aspect-square w-full max-w-[300px] touch-none cursor-grab overflow-hidden rounded-full bg-slate-200 active:cursor-grabbing isolate [transform:translateZ(0)]"
               >
-                <Image
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src={previewUrl}
                   alt=""
-                  width={Math.ceil(renderedWidth)}
-                  height={Math.ceil(renderedHeight)}
-                  unoptimized
                   draggable={false}
                   onLoad={(event) => setImageSize({ width: event.currentTarget.naturalWidth, height: event.currentTarget.naturalHeight })}
-                  className="pointer-events-none absolute top-1/2 left-1/2 max-w-none select-none"
+                  className="pointer-events-none absolute top-1/2 left-1/2 max-w-none select-none [image-rendering:-webkit-optimize-contrast] [image-rendering:crisp-edges]"
                   style={{
-                    width: renderedWidth,
-                    height: renderedHeight,
-                    transform: `translate(calc(-50% + ${offset.x}px), calc(-50% + ${offset.y}px))`,
+                    width: `${Math.round(renderedWidth)}px`,
+                    height: `${Math.round(renderedHeight)}px`,
+                    transform: `translate3d(calc(-50% + ${Math.round(offset.x)}px), calc(-50% + ${Math.round(offset.y)}px), 0)`,
+                    willChange: "transform",
                   }}
                 />
                 <span aria-hidden className="pointer-events-none absolute inset-0 rounded-full ring-4 ring-inset ring-primary/30" />
@@ -219,7 +264,7 @@ function UploadForm({ rule, onClose, onUpload, cropCircle = false }: Pick<Upload
                 <label htmlFor="profile-photo-zoom" className="shrink-0 text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">Zoom</label>
                 <input
                   id="profile-photo-zoom"
-                  aria-label="Zoom profile photo crop"
+                  aria-label="Zoom photo crop"
                   type="range"
                   min="1"
                   max="3"

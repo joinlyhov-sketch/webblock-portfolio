@@ -37,7 +37,7 @@ export async function getMonitorView(websiteId: string, now: number = Date.now()
     listDeploys(websiteId, { page: 0, size: RECENT + 2 }),
   ]);
   const hasActivityLog = usage?.plan === "PRO" || usage?.plan === "ULTRA";
-  const activity = hasActivityLog ? (await listActivity(websiteId, { page: 0, size: RECENT })).items : null;
+  const activity = hasActivityLog ? (await listActivity(websiteId, { page: 0, size: 50 })).items : null;
 
   const recent = page.items;
   const live = recent.find((d) => d.status === "SUCCEEDED");

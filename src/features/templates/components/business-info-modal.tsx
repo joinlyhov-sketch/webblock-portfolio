@@ -80,6 +80,7 @@ function BusinessInfoForm({
   const [step, setStep] = useState<1 | 2>(1);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [logo, setLogo] = useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const [values, setValues] = useState({
     businessName: "",
     businessType: "",
@@ -323,7 +324,15 @@ function BusinessInfoForm({
                     </p>
                     <p className="text-xs leading-[18px] text-muted-foreground">Shown in your website header.</p>
                   </div>
-                  <Button variant="secondary" size="sm" onClick={() => logoInput.current?.click()}>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      logoInput.current?.click();
+                    }}
+                  >
                     Replace
                   </Button>
                   <Button variant="ghost" size="sm" onClick={() => setLogo(null)}>
@@ -331,7 +340,31 @@ function BusinessInfoForm({
                   </Button>
                 </div>
               ) : (
-                <div className="flex items-center gap-3 rounded-[14px] border-[1.2px] border-dashed border-dropzone-border bg-dropzone px-3.5 py-3">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => logoInput.current?.click()}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      logoInput.current?.click();
+                    }
+                  }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDragging(true);
+                  }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDragging(false);
+                    chooseLogo(e.dataTransfer.files?.[0]);
+                  }}
+                  className={cn(
+                    "group flex cursor-pointer items-center gap-3 rounded-[14px] border-[1.2px] border-dashed border-dropzone-border bg-dropzone px-3.5 py-3 outline-none transition-[border-color,background-color] hover:border-primary/60 hover:bg-brand-soft/50 focus-visible:ring-3 focus-visible:ring-ring/40",
+                    isDragging && "border-primary bg-brand-soft",
+                  )}
+                >
                   <span
                     aria-hidden
                     className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-background text-primary shadow-[0_3px_4px_rgb(60_120_207/0.12)]"
@@ -342,7 +375,15 @@ function BusinessInfoForm({
                     <p className="text-[13px] leading-[19.5px] font-semibold text-foreground">Upload your logo</p>
                     <p className="text-xs leading-[18px] text-muted-foreground">{LOGO_RULE.label}</p>
                   </div>
-                  <Button variant="secondary" size="sm" onClick={() => logoInput.current?.click()}>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      logoInput.current?.click();
+                    }}
+                  >
                     Choose file
                   </Button>
                 </div>

@@ -40,19 +40,17 @@ const natural: Record<PreviewDevice, { w: number; h: number }> = {
  */
 const FLOAT_COUNT = 10;
 function buildMotionCss() {
-  const pct = (n: number) => +(n * 100).toFixed(2);
   const frames = Array.from({ length: FLOAT_COUNT }, (_, i) => {
-    const d = 0.05 + 0.04 * i;
-    const amp = i === 9 ? 6 : i % 2 ? 10 : 6;
-    return `@keyframes pv-float-${i}{0%{opacity:0;transform:translateY(12px);animation-timing-function:linear}${pct(d)}%{opacity:0;transform:translateY(12px);animation-timing-function:ease-out}${pct(d + 0.3)}%{opacity:1;transform:translateY(0.3px)}${pct(d + 0.35)}%{opacity:1;transform:translateY(0);animation-timing-function:ease-in-out}99.99%{opacity:1;transform:translateY(-${amp}px);animation-timing-function:ease-in-out}100%{opacity:1;transform:translateY(0)}}`;
+    const amp = i === 9 ? 5 : i % 2 ? 8 : 5;
+    return `@keyframes pv-float-${i}{0%,100%{transform:translateY(0);animation-timing-function:ease-in-out}50%{transform:translateY(-${amp}px);animation-timing-function:ease-in-out}}`;
   }).join("");
   return `${frames}
 @keyframes pv-pulse{0%,50%{transform:scale(1);animation-timing-function:ease-out}80%{transform:scale(1.3);animation-timing-function:ease-in-out}100%{transform:scale(1)}}
 @keyframes pv-enter{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
-.pv-float{animation:var(--pv-name) 2s infinite both}
+.pv-float{animation:var(--pv-name) var(--pv-duration, 3.5s) ease-in-out infinite both;animation-delay:var(--pv-delay, 0s)}
 .pv-pulse{animation:pv-pulse 2s infinite}
 .pv-enter{animation:pv-enter .5s cubic-bezier(.22,1,.36,1) both}
-@media (prefers-reduced-motion:reduce){.pv-float,.pv-pulse,.pv-enter{animation:none!important;opacity:1!important}}`;
+@media (prefers-reduced-motion:reduce){.pv-float,.pv-pulse,.pv-enter{animation:none!important;opacity:1!important;transform:none!important}}`;
 }
 const motionCss = buildMotionCss();
 
@@ -337,6 +335,8 @@ export function DevicePreview({
                   width: d.size,
                   height: d.size,
                   ["--pv-name" as string]: `pv-float-${i}`,
+                  ["--pv-duration" as string]: `${3 + (i % 3) * 0.5}s`,
+                  ["--pv-delay" as string]: `${(i * 0.25).toFixed(2)}s`,
                 }}
               >
                 <Image
@@ -352,7 +352,11 @@ export function DevicePreview({
           <div
             aria-hidden
             className="pv-float absolute top-[11.5%] left-7 hidden xl:block"
-            style={{ ["--pv-name" as string]: "pv-float-8" }}
+            style={{
+              ["--pv-name" as string]: "pv-float-8",
+              ["--pv-duration" as string]: "4s",
+              ["--pv-delay" as string]: "0.4s",
+            }}
           >
             <p className={cn(chip, "inline-flex")}>
               <span className="pv-pulse size-2.5 rounded-full bg-primary shadow-[0_0_0_3px_rgb(67_121_214/0.35)]" />
@@ -370,7 +374,11 @@ export function DevicePreview({
           </DeviceStage>
           <div
             className="pv-float pointer-events-none absolute inset-x-0 bottom-4 flex justify-center"
-            style={{ ["--pv-name" as string]: "pv-float-9" }}
+            style={{
+              ["--pv-name" as string]: "pv-float-9",
+              ["--pv-duration" as string]: "4s",
+              ["--pv-delay" as string]: "0.8s",
+            }}
           >
             <p className={cn(chip, "inline-flex")}>
               <Lock1 variant="Outline" aria-hidden className="size-[14px]" />

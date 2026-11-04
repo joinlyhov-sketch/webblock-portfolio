@@ -89,6 +89,8 @@ type Carousel3DProps = {
   items: Carousel3DItem[];
   activeIndex: number;
   onSelect: (index: number) => void;
+  /** Called when the currently active (front) card is clicked. */
+  onActiveCardClick?: (index: number) => void;
   /** Shown instead of the canvas when WebGL is unavailable or the 3D stage fails. */
   fallback?: ReactNode;
   className?: string;
@@ -126,16 +128,22 @@ function Carousel3DStage({
   items,
   activeIndex,
   onSelect,
+  onActiveCardClick,
   className,
 }: Omit<Carousel3DProps, "fallback">) {
   const containerRef = useRef<HTMLDivElement>(null);
   const targetRef = useRef(activeIndex);
   const kickRef = useRef<() => void>(() => {});
   const onSelectRef = useRef(onSelect);
+  const onActiveCardClickRef = useRef(onActiveCardClick);
 
   useEffect(() => {
     onSelectRef.current = onSelect;
   }, [onSelect]);
+
+  useEffect(() => {
+    onActiveCardClickRef.current = onActiveCardClick;
+  }, [onActiveCardClick]);
 
   useEffect(() => {
     targetRef.current = activeIndex;
@@ -149,10 +157,17 @@ function Carousel3DStage({
     // No separate "is WebGL there?" probe: a throwaway context costs as much as the real one
     // (hundreds of ms on slow devices). If this throws (no WebGL, too many open contexts),
     // `StageBoundary` shows the fallback.
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    // The preview cards contain small text, so render the WebGL canvas above standard DPR on
-    // regular displays and keep enough pixels for high-density screens without oversizing it.
-    renderer.setPixelRatio(Math.min(Math.max(window.devicePixelRatio, 2), 3));
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+    const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
+    function updatePixelRatio() {
+      // Render at least DPR 2 on standard displays for supersampling, and match higher device pixel ratios
+      // or browser zoom up to 4 to keep screenshot text and UI razor-sharp without blurriness.
+      const dpr = Math.min(Math.max(window.devicePixelRatio || 1, 2), 4);
+      if (renderer.getPixelRatio() !== dpr) {
+        renderer.setPixelRatio(dpr);
+      }
+    }
+    updatePixelRatio();
     renderer.setClearColor(0x000000, 0);
     const canvas = renderer.domElement;
     canvas.setAttribute("aria-hidden", "true");
@@ -169,7 +184,6 @@ function Carousel3DStage({
     const rimColor = tokenColor("--color-glass-rim");
     const loadingColor = tokenColor("--color-muted");
     const loader = new THREE.TextureLoader();
-    const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
 
     const disposables: { dispose: () => void }[] = [];
     const cards = items.map((item, index) => {
@@ -203,7 +217,10 @@ function Carousel3DStage({
 
       loader.load(item.imageSrc, (texture) => {
         texture.colorSpace = THREE.SRGBColorSpace;
-        texture.anisotropy = maxAnisotropy;
+        texture.generateMipmaps = false;
+        texture.minFilter = THREE.LinearFilter;
+        texture.magFilter = THREE.LinearFilter;
+        if (maxAnisotropy > 1) texture.anisotropy = maxAnisotropy;
         imageMaterial.map = texture;
         imageMaterial.needsUpdate = true;
         disposables.push(texture);
@@ -348,6 +365,7 @@ function Carousel3DStage({
       const rect = container!.getBoundingClientRect();
       width = Math.max(rect.width, 1);
       const height = Math.max(rect.height, 1);
+      updatePixelRatio();
       renderer.setSize(width, height, false);
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
@@ -391,7 +409,13 @@ function Carousel3DStage({
       const { moved } = drag;
       drag = null;
       const index = moved ? (((Math.round(position) % count) + count) % count) : cardAt(event);
-      if (index !== null) onSelectRef.current(index);
+      if (index !== null) {
+        if (!moved && index === targetRef.current && onActiveCardClickRef.current) {
+          onActiveCardClickRef.current(index);
+        } else {
+          onSelectRef.current(index);
+        }
+      }
       kick();
     }
     function onPointerCancel() {
@@ -404,6 +428,21 @@ function Carousel3DStage({
     canvas.addEventListener("pointerup", onPointerUp);
     canvas.addEventListener("pointercancel", onPointerCancel);
 
+    let dprMediaQuery: MediaQueryList | null = null;
+    const onDprChange = () => {
+      listenDpr();
+      resize();
+    };
+    function listenDpr() {
+      if (dprMediaQuery) {
+        dprMediaQuery.removeEventListener("change", onDprChange);
+      }
+      dprMediaQuery = window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
+      dprMediaQuery.addEventListener("change", onDprChange);
+    }
+    listenDpr();
+
+    window.addEventListener("resize", resize);
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(container);
     const inView = new IntersectionObserver(([entry]) => {
@@ -416,8 +455,12 @@ function Carousel3DStage({
     return () => {
       cancelAnimationFrame(raf);
       kickRef.current = () => {};
+      window.removeEventListener("resize", resize);
       resizeObserver.disconnect();
       inView.disconnect();
+      if (dprMediaQuery) {
+        dprMediaQuery.removeEventListener("change", onDprChange);
+      }
       canvas.removeEventListener("pointerdown", onPointerDown);
       canvas.removeEventListener("pointermove", onPointerMove);
       canvas.removeEventListener("pointerup", onPointerUp);

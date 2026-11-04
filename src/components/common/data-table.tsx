@@ -142,7 +142,7 @@ export function DataTable<T>({
           noItems ? "shrink-0" : "min-h-0 grow",
           fill && "overscroll-contain",
           // When only the rows scroll: a thin, quiet bar instead of the thick system one with arrows.
-          "[scrollbar-width:thin] [scrollbar-color:var(--color-border)_transparent]",
+          "thin-scrollbar",
         )}
         className={cn(
           // Fixed layout: column widths come from the header, so they stay put when the row count changes.
