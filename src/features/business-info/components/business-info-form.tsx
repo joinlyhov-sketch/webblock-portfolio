@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Camera, Link as LinkIcon, Location, Mobile, Sms } from "iconsax-reactjs";
 import { updateBusinessInfoAction } from "../actions";
-import { Modal } from "@/components/common/modal";
+import { PhotoPreviewModal } from "@/components/common/photo-preview-modal";
 import { toast } from "@/components/common/toast";
 import { UploadImageModal } from "@/components/common/upload-image-modal";
 import { Button } from "@/components/ui/button";
@@ -144,29 +144,15 @@ export function BusinessInfoForm({
             >
               <Camera variant="Outline" className="size-3" aria-hidden />
             </button>
-            <Modal
-              title="Logo"
-              size="sm"
+            <PhotoPreviewModal
               open={viewOpen}
-              onOpenChange={setViewOpen}
-              footer={
-                <>
-                  <Button variant="secondary" onClick={() => setViewOpen(false)}>
-                    Close
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setViewOpen(false);
-                      setUploadOpen(true);
-                    }}
-                  >
-                    <Camera variant="Outline" aria-hidden /> Change logo
-                  </Button>
-                </>
-              }
+              onClose={() => setViewOpen(false)}
+              title="Logo"
+              changeLabel="Change logo"
+              onChange={() => setUploadOpen(true)}
             >
-              <BusinessMark name={website.name} logoUrl={logoPreview} className="mx-auto my-6 size-60 text-5xl" />
-            </Modal>
+              <BusinessMark name={website.name} logoUrl={logoPreview} className="size-60 text-5xl" />
+            </PhotoPreviewModal>
             {/* Holds the picked logo for the form submit; people choose it in the popup. */}
             <input
               ref={logoInput}

@@ -8,7 +8,7 @@ import {
   uploadAvatarAction,
 } from "../actions";
 import { Avatar } from "@/components/common/avatar";
-import { Modal } from "@/components/common/modal";
+import { PhotoPreviewModal } from "@/components/common/photo-preview-modal";
 import { toast } from "@/components/common/toast";
 import { UploadImageModal } from "@/components/common/upload-image-modal";
 import { Button } from "@/components/ui/button";
@@ -235,34 +235,20 @@ export function ProfileCard({
         onUpload={upload}
         cropCircle
       />
-      <Modal
-        title="Profile photo"
-        size="sm"
+      <PhotoPreviewModal
         open={viewOpen}
-        onOpenChange={setViewOpen}
-        footer={
-          <>
-            <Button variant="secondary" onClick={() => setViewOpen(false)}>
-              Close
-            </Button>
-            <Button
-              onClick={() => {
-                setViewOpen(false);
-                setUploadOpen(true);
-              }}
-            >
-              <Camera variant="Outline" aria-hidden /> Change photo
-            </Button>
-          </>
-        }
+        onClose={() => setViewOpen(false)}
+        title="Profile photo"
+        changeLabel="Change photo"
+        onChange={() => setUploadOpen(true)}
       >
         <Avatar
           name={fullName}
           initials={initials}
           src={avatarUrl}
-          className={`${AVATAR_STYLE} mx-auto my-6 grid size-60 text-6xl`}
+          className={`${AVATAR_STYLE} size-60 text-6xl`}
         />
-      </Modal>
+      </PhotoPreviewModal>
     </SettingsCard>
   );
 }

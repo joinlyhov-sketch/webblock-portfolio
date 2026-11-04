@@ -4,6 +4,7 @@ import { useActionState, useEffect, useState, useTransition } from "react";
 import { Camera } from "iconsax-reactjs";
 import { Avatar } from "@/components/common/avatar";
 import { Modal } from "@/components/common/modal";
+import { PhotoPreviewModal } from "@/components/common/photo-preview-modal";
 import { toast } from "@/components/common/toast";
 import { UploadImageModal } from "@/components/common/upload-image-modal";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,8 @@ import {
   uploadAdminAvatarAction,
 } from "../actions";
 import type { AdminProfile } from "../types";
+
+const AVATAR_STYLE = "size-[76px] border-4 border-background text-[26px] shadow-avatar ring-0";
 
 /** "Edit profile" popup: same fields and photo flow as the user's Settings → Profile (name editable, email locked). */
 export function EditAdminProfileDialog({
@@ -31,6 +34,7 @@ export function EditAdminProfileDialog({
   startWithUpload?: boolean;
 }) {
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [viewOpen, setViewOpen] = useState(false);
   const [removing, startRemove] = useTransition();
   const [nameValue, setNameValue] = useState(profile.fullName);
   const [nameTouched, setNameTouched] = useState(false);
@@ -89,12 +93,15 @@ export function EditAdminProfileDialog({
         <div className="flex flex-col gap-6 px-6 pt-4 pb-6">
           <div className="flex flex-wrap items-center gap-[18px] rounded-[14px] border border-border bg-muted p-[18px]">
             <span className="relative size-[76px] shrink-0">
-              <Avatar
-                variant="solid"
-                name={profile.fullName}
-                src={profile.avatarUrl}
-                className="size-[76px] border-4 border-background text-[26px] shadow-avatar ring-0"
-              />
+              {/* The photo opens a larger preview (or the upload when there is no photo yet); the camera uploads. */}
+              <button
+                type="button"
+                aria-label={profile.avatarUrl ? "View photo" : "Add photo"}
+                onClick={() => (profile.avatarUrl ? setViewOpen(true) : setUploadOpen(true))}
+                className="block rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/40"
+              >
+                <Avatar variant="solid" name={profile.fullName} src={profile.avatarUrl} className={AVATAR_STYLE} />
+              </button>
               <button
                 type="button"
                 aria-label="Change photo"
@@ -174,6 +181,21 @@ export function EditAdminProfileDialog({
           </form>
         </div>
       </Modal>
+
+      <PhotoPreviewModal
+        open={viewOpen}
+        onClose={() => setViewOpen(false)}
+        title="Profile photo"
+        changeLabel="Change photo"
+        onChange={() => setUploadOpen(true)}
+      >
+        <Avatar
+          variant="solid"
+          name={profile.fullName}
+          src={profile.avatarUrl}
+          className={`${AVATAR_STYLE} size-60 text-6xl`}
+        />
+      </PhotoPreviewModal>
 
       <UploadImageModal
         open={uploadOpen}
