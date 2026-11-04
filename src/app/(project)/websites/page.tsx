@@ -1,5 +1,4 @@
 import { requireUser } from "@/lib/auth/session";
-import { getCurrentPlan } from "@/features/account";
 import type { SearchParams } from "@/lib/table-query";
 import { getNotificationsView } from "@/features/notifications";
 import { getTemplatesView } from "@/features/templates";
@@ -14,12 +13,11 @@ export default async function WebsitesPage({
 }) {
   const query = await searchParams;
   const user = await requireUser();
-  const [websites, notifications, templates, businessTypes, plan] = await Promise.all([
+  const [websites, notifications, templates, businessTypes] = await Promise.all([
     getAllWebsites(user.id),
     getNotificationsView(user.id),
     getTemplatesView({}),
     getBusinessTypes(),
-    getCurrentPlan(user.id),
   ]);
 
   return (
@@ -28,7 +26,6 @@ export default async function WebsitesPage({
       notifications={notifications}
       templates={templates.templates}
       businessTypes={businessTypes}
-      plan={plan}
       initialFilter={parseInitialFilter(query)}
     />
   );

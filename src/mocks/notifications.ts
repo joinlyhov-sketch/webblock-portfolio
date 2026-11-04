@@ -1,13 +1,14 @@
-import type { AppNotification } from "@/features/notifications/types";
+import type { NotificationDto } from "@/features/notifications/types";
+import { LANTERN_CAFE_ID, MAPLE_AND_RYE_ID, NORTHPOINT_AUDIO_ID, PETAL_AND_STEM_ID } from "./session";
 import { daysAgo, hoursAgo } from "./time";
 
-export const notifications: AppNotification[] = [
+export const notifications: NotificationDto[] = [
   {
     id: "a1f0c2d4-1111-4a5b-8c6d-0e1f2a3b4c01",
     title: "Petal & Stem",
     message: "Your latest changes are live.",
     kind: "SUCCESS",
-    imageUrl: "/mock/templates/everyday-store.png",
+    websiteId: PETAL_AND_STEM_ID,
     createdAt: hoursAgo(2),
     read: false,
   },
@@ -16,7 +17,7 @@ export const notifications: AppNotification[] = [
     title: "Northpoint Audio",
     message: "Draft saved · deploy it when you’re ready.",
     kind: "INFO",
-    imageUrl: "/mock/templates/clean-mono.png",
+    websiteId: NORTHPOINT_AUDIO_ID,
     createdAt: hoursAgo(3),
     read: false,
   },
@@ -25,7 +26,7 @@ export const notifications: AppNotification[] = [
     title: "WebBlock Billing",
     message: "Your free trial ends in 9 days. Pick a plan.",
     kind: "WARNING",
-    imageUrl: null,
+    websiteId: null,
     createdAt: hoursAgo(4),
     read: false,
   },
@@ -34,7 +35,7 @@ export const notifications: AppNotification[] = [
     title: "WebBlock Support",
     message: "We replied to your message about your website address.",
     kind: "INFO",
-    imageUrl: null,
+    websiteId: null,
     createdAt: hoursAgo(5),
     read: false,
   },
@@ -43,7 +44,7 @@ export const notifications: AppNotification[] = [
     title: "Lantern Café",
     message: "Draft saved · deploy it when you’re ready.",
     kind: "INFO",
-    imageUrl: "/mock/templates/warm-bold.png",
+    websiteId: LANTERN_CAFE_ID,
     createdAt: daysAgo(4),
     read: true,
   },
@@ -52,7 +53,7 @@ export const notifications: AppNotification[] = [
     title: "Maple & Rye Bakery",
     message: "Website created from the Candy pastel template.",
     kind: "SUCCESS",
-    imageUrl: "/mock/templates/sweet-pastel.png",
+    websiteId: MAPLE_AND_RYE_ID,
     createdAt: daysAgo(1),
     read: true,
   },
@@ -61,7 +62,7 @@ export const notifications: AppNotification[] = [
     title: "Petal & Stem",
     message: "Connected to petalandstem.webblock.com.",
     kind: "SUCCESS",
-    imageUrl: "/mock/templates/everyday-store.png",
+    websiteId: PETAL_AND_STEM_ID,
     createdAt: daysAgo(2),
     read: true,
   },
@@ -70,7 +71,7 @@ export const notifications: AppNotification[] = [
     title: "WebBlock",
     message: "Welcome to WebBlock, Sovannarith!",
     kind: "INFO",
-    imageUrl: null,
+    websiteId: null,
     createdAt: daysAgo(5),
     read: true,
   },

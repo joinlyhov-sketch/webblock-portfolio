@@ -1,11 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { ArrowDown2, TickCircle } from "iconsax-reactjs";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { PageHeader } from "@/components/common/page-header";
-import { PillSelect } from "@/components/common/filter-select";
 import { SearchInput } from "@/components/common/search-input";
 import { Pill } from "@/components/common/status-badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { categoryOptions, CATEGORY_BY_PARAM } from "../categories";
 import type { Template } from "../types";
 import { TemplatesGrid } from "./templates-grid";
@@ -105,7 +111,33 @@ export function TemplatesView({
           {visible.length} {visible.length === 1 ? "template" : "templates"}
         </p>
         <span aria-hidden className="h-px flex-1" />
-        <PillSelect label="Category:" value={category} onValueChange={setCategory} options={categoryOptions} />
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              aria-label={`Category: ${categoryOptions.find((option) => option.value === category)?.label ?? "All"}`}
+              className="inline-flex h-[34px] cursor-pointer items-center justify-start gap-1.5 rounded-full border border-border bg-background px-3.5 text-[13px] leading-[19.5px] font-medium text-foreground-soft outline-none transition-[border-color,box-shadow] focus-visible:border-primary focus-visible:ring-3 focus-visible:ring-ring/25 data-[state=open]:border-primary"
+            >
+              <ArrowDown2 variant="Outline" aria-hidden className="size-3.5" />
+              <span>Category:</span>
+              <span>{categoryOptions.find((option) => option.value === category)?.label ?? "All"}</span>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-[180px]">
+            {categoryOptions.map((option) => (
+              <DropdownMenuItem
+                key={option.value || "all"}
+                onSelect={() => setCategory(option.value)}
+                className={`relative w-full pr-8 ${category === option.value ? "font-semibold text-brand-deep" : ""}`}
+              >
+                {option.label}
+                {category === option.value && (
+                  <TickCircle variant="Outline" aria-hidden className="absolute right-2.5 size-4 text-brand" />
+                )}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <TemplatesGrid templates={visible} businessTypes={businessTypes} searching={q !== ""} />

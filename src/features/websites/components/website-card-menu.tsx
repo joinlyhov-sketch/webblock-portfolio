@@ -69,7 +69,7 @@ export function WebsiteCardMenu({
       setDeleteOpen(false);
       if (result.ok) {
         onRemove();
-        toast.success(result.message ?? "Website deleted", `${websiteName} was deleted.`);
+        toast.danger(result.message ?? "Website deleted", `${websiteName} was deleted.`);
       }
       else toast.error("Could not delete the website", result.message);
     });

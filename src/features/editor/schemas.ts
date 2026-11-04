@@ -1,6 +1,9 @@
 // Validates the page document before it is saved. This is where website links are enforced:
 // buttons can only use the CtaAction list, social links must be https://, no free-form hrefs.
 import { z } from "zod";
+import { BLOCK_TYPE_LIMITS, PAGE_BLOCK_LIMIT, countOfType, footerIndex } from "./block-limits";
+import { words } from "./issue-message";
+import type { BlockName } from "./types";
 
 const text = (max: number) => z.string().max(max);
 const imageUrl = z
@@ -55,7 +58,7 @@ export const blocksSchema = z.discriminatedUnion("type", [
       id,
       ...layout,
       eyebrow: text(60),
-      heading: text(30).min(1, "The hero needs a heading."),
+      heading: text(50).min(1, "The hero needs a heading."),
       description: text(200),
       primaryLabel: text(40),
       primaryAction: ctaAction,
@@ -73,7 +76,7 @@ export const blocksSchema = z.discriminatedUnion("type", [
       id,
       ...layout,
       eyebrow: text(60),
-      heading: text(30),
+      heading: text(50),
       body: text(200),
       imageUrl: imageUrl.optional(),
     }),
@@ -85,7 +88,7 @@ export const blocksSchema = z.discriminatedUnion("type", [
       ...layout,
       columns,
       eyebrow: text(60),
-      heading: text(30),
+      heading: text(50),
       viewAllLabel: text(40),
       products: z.array(product).max(12),
     }),
@@ -97,7 +100,7 @@ export const blocksSchema = z.discriminatedUnion("type", [
       ...layout,
       columns,
       eyebrow: text(60),
-      heading: text(30),
+      heading: text(50),
       searchPlaceholder: text(60),
       categories: z.array(z.object({ name: text(40).min(1) })).max(12),
       products: z.array(product).max(200),
@@ -110,7 +113,7 @@ export const blocksSchema = z.discriminatedUnion("type", [
       id,
       ...layout,
       eyebrow: text(60),
-      heading: text(30),
+      heading: text(50),
       body: text(200),
       imageUrl,
       secondImageUrl: imageUrl.optional(),
@@ -120,7 +123,7 @@ export const blocksSchema = z.discriminatedUnion("type", [
   }),
   z.object({
     type: z.literal("VisitUs"),
-    props: z.object({ id, ...layout, eyebrow: text(60), heading: text(30) }),
+    props: z.object({ id, ...layout, eyebrow: text(60), heading: text(50) }),
   }),
   z.object({
     type: z.literal("Footer"),
@@ -184,7 +187,24 @@ export const siteRootSchema = z.object({
 /** The whole Puck document. Unknown block types or props are rejected. */
 export const pageDataSchema = z.object({
   root: z.object({ props: siteRootSchema }),
-  content: z.array(blocksSchema).max(40),
+  content: z
+    .array(blocksSchema)
+    .max(PAGE_BLOCK_LIMIT, `A page holds up to ${PAGE_BLOCK_LIMIT} blocks. Remove some and try again.`)
+    .superRefine((content, ctx) => {
+      for (const [type, limit] of Object.entries(BLOCK_TYPE_LIMITS)) {
+        const count = countOfType(content, type as BlockName);
+        if (count > limit) {
+          ctx.addIssue({
+            code: "custom",
+            message: `A page can have ${limit === 1 ? "one" : `up to ${limit}`} ${words(type)} block${limit === 1 ? "" : "s"}, yours has ${count}. Remove ${count - limit} and try again.`,
+          });
+        }
+      }
+      const footer = footerIndex(content);
+      if (footer !== -1 && footer !== content.length - 1) {
+        ctx.addIssue({ code: "custom", message: "The Footer must be the last block on the page." });
+      }
+    }),
   zones: z.record(z.string(), z.array(blocksSchema)).optional(),
 });
 

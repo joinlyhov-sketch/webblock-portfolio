@@ -1,8 +1,8 @@
-import { Suspense, type ReactNode } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
+"use client";
+
+import type { ReactNode } from "react";
 import { PageHeader } from "@/components/common/page-header";
-import { requireAdmin } from "@/lib/auth/session";
-import { getAdminProfile, listNotifications } from "../api";
+import { useAdminClientData } from "./admin-client-context";
 import { AdminProfileMenu } from "./admin-profile-menu";
 import { NotificationsBell } from "./notifications-bell";
 
@@ -21,24 +21,20 @@ export function AdminPageHeader({
     <PageHeader
       title={title}
       description={description}
+      // Phones: the bell and profile stay beside the title instead of dropping onto their own row.
+      className="max-sm:flex-nowrap max-sm:items-start"
       actions={
         <>
           {children}
-          <Suspense fallback={<><Skeleton className="size-10 rounded-full" /><Skeleton className="size-10 rounded-full" /></>}>
-            <HeaderActions />
-          </Suspense>
+          <HeaderActions />
         </>
       }
     />
   );
 }
 
-async function HeaderActions() {
-  await requireAdmin();
-  const [notifications, profile] = await Promise.all([
-    listNotifications({}, { page: 0, size: 20 }),
-    getAdminProfile(),
-  ]);
+function HeaderActions() {
+  const { notifications, profile } = useAdminClientData();
 
-  return <><NotificationsBell notifications={notifications.items} /><AdminProfileMenu profile={profile} /></>;
+  return <><NotificationsBell notifications={notifications} /><AdminProfileMenu profile={profile} /></>;
 }

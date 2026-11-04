@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { HamburgerMenu } from "iconsax-reactjs";
 import { cn } from "@/lib/utils";
 
 /**
@@ -31,7 +30,7 @@ export function useMobileDrawer() {
 /** Classes for the `<aside>`: fixed and slid off-screen under `md` until the drawer is open. */
 export const drawerClass = (open: boolean) =>
   cn(
-    "max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-50 max-md:w-[260px] max-md:shadow-float max-md:transition-[transform,visibility] max-md:duration-200",
+    "max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-50 max-md:w-[260px] max-md:shadow-float max-md:transition-[transform,visibility] max-md:duration-300 max-md:ease-[cubic-bezier(0.32,0.72,0,1)] max-md:motion-reduce:transition-none",
     open ? "max-md:translate-x-0 max-md:visible" : "max-md:-translate-x-full max-md:invisible",
   );
 
@@ -41,23 +40,32 @@ export function MobileDrawerToggle({ open, onOpenChange, controls }: { open: boo
     <>
       <button
         type="button"
-        aria-label="Open menu"
+        aria-label={open ? "Close menu" : "Open menu"}
         aria-expanded={open}
         aria-controls={controls}
-        onClick={() => onOpenChange(true)}
-        className="fixed top-3 left-[15px] z-40 flex size-11 items-center justify-center rounded-full border border-border bg-background text-foreground shadow-button outline-none focus-visible:ring-3 focus-visible:ring-ring/40 md:hidden"
+        onClick={() => onOpenChange(!open)}
+        className={cn(
+          "fixed top-3 left-[15px] z-40 flex size-11 items-center justify-center rounded-full border border-border bg-background text-foreground shadow-button outline-none transition-[background-color,box-shadow,transform] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:ring-3 focus-visible:ring-ring/40 motion-reduce:transition-none md:hidden",
+          open && "z-[60] bg-background shadow-float",
+        )}
       >
-        <HamburgerMenu variant="Outline" aria-hidden className="size-5" />
+        <span aria-hidden className="relative flex size-5 items-center justify-center">
+          <span className={cn("absolute h-[1.75px] w-[18px] rounded-full bg-current transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none", open ? "translate-y-0 rotate-45" : "-translate-y-[6px]")} />
+          <span className={cn("absolute h-[1.75px] w-[18px] rounded-full bg-current transition-[opacity,transform] duration-150 ease-out motion-reduce:transition-none", open ? "scale-x-0 opacity-0" : "scale-x-100 opacity-100")} />
+          <span className={cn("absolute h-[1.75px] w-[18px] rounded-full bg-current transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none", open ? "translate-y-0 -rotate-45" : "translate-y-[6px]")} />
+        </span>
       </button>
-      {open && (
-        <button
-          type="button"
-          aria-label="Close menu"
-          tabIndex={-1}
-          onClick={() => onOpenChange(false)}
-          className="fixed inset-0 z-40 bg-foreground/40 md:hidden"
-        />
-      )}
+      <button
+        type="button"
+        aria-label="Close menu"
+        tabIndex={-1}
+        aria-hidden={!open}
+        onClick={() => onOpenChange(false)}
+        className={cn(
+          "fixed inset-0 z-40 bg-foreground/40 transition-opacity duration-300 ease-out motion-reduce:transition-none md:hidden",
+          open ? "opacity-100" : "pointer-events-none opacity-0",
+        )}
+      />
     </>
   );
 }

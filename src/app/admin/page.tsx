@@ -1,8 +1,8 @@
+import { OverviewView } from "@/features/admin/components/admin-client-views";
 import {
   getOverview,
   getWebsite,
   listDeploys,
-  OverviewView,
 } from "@/features/admin";
 import { nullIfNotFound } from "@/lib/api/errors";
 import { requireAdmin } from "@/lib/auth/session";
@@ -21,7 +21,7 @@ export default async function AdminOverviewPage({
     typeof query.website === "string" && query.website ? query.website : undefined;
   const [overview, deploys, detail] = await Promise.all([
     getOverview(),
-    listDeploys({}, { page: 0, size: 3 }),
+    listDeploys({ latestOnly: true }, { page: 0, size: 10 }),
     websiteId
       ? Promise.all([
           getWebsite(websiteId),

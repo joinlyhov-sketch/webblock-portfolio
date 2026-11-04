@@ -24,7 +24,7 @@ export function ProductDialogHeader({
       </span>
       <div className="min-w-0 flex-1">
         <h2 className="text-lg leading-6 font-semibold text-foreground">{title}</h2>
-        <p className="truncate text-xs leading-[18px] text-muted-foreground">{subtitle}</p>
+        <p title={subtitle} className="truncate text-xs leading-[18px] text-muted-foreground">{subtitle}</p>
       </div>
       <button
         type="button"
@@ -41,8 +41,10 @@ export function ProductDialogHeader({
 /** Outlined category pill (Figma "Chip"). */
 export function CategoryChip({ category }: { category: string }) {
   return (
-    <span className="inline-flex h-7 items-center rounded-full border border-border bg-background px-3 text-[13px] leading-[19px] font-medium whitespace-nowrap text-foreground-soft">
-      {category}
+    <span className="inline-flex h-7 max-w-full items-center rounded-full border border-border bg-background px-3 text-[13px] leading-[19px] font-medium whitespace-nowrap text-foreground-soft">
+      <span title={category} className="min-w-0 truncate">
+        {category}
+      </span>
     </span>
   );
 }

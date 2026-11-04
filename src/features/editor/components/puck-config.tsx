@@ -41,6 +41,16 @@ export type FieldMeta = {
 
 const meta = (m: FieldMeta) => ({ metadata: m });
 
+/**
+ * Title of a row in a Puck list field (product, category). Owner-typed names can be long: one line,
+ * "…" when too long (full text on hover), so the row's drag and delete buttons stay in view.
+ */
+const itemSummary = (label: string) => (
+  <span title={label} className="min-w-0 truncate">
+    {label}
+  </span>
+);
+
 const text = (label: string, m: FieldMeta = {}, placeholder?: string): Field =>
   ({ type: "text", label, placeholder, ...meta(m) }) as Field;
 const textarea = (label: string, m: FieldMeta = {}): Field =>
@@ -126,7 +136,7 @@ const productFields: Field = {
     category: "",
     imageUrl: null,
   },
-  getItemSummary: (item: { name?: string }) => item.name || "Product",
+  getItemSummary: (item: { name?: string }) => itemSummary(item.name || "Product"),
   ...meta({ group: "Products" }),
 };
 
@@ -258,7 +268,7 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
           { optional: true },
           "Optional · leave empty to hide",
         ),
-        heading: textarea("Heading", { maxLength: 30 }),
+        heading: textarea("Heading", { maxLength: 50 }),
         description: textarea("Description", { maxLength: 200 }),
         primaryLabel: text("Main button text", { group: "Buttons" }),
         primaryAction: cta("Main button goes to"),
@@ -329,7 +339,7 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
           { optional: true },
           "Optional · leave empty to hide",
         ),
-        heading: textarea("Heading", { maxLength: 30 }),
+        heading: textarea("Heading", { maxLength: 50 }),
         body: textarea("Paragraph", { maxLength: 200 }),
         // Optional on older pages, so Puck sees `string | null | undefined`.
         imageUrl: imageField("Image", { templates: ["keyboards"] }) as unknown as Field<string | null | undefined>,
@@ -353,7 +363,7 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
           { optional: true },
           "Optional · leave empty to hide",
         ),
-        heading: textarea("Heading", { maxLength: 30 }),
+        heading: textarea("Heading", { maxLength: 50 }),
         viewAllLabel: text("“View all” link text", { optional: true }),
         products: productFields,
         columns: columnsField,
@@ -378,7 +388,7 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
           { optional: true },
           "Optional · leave empty to hide",
         ),
-        heading: textarea("Heading", { maxLength: 30 }),
+        heading: textarea("Heading", { maxLength: 50 }),
         searchPlaceholder: text("Search placeholder"),
         categories: {
           visible: false,
@@ -386,7 +396,7 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
           label: "Categories",
           arrayFields: { name: text("Name") },
           defaultItemProps: { name: "New category" },
-          getItemSummary: (item: { name?: string }) => item.name || "Category",
+          getItemSummary: (item: { name?: string }) => itemSummary(item.name || "Category"),
           ...meta({ group: "Products" }),
         },
         products: productFields,
@@ -421,7 +431,7 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
           { optional: true },
           "Optional · leave empty to hide",
         ),
-        heading: textarea("Heading", { maxLength: 30 }),
+        heading: textarea("Heading", { maxLength: 50 }),
         body: textarea("Your story", { maxLength: 200 }),
         caption: text("Caption", {
           optional: true,
@@ -464,7 +474,7 @@ export const puckConfig: Config<BlockProps, SiteRootProps> = {
           { optional: true },
           "Optional · leave empty to hide",
         ),
-        heading: textarea("Heading", { maxLength: 30 }),
+        heading: textarea("Heading", { maxLength: 50 }),
         ...layoutFields,
       },
       defaultProps: { eyebrow: "", heading: "Come and see us", ...ALL_LAYOUT },

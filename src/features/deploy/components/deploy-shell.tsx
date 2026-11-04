@@ -61,7 +61,7 @@ export function DeployShell({
             <Element3 variant="Outline" aria-hidden />
           </span>
           <span className="flex flex-col">
-            <span className="max-w-[200px] truncate text-[14px] leading-[18px] font-semibold text-foreground">
+            <span title={siteName} className="max-w-[200px] truncate text-[14px] leading-[18px] font-semibold text-foreground">
               {siteName}
             </span>
             <span className="text-[13px] leading-[18px] text-muted-foreground">

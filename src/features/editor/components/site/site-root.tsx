@@ -26,7 +26,7 @@ export function SiteRoot({ site, children }: { site: SiteRootProps; children: Re
         // scale it to fit. Elsewhere they are unset: full width, no zoom.
         className={cn(
           siteFontVariables,
-          "@container min-h-full [width:var(--canvas-width,auto)] bg-site-bg font-site-body text-site-ink antialiased [zoom:var(--canvas-zoom,1)]",
+          "@container min-h-full [width:var(--canvas-width,auto)] bg-site-bg font-site-body text-site-ink antialiased [zoom:var(--canvas-zoom,1)] transition-[zoom] duration-200 ease-out motion-reduce:transition-none",
         )}
       >
         <Header />

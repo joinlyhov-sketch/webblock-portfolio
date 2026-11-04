@@ -1,5 +1,4 @@
 import type {
-  LogLine,
   PipelineRun,
   PipelineStep,
   StepStatus,
@@ -44,7 +43,7 @@ function steps(
 }
 
 // No image here: `features/admin/monitoring/api.ts` adds it from the website itself.
-export const pipelineRuns: Omit<PipelineRun, "thumbnailUrl">[] = [
+export const pipelineRuns: Omit<PipelineRun, "logoUrl" | "templateSlug">[] = [
   {
     id: "7a1c3e5f-9b2d-4f6a-8c1e-3a5c7e9b0801",
     websiteId: "9b2d4f6a-1c3e-4a5b-8d7f-2e4c6a8b0220",
@@ -586,50 +585,3 @@ export const pipelineRuns: Omit<PipelineRun, "thumbnailUrl">[] = [
   },
 ];
 
-/** Recent request logs of live websites, newest first. */
-export const liveLogs: (LogLine & { websiteId: string })[] = [
-  {
-    id: "l-0201",
-    websiteId: "9b2d4f6a-1c3e-4a5b-8d7f-2e4c6a8b0207",
-    at: at("2026-10-03T08:00:12.001Z"),
-    level: "INFO",
-    method: "GET",
-    path: "/",
-    note: null,
-    statusCode: 200,
-    durationMs: 31,
-  },
-  {
-    id: "l-0202",
-    websiteId: "9b2d4f6a-1c3e-4a5b-8d7f-2e4c6a8b0207",
-    at: at("2026-10-03T08:00:10.480Z"),
-    level: "INFO",
-    method: "GET",
-    path: "/services",
-    note: null,
-    statusCode: 200,
-    durationMs: 44,
-  },
-  {
-    id: "l-0301",
-    websiteId: "9b2d4f6a-1c3e-4a5b-8d7f-2e4c6a8b0210",
-    at: at("2026-10-26T05:10:02.340Z"),
-    level: "ERROR",
-    method: "GET",
-    path: "/menu",
-    note: "render timeout",
-    statusCode: 500,
-    durationMs: 2500,
-  },
-  {
-    id: "l-0302",
-    websiteId: "9b2d4f6a-1c3e-4a5b-8d7f-2e4c6a8b0210",
-    at: at("2026-10-26T05:09:58.010Z"),
-    level: "INFO",
-    method: "GET",
-    path: "/",
-    note: null,
-    statusCode: 200,
-    durationMs: 58,
-  },
-];

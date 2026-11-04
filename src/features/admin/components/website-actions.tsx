@@ -4,7 +4,6 @@ import { useState } from "react";
 import {
   Eye,
   Forbidden2,
-  Global,
   PlayCircle,
   Profile,
   Refresh2,
@@ -40,12 +39,13 @@ type WebsiteRef = Pick<
 
 /** Disabled reason for a live site: the button keeps its normal label. */
 const LIVE_BLOCKED = "Site is live";
+const SUSPENDED_BLOCKED = "Website is suspended";
 
 /** Why redeploy is unavailable, or null when it can run. The backend re-checks all of this. */
 function redeployBlocked(website: WebsiteRef): string | null {
+  if (website.siteStatus === "SUSPENDED") return SUSPENDED_BLOCKED;
   if (website.releaseStatus === "GOING_LIVE") return "Deploying…";
-  // A suspended site can be redeployed; a healthy live one has nothing to redeploy.
-  if (website.siteStatus !== "SUSPENDED" && website.releaseStatus === "LIVE")
+  if (website.releaseStatus === "LIVE")
     return LIVE_BLOCKED;
   if (website.redeploysLeft <= 0) return "No redeploys left";
   return null;
@@ -74,7 +74,6 @@ export function WebsiteRowMenu({
       ? [
           {
             label: "Open live site",
-            icon: <Global variant="Outline" />,
             externalHref: `/sites/${website.id}`,
           },
         ]
@@ -160,7 +159,7 @@ export function WebsiteDetailActions({ website }: { website: WebsiteRef }) {
         onClick={() => run(redeploy(website), `Redeploying ${website.name}`)}
       >
         {!pending && <Refresh2 variant="Outline" />}
-        {blocked && blocked !== LIVE_BLOCKED ? blocked : "Redeploy website"}
+        {blocked && blocked !== LIVE_BLOCKED && blocked !== SUSPENDED_BLOCKED ? blocked : "Redeploy website"}
       </Button>
     </>
   );

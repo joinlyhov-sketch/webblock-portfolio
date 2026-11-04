@@ -27,7 +27,7 @@ export function HowItWorksSteps() {
       <Tracked
         aria-hidden
         tracks={tl.activeCard}
-        className="absolute top-0 right-0 left-[54px] h-1/3 rounded-[20px] bg-brand-soft shadow-hiw-step"
+        className="absolute top-0 right-0 left-[54px] h-1/3 rounded-[20px] border border-white/80 bg-linear-to-br from-brand-soft/90 via-white/55 to-primary-soft/70 shadow-[inset_0_1px_0_rgb(255_255_255/0.9),0_12px_30px_-10px_rgb(60_120_207/0.18)] backdrop-blur-xl"
       />
       {steps.map((step, i) => {
         const number = String(i + 1).padStart(2, "0");

@@ -37,12 +37,12 @@ export function MobileNav({ links }: { links: NavLink[] }) {
           ))}
         </nav>
         <div className="mt-auto flex flex-col gap-2">
-          <Button asChild variant="outline" size="lp-md">
+          <Button asChild variant="secondary" size="lp-md">
             <Link href="/sign-in" onClick={close}>
               Sign in
             </Link>
           </Button>
-          <Button asChild variant="tonal" size="lp-md">
+          <Button asChild variant="primary" size="lp-md">
             <Link href="/register" onClick={close}>
               Start free
             </Link>

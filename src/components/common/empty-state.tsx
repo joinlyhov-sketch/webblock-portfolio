@@ -36,8 +36,8 @@ export function EmptyState({
         >
           {icon}
         </span>
-        <p className="font-heading text-base font-semibold text-foreground">{title}</p>
-        {description && <p className="text-[13px] text-muted-foreground">{description}</p>}
+        <p title={title} className="line-clamp-2 max-w-full font-heading text-base font-semibold wrap-anywhere text-foreground">{title}</p>
+        {description && <p className="max-w-full text-[13px] wrap-anywhere text-muted-foreground">{description}</p>}
         {action && <div className="mt-2">{action}</div>}
       </div>
     );
@@ -57,8 +57,8 @@ export function EmptyState({
         </span>
       </div>
       <div className="h-2.5" />
-      <h3 className="text-[17px] font-semibold">{title}</h3>
-      {description && <p className="text-[13.5px] leading-[21px] text-muted-foreground">{description}</p>}
+      <h3 title={title} className="line-clamp-2 max-w-full text-[17px] font-semibold wrap-anywhere">{title}</h3>
+      {description && <p className="max-w-full text-[13.5px] leading-[21px] wrap-anywhere text-muted-foreground">{description}</p>}
       {action && <div className="pt-2">{action}</div>}
     </div>
   );

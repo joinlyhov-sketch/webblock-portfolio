@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
-import { PortalContainerContext } from "@/components/ui/portal-container";
-import { raiseToastsInto } from "@/components/common/toast";
 import { cn } from "@/lib/utils";
 
 const SIZE = {
@@ -65,63 +63,28 @@ export function Modal(props: ModalProps) {
 }
 
 /**
- * Native `<dialog>`: focus trap, Escape and the blurred backdrop come from the browser.
+ * Bare card using Radix Dialog: focus trap, Escape, blurred backdrop, and proper z-index.
  * Children mount while open and stay through the exit animation, then unmount, so forms reset every time.
  */
 function BareModal({ open, onClose, label, children, className }: BareModalProps) {
-  const ref = useRef<HTMLDialogElement>(null);
-  // Dropdowns inside the modal portal into the <dialog>; in <body> they would sit under its top layer.
-  const [dialogEl, setDialogEl] = useState<HTMLDialogElement | null>(null);
-  // `close` events caused by `open` turning false are not the user closing the dialog.
-  const closedByProp = useRef(false);
-  // Keeps the content on screen while the card fades out (otherwise an empty card fades).
-  const [mounted, setMounted] = useState(open);
-  if (open && !mounted) setMounted(true);
   // Callers often render `{open && <Form />}`, so their children vanish the moment `open` turns false.
   // Keep showing the last open content during the exit fade, or the card collapses to a thin line.
   const [exitChildren, setExitChildren] = useState(children);
   if (open && exitChildren !== children) setExitChildren(children);
 
-  useEffect(() => {
-    const dialog = ref.current;
-    if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
-    if (!open && dialog.open) {
-      closedByProp.current = true;
-      dialog.close();
-    }
-    if (!open) {
-      // Matches the `dialog-motion` exit in globals.css, plus a frame of slack.
-      const timer = setTimeout(() => setMounted(false), 160);
-      return () => clearTimeout(timer);
-    }
-    // Toasts shown while the dialog is open would sit behind it: move them into it.
-    return raiseToastsInto(dialog);
-  }, [open]);
-
   return (
-    <dialog
-      data-mobile-sheet
-      ref={(el) => {
-        ref.current = el;
-        setDialogEl(el);
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) onClose();
       }}
-      aria-label={label}
-      onClose={() => {
-        if (closedByProp.current) closedByProp.current = false;
-        else onClose();
-      }}
-      onClick={(event) => {
-        if (event.target === event.currentTarget) onClose();
-      }}
-      className={cn(
-        "m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md overflow-hidden rounded-[18px] border border-border bg-background p-0 text-foreground shadow-dialog",
-        "dialog-motion backdrop:bg-scrim backdrop:backdrop-blur-[7px]",
-        className,
-      )}
     >
-      <PortalContainerContext value={dialogEl}>{open ? children : mounted && exitChildren}</PortalContainerContext>
-    </dialog>
+      <DialogContent showClose={false} className={cn("p-0 outline-none", className)}>
+        <DialogTitle className="sr-only">{label}</DialogTitle>
+        <DialogDescription className="sr-only">{label}</DialogDescription>
+        {open ? children : exitChildren}
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -150,7 +113,8 @@ function TitledModal({
         if (routed) {
           if (!next) {
             setRoutedOpen(false);
-            const exitMs = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 150;
+            const duration = side === "right" ? 200 : 150;
+            const exitMs = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : duration;
             setTimeout(() => router.push(closeHref, { scroll: false }), exitMs);
           }
         } else {
@@ -159,21 +123,22 @@ function TitledModal({
       }}
     >
       <DialogContent
+        side={side}
         className={cn(
           side === "right"
-            ? "top-0 right-0 left-auto h-dvh max-h-dvh w-[calc(100vw-16px)] max-w-[1220px] translate-x-0 translate-y-0 rounded-l-3xl rounded-r-none md:w-[70vw] motion-safe:animate-pop-in motion-safe:data-[state=closed]:animate-pop-out"
+            ? "w-[calc(100vw-16px)] max-w-[1220px] rounded-l-3xl rounded-r-none md:w-[70vw]"
             : SIZE[size],
           className,
         )}
       >
         <div className={cn("min-h-0 flex-1 overflow-y-auto", !hideTitle && "px-6 pt-6")}>
           <DialogTitle
-            className={cn(hideTitle ? "sr-only" : "pr-10 text-[22px] leading-7 font-semibold text-foreground")}
+            className={cn(hideTitle ? "sr-only" : "pr-10 text-[22px] leading-7 font-semibold break-words text-foreground")}
           >
             {title}
           </DialogTitle>
           {description ? (
-            <DialogDescription className={cn(hideTitle ? "sr-only" : "mt-1 text-[13px] text-muted-foreground")}>
+            <DialogDescription className={cn(hideTitle ? "sr-only" : "mt-1 text-[13px] break-words text-muted-foreground")}>
               {description}
             </DialogDescription>
           ) : (

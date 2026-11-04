@@ -52,20 +52,22 @@ export function DeploySuccessDialog({
         <h2 className="font-heading text-[26px] leading-8 font-semibold tracking-[-0.5px] text-brand-strong">
           {title}
         </h2>
-        <p className="text-sm leading-5 text-muted-foreground">
+        <p className="max-w-full text-sm leading-5 wrap-anywhere text-muted-foreground">
           {first
             ? `Customers can now visit ${siteName} at`
             : `Customers now see the new version of ${siteName} at`}
         </p>
-        <div className="flex items-center gap-2">
-          <span className="inline-flex h-10 items-center gap-2 rounded-xl border border-border bg-background px-4 text-sm font-semibold text-foreground">
-            <Lock1 variant="Outline" aria-hidden className="size-3.5 text-muted-foreground" />{" "}
-            {domain}
+        <div className="flex max-w-full items-center gap-2">
+          <span className="inline-flex h-10 min-w-0 items-center gap-2 rounded-xl border border-border bg-background px-4 text-sm font-semibold text-foreground">
+            <Lock1 variant="Outline" aria-hidden className="size-3.5 shrink-0 text-muted-foreground" />{" "}
+            <span title={domain} className="min-w-0 truncate">
+              {domain}
+            </span>
           </span>
           <Button
             variant="ghost"
             size="icon"
-            className="shadow-button"
+            className="shrink-0 shadow-button"
             aria-label="Copy address"
             onClick={copy}
           >

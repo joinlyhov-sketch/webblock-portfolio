@@ -42,7 +42,7 @@ export function SignInForm({ defaultEmail, next = null }: { defaultEmail?: strin
       return;
     }
     // Back to the page that asked for sign-in (e.g. the template catalogue), else home for the role.
-    router.push(next ?? (role === "ADMIN" ? "/admin" : "/websites"));
+    router.push(role === "ADMIN" && (!next || next === "/websites") ? "/admin" : (next ?? "/websites"));
   }
 
   return (

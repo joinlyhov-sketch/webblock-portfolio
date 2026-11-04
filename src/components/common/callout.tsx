@@ -63,14 +63,14 @@ export function Callout({
       <div className="min-w-0">
         <p
           className={cn(
-            "text-foreground",
+            "break-words text-foreground",
             description ? "text-[15px] font-semibold" : "text-[13px]",
           )}
         >
           {title}
         </p>
         {description && (
-          <p className="text-xs text-muted-foreground">{description}</p>
+          <p className="text-sm break-words text-muted-foreground">{description}</p>
         )}
       </div>
     </div>

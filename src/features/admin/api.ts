@@ -41,8 +41,9 @@ import type {
 } from "./types";
 
 /** Every read waits a moment, then first lets running deploys move forward (the backend does this on its own). */
-const delay = async (ms = 250) => {
-  await new Promise((resolve) => setTimeout(resolve, ms));
+const delay = async (ms = 0) => {
+  if (ms < 0) return;
+
   settleDeploys();
 };
 
@@ -371,7 +372,12 @@ export async function listWebsites(
   const items = adminWebsites.filter(
     (w) =>
       matches(filters.q, w.name, w.domain, w.ownerName) &&
-      (!filters.release || w.releaseStatus === filters.release) &&
+      (!filters.site || w.siteStatus === filters.site) &&
+      (!filters.release || (
+        w.releaseStatus === filters.release &&
+        w.siteStatus !== "SUSPENDED" &&
+        (filters.release !== "LIVE" || w.siteStatus === "ONLINE")
+      )) &&
       (!filters.plan || w.plan === filters.plan) &&
       (!filters.ownerId || w.ownerId === filters.ownerId),
   );
@@ -380,7 +386,7 @@ export async function listWebsites(
 }
 
 /** Adds the logo from the website's Business information (GET /projects/{id}/business-info). */
-async function withLogo(website: AdminWebsite): Promise<AdminWebsite> {
+export async function withLogo(website: AdminWebsite): Promise<AdminWebsite> {
   const [info, owned] = await Promise.all([
     getBusinessInfo(website.id).catch(() => null),
     getOwnedWebsite(website.id).catch(() => null),
@@ -398,15 +404,20 @@ export async function getWebsite(websiteId: string): Promise<AdminWebsite> {
   return withLogo(adminWebsites.find((w) => w.id === websiteId) ?? notFound("Website"));
 }
 
-/** GET /api/admin/deploys?projectId=&page=&size= — newest first. */
+/** GET /api/admin/deploys?projectId=&latestOnly=&page=&size= — newest first. */
 export async function listDeploys(
-  filters: { websiteId?: string },
+  filters: { websiteId?: string; latestOnly?: boolean },
   query: TableQuery,
 ): Promise<Page<Deploy>> {
   await delay(150);
-  const items = adminDeploys
+  const newestFirst = adminDeploys
     .filter((d) => !filters.websiteId || d.websiteId === filters.websiteId)
     .sort((a, b) => b.startedAt.localeCompare(a.startedAt));
+  // latestOnly: one row per website, its newest deploy (and so its latest status).
+  const seen = new Set<string>();
+  const items = filters.latestOnly
+    ? newestFirst.filter((d) => !seen.has(d.websiteId) && !!seen.add(d.websiteId))
+    : newestFirst;
   const page = toPage(items, query);
   // Mock only: Spring returns the website's logo on each deploy.
   const withLogos = await Promise.all(
@@ -527,13 +538,20 @@ export async function resumeWebsite(websiteId: string): Promise<AdminWebsite> {
 
 // ── Subscriptions ────────────────────────────────────────────────────────────
 
+/** Account suspension overrides the displayed status while preserving the billing state. */
+function subscriptionForAccount(subscription: Subscription): Subscription {
+  return userAccounts.find((u) => u.id === subscription.userId)?.status === "SUSPENDED"
+    ? { ...subscription, status: "SUSPENDED" }
+    : subscription;
+}
+
 /** GET /api/admin/subscriptions?q=&status=&plan=&page=&size=&sort= */
 export async function listSubscriptions(
   filters: SubscriptionFilters,
   query: TableQuery,
 ): Promise<Page<Subscription>> {
   await delay();
-  const items = subscriptions.filter(
+  const items = subscriptions.map(subscriptionForAccount).filter(
     (s) =>
       matches(filters.q, s.userName, s.userEmail, s.websiteName) &&
       (!filters.status || s.status === filters.status) &&
@@ -547,7 +565,7 @@ export async function getSubscriptionStats(): Promise<SubscriptionStats> {
   await delay(150);
   return {
     monthlyRevenue: latestMonthRevenue().total.toFixed(2),
-    activePlans: subscriptions.filter((s) => s.status === "ACTIVE").length,
+    activePlans: subscriptions.map(subscriptionForAccount).filter((s) => s.status === "ACTIVE").length,
     trialsEndingSoon: trialsEnding().length,
     pending: subscriptions.filter((s) => s.status === "PENDING").length,
   };
@@ -558,7 +576,7 @@ export async function getSubscription(
   subscriptionId: string,
 ): Promise<Subscription> {
   await delay(150);
-  return (
+  return subscriptionForAccount(
     subscriptions.find((s) => s.id === subscriptionId) ??
     notFound("Subscription")
   );
@@ -653,8 +671,26 @@ export async function markAllNotificationsRead(): Promise<void> {
 
 // ── Profile ──────────────────────────────────────────────────────────────────
 
+// Mock only: survives hot reloads so an edit sticks while you click around.
+const globalForAdmin = globalThis as typeof globalThis & { __wbAdminProfile?: AdminProfile };
+const profileStore: AdminProfile = (globalForAdmin.__wbAdminProfile ??= structuredClone(adminProfile));
+
 /** GET /api/admin/me — the signed-in admin (Spring reads who from the session). */
 export async function getAdminProfile(): Promise<AdminProfile> {
   await delay(100);
-  return adminProfile;
+  return profileStore;
+}
+
+/** PATCH /api/admin/me — the admin changes their own display name (email and role stay locked). */
+export async function updateAdminProfile(body: { fullName: string }): Promise<AdminProfile> {
+  await delay(300);
+  profileStore.fullName = body.fullName;
+  return profileStore;
+}
+
+/** PUT /api/admin/me/avatar — `null` removes the photo. */
+export async function updateAdminAvatar(avatarUrl: string | null): Promise<AdminProfile> {
+  await delay(400);
+  profileStore.avatarUrl = avatarUrl;
+  return profileStore;
 }

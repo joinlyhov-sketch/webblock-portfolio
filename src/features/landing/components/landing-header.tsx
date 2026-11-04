@@ -26,10 +26,10 @@ export function LandingHeader() {
         </nav>
 
         <div className="ml-auto hidden items-center gap-2 lg:ml-0 lg:flex">
-          <Button asChild variant="outline" size="lp-md">
+          <Button asChild variant="secondary" size="lp-md">
             <Link href="/sign-in">Sign in</Link>
           </Button>
-          <Button asChild variant="tonal" size="lp-md">
+          <Button asChild variant="primary" size="lp-md">
             <Link href="/register">Start free</Link>
           </Button>
         </div>

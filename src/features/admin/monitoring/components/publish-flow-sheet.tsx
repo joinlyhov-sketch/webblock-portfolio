@@ -1,7 +1,9 @@
 import { Fragment, type ComponentType } from "react";
-import Link from "next/link";
 import {
+  Activity,
   Box,
+  Calendar,
+  Clock,
   Danger,
   DirectInbox,
   ExportSquare,
@@ -9,13 +11,16 @@ import {
   Hierarchy,
   Lock,
   MagicStar,
+  Refresh,
   Send2,
   Status,
+  Timer1,
   TickCircle,
 } from "iconsax-reactjs";
 import { CompactTable } from "@/components/common/compact-table";
 import { Modal } from "@/components/common/modal";
 import { ScrollStrip } from "@/components/common/scroll-strip";
+import { SegmentedTabs } from "@/components/common/segmented-tabs";
 import { StatusBadge } from "@/components/common/status-badge";
 import type { Page } from "@/lib/api/types";
 import { formatLogTime, formatRelative, formatTime } from "@/lib/format";
@@ -40,6 +45,30 @@ const STEP_ICON: Record<number, ComponentType<{ className?: string; variant?: "O
   5: Lock,
   6: Send2,
   7: Status,
+};
+
+type IconType = ComponentType<{ className?: string; variant?: "Outline" }>;
+
+const FACT_TONE = {
+  brand: "bg-brand-soft text-brand",
+  success: "bg-success-soft text-success",
+  warning: "bg-warning-soft text-warning",
+  danger: "bg-danger-soft text-danger",
+  violet: "bg-violet-soft text-violet",
+};
+
+/** Icon and colour beside each fact card, by what it means: time = blue, health = green, errors = red,
+ *  deadlines = amber, releases = violet. Anything not listed gets a blue clock. */
+const FACT_ICON: Record<string, { icon: IconType; tone: keyof typeof FACT_TONE }> = {
+  Started: { icon: Calendar, tone: "brand" },
+  "Live since": { icon: Calendar, tone: "brand" },
+  "Last heartbeat": { icon: Activity, tone: "success" },
+  Deadline: { icon: Clock, tone: "warning" },
+  Next: { icon: Refresh, tone: "brand" },
+  Release: { icon: Box, tone: "violet" },
+  Requests: { icon: Activity, tone: "brand" },
+  Errors: { icon: Danger, tone: "danger" },
+  "Avg response": { icon: Timer1, tone: "warning" },
 };
 
 const GROUPS = [
@@ -106,7 +135,7 @@ export function PublishFlowSheet({
           className="mt-1 inline-flex max-w-full items-center gap-1.5 text-sm text-brand hover:underline"
         >
           <Global variant="Outline" aria-hidden className="size-4 shrink-0" />
-          <span className="truncate">{run.domain}</span>
+          <span title={run.domain} className="truncate">{run.domain}</span>
           <ExportSquare variant="Outline" aria-hidden className="size-3.5 shrink-0" />
         </a>
       </header>
@@ -259,6 +288,7 @@ function StepCard({ step }: { step: PipelineStep }) {
         </span>
       </div>
       <p
+        title={step.title}
         className={cn(
           "mt-3 truncate text-sm leading-5 font-semibold",
           notStarted ? "text-foreground-soft" : "text-foreground",
@@ -326,67 +356,104 @@ function CurrentStepPanel({
       ]
     : current.facts;
 
+  const StepIcon = STEP_ICON[run.currentStep] ?? Status;
+
   return (
     <section
       aria-labelledby="current-step-title"
-      className="space-y-4 rounded-[22px] border border-border p-5"
+      className="overflow-hidden rounded-[22px] border border-border bg-background shadow-card"
     >
-      <div>
-        <p className="text-[13px] font-medium tracking-wide text-muted-foreground uppercase">
-          Step {run.currentStep} · {current.phase}
-        </p>
-        <div className="mt-1 flex flex-wrap items-center gap-2">
-          <h3
-            id="current-step-title"
-            className="text-2xl font-semibold text-foreground"
+      {/* Header: step icon, eyebrow, title and the status / tag pills, on a flat light blue. */}
+      <div className="border-b border-border px-5 py-4">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+          <span
+            aria-hidden
+            className="grid size-14 shrink-0 place-items-center rounded-2xl bg-brand-soft text-brand [&_svg]:size-7"
           >
-            {current.title}
-          </h3>
-          <StatusBadge status={live ? "LIVE" : current.status} />
-          {current.tags.map((tag) => (
-            <span
-              key={tag}
-              className="inline-flex h-6 items-center rounded-full bg-neutral-soft px-2.5 text-[13px] font-medium text-foreground-soft"
+            <StepIcon variant="Outline" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p
+              title={current.phase}
+              className="truncate text-[13px] font-medium tracking-wide text-muted-foreground uppercase"
             >
-              {tag}
-            </span>
-          ))}
+              Step {run.currentStep} · {current.phase}
+            </p>
+            <h3
+              id="current-step-title"
+              title={current.title}
+              className="mt-0.5 line-clamp-2 font-heading text-2xl leading-8 font-semibold wrap-anywhere text-foreground"
+            >
+              {current.title}
+            </h3>
+          </div>
+          <div className="flex max-w-full min-w-0 flex-wrap items-center gap-2">
+            <StatusBadge status={live ? "LIVE" : current.status} />
+            {current.tags.map((tag) => (
+              <span
+                key={tag}
+                title={tag}
+                className="inline-flex h-6 max-w-full min-w-0 items-center rounded-full bg-neutral-soft px-2.5 text-[13px] font-medium text-foreground-soft"
+              >
+                <span className="truncate">{tag}</span>
+              </span>
+            ))}
+          </div>
         </div>
       </div>
 
-      {facts.length > 0 && (
-        <dl className="grid gap-2.5 [grid-template-columns:repeat(auto-fit,minmax(170px,1fr))]">
-          {facts.map((f) => (
-            <div key={f.label} className="rounded-xl bg-muted px-3.5 py-3">
-              <dt className="text-[13px] text-muted-foreground">{f.label}</dt>
-              <dd
-                className={cn(
-                  "mt-1",
-                  live ? "font-heading text-xl font-semibold" : "text-[15px]",
-                  f.tone === "danger"
-                    ? "text-danger"
-                    : f.tone === "info"
-                      ? "text-brand"
-                      : "text-foreground",
-                )}
-              >
-                {f.value}
-              </dd>
-              {f.hint && (
-                <dd className="mt-0.5 text-[13px] text-muted-foreground">
-                  {f.hint}
-                </dd>
-              )}
-            </div>
-          ))}
-        </dl>
-      )}
+      <div className="space-y-5 p-5">
+        {facts.length > 0 && (
+          <dl className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(190px,1fr))]">
+            {facts.map((f) => {
+              const meta = FACT_ICON[f.label] ?? { icon: Clock, tone: "brand" as const };
+              const Icon = meta.icon;
+              // A fact that is going wrong (late heartbeat, errors) turns red whatever its usual colour.
+              const iconTone = f.tone === "danger" ? "danger" : meta.tone;
+              return (
+                <div
+                  key={f.label}
+                  className="flex min-w-0 items-start gap-3 rounded-2xl border border-border bg-primary-soft/60 px-4 py-3.5"
+                >
+                  <span
+                    aria-hidden
+                    className={cn("grid size-9 shrink-0 place-items-center rounded-xl [&_svg]:size-5", FACT_TONE[iconTone])}
+                  >
+                    <Icon variant="Outline" />
+                  </span>
+                  <div className="min-w-0">
+                    <dt className="text-[13px] text-muted-foreground">{f.label}</dt>
+                    <dd
+                      title={f.value}
+                      className={cn(
+                        "truncate text-[15px] leading-6 font-medium",
+                        f.tone === "danger"
+                          ? "text-danger"
+                          : f.tone === "info"
+                            ? "text-brand"
+                            : "text-foreground",
+                      )}
+                    >
+                      {f.value}
+                    </dd>
+                    {f.hint && (
+                      <dd title={f.hint} className="line-clamp-2 text-[13px] wrap-anywhere text-muted-foreground">
+                        {f.hint}
+                      </dd>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </dl>
+        )}
 
-      {current.checkGroup && <StepChecks group={current.checkGroup} />}
+        {current.checkGroup && <StepChecks group={current.checkGroup} />}
 
-      {live && logs && (
-        <LiveLogs run={run} logs={logs} searchParams={searchParams} />
-      )}
+        {live && logs && (
+          <LiveLogs run={run} logs={logs} searchParams={searchParams} />
+        )}
+      </div>
     </section>
   );
 }
@@ -420,44 +487,30 @@ function LiveLogs({
       className="overflow-hidden rounded-2xl border border-border"
     >
       <header className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-        <div>
+        <div className="min-w-0">
           <h4
             id="live-logs-title"
             className="text-base font-semibold text-foreground"
           >
             Live logs
           </h4>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm wrap-anywhere text-muted-foreground">
             What {run.domain} is logging as visitors use it · newest first
           </p>
         </div>
         <div className="flex items-center gap-2.5">
-          <nav
-            aria-label="Filter logs by level"
-            className="inline-flex rounded-full border border-border bg-surface p-1"
-          >
-            {tabs.map((tab) => (
-              <Link
-                key={tab.value}
-                href={tableHref(searchParams, {
+          <SegmentedTabs
+            label="Filter logs by level"
+            size="sm"
+            tabs={tabs.map((tab) => ({
+              label: tab.label,
+              count: tab.count,
+              active: active === tab.value,
+              href: tableHref(searchParams, {
                   log: tab.value === "ALL" ? null : tab.value,
-                })}
-                scroll={false}
-                aria-current={active === tab.value ? "true" : undefined}
-                className={cn(
-                  "rounded-full px-3 py-1 text-sm transition-colors",
-                  active === tab.value
-                    ? "bg-background font-semibold text-foreground shadow-button"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {tab.label}{" "}
-                <span className="font-normal text-placeholder tabular-nums">
-                  {tab.count.toLocaleString("en-US")}
-                </span>
-              </Link>
-            ))}
-          </nav>
+              }),
+            }))}
+          />
         </div>
       </header>
 
@@ -496,15 +549,19 @@ function LiveLogs({
               key: "request",
               header: "Request",
               className: "text-foreground",
+              // Paths and notes come from the site's requests: at most 2 lines, long URLs break anywhere.
               cell: (line) => (
-                <>
+                <span
+                  title={`${line.method} ${line.path}${line.note ? ` · ${line.note}` : ""}`}
+                  className="line-clamp-2 max-w-[420px] wrap-anywhere"
+                >
                   {line.method} &nbsp;{line.path}
                   {line.note && (
                     <span className={cn("ml-3", line.level === "ERROR" ? "text-danger" : "text-warning")}>
                       {line.note}
                     </span>
                   )}
-                </>
+                </span>
               ),
             },
             {
@@ -532,7 +589,7 @@ function LiveLogs({
         />
       </div>
       <p className="border-t border-border bg-surface px-4 py-2.5 text-[13px] text-muted-foreground">
-        Showing the latest {logs.items.length} lines · reload to see newer lines ·
+        Showing the latest {logs.items.length} of {logs.totalItems} lines · updates every 5 seconds ·
         logs are kept for 15 minutes
       </p>
     </section>
@@ -547,14 +604,21 @@ function StepChecks({
 }) {
   return (
     <div className="space-y-2.5">
-      <h4 className="text-[13px] font-medium tracking-wide text-muted-foreground uppercase">
+      <h4 className="font-heading text-lg font-semibold wrap-anywhere text-foreground">
         {group.title}
       </h4>
       <ul className="grid gap-2.5 sm:grid-cols-2">
         {group.checks.map((check, i) => (
           <li
             key={check.title}
-            className="flex items-center gap-3.5 rounded-xl bg-muted px-4 py-3"
+            className={cn(
+              "flex min-w-0 items-center gap-3.5 rounded-xl border px-4 py-3",
+              check.status === "PASSED"
+                ? "border-success/20 bg-success-soft"
+                : check.status === "FAILED"
+                  ? "border-danger/20 bg-danger-soft"
+                  : "border-brand-border/50 bg-brand-soft",
+            )}
           >
             {check.status === "PASSED" ? (
               <TickCircle
@@ -577,10 +641,10 @@ function StepChecks({
               </span>
             )}
             <span className="min-w-0">
-              <span className="block truncate text-sm font-semibold text-foreground">
+              <span title={check.title} className="block truncate text-sm font-semibold text-foreground">
                 {check.title}
               </span>
-              <span className="block truncate text-sm text-muted-foreground">
+              <span title={check.detail} className="block truncate text-sm text-muted-foreground">
                 {check.detail}
               </span>
             </span>

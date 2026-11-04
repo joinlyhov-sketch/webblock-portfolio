@@ -17,7 +17,6 @@ import {
   Gallery,
   InfoCircle,
   Location,
-  MagicStar,
   Menu,
   Mobile,
   Monitor,
@@ -25,19 +24,20 @@ import {
   SearchNormal1,
   Send2,
   Shop,
+  SidebarLeft,
   Text,
   Trash,
   type Icon,
 } from "iconsax-reactjs";
+import { AiAvatar } from "@/components/common/ai-avatar";
 import { LogoMark } from "@/components/common/logo";
 import { cn } from "@/lib/utils";
 
-const panel = "rounded-[14.074px] bg-background shadow-editor-panel";
-
 export function EditorTopBar() {
   return (
-    <div className={cn(panel, "flex h-[42.222px] items-center gap-[9.852px] rounded-[12.667px] px-[11.259px]")}>
-      <span className="flex size-[25.333px] items-center justify-center rounded-full text-foreground">
+    // Flat full-width bar, like the real editor: no floating card, just a hairline underneath.
+    <div className="flex h-[45.06px] shrink-0 items-center gap-[8.444px] border-b-[0.704px] border-border bg-background px-[14.074px]">
+      <span className="flex size-[28.148px] items-center justify-center rounded-full text-foreground">
         <ArrowLeft variant="Outline" className="size-[12.667px]" />
       </span>
       <LogoMark className="h-[21.111px]" />
@@ -50,19 +50,19 @@ export function EditorTopBar() {
         {[ArrowRotateLeft, ArrowRotateRight].map((IconCmp, i) => (
           <span
             key={i}
-            className="flex size-[25.333px] items-center justify-center rounded-full border-[0.704px] border-border bg-background"
+            className="flex size-[28.148px] items-center justify-center rounded-full border-[0.704px] border-border bg-background"
           >
             <IconCmp className="size-[12.667px]" />
           </span>
         ))}
       </div>
-      <div className="flex w-[94.296px] gap-[1.407px] rounded-[8.444px] border-[0.704px] border-border bg-primary-soft p-[2.815px] text-foreground">
+      <div className="flex w-[112px] gap-[2.815px] rounded-[8.444px] border-[0.704px] border-border bg-switcher p-[2.815px] text-foreground-soft">
         {[Monitor, Devices, Mobile].map((IconCmp, i) => (
           <span
             key={i}
             className={cn(
-              "flex h-[22.519px] flex-1 items-center justify-center rounded-[6.333px]",
-              i === 0 && "bg-background shadow-button",
+              "flex h-[22.519px] flex-1 items-center justify-center rounded-[5.63px]",
+              i === 0 && "bg-background text-brand-deep shadow-button",
             )}
           >
             <IconCmp className="size-[11.259px]" />
@@ -85,7 +85,7 @@ function TopBarButton({ icon: IconCmp, primary, children }: { icon: Icon; primar
       className={cn(
         "flex h-[28.148px] items-center gap-[5.63px] rounded-full px-[12.667px] text-[9.85px] leading-[14.778px] font-semibold",
         primary
-          ? "bg-brand text-primary-foreground shadow-page-active"
+          ? "bg-brand text-primary-foreground shadow-button"
           : "border-[0.704px] border-border bg-background text-foreground shadow-button",
       )}
     >
@@ -119,7 +119,7 @@ export function StructureRow({ icon: IconCmp, label }: { icon: Icon; label: stri
 /** The selected "Product Cards" row with its duplicate / delete actions. */
 export function SelectedStructureRow() {
   return (
-    <div className="flex h-[26.741px] items-center gap-[7.037px] rounded-[8.444px] border-[0.704px] border-editor-selected bg-primary-soft py-[5.63px] pr-[7.037px] pl-[8.444px]">
+    <div className="flex h-[26.741px] items-center gap-[7.037px] rounded-[8.444px] border-[0.704px] border-brand-border bg-primary-soft py-[5.63px] pr-[7.037px] pl-[8.444px]">
       <Element3 variant="Outline" className="size-[10.556px] shrink-0 text-brand-deep" />
       <p className="text-[9.148px] leading-[13.722px] font-semibold whitespace-nowrap text-brand-deep">
         Product Cards
@@ -174,24 +174,26 @@ export function BlockItem({
         dragging ? "border-[1.056px] border-primary shadow-editor-ghost" : "border-[0.704px] border-border shadow-card",
       )}
     >
-      <span className="flex size-[22.519px] shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand-deep">
+      <span className="flex size-[22.519px] shrink-0 items-center justify-center rounded-[7.037px] bg-brand-soft text-brand">
         <IconCmp className="size-[11.259px]" />
       </span>
       <div className="w-[94.758px]">
         <p className="text-[9.148px] leading-[13.722px] font-semibold whitespace-nowrap text-foreground">{name}</p>
         <p className="text-[7.741px] leading-[11.611px] whitespace-nowrap text-muted-foreground">{hint}</p>
       </div>
-      <span className="flex flex-1 justify-end text-muted-foreground">
+      <span className="flex flex-1 justify-end text-brand">
         <Add variant="Outline" className="size-[12.667px]" />
       </span>
     </div>
   );
 }
 
-export function AddIcon() {
+/** "Drag to reorder" hint and the fold-panel button in the Page structure heading. */
+export function PageStructureActions() {
   return (
-    <span className="flex rounded-[5.63px] p-[2.111px] text-muted-foreground">
-      <Add variant="Outline" className="size-[12.667px]" />
+    <span className="flex items-center gap-[7.037px]">
+      <span className="text-[7.741px] font-medium whitespace-nowrap text-placeholder">Drag to reorder</span>
+      <SidebarLeft variant="Outline" className="size-[11.259px] text-muted-foreground" />
     </span>
   );
 }
@@ -376,32 +378,38 @@ function SitePhoto({ src, className }: { src: string; className?: string }) {
 
 export function AiPanelHeader() {
   return (
-    <div className="px-[11.259px] pt-[8.444px] pb-[5.63px]">
-      <div className="flex items-center gap-[7.037px] rounded-full bg-primary-soft py-[5.63px] pr-[7.037px] pl-[9.852px]">
-        <MagicStar variant="Outline" className="size-[11.259px] text-brand-deep" />
-        <div className="flex-1 whitespace-nowrap">
-          <p className="text-[9.852px] leading-[14.074px] font-semibold text-brand-deep">WebBlock AI</p>
-          <p className="text-[8.444px] leading-[11.259px] text-placeholder">Ask AI to edit your site</p>
+    <div className="px-[8.444px] pt-[8.444px] pb-[5.63px]">
+      <div className="flex items-center gap-[8.444px] rounded-[11.259px] border-[0.704px] border-brand-border bg-primary-soft p-[8.444px]">
+        <AiAvatar className="size-[26px] ring-[1.407px] ring-white" />
+        <div className="min-w-0 flex-1 whitespace-nowrap">
+          <p className="text-[9.852px] leading-[12.667px] font-semibold text-brand-deep">WebBlock AI</p>
+          <p className="text-[7.741px] leading-[11.259px] text-muted-foreground">Describe a change to continue</p>
         </div>
         <span className="flex size-[19.704px] items-center justify-center rounded-full bg-background text-brand-deep">
-          <Add variant="Outline" className="size-[9.852px] rotate-45" />
+          <Add variant="Outline" className="size-[11.259px] rotate-45" />
         </span>
       </div>
     </div>
   );
 }
 
+/** Chat message: user bubbles on the right, AI replies on the left next to the robot avatar. */
 export function ChatBubble({ from, children }: { from: "user" | "ai"; children: ReactNode }) {
-  return (
-    <div
+  const bubble = (
+    <p
       className={cn(
-        "rounded-[14.074px] px-[11.259px] py-[7.037px] text-[9.148px] leading-[14.074px]",
-        from === "user"
-          ? "w-[188.59px] bg-brand-strong text-primary-foreground"
-          : "w-[211.11px] bg-editor-bubble text-foreground",
+        "max-w-[176px] rounded-[14.074px] px-[11.259px] py-[7.037px] text-[9.148px] leading-[14.074px]",
+        from === "user" ? "bg-brand-strong text-primary-foreground" : "bg-segment text-foreground",
       )}
     >
       {children}
+    </p>
+  );
+  if (from === "user") return bubble;
+  return (
+    <div className="flex items-end gap-[7.037px]">
+      <AiAvatar className="size-[22.519px]" />
+      {bubble}
     </div>
   );
 }

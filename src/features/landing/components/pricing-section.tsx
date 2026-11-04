@@ -39,6 +39,8 @@ export function PricingSection({ plans }: { plans: Plan[] }) {
           </RevealGroup>
         )}
       </div>
+
+      <PricingPathOverlay />
     </section>
   );
 }
@@ -54,6 +56,27 @@ function PricingDecor() {
       </Pop>
       <Image src="/landing/decor/dashed-path-right.svg" alt="" width={133} height={88} className="absolute top-[156px] right-[-21px]" />
 
+      <Diamond className="top-[103px] left-[360px]" size={10} />
+      <Diamond className="top-[82px] right-[352px]" size={12} delay={0.6} />
+      <Diamond className="top-[240px] left-[100px]" size={14} delay={1.2} />
+      <Diamond className="top-[469px] right-[66px]" size={16} delay={0.3} />
+      <Diamond className="top-[773px] right-[114px]" size={10} delay={0.9} />
+      <Diamond className="top-[812px] left-[180px]" size={12} delay={1.5} />
+    </div>
+  );
+}
+
+/** Small foreground flourish: stays visible where it overlaps the free-trial card. */
+function PricingPathOverlay() {
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0 z-20 hidden 2xl:block">
+      <Image
+        src="/landing/decor/dashed-path-left.svg"
+        alt=""
+        width={90}
+        height={145}
+        className="absolute top-[460px] left-[25px]"
+      />
       <Pop className="absolute top-[560px] left-[112px]" delay={0.4}>
         <span className="relative flex size-[84px] items-center justify-center rounded-full bg-background shadow-float">
           <span className="flex size-[60px] items-center justify-center rounded-full bg-brand-soft text-brand">
@@ -62,14 +85,6 @@ function PricingDecor() {
           <span className="absolute top-[62px] left-[62px] size-4 rounded-full border-[3px] border-background bg-success" />
         </span>
       </Pop>
-      <Image src="/landing/decor/dashed-path-left.svg" alt="" width={130} height={210} className="absolute top-[396px] left-[-14px]" />
-
-      <Diamond className="top-[103px] left-[360px]" size={10} />
-      <Diamond className="top-[82px] right-[352px]" size={12} delay={0.6} />
-      <Diamond className="top-[240px] left-[100px]" size={14} delay={1.2} />
-      <Diamond className="top-[469px] right-[66px]" size={16} delay={0.3} />
-      <Diamond className="top-[773px] right-[114px]" size={10} delay={0.9} />
-      <Diamond className="top-[812px] left-[180px]" size={12} delay={1.5} />
     </div>
   );
 }

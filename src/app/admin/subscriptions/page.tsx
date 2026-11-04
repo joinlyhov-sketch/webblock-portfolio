@@ -1,9 +1,9 @@
+import { SubscriptionsView } from "@/features/admin/components/admin-client-views";
 import {
   getSubscription,
   getSubscriptionStats,
   listPayments,
   listSubscriptions,
-  SubscriptionsView,
   type PlanCode,
   type SubscriptionStatus,
 } from "@/features/admin";
@@ -13,7 +13,7 @@ import { parseTableQuery, type SearchParams } from "@/lib/table-query";
 
 export const metadata = { title: "Subscriptions" };
 
-const STATUSES: SubscriptionStatus[] = ["ACTIVE", "PENDING", "CANCELED", "EXPIRED"];
+const STATUSES: SubscriptionStatus[] = ["ACTIVE", "PENDING", "CANCELED", "EXPIRED", "SUSPENDED"];
 const PLANS: PlanCode[] = ["FREE_TRIAL", "PLUS", "PRO", "ULTRA"];
 const param = (v: SearchParams[string]) => (typeof v === "string" && v ? v : undefined);
 

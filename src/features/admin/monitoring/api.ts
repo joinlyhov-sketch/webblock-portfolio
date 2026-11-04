@@ -4,9 +4,10 @@ import { ApiError } from "@/lib/api/errors";
 import type { Page } from "@/lib/api/types";
 import { toPage, type TableQuery } from "@/lib/table-query";
 import { activityLog } from "@/mocks/admin-activity";
-import { liveLogs, pipelineRuns as pipelineMocks } from "@/mocks/admin-pipeline";
+import { pipelineRuns as pipelineMocks } from "@/mocks/admin-pipeline";
+import { mockLiveLogSnapshot } from "@/mocks/admin-live-logs";
 import { adminDeploys, adminWebsites } from "@/mocks/admin-websites";
-import { redeployedIds, settleDeploys } from "../api";
+import { redeployedIds, settleDeploys, withLogo } from "../api";
 import type {
   ActivityEntry,
   ActivityFilters,
@@ -16,15 +17,20 @@ import type {
   PipelineRun,
 } from "./types";
 
-// The website's image comes from the website itself, so it is the same everywhere.
-const pipelineRuns: PipelineRun[] = pipelineMocks.map((r) => ({
-  ...r,
-  thumbnailUrl:
-    adminWebsites.find((w) => w.id === r.websiteId)?.thumbnailUrl ?? null,
-}));
+const pipelineRuns: PipelineRun[] = pipelineMocks.map((r) => ({ ...r, logoUrl: null }));
 
-const delay = async (ms = 250) => {
-  await new Promise((resolve) => setTimeout(resolve, ms));
+/** The logo comes from the website itself (business details, else its template's mark), so it is the same everywhere. */
+async function withWebsiteLogo(run: PipelineRun, now = Date.now()): Promise<PipelineRun> {
+  if (run.live) run = { ...run, live: mockLiveLogSnapshot(run.websiteId, run.live, now).live };
+  const website = adminWebsites.find((w) => w.id === run.websiteId);
+  if (!website) return run;
+  const { logoUrl, templateSlug } = await withLogo(website);
+  return { ...run, logoUrl: logoUrl ?? null, templateSlug };
+}
+
+const delay = async (ms = 0) => {
+  if (ms < 0) return;
+
   settleDeploys();
 };
 
@@ -86,14 +92,16 @@ export async function listPipelineRuns(
   const items = pipelineRuns
     .map(withRedeploy)
     .filter((r) => !filters.stage || r.stage === filters.stage);
-  return toPage(
+  const page = toPage(
     sorted(items, query.sort ?? { field: "currentStep", direction: "asc" }),
     query,
   );
+  const now = Date.now();
+  return { ...page, items: await Promise.all(page.items.map((run) => withWebsiteLogo(run, now))) };
 }
 
 /** GET /api/admin/monitoring/pipeline/{websiteId} — the publish flow of one website. */
-export async function getPipelineRun(websiteId: string): Promise<PipelineRun> {
+export async function getPipelineRun(websiteId: string, now = Date.now()): Promise<PipelineRun> {
   await delay(150);
   const found = pipelineRuns.find((r) => r.websiteId === websiteId);
   const run = found && withRedeploy(found);
@@ -103,7 +111,7 @@ export async function getPipelineRun(websiteId: string): Promise<PipelineRun> {
       status: 404,
       detail: "No deploy found for this website.",
     });
-  return run;
+  return withWebsiteLogo(run, now);
 }
 
 /** GET /api/admin/monitoring/pipeline/{websiteId}/logs?level=&size= — newest first. */
@@ -111,16 +119,28 @@ export async function listLiveLogs(
   websiteId: string,
   filters: { level?: LogLevel },
   query: TableQuery,
+  now = Date.now(),
 ): Promise<Page<LogLine>> {
   await delay(150);
-  const items: LogLine[] = liveLogs
+  const run = pipelineRuns.find((r) => r.websiteId === websiteId);
+  const live = run && withRedeploy(run).live;
+  const items: LogLine[] = (live ? mockLiveLogSnapshot(websiteId, live, now).lines : [])
     .filter(
       (l) =>
-        l.websiteId === websiteId &&
         (!filters.level || l.level === filters.level),
     )
     .sort((a, b) => b.at.localeCompare(a.at));
   return toPage(items, query);
+}
+
+/** Read the detail and filtered rows at one instant so counts match across a polling tick. */
+export async function getPipelineDetail(websiteId: string, level?: LogLevel) {
+  const now = Date.now();
+  const [run, logs] = await Promise.all([
+    getPipelineRun(websiteId, now),
+    listLiveLogs(websiteId, { level }, { page: 0, size: 6 }, now),
+  ]);
+  return { run, logs: run.live ? logs : null };
 }
 
 /** GET /api/admin/monitoring/activity?action=&actor=&page=&size=&sort= */

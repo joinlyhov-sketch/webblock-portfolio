@@ -91,7 +91,7 @@ export type Deploy = {
   durationSeconds: number | null;
 };
 
-export type SubscriptionStatus = "ACTIVE" | "PENDING" | "CANCELED" | "EXPIRED";
+export type SubscriptionStatus = "ACTIVE" | "PENDING" | "CANCELED" | "EXPIRED" | "SUSPENDED";
 
 export type Subscription = {
   id: string;
@@ -99,7 +99,7 @@ export type Subscription = {
   userName: string;
   userEmail: string;
   userAvatarUrl: string | null;
-  websiteId: string;
+  websiteId: string | null;
   websiteName: string;
   websiteDomain: string;
   plan: PlanCode;
@@ -225,6 +225,7 @@ export type UserFilters = { q?: string; plan?: PlanCode };
 
 export type WebsiteFilters = {
   q?: string;
+  site?: SiteStatus;
   release?: ReleaseStatus;
   plan?: PlanCode;
   ownerId?: string;

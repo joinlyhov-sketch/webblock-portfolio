@@ -3,7 +3,8 @@ import { z } from "zod";
 import { EMAIL_MAX, FULL_NAME_MAX } from "@/lib/validation/fields";
 
 /** Character limits of the contact form, also used as `maxLength`. */
-export const CONTACT_LIMITS = { name: FULL_NAME_MAX, email: EMAIL_MAX, message: 2000 };
+export const CONTACT_MESSAGE_MIN = 10;
+export const CONTACT_LIMITS = { name: FULL_NAME_MAX, email: EMAIL_MAX, message: 400 };
 
 /** Letters in any language (Khmer vowel signs are marks, so \p{M} too), spaces and . ' - (Dr. Sokha, O'Neil, Jean-Paul). */
 const NAME = /^[\p{L}\p{M}][\p{L}\p{M} .'’-]*$/u;
@@ -16,7 +17,6 @@ export const contactInput = z.object({
     .string()
     .trim()
     .min(1, "Enter your name.")
-    .min(2, "Enter your full name.")
     .max(CONTACT_LIMITS.name, `Use ${CONTACT_LIMITS.name} characters or fewer.`)
     .regex(NAME, NAME_MESSAGE),
   // Trimmed first, so a space pasted with the address doesn't make it "invalid".
@@ -30,7 +30,7 @@ export const contactInput = z.object({
     .string()
     .trim()
     .min(1, "Write your message.")
-    .min(10, "Write at least 10 characters.")
+    .min(CONTACT_MESSAGE_MIN, `Write at least ${CONTACT_MESSAGE_MIN} characters.`)
     .max(CONTACT_LIMITS.message, `Use ${CONTACT_LIMITS.message} characters or fewer.`)
     .regex(/\p{L}/u, "Write your message in words."),
 });

@@ -143,12 +143,13 @@ export function PlanCard({
       <div className="flex min-h-[25px] items-center justify-between gap-2">
         <h3
           id={`plan-${plan.code}`}
-          className={cn("rounded-full px-2.5 py-1 font-sans text-xs font-bold tracking-[0.06em] uppercase", theme.pill)}
+          title={plan.name}
+          className={cn("min-w-0 truncate rounded-full px-2.5 py-1 font-sans text-xs font-bold tracking-[0.06em] uppercase", theme.pill)}
         >
           {plan.name}
         </h3>
         {plan.popular && (
-          <span className="rounded-full bg-plan-pro px-2.5 py-1 text-xs font-medium text-primary-foreground">
+          <span className="shrink-0 rounded-full bg-plan-pro px-2.5 py-1 text-xs font-medium text-primary-foreground">
             Most popular
           </span>
         )}
@@ -166,7 +167,8 @@ export function PlanCard({
       <Button asChild size="lp-md" className={cn("h-[46px] w-full text-[15px]", theme.cta)}>
         {/* Every account starts on the free trial; "Choose Pro" then lands on the plans screen to switch. */}
         <Link href={isTrial ? "/register" : withNext("/register", "/billing/plans")}>
-          {isTrial ? "Start free trial" : `Choose ${plan.name}`}
+          {/* The plan name is editable in Admin: one line, "…" when too long. */}
+          <span className="min-w-0 truncate">{isTrial ? "Start free trial" : `Choose ${plan.name}`}</span>
         </Link>
       </Button>
 

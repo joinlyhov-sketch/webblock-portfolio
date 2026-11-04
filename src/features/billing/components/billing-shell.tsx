@@ -150,7 +150,7 @@ function ChangeBackdrop() {
 /** Soft glow, dot fields and floating cubes behind the billing screens. */
 export function BillingBackdrop({ variant }: { variant: "payment" | "deploy" | "change" }) {
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-x-0 top-[72px] bottom-0 overflow-hidden">
+    <div aria-hidden className={cn("pointer-events-none absolute inset-x-0 bottom-0 overflow-hidden", variant === "payment" ? "top-0" : "top-[72px]")}>
       {variant === "change" ? (
         <ChangeBackdrop />
       ) : (
@@ -215,14 +215,24 @@ export function BillingTitle({
     <PageHeader
       align="center"
       size="hero"
-      className="mb-0 h-[160px] w-full"
+      className="mb-0 min-h-[160px] w-full"
       eyebrow={
         <Pill outline icon={icon}>
           {eyebrow}
         </Pill>
       }
-      title={title}
-      description={subtitle}
+      // Title and subtitle can hold the website name (API data): at most two lines each, "…" when too
+      // long (full text on hover). `wrap-anywhere` lets a name without spaces wrap instead of widening the page.
+      title={
+        <span title={title} className="line-clamp-2 wrap-anywhere">
+          {title}
+        </span>
+      }
+      description={
+        <span title={subtitle} className="line-clamp-2 wrap-anywhere">
+          {subtitle}
+        </span>
+      }
     />
   );
 }

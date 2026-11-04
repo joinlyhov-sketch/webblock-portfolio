@@ -4,6 +4,9 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import type { ActionResult } from "@/lib/actions/result";
 import { ApiError } from "@/lib/api/errors";
+import { formFile, imageToDataUrl } from "@/lib/files";
+import { AVATAR_RULE, checkImage } from "@/lib/image-rules";
+import { createCollector, FULL_NAME_MAX, formText } from "@/lib/validation/fields";
 import { requireAdmin } from "@/lib/auth/session";
 import {
   contactWebsiteOwner,
@@ -14,6 +17,8 @@ import {
   resumeWebsite,
   suspendUser,
   suspendWebsite,
+  updateAdminAvatar,
+  updateAdminProfile,
   updatePlan,
 } from "./api";
 import { contactOwnerInput, idInput, planInput } from "./schemas";
@@ -142,6 +147,59 @@ export async function contactOwnerAction(
     return { ok: true, data: undefined, message: "They'll get it in their inbox in a moment." };
   } catch (e) {
     if (e instanceof ApiError) return { ok: false, message: e.message, values: raw };
+    throw e;
+  }
+}
+
+// ── The admin's own profile (same rules as the user's Settings → Profile) ─────
+
+export type AdminIdentity = { fullName: string; avatarUrl: string | null };
+
+export async function updateAdminProfileAction(
+  _prev: ActionResult<AdminIdentity> | null,
+  formData: FormData,
+): Promise<ActionResult<AdminIdentity>> {
+  await requireAdmin();
+  const fullName = formText(formData, "fullName");
+  const c = createCollector();
+  c.text("fullName", fullName, "Full name", { max: FULL_NAME_MAX });
+  if (c.hasErrors) {
+    return { ok: false, message: "Please fix the highlighted fields.", fieldErrors: c.errors, values: { fullName } };
+  }
+  try {
+    const profile = await updateAdminProfile({ fullName });
+    refreshAdmin();
+    return { ok: true, data: { fullName: profile.fullName, avatarUrl: profile.avatarUrl }, message: "Profile saved" };
+  } catch (e) {
+    if (e instanceof ApiError) return { ok: false, message: e.message, values: { fullName } };
+    throw e;
+  }
+}
+
+export async function uploadAdminAvatarAction(formData: FormData): Promise<ActionResult<AdminIdentity>> {
+  await requireAdmin();
+  const file = formFile(formData, "photo");
+  if (!file) return { ok: false, message: "Choose a photo first." };
+  const problem = checkImage(file, AVATAR_RULE);
+  if (problem) return { ok: false, message: problem };
+  try {
+    const profile = await updateAdminAvatar(await imageToDataUrl(file));
+    refreshAdmin();
+    return { ok: true, data: { fullName: profile.fullName, avatarUrl: profile.avatarUrl }, message: "Photo updated" };
+  } catch (e) {
+    if (e instanceof ApiError) return { ok: false, message: e.message };
+    throw e;
+  }
+}
+
+export async function removeAdminAvatarAction(): Promise<ActionResult<AdminIdentity>> {
+  await requireAdmin();
+  try {
+    const profile = await updateAdminAvatar(null);
+    refreshAdmin();
+    return { ok: true, data: { fullName: profile.fullName, avatarUrl: profile.avatarUrl }, message: "Photo removed" };
+  } catch (e) {
+    if (e instanceof ApiError) return { ok: false, message: e.message };
     throw e;
   }
 }

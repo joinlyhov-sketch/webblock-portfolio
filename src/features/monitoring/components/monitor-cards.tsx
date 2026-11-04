@@ -43,7 +43,7 @@ export function LiveBadge({ online }: { online: boolean }) {
   return (
     <span
       className={cn(
-        "inline-flex h-6 items-center gap-[5px] rounded-full px-2 text-xs font-medium [&_svg]:size-3.5",
+        "inline-flex h-6 shrink-0 items-center gap-[5px] rounded-full px-2 text-xs font-medium [&_svg]:size-3.5",
         online ? "bg-success-soft text-success" : "bg-danger-soft text-danger",
       )}
     >

@@ -22,7 +22,7 @@ export function useAdminAction() {
         toast.success(successTitle, result.message);
         onDone?.();
       } else {
-        toast.error("Couldn't finish that", result.message);
+        toast.error("Couldn’t complete the action", result.message);
       }
     });
   }

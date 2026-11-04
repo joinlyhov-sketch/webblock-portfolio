@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useUrlParam } from "@/hooks/use-url-param";
 import { cn } from "@/lib/utils";
 import { startDeployAction } from "../actions";
-import { DOMAIN_SUFFIX, plansHref, SUBDOMAIN_MAX } from "../schemas";
+import { DOMAIN_SUFFIX, plansHref, SUBDOMAIN_MAX, SUBDOMAIN_MIN } from "../schemas";
 import type { DomainCheck } from "../types";
 
 const PERKS = [
@@ -96,7 +96,16 @@ export function ChooseDomainView({
         className="mb-0"
         eyebrow="First deploy"
         title="Pick your free web address"
-        description={`This is where customers will find ${siteName}. Pick it carefully: it stays the same after this first deploy.`}
+        description={
+          <>
+            This is where customers will find{" "}
+            <span title={siteName} className="inline-block max-w-[240px] truncate align-bottom">
+              {siteName}
+            </span>
+            . Pick it carefully: it
+            stays the same after this first deploy.
+          </>
+        }
       />
 
       <form
@@ -125,6 +134,8 @@ export function ChooseDomainView({
             <input
               value={value}
               onChange={(event) => setValue(event.target.value)}
+              required
+              minLength={SUBDOMAIN_MIN}
               maxLength={SUBDOMAIN_MAX}
               aria-label="Web address"
               aria-invalid={settled && !check.available}
@@ -133,11 +144,11 @@ export function ChooseDomainView({
               spellCheck={false}
               className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-foreground outline-none"
             />
-            <span className="text-sm text-muted-foreground">
+            <span className="shrink-0 text-sm text-muted-foreground">
               {DOMAIN_SUFFIX}
             </span>
             {available && (
-              <Pill tone="success" icon={<TickCircle variant="Outline" aria-hidden />} className="ml-2">
+              <Pill tone="success" icon={<TickCircle variant="Outline" aria-hidden />} className="ml-2 shrink-0">
                 Available
               </Pill>
             )}
@@ -146,7 +157,7 @@ export function ChooseDomainView({
             id="domain-status"
             role="status"
             className={cn(
-              "min-h-5 pt-1.5 text-xs",
+              "min-h-5 pt-1.5 text-xs break-words",
               settled && !check.available
                 ? "text-danger"
                 : "text-muted-foreground",
@@ -185,8 +196,11 @@ export function ChooseDomainView({
           {!pending && <Send2 variant="Outline" aria-hidden />} Use free address &amp; deploy
         </Button>
         <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
-          <Lock1 variant="Outline" aria-hidden className="size-3.5" /> {typed || "yourname"}
-          {DOMAIN_SUFFIX}
+          <Lock1 variant="Outline" aria-hidden className="size-3.5 shrink-0" />
+          <span title={`${typed || "yourname"}${DOMAIN_SUFFIX}`} className="min-w-0 truncate">
+            {typed || "yourname"}
+            {DOMAIN_SUFFIX}
+          </span>
         </p>
       </form>
     </>

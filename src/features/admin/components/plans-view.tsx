@@ -152,10 +152,11 @@ function PlanCard({
         plan.code === "PRO" && "border-[1.5px]",
       )}
     >
-      <div className="flex h-[26px] items-center justify-between">
+      <div className="flex h-[26px] items-center justify-between gap-2">
         <span
+          title={plan.name}
           className={cn(
-            "rounded-full px-2.5 py-1 text-[13px] font-bold tracking-[0.72px] uppercase",
+            "min-w-0 truncate rounded-full px-2.5 py-1 text-[13px] font-bold tracking-[0.72px] uppercase",
             trial
               ? "border border-primary/35 bg-primary-soft text-primary"
               : theme?.pill,
@@ -164,7 +165,7 @@ function PlanCard({
           {plan.name}
         </span>
         {plan.mostPopular && (
-          <span className="rounded-full bg-tier-pro-accent px-2.5 py-1 text-[13px] font-medium text-primary-foreground">
+          <span className="shrink-0 rounded-full bg-tier-pro-accent px-2.5 py-1 text-[13px] font-medium text-primary-foreground">
             Most popular
           </span>
         )}

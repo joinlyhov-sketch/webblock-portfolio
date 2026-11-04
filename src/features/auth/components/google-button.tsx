@@ -11,7 +11,7 @@ export function GoogleButton({ label }: { label: string }) {
       variant="secondary"
       size="lg"
       className="w-full"
-      onClick={() => toast.warning("Not available yet", "Google sign-in is coming soon. Use your email for now.")}
+      onClick={() => toast.warning("Google sign-in isn’t available yet", "Sign in with your email and password instead.")}
     >
       <Image src="/images/auth/google.svg" alt="" width={18} height={18} />
       {label}

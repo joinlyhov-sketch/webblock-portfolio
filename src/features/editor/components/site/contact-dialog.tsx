@@ -76,9 +76,11 @@ export function ContactDialog({
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-[11px] tracking-wide text-site-muted uppercase">{row.label}</span>
-                    <span className="block truncate text-sm font-medium">{row.value}</span>
+                    <span title={row.value} className="block truncate text-sm font-medium">
+                      {row.value}
+                    </span>
                   </span>
-                  <span className="text-[13px] font-semibold text-site-accent">{row.action}</span>
+                  <span className="shrink-0 text-[13px] font-semibold text-site-accent">{row.action}</span>
                 </a>
               </li>
             ))}
@@ -87,7 +89,8 @@ export function ContactDialog({
           {site.address && (
             <p className="flex gap-2 text-[13px] text-site-muted">
               <Location variant="Outline" aria-hidden className="mt-0.5 size-4 shrink-0" />
-              <span>
+              {/* Owner-typed address: wraps (even without spaces) instead of widening the dialog. */}
+              <span className="min-w-0 break-words">
                 {site.address} ·{" "}
                 <a href={directionsHref(site.address)} {...EXTERNAL_LINK} className={cn("font-semibold text-site-accent hover:underline")}>
                   Get directions ↗

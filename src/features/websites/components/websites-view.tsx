@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { SearchNormal1 } from "iconsax-reactjs";
-import type { PlanTier } from "@/components/common/plan-badge";
 import { EmptyState } from "@/components/common/empty-state";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { PageHeader } from "@/components/common/page-header";
@@ -34,15 +33,12 @@ export function WebsitesView({
   notifications,
   templates,
   businessTypes,
-  plan,
   initialFilter,
 }: {
   websites: Website[];
   notifications: NotificationsView;
   templates: Template[];
   businessTypes: string[];
-  /** The account's plan, shown on every live website. */
-  plan: PlanTier;
   initialFilter: { status: StatusFilter; q: string };
 }) {
   const [websites, setWebsites] = useState(initialWebsites);
@@ -131,7 +127,7 @@ export function WebsitesView({
       {/* flex-1 + centring: the empty state sits in the middle of the free space, not at the top. */}
       <div className="flex flex-1 flex-col pt-1 pb-6">
         {filtering && visible.length === 0 ? (
-          <div className="flex flex-1 items-center justify-center">
+          <div key={status} className="swap-in flex flex-1 items-center justify-center">
             <EmptyState
               icon={<SearchNormal1 variant="Outline" />}
               title={q ? "No results found" : "No websites here yet"}
@@ -139,13 +135,12 @@ export function WebsitesView({
             />
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div key={status} className="swap-in grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {!filtering && <NewWebsiteCard templates={templates} businessTypes={businessTypes} />}
             {visible.map((website) => (
               <WebsiteCard
                 key={website.id}
                 website={website}
-                plan={plan}
                 filtered={status !== "ALL"}
                 onPatch={(patch) => patchWebsite(website.id, patch)}
                 onRemove={() => removeWebsite(website.id)}

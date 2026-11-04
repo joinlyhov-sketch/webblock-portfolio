@@ -8,6 +8,7 @@ import {
   uploadAvatarAction,
 } from "../actions";
 import { Avatar } from "@/components/common/avatar";
+import { PhotoPreviewModal } from "@/components/common/photo-preview-modal";
 import { toast } from "@/components/common/toast";
 import { UploadImageModal } from "@/components/common/upload-image-modal";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,9 @@ import { FULL_NAME_MAX } from "@/lib/validation/fields";
 import type { Profile } from "../types";
 import { PLAN_TONE, TONE_STYLE } from "./plan-tone";
 import { Field, SETTINGS_FIELD, SettingsCard } from "./settings-card";
+
+const AVATAR_STYLE =
+  "size-[76px] border-4 border-background from-avatar-from to-violet-border text-[32px] leading-[33px] shadow-avatar";
 
 /** Profile card: photo, member dates and the editable full name. `memberSince` / `lastSignIn` are preformatted. */
 export function ProfileCard({
@@ -32,7 +36,10 @@ export function ProfileCard({
   lastSignIn: string;
 }) {
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [viewOpen, setViewOpen] = useState(false);
   const [removing, startRemove] = useTransition();
+  const [nameValue, setNameValue] = useState(profile.fullName);
+  const [nameTouched, setNameTouched] = useState(false);
   // What the card shows. Name and initials come from the last saved result, the photo from the last
   // upload or removal, so a change appears without a re-render from the server.
   const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl);
@@ -42,6 +49,14 @@ export function ProfileCard({
   const initials = saved?.initials ?? profile.initials;
   const planStyle = TONE_STYLE[PLAN_TONE[profile.plan]];
 
+  const [prevState, setPrevState] = useState(state);
+  if (prevState !== state) {
+    setPrevState(state);
+    if (state?.ok) {
+      setNameValue(state.data.fullName);
+    }
+  }
+
   // Tell the sidebar (a different part of the page) about the new name or photo.
   useEffect(() => {
     announceProfile({ fullName, initials, avatarUrl });
@@ -49,8 +64,10 @@ export function ProfileCard({
 
   useEffect(() => {
     if (!state) return;
-    if (state.ok) toast.success(state.message ?? "Profile saved");
-    else toast.error("Could not save", state.message);
+    if (state.ok) {
+      toast.success(state.message ?? "Profile saved");
+    }
+    else if (!state.fieldErrors) toast.error("Could not save your profile", state.message);
   }, [state]);
 
   async function upload(file: File): Promise<boolean> {
@@ -69,13 +86,17 @@ export function ProfileCard({
       const result = await removeAvatarAction();
       if (result.ok) {
         setAvatarUrl(result.data.avatarUrl);
-        toast.success(result.message ?? "Photo removed");
+        toast.danger(result.message ?? "Photo removed");
       }
       else toast.error("Could not remove the photo", result.message);
     });
   }
 
-  const nameError = state && !state.ok ? state.fieldErrors?.fullName?.[0] : undefined;
+  const nameError = nameTouched && !nameValue.trim()
+    ? "Enter your full name."
+    : state && !state.ok && state.values?.fullName === nameValue
+      ? state.fieldErrors?.fullName?.[0]
+      : undefined;
 
   return (
     <SettingsCard
@@ -88,12 +109,20 @@ export function ProfileCard({
         <div className="overflow-hidden rounded-[14px] border border-border bg-muted">
           <div className="flex flex-wrap items-center gap-[18px] p-[22px]">
             <span className="relative size-[76px] shrink-0">
-              <Avatar
-                name={fullName}
-                initials={initials}
-                src={avatarUrl}
-                className="size-[76px] border-4 border-background from-avatar-from to-violet-border text-[32px] leading-[33px] shadow-avatar"
-              />
+              {/* The photo opens a larger preview (or the upload when there is no photo yet); the camera uploads. */}
+              <button
+                type="button"
+                aria-label={avatarUrl ? "View photo" : "Add photo"}
+                onClick={() => (avatarUrl ? setViewOpen(true) : setUploadOpen(true))}
+                className="block rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/40"
+              >
+                <Avatar
+                  name={fullName}
+                  initials={initials}
+                  src={avatarUrl}
+                  className={AVATAR_STYLE}
+                />
+              </button>
               <button
                 type="button"
                 aria-label="Change photo"
@@ -105,10 +134,10 @@ export function ProfileCard({
             </span>
             <div className="flex min-w-0 flex-1 flex-col gap-1.5">
               <div className="flex items-center gap-2">
-                <p className="truncate font-heading text-lg font-semibold">{fullName}</p>
+                <p title={fullName} className="min-w-0 truncate font-heading text-lg font-semibold">{fullName}</p>
                 {/* Same colours as the plan card: blue for Free trial and Plus, gold for Pro, violet for Ultra. */}
                 <span
-                  className={`relative inline-flex h-[22px] items-center overflow-hidden rounded-md px-2 text-[11px] font-semibold tracking-[0.66px] whitespace-nowrap text-primary-foreground uppercase ${planStyle.badge}`}
+                  className={`relative inline-flex h-[22px] shrink-0 items-center overflow-hidden rounded-md px-2 text-[11px] font-semibold tracking-[0.66px] whitespace-nowrap text-primary-foreground uppercase ${planStyle.badge}`}
                 >
                   {PLAN_TONE[profile.plan] !== "brand" && (
                     <span
@@ -121,7 +150,7 @@ export function ProfileCard({
               </div>
               <div aria-hidden className="h-[17px]" />
             </div>
-            <div className="flex flex-col items-end gap-2">
+            <div className="flex flex-col items-end">
               <div className="flex items-center gap-2">
                 <Button size="sm" onClick={() => setUploadOpen(true)}>
                   Upload photo
@@ -136,7 +165,6 @@ export function ProfileCard({
                   Remove
                 </Button>
               </div>
-              <p className="text-xs text-hint">JPG or PNG, up to 2 MB</p>
             </div>
           </div>
           <dl className="flex gap-6 border-t border-border bg-background/60 px-[22px] pt-3.5 pb-4">
@@ -152,18 +180,35 @@ export function ProfileCard({
           </dl>
         </div>
 
-        <form action={formAction} className="flex flex-col gap-5">
+        <form
+          action={formAction}
+          className="flex flex-col gap-5"
+          onSubmit={(event) => {
+            if (!nameValue.trim()) {
+              event.preventDefault();
+              setNameTouched(true);
+            }
+          }}
+        >
           <Field id="fullName" label="Full name" hint="Shown on your website header." error={nameError}>
             <Input
               id="fullName"
               name="fullName"
               maxLength={FULL_NAME_MAX}
-              defaultValue={state && !state.ok ? (state.values?.fullName ?? profile.fullName) : profile.fullName}
+              value={nameValue}
+              onChange={(event) => setNameValue(event.target.value)}
+              onBlur={() => setNameTouched(true)}
               autoComplete="name"
               aria-invalid={!!nameError}
-              aria-describedby="fullName-hint"
+              aria-required="true"
+              aria-describedby={nameValue.length >= FULL_NAME_MAX ? "fullName-hint fullName-limit" : "fullName-hint"}
               className={SETTINGS_FIELD}
             />
+            {nameValue.length >= FULL_NAME_MAX && (
+              <p id="fullName-limit" role="status" className="text-xs text-danger">
+                You’ve reached the {FULL_NAME_MAX}-character limit.
+              </p>
+            )}
           </Field>
           <Field id="email" label="Email" hint="Your email can’t be changed.">
             <Input
@@ -183,7 +228,27 @@ export function ProfileCard({
         </form>
       </div>
 
-      <UploadImageModal open={uploadOpen} onClose={() => setUploadOpen(false)} rule={AVATAR_RULE} onUpload={upload} />
+      <UploadImageModal
+        open={uploadOpen}
+        onClose={() => setUploadOpen(false)}
+        rule={AVATAR_RULE}
+        onUpload={upload}
+        cropCircle
+      />
+      <PhotoPreviewModal
+        open={viewOpen}
+        onClose={() => setViewOpen(false)}
+        title="Profile photo"
+        changeLabel="Change photo"
+        onChange={() => setUploadOpen(true)}
+      >
+        <Avatar
+          name={fullName}
+          initials={initials}
+          src={avatarUrl}
+          className={`${AVATAR_STYLE} size-60 text-6xl`}
+        />
+      </PhotoPreviewModal>
     </SettingsCard>
   );
 }

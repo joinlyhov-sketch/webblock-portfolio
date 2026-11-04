@@ -1,9 +1,13 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
-import { Calendar, Copy, MagicStar, Personalcard, ShieldTick, Sms, TickCircle } from "iconsax-reactjs";
+import { useState, useTransition, type ReactNode } from "react";
+import { Calendar, Camera, Copy, Edit2, Logout, MagicStar, Personalcard, ShieldTick, Sms, TickCircle } from "iconsax-reactjs";
 import { Avatar } from "@/components/common/avatar";
+import { ConfirmDialog } from "@/components/common/confirm-dialog";
+import { PhotoPreviewModal } from "@/components/common/photo-preview-modal";
 import { Pill } from "@/components/common/status-badge";
+import { Button } from "@/components/ui/button";
+import { signOutAction } from "@/features/auth/actions";
 import {
   Popover,
   PopoverContent,
@@ -12,10 +16,28 @@ import {
 import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { AdminProfile } from "../types";
+import { EditAdminProfileDialog } from "./edit-admin-profile-dialog";
 
-/** Header avatar (Figma "Header · Admin profile"): opens the read-only "Admin profile" card. */
+/**
+ * Header avatar (Figma "Header · Admin profile"): opens the "Admin profile" card. The photo opens a
+ * larger preview, the camera badge uploads a new one, and the card ends with Edit profile and Log out
+ * (the only way to sign out below 1024px, where the sidebar and its log out button are hidden).
+ */
 export function AdminProfileMenu({ profile }: { profile: AdminProfile }) {
   const [copied, setCopied] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [signingOut, startSignOut] = useTransition();
+  const [viewOpen, setViewOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editUpload, setEditUpload] = useState(false);
+
+  /** Popups live outside the card, so close the card first and they survive it. */
+  function openEdit(upload: boolean) {
+    setMenuOpen(false);
+    setEditUpload(upload);
+    setEditOpen(true);
+  }
 
   async function copyId() {
     try {
@@ -28,7 +50,8 @@ export function AdminProfileMenu({ profile }: { profile: AdminProfile }) {
   }
 
   return (
-    <Popover>
+    <>
+    <Popover open={menuOpen} onOpenChange={setMenuOpen}>
       <PopoverTrigger asChild>
         <button
           type="button"
@@ -63,23 +86,48 @@ export function AdminProfileMenu({ profile }: { profile: AdminProfile }) {
         </div>
 
         <div className="-mt-10 flex flex-col items-center px-4 text-center">
-          {/* Avatar in a thin blue gradient ring, with a green "signed in" dot on its bottom-right edge. */}
+          {/* Avatar in a thin blue gradient ring: a green "signed in" dot top-right, the camera badge bottom-right. */}
           <span className="relative grid rounded-full bg-linear-to-br from-primary to-brand-border p-[3px] shadow-card motion-safe:animate-fade-up">
-            <Avatar
-              variant="solid"
-              name={profile.fullName}
-              src={profile.avatarUrl}
-              className="size-[70px] text-lg ring-[3px] ring-background"
-            />
-            <span className="absolute right-1 bottom-1 size-3.5 rounded-full bg-success ring-[2.5px] ring-background">
+            {/* The photo opens a larger preview (or the upload when there is no photo yet). */}
+            <button
+              type="button"
+              aria-label={profile.avatarUrl ? "View photo" : "Add photo"}
+              onClick={() => {
+                if (!profile.avatarUrl) return openEdit(true);
+                setMenuOpen(false);
+                setViewOpen(true);
+              }}
+              className="block rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/40"
+            >
+              <Avatar
+                variant="solid"
+                name={profile.fullName}
+                src={profile.avatarUrl}
+                className="size-[70px] text-lg ring-[3px] ring-background"
+              />
+            </button>
+            <span className="absolute top-1 right-1 size-3.5 rounded-full bg-success ring-[2.5px] ring-background">
               <span className="sr-only">Signed in</span>
             </span>
+            <button
+              type="button"
+              aria-label="Change photo"
+              onClick={() => openEdit(true)}
+              className="absolute -right-1 -bottom-1 grid size-7 place-items-center rounded-full border-[3px] border-background bg-brand text-primary-foreground outline-none transition-transform hover:scale-105 focus-visible:ring-3 focus-visible:ring-ring/40"
+            >
+              <Camera variant="Outline" aria-hidden className="size-3.5" />
+            </button>
           </span>
-          <p className="mt-3 max-w-full truncate font-heading text-lg leading-6 font-semibold text-foreground">
+          <p
+            title={profile.fullName}
+            className="mt-3 max-w-full truncate font-heading text-lg leading-6 font-semibold text-foreground"
+          >
             {profile.fullName}
           </p>
-          <Pill tone="brand" icon={<ShieldTick variant="Outline" aria-hidden />} className="mt-1.5">
-            {profile.title}
+          <Pill tone="brand" icon={<ShieldTick variant="Outline" aria-hidden />} className="mt-1.5 max-w-full">
+            <span title={profile.title} className="truncate">
+              {profile.title}
+            </span>
           </Pill>
         </div>
 
@@ -111,11 +159,57 @@ export function AdminProfileMenu({ profile }: { profile: AdminProfile }) {
             value={formatDate(profile.joinedAt)}
           />
         </ul>
+        <div className="grid grid-cols-2 gap-2 px-4 pb-4">
+          <Button variant="secondary" onClick={() => openEdit(false)}>
+            <Edit2 variant="Outline" aria-hidden />
+            Edit profile
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              // Close the card first: the confirm popup lives outside it, so it survives the close.
+              setMenuOpen(false);
+              setConfirmOpen(true);
+            }}
+          >
+            <Logout variant="Outline" aria-hidden />
+            Log out
+          </Button>
+        </div>
         <span aria-live="polite" className="sr-only">
           {copied ? "Account ID copied" : ""}
         </span>
       </PopoverContent>
     </Popover>
+
+    <ConfirmDialog
+      open={confirmOpen}
+      onClose={() => setConfirmOpen(false)}
+      onConfirm={() => startSignOut(() => signOutAction())}
+      loading={signingOut}
+      icon={<Logout variant="Outline" />}
+      title="Log out of WebBlock?"
+      description="You’ll need to sign in again to manage the platform."
+      confirmLabel="Log out"
+      look="soft"
+    />
+
+    <PhotoPreviewModal
+      open={viewOpen}
+      onClose={() => setViewOpen(false)}
+      title="Profile photo"
+      changeLabel="Change photo"
+      onChange={() => openEdit(true)}
+    >
+      <Avatar variant="solid" name={profile.fullName} src={profile.avatarUrl} className="size-60 text-6xl ring-0" />
+    </PhotoPreviewModal>
+    <EditAdminProfileDialog
+      open={editOpen}
+      onClose={() => setEditOpen(false)}
+      profile={profile}
+      startWithUpload={editUpload}
+    />
+    </>
   );
 }
 

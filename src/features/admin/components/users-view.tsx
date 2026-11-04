@@ -13,7 +13,7 @@ import {
   Timer1,
 } from "iconsax-reactjs";
 import { Avatar } from "@/components/common/avatar";
-import { WebsiteLogo } from "./website-logo";
+import { WebsiteLogo } from "@/components/common/website-logo";
 import { DataTable } from "@/components/common/data-table";
 import { EmptyState } from "@/components/common/empty-state";
 import { KpiCard, KpiGrid } from "@/components/common/kpi-card";
@@ -208,10 +208,10 @@ export function UsersView({
                   className={planRing(u.plan)}
                 />
                 <span className="min-w-0">
-                  <span className="block max-w-[260px] truncate font-semibold text-foreground group-hover:text-primary">
+                  <span title={u.fullName} className="block max-w-[260px] truncate font-semibold text-foreground group-hover:text-primary">
                     {u.fullName}
                   </span>
-                  <span className="block max-w-[260px] truncate text-sm text-muted-foreground">
+                  <span title={u.email} className="block max-w-[260px] truncate text-sm text-muted-foreground">
                     {u.email}
                   </span>
                 </span>
@@ -276,7 +276,7 @@ export function UsersView({
             user={detail.user}
             websites={detail.websites}
             subscriptionHref={(() => {
-              // Open the active plan first; an account with none shows a disabled button.
+              // Open the active plan first.
               const sub =
                 detail.subscriptions.find((x) => x.status === "ACTIVE") ??
                 detail.subscriptions[0];
@@ -327,7 +327,7 @@ function UserDetail({
           <div className="min-w-0">
             <h2
               title={user.fullName}
-              className="line-clamp-2 text-[22px] leading-[30px] font-semibold tracking-[-0.17px] break-words text-foreground"
+              className="line-clamp-2 font-heading text-xl leading-7 font-semibold tracking-[-0.2px] break-words text-foreground"
             >
               {user.fullName}
             </h2>
@@ -387,14 +387,18 @@ function UserDetail({
                         className="size-9"
                       />
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-bold text-foreground">
+                        <span title={w.name} className="block truncate text-[15px] leading-6 font-semibold text-foreground">
                           {w.name}
                         </span>
-                        <span className="block truncate text-sm text-muted-foreground">
+                        <span title={w.domain || undefined} className="block truncate text-sm text-muted-foreground">
                           {w.domain || "Not deployed"}
                         </span>
                       </span>
-                      <StatusBadge status={w.releaseStatus ?? "DRAFT"} />
+                      <StatusBadge
+                        status={user.status === "SUSPENDED" || w.siteStatus === "SUSPENDED"
+                          ? "SUSPENDED"
+                          : w.releaseStatus ?? "DRAFT"}
+                      />
                     </Link>
                   </li>
                 );
@@ -407,30 +411,26 @@ function UserDetail({
           )}
         </DetailCard>
         <div className="flex gap-3 pt-1">
-          {subscriptionHref ? (
-            <Button asChild variant="secondary" size="sm" className="flex-1">
-              <Link href={subscriptionHref} scroll={false}>
-                <DocumentText variant="Outline" />
-                View subscription
-              </Link>
-            </Button>
-          ) : (
-            <Button variant="secondary" size="sm" className="flex-1" disabled>
+          <Button asChild variant="secondary" size="sm" className="flex-1">
+            <Link
+              href={subscriptionHref ?? `/admin/users?user=${user.id}&subscription=e4a6c8f0-3b5d-4f7a-8c9e-${user.id.slice(-12)}`}
+              scroll={false}
+            >
               <DocumentText variant="Outline" />
-              No subscription
-            </Button>
-          )}
+              View subscription
+            </Link>
+          </Button>
           {websites.totalItems > 0 ? (
             <Button asChild size="sm" className="flex-1">
               <Link href={`/admin/websites?owner=${user.id}`}>
                 <ExportSquare variant="Outline" />
-                View websites
+                View all websites
               </Link>
             </Button>
           ) : (
             <Button size="sm" className="flex-1" disabled>
               <ExportSquare variant="Outline" />
-              View websites
+              View all websites
             </Button>
           )}
         </div>

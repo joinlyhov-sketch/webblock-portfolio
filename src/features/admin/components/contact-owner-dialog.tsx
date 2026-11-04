@@ -90,8 +90,13 @@ function ContactOwnerForm({ website, onDone }: { website: ContactOwnerWebsite; o
           <Sms variant="Outline" />
         </span>
         <div className="relative min-w-0 pr-8">
-          <h2 className="truncate text-[15px] leading-5 font-semibold text-foreground">Email {website.ownerName}</h2>
-          <p className="flex items-center gap-1.5 truncate text-[13px] text-muted-foreground">
+          <h2
+            title={`Email ${website.ownerName}`}
+            className="truncate text-[15px] leading-5 font-semibold text-foreground"
+          >
+            Email {website.ownerName}
+          </h2>
+          <p className="flex min-w-0 items-center gap-1.5 text-[13px] text-muted-foreground">
             <span
               aria-hidden
               className={cn(
@@ -99,16 +104,22 @@ function ContactOwnerForm({ website, onDone }: { website: ContactOwnerWebsite; o
                 website.releaseStatus === "FAILED" ? "bg-danger" : "bg-primary",
               )}
             />
-            {website.name}
-            {website.releaseStatus === "FAILED" && <span className="text-danger">· Deploy failed</span>}
+            <span title={website.name} className="min-w-0 truncate">
+              {website.name}
+            </span>
+            {website.releaseStatus === "FAILED" && (
+              <span className="shrink-0 whitespace-nowrap text-danger">· Deploy failed</span>
+            )}
           </p>
         </div>
       </header>
 
       <p className="flex h-10 items-center gap-2.5 rounded-full border border-input bg-surface pr-4 pl-1.5 text-sm">
         <Avatar name={website.ownerName} src={null} size="sm" variant="soft" className="size-7" />
-        <span className="text-muted-foreground">To</span>
-        <span className="truncate text-foreground">{website.ownerEmail}</span>
+        <span className="shrink-0 text-muted-foreground">To</span>
+        <span title={website.ownerEmail} className="min-w-0 truncate text-foreground">
+          {website.ownerEmail}
+        </span>
       </p>
 
       <div>

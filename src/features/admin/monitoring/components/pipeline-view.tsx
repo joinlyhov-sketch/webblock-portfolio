@@ -1,13 +1,17 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Hierarchy, SearchNormal1 } from "iconsax-reactjs";
-import { Thumbnail } from "@/components/common/avatar";
+import { WebsiteLogo } from "@/components/common/website-logo";
 import { CardHeader } from "@/components/common/card";
 import { DataTable } from "@/components/common/data-table";
 import { EmptyState } from "@/components/common/empty-state";
 import { SegmentedTabs } from "@/components/common/segmented-tabs";
 import { StatusBadge } from "@/components/common/status-badge";
 import { Button } from "@/components/ui/button";
-import { AdminPageHeader } from "@/features/admin";
+import { AdminPageHeader } from "../../components/admin-page-header";
 import type { Page } from "@/lib/api/types";
 import { formatDateTime } from "@/lib/format";
 import { tableHref, type SearchParams } from "@/lib/table-query";
@@ -30,6 +34,18 @@ export function PipelineView({
   /** The website opened with `?run=<websiteId>`, with its live logs once live. */
   detail: { run: PipelineRun; logs: Page<LogLine> | null } | null;
 }) {
+  const router = useRouter();
+  useEffect(() => {
+    const refresh = () => {
+      if (document.visibilityState === "visible") router.refresh();
+    };
+    const interval = window.setInterval(refresh, 5_000);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, [router]);
   const stage =
     typeof searchParams.stage === "string" ? searchParams.stage : undefined;
   const runHref = (websiteId: string) =>
@@ -110,12 +126,12 @@ export function PipelineView({
                 scroll={false}
                 className="group flex min-w-0 items-center gap-3 outline-none after:absolute after:inset-0 after:content-[''] focus-visible:after:ring-3 focus-visible:after:ring-ring/40"
               >
-                <Thumbnail src={r.thumbnailUrl} />
+                <WebsiteLogo logoUrl={r.logoUrl} templateSlug={r.templateSlug} className="size-10 text-[18px]" />
                 <span className="min-w-0">
-                  <span className="block truncate font-semibold text-foreground group-hover:text-primary">
+                  <span title={r.websiteName} className="block max-w-[240px] truncate font-semibold text-foreground group-hover:text-primary">
                     {r.websiteName}
                   </span>
-                  <span className="block truncate text-sm text-muted-foreground">
+                  <span title={r.domain} className="block max-w-[240px] truncate text-sm text-muted-foreground">
                     {r.domain}
                   </span>
                 </span>
@@ -128,7 +144,7 @@ export function PipelineView({
             header: "Owner",
             sortField: "ownerName",
             cell: (r) => (
-              <span className="block truncate" title={r.ownerName}>
+              <span className="block max-w-[220px] truncate" title={r.ownerName}>
                 {r.ownerName}
               </span>
             ),

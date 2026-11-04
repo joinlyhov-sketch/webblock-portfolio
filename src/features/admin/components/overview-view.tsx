@@ -9,7 +9,7 @@ import {
 } from "iconsax-reactjs";
 import { Card, CardHeader } from "@/components/common/card";
 import { AreaTrendChart, DonutBreakdown } from "@/components/common/charts";
-import { CompactTable } from "@/components/common/compact-table";
+import { DataTable } from "@/components/common/data-table";
 import { EmptyState } from "@/components/common/empty-state";
 import { KpiCard, KpiGrid } from "@/components/common/kpi-card";
 import { StatusBadge } from "@/components/common/status-badge";
@@ -27,7 +27,7 @@ import type {
 } from "../types";
 import { AdminPageHeader } from "./admin-page-header";
 import { WebsiteDetail } from "./websites-view";
-import { WebsiteLogo } from "./website-logo";
+import { WebsiteLogo } from "@/components/common/website-logo";
 
 // Figma "Needs attention": soft red, pink, yellow, blue — used for the donut and its legend.
 const ATTENTION = {
@@ -149,24 +149,29 @@ export function OverviewView({
 /** Figma "Recent deploys": card with an inset table, rounded grey header row, uppercase column names. */
 function RecentDeploys({ deploys }: { deploys: Page<Deploy> }) {
   return (
-    <Card className="px-6 pt-5 pb-2">
-      <CardHeader
-        title="Recent deploys"
-        className="mb-3.5"
-        aside={
-          <Link
-            href="/admin/websites?sort=lastDeployAt,desc"
-            className="font-semibold text-brand hover:underline"
-          >
-            View all
-          </Link>
-        }
-      />
-      <CompactTable
-        label="Recent deploys"
-        rows={deploys.items}
-        rowKey={(d) => d.id}
-        rowClassName={() => "relative cursor-pointer"}
+    <DataTable
+      fill
+      footer={false}
+      label="Recent deploys"
+      itemLabel="deploys"
+      minWidth="min-w-[720px]"
+      data={deploys}
+      rowKey={(d) => d.id}
+      rowClassName="relative cursor-pointer"
+      toolbar={
+        <CardHeader
+          title="Recent deploys"
+          className="w-full"
+          aside={
+            <Link
+              href="/admin/websites?sort=lastDeployAt,desc"
+              className="font-semibold text-brand hover:underline"
+            >
+              View all
+            </Link>
+          }
+        />
+      }
         empty={
           <EmptyState
             icon={<Send2 variant="Outline" />}
@@ -175,7 +180,6 @@ function RecentDeploys({ deploys }: { deploys: Page<Deploy> }) {
           />
         }
         columns={[
-          { key: "no", header: "No.", cell: (_, i) => i + 1, className: "w-[72px]" },
           {
             key: "website",
             header: "Website",
@@ -190,7 +194,7 @@ function RecentDeploys({ deploys }: { deploys: Page<Deploy> }) {
                   templateSlug={d.websiteTemplateSlug}
                   className="size-8 shrink-0 text-[16px]"
                 />
-                <span className="truncate" title={d.websiteName}>
+                <span className="max-w-[300px] truncate" title={d.websiteName}>
                   {d.websiteName}
                 </span>
               </Link>
@@ -200,7 +204,7 @@ function RecentDeploys({ deploys }: { deploys: Page<Deploy> }) {
             key: "owner",
             header: "Owner",
             cell: (d) => (
-              <span className="block truncate" title={d.ownerName}>
+              <span className="block max-w-[220px] truncate" title={d.ownerName}>
                 {d.ownerName}
               </span>
             ),
@@ -213,7 +217,6 @@ function RecentDeploys({ deploys }: { deploys: Page<Deploy> }) {
             className: "text-muted-foreground",
           },
         ]}
-      />
-    </Card>
+    />
   );
 }

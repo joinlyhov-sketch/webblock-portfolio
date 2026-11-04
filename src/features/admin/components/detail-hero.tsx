@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { ExportSquare } from "iconsax-reactjs";
+import { HeroDecor } from "@/components/common/hero-decor";
 import { cn } from "@/lib/utils";
 
 /**
@@ -35,7 +36,7 @@ export function DetailHero({
           {title}
         </h2>
         {subtitle && (
-          <p className="truncate text-sm text-muted-foreground">
+          <p title={subtitle} className="truncate text-sm text-muted-foreground">
             {subtitle}
           </p>
         )}
@@ -46,7 +47,7 @@ export function DetailHero({
             rel="noopener noreferrer"
             className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-brand-soft bg-background px-3 py-1 text-sm font-medium text-brand hover:bg-primary-soft focus-visible:ring-3 focus-visible:ring-ring/40 focus-visible:outline-none"
           >
-            <span className="truncate">{link.label}</span>
+            <span title={link.label} className="truncate">{link.label}</span>
             <ExportSquare variant="Outline" aria-hidden className="size-3.5 shrink-0" />
           </a>
         )}
@@ -56,43 +57,8 @@ export function DetailHero({
   );
 }
 
-const DOTS =
-  "bg-[radial-gradient(var(--color-primary)_1.3px,transparent_1.4px)] bg-size-[10px_10px]";
-
-/** Figma hero background: dot grids, a small floating dot and soft circles behind the content. */
-export function HeroDecor({ layout = "band" }: { layout?: "band" | "card" }) {
-  // "band": behind a short hero strip (website, subscription). "card": top of a white popup (user).
-  if (layout === "card") {
-    return (
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[200px]"
-      >
-        <span className="absolute top-[69px] -right-[21px] size-[120px] rounded-full bg-brand-soft/80" />
-        <span className="absolute top-[69px] left-[19px] size-16 rounded-full bg-brand-soft/80" />
-        <span
-          className={`absolute top-[15px] left-[17px] h-12 w-[60px] opacity-35 ${DOTS}`}
-        />
-        <span
-          className={`absolute top-[91px] right-[121px] size-12 opacity-35 ${DOTS}`}
-        />
-      </div>
-    );
-  }
-  return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-      <span className="absolute -top-4 -right-16 size-44 rounded-full bg-brand-soft/80" />
-      <span className="absolute top-[58%] -left-8 size-28 rounded-full bg-brand-soft/70" />
-      <span
-        className={`absolute top-3 left-6 h-[34px] w-[60px] opacity-35 ${DOTS}`}
-      />
-      <span
-        className={`absolute top-[46%] right-[24%] h-10 w-10 opacity-35 ${DOTS}`}
-      />
-      <span className="absolute top-9 left-[62%] size-2 rounded-full bg-primary/60" />
-    </div>
-  );
-}
+// HeroDecor moved to components/common so non-admin popups can use it too.
+export { HeroDecor };
 
 /** Small outlined chip under the hero title: owner, deploy, email, plan. */
 export function HeroChip({
@@ -105,7 +71,9 @@ export function HeroChip({
   return (
     <span className="inline-flex h-7 max-w-full items-center gap-1.5 rounded-full border border-border bg-background px-2.5 text-[13px] font-medium text-foreground-soft [&_svg]:size-3.5 [&_svg]:shrink-0">
       {icon}
-      <span className="truncate">{children}</span>
+      <span title={typeof children === "string" ? children : undefined} className="truncate">
+        {children}
+      </span>
     </span>
   );
 }
@@ -137,7 +105,7 @@ export function DetailSection({
           {title}
         </h3>
         {aside && (
-          <span className="text-[13px] text-muted-foreground">{aside}</span>
+          <span className="text-xs text-muted-foreground">{aside}</span>
         )}
       </header>
       {children}
@@ -166,15 +134,15 @@ export function DetailCard({
       <header className="mx-[15px] flex items-center gap-3 border-b border-border py-3.5">
         <span
           aria-hidden
-          className="grid size-7 shrink-0 place-items-center rounded-full bg-brand-soft text-brand [&_svg]:size-3.5"
+          className="grid size-9 shrink-0 place-items-center rounded-[10px] bg-brand-soft text-brand [&_svg]:size-[18px]"
         >
           {icon}
         </span>
-        <h3 className="flex-1 text-sm font-bold text-foreground">
+        <h3 className="flex-1 font-heading text-base leading-6 font-semibold text-foreground">
           {title}
         </h3>
         {aside && (
-          <span className="text-[13px] text-muted-foreground">{aside}</span>
+          <span className="shrink-0 text-xs text-muted-foreground">{aside}</span>
         )}
       </header>
       {/* Same inset as the header, so every divider line in the card stops short of the edges. */}
@@ -201,7 +169,7 @@ export function InfoTile({
   return (
     <div
       className={cn(
-        "flex items-center gap-3 rounded-xl p-3",
+        "flex min-w-0 items-center gap-3 rounded-xl p-3",
         tone?.surface ?? "bg-muted",
       )}
     >
@@ -214,12 +182,15 @@ export function InfoTile({
       >
         {icon}
       </span>
-      <div className="min-w-0 text-sm leading-5">
-        <dt className="text-muted-foreground">{label}</dt>
-        <dd className={cn("truncate font-semibold", tone?.text ?? "text-foreground")}>
+      <div className="min-w-0">
+        <dt className="text-xs text-muted-foreground">{label}</dt>
+        <dd
+          title={typeof value === "string" ? value : undefined}
+          className={cn("truncate text-[15px] leading-6 font-medium", tone?.text ?? "text-foreground")}
+        >
           {value}
         </dd>
-        {hint && <dd className="truncate text-[13px] text-placeholder">{hint}</dd>}
+        {hint && <dd title={hint} className="truncate text-[13px] text-placeholder">{hint}</dd>}
       </div>
     </div>
   );

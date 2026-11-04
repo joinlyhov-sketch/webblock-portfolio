@@ -103,7 +103,7 @@ export function DetailList({
           key={item.label}
           className="flex items-center justify-between gap-4 px-3.5 py-2.5 text-[13px]"
         >
-          <dt className="flex items-center gap-2 text-muted-foreground">
+          <dt className="flex shrink-0 items-center gap-2 text-muted-foreground">
             {item.icon && (
               <span aria-hidden className="text-brand [&_svg]:size-4">
                 {item.icon}
@@ -111,7 +111,15 @@ export function DetailList({
             )}
             {item.label}
           </dt>
-          <dd className="text-right font-semibold text-foreground">
+          {/* Values often come from the API (domains, names): plain text ends in "…" (full text on hover);
+              custom content wraps rather than pushing past the box. */}
+          <dd
+            title={typeof item.value === "string" ? item.value : undefined}
+            className={cn(
+              "min-w-0 text-right font-semibold wrap-anywhere text-foreground",
+              typeof item.value === "string" && "truncate",
+            )}
+          >
             {item.value}
           </dd>
         </div>

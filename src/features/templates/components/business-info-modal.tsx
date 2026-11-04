@@ -80,6 +80,7 @@ function BusinessInfoForm({
   const [step, setStep] = useState<1 | 2>(1);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [logo, setLogo] = useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const [values, setValues] = useState({
     businessName: "",
     businessType: "",
@@ -137,7 +138,6 @@ function BusinessInfoForm({
         router.push(`/websites/${result.data.id}/edit`);
         return;
       }
-      toast.error("Could not create the website", result.message);
       if (result.fieldErrors) {
         setErrors(result.fieldErrors);
         if (result.fieldErrors.businessName || result.fieldErrors.businessType || result.fieldErrors.description) {
@@ -146,6 +146,8 @@ function BusinessInfoForm({
       } else if (result.message.includes("business name")) {
         setErrors({ businessName: [result.message] });
         setStep(1);
+      } else {
+        toast.error("Could not create the website", result.message);
       }
     });
   }
@@ -184,20 +186,21 @@ function BusinessInfoForm({
           aria-hidden
           className="pointer-events-none absolute right-0 bottom-0"
         />
-        <span className="relative inline-flex h-6 w-fit shrink-0 items-center gap-1.5 rounded-full bg-background px-2.5 text-xs leading-[18px] font-semibold text-primary shadow-[0_4px_5px_rgb(60_120_207/0.12)]">
-          <Layer variant="Outline" aria-hidden className="size-[13px]" />
-          {template.name} template
+        <span className="relative inline-flex h-6 w-fit max-w-full shrink-0 items-center gap-1.5 rounded-full bg-background px-2.5 text-xs leading-[18px] font-semibold text-primary shadow-[0_4px_5px_rgb(60_120_207/0.12)]">
+          <Layer variant="Outline" aria-hidden className="size-[13px] shrink-0" />
+          <span title={`${template.name} template`} className="min-w-0 truncate">
+            {template.name} template
+          </span>
         </span>
         <div className="relative h-[336px] w-full shrink-0">
           <div className="absolute top-2 left-[-15.58px] flex h-[348.31px] w-[261.25px] items-center justify-center">
             <div className="h-[336px] w-[244px] rotate-3 overflow-clip rounded-2xl border-[6px] border-background bg-background shadow-[0_24px_48px_rgb(60_120_207/0.2),0_6px_14px_rgb(60_120_207/0.1)]">
               <Image
                 src={desktop.url}
-                sizes="(max-width: 639px) 100vw, 440px"
+                sizes="232px"
                 alt={`${template.name} template preview`}
                 width={desktop.width}
                 height={desktop.height}
-                unoptimized
                 className="block h-auto w-full"
               />
             </div>
@@ -261,9 +264,20 @@ function BusinessInfoForm({
                   placeholder="e.g. Petal & Stem"
                   className={fieldClass}
                   aria-invalid={!!err("businessName")}
-                  aria-describedby={err("businessName") ? "businessName-hint" : undefined}
+                  aria-describedby={cn(err("businessName") && "businessName-hint", "businessName-count")}
                   autoFocus
                 />
+                {/* Shown from the start, so the owner sees the maximum before typing. */}
+                <p
+                  id="businessName-count"
+                  className={cn(
+                    "text-right text-xs tabular-nums",
+                    values.businessName.length >= BUSINESS_LIMITS.businessName ? "text-danger" : "text-placeholder",
+                  )}
+                >
+                  {values.businessName.length}/{BUSINESS_LIMITS.businessName}
+                  <span className="sr-only"> characters, maximum {BUSINESS_LIMITS.businessName}</span>
+                </p>
               </FormField>
               <FormField
                 id="businessType"
@@ -314,7 +328,7 @@ function BusinessInfoForm({
                     </span>
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[15px] leading-[22.5px] font-medium text-foreground">{logo.name}</p>
+                    <p title={logo.name} className="truncate text-[15px] leading-[22.5px] font-medium text-foreground">{logo.name}</p>
                     <p className="text-[13px] leading-[19.5px] text-muted-foreground">
                       {logo.type.replace("image/", "").toUpperCase()} · {Math.max(1, Math.round(logo.size / 1024))} KB
                       {" • "}
@@ -322,7 +336,15 @@ function BusinessInfoForm({
                     </p>
                     <p className="text-xs leading-[18px] text-muted-foreground">Shown in your website header.</p>
                   </div>
-                  <Button variant="secondary" size="sm" onClick={() => logoInput.current?.click()}>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      logoInput.current?.click();
+                    }}
+                  >
                     Replace
                   </Button>
                   <Button variant="ghost" size="sm" onClick={() => setLogo(null)}>
@@ -330,7 +352,31 @@ function BusinessInfoForm({
                   </Button>
                 </div>
               ) : (
-                <div className="flex items-center gap-3 rounded-[14px] border-[1.2px] border-dashed border-dropzone-border bg-dropzone px-3.5 py-3">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => logoInput.current?.click()}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      logoInput.current?.click();
+                    }
+                  }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDragging(true);
+                  }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDragging(false);
+                    chooseLogo(e.dataTransfer.files?.[0]);
+                  }}
+                  className={cn(
+                    "group flex cursor-pointer items-center gap-3 rounded-[14px] border-[1.2px] border-dashed border-dropzone-border bg-dropzone px-3.5 py-3 outline-none transition-[border-color,background-color] hover:border-primary/60 hover:bg-brand-soft/50 focus-visible:ring-3 focus-visible:ring-ring/40",
+                    isDragging && "border-primary bg-brand-soft",
+                  )}
+                >
                   <span
                     aria-hidden
                     className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-background text-primary shadow-[0_3px_4px_rgb(60_120_207/0.12)]"
@@ -341,7 +387,15 @@ function BusinessInfoForm({
                     <p className="text-[13px] leading-[19.5px] font-semibold text-foreground">Upload your logo</p>
                     <p className="text-xs leading-[18px] text-muted-foreground">{LOGO_RULE.label}</p>
                   </div>
-                  <Button variant="secondary" size="sm" onClick={() => logoInput.current?.click()}>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      logoInput.current?.click();
+                    }}
+                  >
                     Choose file
                   </Button>
                 </div>

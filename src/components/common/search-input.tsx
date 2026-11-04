@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SearchNormal1 } from "iconsax-reactjs";
+import { Add, SearchNormal1 } from "iconsax-reactjs";
 import { useUrlParam } from "@/hooks/use-url-param";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +20,8 @@ type SearchInputProps = {
   /** `pill` is the compact toolbar search, `hero` the big one with a round button. */
   variant?: "pill" | "hero";
   className?: string;
+  /** Delay in milliseconds before updating the URL. Default is 150ms for snappy typing. */
+  debounceMs?: number;
 };
 
 /** Search box that keeps its text in the URL (`?q=`), so results are shareable and survive refresh. */
@@ -31,6 +33,7 @@ export function SearchInput({
   label,
   variant = "pill",
   className,
+  debounceMs = 150,
 }: SearchInputProps) {
   const { setParam, pending } = useUrlParam();
   const [localValue, setLocalValue] = useState(defaultValue);
@@ -49,9 +52,9 @@ export function SearchInput({
     if (controlled) return;
     const next = value.trim();
     if (next === defaultValue) return;
-    const timer = setTimeout(() => setParam("q", next), 300);
+    const timer = setTimeout(() => setParam("q", next), debounceMs);
     return () => clearTimeout(timer);
-  }, [controlled, value, defaultValue, setParam]);
+  }, [controlled, value, defaultValue, setParam, debounceMs]);
 
   const hero = variant === "hero";
 
@@ -86,13 +89,33 @@ export function SearchInput({
           "h-full min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-placeholder [&::-webkit-search-cancel-button]:appearance-none",
         )}
       />
+      {!hero && value && (
+        <button
+          type="button"
+          aria-label="Clear search"
+          onClick={() => setValue("")}
+          className="grid size-7 shrink-0 place-items-center rounded-full text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/40"
+        >
+          <Add variant="Outline" aria-hidden className="size-4 rotate-45" />
+        </button>
+      )}
       {hero && (
         <button
           type="submit"
-          aria-label="Search"
+          aria-label={value ? "Clear search" : "Search"}
+          onClick={(event) => {
+            if (value) {
+              event.preventDefault();
+              setValue("");
+            }
+          }}
           className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[0_6px_14px_rgb(47_107_196/0.35)] transition-colors outline-none hover:bg-brand focus-visible:ring-3 focus-visible:ring-ring/40 focus-visible:ring-offset-2"
         >
-          <SearchNormal1 variant="Outline" aria-hidden className="size-[18px]" />
+          {value ? (
+            <Add variant="Outline" aria-hidden className="size-[18px] rotate-45" />
+          ) : (
+            <SearchNormal1 variant="Outline" aria-hidden className="size-[18px]" />
+          )}
         </button>
       )}
     </form>

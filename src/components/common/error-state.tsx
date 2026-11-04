@@ -19,7 +19,7 @@ export function ErrorState({
       className="flex flex-col items-center justify-center gap-3 rounded-lg border border-border px-6 py-16 text-center"
     >
       <h2 className="text-lg font-semibold">Something went wrong</h2>
-      <p className="max-w-md text-sm text-muted-foreground">{message}</p>
+      <p className="line-clamp-4 max-w-md text-sm wrap-anywhere text-muted-foreground">{message}</p>
       <button
         type="button"
         onClick={() => retry()}

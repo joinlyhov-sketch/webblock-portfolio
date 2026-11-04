@@ -21,36 +21,49 @@ export function FaqSection() {
             <br /> ask us.
           </h2>
 
-          <div className="flex flex-col items-start gap-4 rounded-[22px] border border-background/90 bg-background p-[22px] shadow-soft">
-            <span className="rounded-xl border border-background/80 bg-brand/10 p-2.5 text-brand">
-              <Message variant="Outline" aria-hidden className="size-5" />
-            </span>
-            <h3 className="text-lg font-semibold text-foreground">Still have a question?</h3>
-            <p className="text-[15px] leading-7 text-foreground-soft">
-              Anything else? Email us at{" "}
-              <a href={supportHref} className="text-brand-strong underline underline-offset-2 hover:text-brand-dark">
-                {siteConfig.supportEmail}
-              </a>
-              .
+          <div className="group relative isolate flex flex-col items-start overflow-hidden rounded-[26px] border border-white/80 bg-white/90 p-6 shadow-[0_18px_50px_-28px_rgba(35,83,155,0.32)] ring-1 ring-brand/5 backdrop-blur-sm sm:p-7">
+            <div aria-hidden className="pointer-events-none absolute -right-16 -top-20 -z-10 size-48 rounded-full bg-[radial-gradient(circle,rgba(74,137,237,0.16),transparent_70%)] transition-transform duration-500 group-hover:scale-125" />
+            <div className="mb-6 flex w-full items-center justify-between">
+              <span className="grid size-12 place-items-center rounded-[17px] border border-brand/10 bg-gradient-to-br from-[#eef5ff] to-[#e5edfb] text-brand shadow-[inset_0_1px_0_white]">
+                <Message variant="Outline" aria-hidden className="size-[21px]" />
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-full border border-emerald-700/10 bg-emerald-50/80 px-3 py-1.5 text-[11px] font-semibold tracking-[0.04em] text-emerald-800">
+                <span aria-hidden className="size-1.5 rounded-full bg-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.12)]" />
+                HERE TO HELP
+              </span>
+            </div>
+            <h3 className="text-[21px] font-semibold tracking-[-0.025em] text-foreground">Still have a question?</h3>
+            <p className="mt-2.5 text-[15px] leading-7 text-foreground-soft">
+              Anything else? Email us at
             </p>
-            <Button asChild size="lp-md">
+            <a href={supportHref} className="mt-1 inline-flex max-w-full items-center gap-2 break-all text-[15px] font-medium text-brand-strong underline decoration-brand/30 underline-offset-4 transition-colors hover:text-brand-dark hover:decoration-brand">
+              {siteConfig.supportEmail}
+            </a>
+            <div className="my-6 h-px w-full bg-gradient-to-r from-brand/15 via-brand/10 to-transparent" />
+            <Button asChild size="lp-md" className="group/button h-12 gap-3 px-6 shadow-[0_8px_18px_-8px_rgba(45,105,199,0.7)]">
               <a href={supportHref}>
-                Mail to us <ArrowRight variant="Outline" aria-hidden className="size-3.5!" />
+                Mail to us <ArrowRight variant="Outline" aria-hidden className="size-4! transition-transform group-hover/button:translate-x-0.5" />
               </a>
             </Button>
           </div>
         </Reveal>
 
-        <RevealGroup className="min-w-0 flex-1">
-          <Accordion type="single" collapsible defaultValue="faq-0" className="flex flex-col gap-2.5">
+        <RevealGroup className="min-w-0 flex-1 lg:pt-24">
+          <Accordion type="single" collapsible className="flex flex-col gap-2.5">
             {faqItems.map((item, i) => (
               <RevealItem key={item.question} y={12}>
-                <AccordionItem value={`faq-${i}`} className="rounded-[14px] border-b-0 bg-background px-5 py-[18px]">
+                {/* Frosted glass over the orbs, with a faint white-to-blue gradient; the open item glows a little more. */}
+                <AccordionItem
+                  value={`faq-${i}`}
+                  className="rounded-[22px] border border-white/70 bg-linear-to-br from-white/80 via-white/55 to-brand/8 px-5 py-4 shadow-[0_10px_30px_-18px_rgba(35,83,155,0.35),inset_0_1px_0_rgba(255,255,255,0.9)] ring-1 ring-brand/5 backdrop-blur-xl transition-[background-color,box-shadow,border-color] duration-300 last:border-b hover:border-white hover:shadow-[0_14px_34px_-18px_rgba(35,83,155,0.45),inset_0_1px_0_white] data-[state=open]:border-brand/20 data-[state=open]:from-white/90 data-[state=open]:to-brand/12"
+                >
                   <AccordionTrigger className="items-center gap-3.5 py-0 text-lg font-normal text-foreground data-[state=open]:text-brand [&>svg]:size-5 [&>svg]:translate-y-0">
-                    <MessageQuestion variant="Outline" aria-hidden className="size-5 shrink-0 text-brand" />
+                    <span className="grid size-9 shrink-0 place-items-center rounded-full border border-white/80 bg-linear-to-br from-white to-brand/12 text-brand shadow-[0_4px_10px_-6px_rgba(35,83,155,0.5)]">
+                      <MessageQuestion variant="Outline" aria-hidden className="size-[18px]" />
+                    </span>
                     <span className="flex-1">{item.question}</span>
                   </AccordionTrigger>
-                  <AccordionContent className="pt-2.5 pb-0 pl-[34px] text-base text-foreground-soft">
+                  <AccordionContent className="pt-2.5 pb-0 pl-[50px] text-base text-foreground-soft">
                     {item.answer}
                   </AccordionContent>
                 </AccordionItem>

@@ -67,7 +67,7 @@ export function OtpForm({
         {/* TODO(auth): call the resend-code action; the backend rate-limits resends. */}
         <button
           type="button"
-          onClick={() => toast.warning("Not available yet", "Resending codes will work once the backend is connected.")}
+          onClick={() => toast.warning("Can’t resend the code yet", "If your code expires, contact support for help.")}
           className="rounded font-semibold text-primary hover:underline"
         >
           Resend code

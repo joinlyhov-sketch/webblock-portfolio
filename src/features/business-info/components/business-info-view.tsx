@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { Edit2 } from "iconsax-reactjs";
 import { PageHeader } from "@/components/common/page-header";
 import { Button } from "@/components/ui/button";
 import type { BusinessInfoView as BusinessInfoData } from "../service";
@@ -25,7 +26,7 @@ export function BusinessInfoView({ data }: { data: BusinessInfoData }) {
         <PageHeader
           className="mb-0"
           title="Business information"
-          description="You’re editing your details. Changes go live on your next deploy."
+          description="You’re editing your details. Saved changes show on your website right away."
         />
         <BusinessInfoForm info={info} website={website} preview={data.preview} />
       </>
@@ -53,7 +54,7 @@ export function BusinessInfoView({ data }: { data: BusinessInfoData }) {
           </div>
           <Button asChild className="max-sm:w-full">
             <Link href="?edit=1" scroll={false}>
-              Edit details
+              <Edit2 variant="Outline" aria-hidden /> Edit details
             </Link>
           </Button>
         </div>
@@ -119,7 +120,7 @@ function Detail({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="border-border py-2.5 first-of-type:pt-0 not-last:border-b">
       <dt className="text-xs leading-[18px] text-muted-foreground">{label}</dt>
-      <dd className="pt-1 text-sm leading-5 text-foreground">{children}</dd>
+      <dd className="pt-1 text-sm leading-5 break-words text-foreground">{children}</dd>
     </div>
   );
 }

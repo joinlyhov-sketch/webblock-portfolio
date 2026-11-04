@@ -17,7 +17,7 @@ export default async function CreatePasswordPage({ searchParams }: { searchParam
         title="Create a password"
         description={
           <>
-            You’ll use it with <b className="font-bold text-foreground">{email}</b> to sign in.
+            You’ll use it with <b className="font-bold wrap-anywhere text-foreground">{email}</b> to sign in.
           </>
         }
       />

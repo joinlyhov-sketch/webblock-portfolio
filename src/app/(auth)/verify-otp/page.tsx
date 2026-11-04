@@ -21,7 +21,7 @@ export default async function VerifyOtpPage({ searchParams }: { searchParams: Pr
         title="Check your email"
         description={
           <>
-            We sent a 6-digit code to <b className="font-bold text-foreground">{email}</b>. Enter it below.
+            We sent a 6-digit code to <b className="font-bold wrap-anywhere text-foreground">{email}</b>. Enter it below.
           </>
         }
       />

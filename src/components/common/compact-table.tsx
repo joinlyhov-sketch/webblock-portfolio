@@ -30,6 +30,7 @@ export function CompactTable<T>({
   empty,
   dense = false,
   className,
+  containerClassName,
 }: {
   label: string;
   columns: CompactColumn<T>[];
@@ -40,13 +41,14 @@ export function CompactTable<T>({
   empty?: ReactNode;
   dense?: boolean;
   className?: string;
+  containerClassName?: string;
 }) {
   const align = (column: CompactColumn<T>) => (column.align === "end" ? "text-right" : undefined);
 
   return (
     <div data-responsive-table="cards" data-compact-table>
-    <Table aria-label={label} className={cn("min-w-[640px]", dense ? "text-[13px]" : "text-sm", className)}>
-      <TableHeader className="bg-transparent">
+    <Table aria-label={label} containerClassName={cn("thin-scrollbar pb-1", containerClassName)} className={cn("min-w-[640px]", dense ? "text-[13px]" : "text-sm", className)}>
+      <TableHeader className="sticky top-0 z-10 bg-background">
         <TableRow className="border-0 [&>th]:bg-muted [&>th:first-child]:rounded-l-[10px] [&>th:last-child]:rounded-r-[10px]">
           {columns.map((column) => (
             <TableHead key={column.key} className={cn(dense ? "h-9" : "h-[43px]", align(column))}>

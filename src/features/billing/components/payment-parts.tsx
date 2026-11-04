@@ -1,6 +1,8 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { Check, Clock, Crown, Global, Lock1, Refresh2, ShieldTick } from "iconsax-reactjs";
+import { Button } from "@/components/ui/button";
 import { formatDayMonthYear, formatDayMonthYearTime, formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { PaidPlanCode, PaymentOrder } from "../types";
@@ -17,17 +19,21 @@ const PLAN_BADGE: Record<PaidPlanCode, string> = {
 export function PaymentCardHeader({ order, aside }: { order: PaymentOrder; aside: ReactNode }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 bg-background px-5 pt-[22px] pb-[18px] sm:px-8">
-      <div className="flex items-center gap-3.5">
+      {/* Plan names can be renamed in Admin: badge and title stay on one line, "…" when too long. */}
+      <div className="flex min-w-0 items-center gap-3.5">
         <span
+          title={order.planName}
           className={cn(
-            "rounded-full px-3 py-[5px] text-lg font-bold tracking-[1.28px] uppercase",
+            "max-w-[160px] shrink-0 truncate rounded-full px-3 py-[5px] text-lg font-bold tracking-[1.28px] uppercase",
             PLAN_BADGE[order.plan],
           )}
         >
           {order.planName}
         </span>
-        <div className="flex flex-col gap-0.5">
-          <p className="text-lg leading-[24px] font-semibold text-foreground">{order.planName} plan · monthly</p>
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <p title={`${order.planName} plan · monthly`} className="truncate text-lg leading-[24px] font-semibold text-foreground">
+            {order.planName} plan · monthly
+          </p>
           <p className="text-[15px] leading-[20px] text-muted-foreground">Billed monthly · cancel anytime</p>
         </div>
       </div>
@@ -103,9 +109,6 @@ export function KhqrPanel({ order, state }: { order: PaymentOrder; state: KhqrSt
         <p className="text-base leading-[23px] font-bold text-foreground">
           {expired ? "This code is no longer valid" : "Scan with your banking app"}
         </p>
-        {state === "waiting" && (
-          <p className="text-[15px] leading-[21.5px] text-hint-strong">ABA, ACLEDA, Wing or any KHQR app</p>
-        )}
         {state === "expiring" && (
           <p className="text-[15px] leading-[21.5px] font-semibold text-status-suspended">Pay now or get a new code</p>
         )}
@@ -182,15 +185,21 @@ export function PaymentSummary({ order, trialDaysLeft }: { order: PaymentOrder; 
           ? `${trialDaysLeft} ${trialDaysLeft === 1 ? "day" : "days"} left`
           : defaultPill;
   return (
-    <div className="flex w-full flex-1 flex-col gap-5 rounded-3xl bg-muted p-5 motion-safe:animate-fade-up sm:p-6">
+    <div className="flex w-full min-w-0 flex-1 flex-col gap-5 rounded-3xl bg-muted p-5 motion-safe:animate-fade-up sm:p-6">
       <div className="flex items-center gap-3 rounded-[18px] bg-background p-3">
         <div className="relative h-14 w-[72px] shrink-0 overflow-hidden rounded-xl">
           <Image src={order.websiteImageUrl} alt="" fill sizes="72px" className="object-cover" />
         </div>
-        <div className="flex min-w-0 flex-col gap-0.5">
-          <p className="text-base leading-[21.5px] font-bold text-foreground">{order.websiteName}</p>
-          <p className="flex items-center gap-[5px] text-[14px] leading-[20px] text-muted-foreground">
-            <Global variant="Outline" aria-hidden className="size-3" /> {order.websiteDomain}
+        {/* Name and subdomain come from the API: one line each, "…" when too long (full text on hover). */}
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <p title={order.websiteName} className="truncate text-base leading-[21.5px] font-bold text-foreground">
+            {order.websiteName}
+          </p>
+          <p className="flex min-w-0 items-center gap-[5px] text-[14px] leading-[20px] text-muted-foreground">
+            <Global variant="Outline" aria-hidden className="size-3 shrink-0" />
+            <span title={order.websiteDomain} className="truncate">
+              {order.websiteDomain}
+            </span>
           </p>
         </div>
       </div>
@@ -251,31 +260,39 @@ export function PaymentSuccessPanel({ order, next }: { order: PaymentOrder; next
     <div className="flex w-full shrink-0 flex-col justify-center gap-[18px] self-stretch rounded-3xl px-2 py-4 motion-safe:animate-fade-up sm:px-7 sm:py-6 lg:w-[500px]">
       <div className="flex flex-col gap-4 rounded-2xl border border-border bg-muted p-[22px] shadow-card motion-safe:animate-float-soft">
         <div className="flex items-center gap-3.5">
-          <span className="relative flex size-10 shrink-0 items-center justify-center rounded-full bg-success-soft text-success motion-safe:animate-check-pop">
+          <span className="relative flex size-12 shrink-0 items-center justify-center rounded-full bg-success-soft text-success motion-safe:animate-check-pop">
             <span aria-hidden className="absolute inset-0 rounded-full bg-success-soft motion-safe:animate-halo-ripple" />
-            <Check variant="Outline" aria-hidden className="relative size-[18px]" />
+            <Check variant="Outline" aria-hidden className="relative size-6" />
           </span>
           <div className="flex flex-col gap-0.5">
-            <p className="text-[24px] leading-[21.5px] font-semibold text-foreground">
-              {formatPrice(order.amount, "USD")}
-            </p>
-            <p className="pt-1 text-[15px] leading-[23px] text-muted-foreground">
-              Paid via KHQR · {order.paidAt ? formatDayMonthYearTime(order.paidAt) : ""}
+            <h2 className="text-xl leading-6 font-bold text-foreground">Payment successful!</h2>
+            <p className="pt-0.5 text-[15px] leading-[23px] text-muted-foreground">
+              {formatPrice(order.amount, "USD")} received via KHQR
             </p>
           </div>
         </div>
+        {order.paidAt && (
+          <p className="-mt-2 text-[13px] leading-5 text-muted-foreground">
+            Paid on {formatDayMonthYearTime(order.paidAt)}
+          </p>
+        )}
         <hr className="h-px border-0 bg-border" />
         <dl className="flex flex-col gap-2.5 text-[15px]">
           {rows.map(([label, value]) => (
-            <div key={label} className="flex items-start justify-between">
-              <dt className="text-muted-foreground">{label}</dt>
-              <dd className="text-right font-semibold text-foreground">{value}</dd>
+            <div key={label} className="flex items-start justify-between gap-4">
+              <dt className="shrink-0 text-muted-foreground">{label}</dt>
+              <dd title={value} className="min-w-0 truncate text-right font-semibold text-foreground">
+                {value}
+              </dd>
             </div>
           ))}
         </dl>
         <p className="flex items-center gap-2 text-[14px] leading-[20px] text-success">
           <Check variant="Outline" aria-hidden className="size-3.5" /> Payment confirmed · {next.label}
         </p>
+        <Button asChild className="w-full">
+          <Link href={next.href}>Continue now</Link>
+        </Button>
         <RedirectAfterPaid href={next.href} />
       </div>
       <p className="flex items-center gap-2.5 rounded-[20px] px-3.5 py-3 text-[14px] leading-[20px] text-muted-foreground">

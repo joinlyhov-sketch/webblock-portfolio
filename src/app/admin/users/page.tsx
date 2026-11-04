@@ -1,3 +1,4 @@
+import { UsersView } from "@/features/admin/components/admin-client-views";
 import {
   getSubscription,
   getUser,
@@ -8,7 +9,6 @@ import {
   getUserStats,
   listUsers,
   listWebsites,
-  UsersView,
   type PlanCode,
 } from "@/features/admin";
 import { nullIfNotFound } from "@/lib/api/errors";
@@ -46,12 +46,16 @@ export default async function AdminUsersPage({
           listWebsites({ ownerId: userId }, { page: 0, size: 20 }),
           listSubscriptions({ q: undefined }, { page: 0, size: 100 }),
         ])
-          .then(([user, websites, subs]) => ({
-            user,
-            websites,
-            // This account's subscriptions (one per project), for the "View subscription" button.
-            subscriptions: subs.items.filter((x) => x.userId === userId),
-          }))
+          .then(([user, websites, subs]) => {
+            // Admins never see an owner's drafts: only sites that have been released.
+            const released = websites.items.filter((w) => w.releaseStatus !== null);
+            return {
+              user,
+              websites: { ...websites, items: released, totalItems: released.length },
+              // Account subscriptions include plans purchased before creating a website.
+              subscriptions: subs.items.filter((x) => x.userId === userId),
+            };
+          })
           .catch(nullIfNotFound)
       : null,
     websiteId

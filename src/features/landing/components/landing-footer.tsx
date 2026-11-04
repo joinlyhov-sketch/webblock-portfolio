@@ -1,8 +1,30 @@
 import Link from "next/link";
-import { ArrowRight } from "iconsax-reactjs";
+import type { ReactNode } from "react";
+import {
+  ArrowRight,
+  Category,
+  DollarCircle,
+  DocumentText,
+  Element4,
+  MessageQuestion,
+  PlayCircle,
+  ShieldSecurity,
+  Sms,
+} from "iconsax-reactjs";
 import { Logo } from "@/components/common/logo";
 import { Button } from "@/components/ui/button";
 import { footerColumns } from "../content";
+
+const footerIcons: Record<string, ReactNode> = {
+  "How it works": <PlayCircle variant="Outline" aria-hidden className="size-4 shrink-0" />,
+  Templates: <Element4 variant="Outline" aria-hidden className="size-4 shrink-0" />,
+  Blocks: <Category variant="Outline" aria-hidden className="size-4 shrink-0" />,
+  Pricing: <DollarCircle variant="Outline" aria-hidden className="size-4 shrink-0" />,
+  "Email support": <Sms variant="Outline" aria-hidden className="size-4 shrink-0" />,
+  FAQ: <MessageQuestion variant="Outline" aria-hidden className="size-4 shrink-0" />,
+  "Privacy policy": <ShieldSecurity variant="Outline" aria-hidden className="size-4 shrink-0" />,
+  "Terms of service": <DocumentText variant="Outline" aria-hidden className="size-4 shrink-0" />,
+};
 
 /** Footer (Figma "Footer · Blue"): brand + three link columns + oversized faded wordmark. */
 export function LandingFooter() {
@@ -33,7 +55,12 @@ export function LandingFooter() {
                 <ul className="flex flex-col gap-3.5">
                   {column.links.map((link) => (
                     <li key={link.label}>
-                      <Link href={link.href} className="text-[15px] leading-6 text-muted-foreground hover:text-foreground">
+                      <Link
+                        href={link.href}
+                        className="group inline-flex items-center gap-2 text-[15px] leading-6 text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary"
+                      >
+                        {/* Inherits the link colour, so icon and label always change together. */}
+                        <span>{footerIcons[link.label]}</span>
                         {link.label}
                       </Link>
                     </li>

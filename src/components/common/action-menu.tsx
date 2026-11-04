@@ -2,7 +2,7 @@
 
 import { Fragment, type ReactNode } from "react";
 import Link from "next/link";
-import { ArrowRight2, More } from "iconsax-reactjs";
+import { More } from "iconsax-reactjs";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -23,6 +23,7 @@ export type ActionMenuItem = {
   onSelect?: () => void;
   /** Destructive items are red and get a separator above them. */
   danger?: boolean;
+  success?: boolean;
   disabled?: boolean;
 };
 
@@ -52,18 +53,27 @@ export function ActionMenu({
       <DropdownMenuContent align="end">
         {items.map((item, i) => {
           const className = cn(
-            item.danger && "text-danger data-[highlighted]:bg-danger-soft",
+            item.success &&
+              "text-success hover:bg-success-soft hover:text-success focus:bg-success-soft focus:text-success data-[highlighted]:bg-success-soft data-[highlighted]:text-success [&_svg]:text-success!",
+            item.danger &&
+              "text-danger focus:bg-danger-soft focus:text-danger [&_svg]:text-danger!",
           );
           const content = (
             <>
-              {item.icon}
-              <span className="flex-1">{item.label}</span>
-              {item.externalHref && (
-                <ArrowRight2 variant="Outline"
+              {item.icon ?? (item.externalHref && (
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                   aria-hidden
-                  className="-rotate-45 text-placeholder"
-                />
-              )}
+                >
+                  <path d="M7 17 17 7M7 7h10v10" />
+                </svg>
+              ))}
+              <span className="flex-1">{item.label}</span>
             </>
           );
           return (

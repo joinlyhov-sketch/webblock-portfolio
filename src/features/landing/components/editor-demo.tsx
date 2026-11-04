@@ -1,15 +1,16 @@
 "use client";
 
 import Image from "next/image";
+import { AiAvatar } from "@/components/common/ai-avatar";
 import { LoopStage } from "@/components/common/motion";
 import { ScaleToFit } from "@/components/common/scale-to-fit";
 import {
-  AddIcon,
   AiPanelHeader,
   BlockItem,
   CanvasDots,
   ChatBubble,
   EditorTopBar,
+  PageStructureActions,
   PanelHeading,
   SelectedStructureRow,
   SendButton,
@@ -37,22 +38,23 @@ export function EditorDemo() {
     <ScaleToFit width={SHOWCASE.width} height={SHOWCASE.height}>
       <LoopStage className="flex size-full flex-col items-center overflow-hidden rounded-[32px] border border-border bg-muted px-8 py-10 shadow-editor-showcase">
         <div className="relative h-[786.037px] w-[1216px] shrink-0 overflow-hidden rounded-[24px] border border-border bg-editor-canvas shadow-editor-frame">
-          <div className="grid h-full grid-rows-[42.222px_minmax(0,1fr)] gap-[8.444px] p-[8.444px]">
+          <div className="flex h-full flex-col">
             <EditorTopBar />
-            <div className="grid min-h-0 grid-cols-[211.111px_minmax(0,1fr)_270.222px] gap-[8.444px]">
+            <div className="grid min-h-0 flex-1 grid-cols-[211.111px_minmax(0,1fr)_270.222px] gap-[8.444px] p-[8.444px]">
               <BlocksPanel />
               <Canvas />
               <AiPanel />
             </div>
           </div>
 
-          <Track spec={t.dragGhost} className="absolute top-[372.611px] left-[19.704px] w-[188.593px]">
+          {/* The flat top bar is 5.6px shorter than the old floating one, so the left-panel layers sit that much higher. */}
+          <Track spec={t.dragGhost} className="absolute top-[367px] left-[19.704px] w-[188.593px]">
             <BlockItem {...blockLibrary[1]} dragging />
           </Track>
-          <Ripple spec={t.rippleText} left={101.98} top={352.324} />
+          <Ripple spec={t.rippleText} left={101.98} top={346.7} />
           <Ripple spec={t.ripplePrompt} left={989.943} top={733.908} />
           <Ripple spec={t.rippleSend} left={1166.685} top={733.906} />
-          <Track spec={t.cursor} className="absolute top-[362.342px] left-[112px] h-[26.66px] w-[21.81px]">
+          <Track spec={t.cursor} className="absolute top-[356.7px] left-[112px] h-[26.66px] w-[21.81px]">
             <Image
               src="/landing/editor/cursor.svg"
               alt=""
@@ -77,7 +79,7 @@ function BlocksPanel() {
   return (
     <div className="flex flex-col overflow-hidden rounded-[14.074px] bg-background shadow-editor-panel">
       <div className="p-[11.259px]">
-        <PanelHeading action={<AddIcon />}>Page structure</PanelHeading>
+        <PanelHeading action={<PageStructureActions />}>Page structure</PanelHeading>
         <div className="flex flex-col gap-[1.407px] pt-[8.444px]">
           <StructureRow icon={structureIcons.hero} label="Hero" />
           <Track spec={t.textRow}>
@@ -161,16 +163,19 @@ function AiPanel() {
           </Track>
           <Track
             spec={t.aiTyping}
-            className="absolute top-0 left-0 flex items-center gap-[4.222px] rounded-[14.074px] bg-editor-bubble px-[11.259px] py-[9.852px]"
+            className="absolute top-0 left-0 flex items-end gap-[7.037px]"
           >
-            {t.typingDots.map((dot, i) => (
-              <Track key={i} spec={dot} className="size-[4.926px] rounded-full bg-muted-foreground" />
-            ))}
+            <AiAvatar className="size-[22.519px]" />
+            <div className="flex h-[22.519px] items-center gap-[4.222px] rounded-full border-[0.704px] border-border bg-background px-[9.852px] shadow-button">
+              {t.typingDots.map((dot, i) => (
+                <Track key={i} spec={dot} className="size-[3.519px] rounded-full bg-muted-foreground" />
+              ))}
+            </div>
           </Track>
         </div>
       </div>
       <div className="px-[11.259px] pt-[8.444px] pb-[14.074px]">
-        <div className="relative flex items-center gap-[5.63px] rounded-full border-[0.704px] border-border bg-background py-[4.222px] pr-[4.222px] pl-[12.667px] shadow-editor-composer">
+        <div className="relative flex items-center gap-[5.63px] rounded-full border-[0.704px] border-border bg-background py-[4.222px] pr-[4.222px] pl-[12.667px] shadow-card">
           <Track spec={t.promptPlaceholder} className="flex-1 text-[9.148px] leading-[14.074px] text-placeholder">
             Ask WebBlock AI to edit your site…
           </Track>

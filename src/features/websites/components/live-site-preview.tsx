@@ -20,22 +20,38 @@ export function LiveSitePreview({
 }) {
   const box = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState<{ width: number; height: number } | null>(null);
+  // Each preview is a whole website (its scripts, fonts and images), so it only starts loading once the
+  // card is on screen. Until then the template screenshot under it shows. Native `loading="lazy"` isn't
+  // enough: Chrome starts lazy iframes over a screen away, so every card on the list loaded at once.
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     const el = box.current;
     if (!el) return;
     const measure = () => setSize({ width: el.clientWidth, height: el.clientHeight });
     measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(el);
-    return () => observer.disconnect();
+    const resize = new ResizeObserver(measure);
+    resize.observe(el);
+    const view = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        setVisible(true);
+        view.disconnect();
+      },
+      { rootMargin: "100px" },
+    );
+    view.observe(el);
+    return () => {
+      resize.disconnect();
+      view.disconnect();
+    };
   }, []);
 
   const scale = size ? size.width / SITE_WIDTH : 0;
 
   return (
-    <div ref={box} className="absolute inset-0 overflow-hidden bg-background">
-      {size && (
+    <div ref={box} className="absolute inset-0 overflow-hidden">
+      {size && visible && (
         <iframe
           src={src}
           title={`${name} preview`}
