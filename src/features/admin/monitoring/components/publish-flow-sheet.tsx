@@ -1,6 +1,9 @@
 import { Fragment, type ComponentType } from "react";
 import {
+  Activity,
   Box,
+  Calendar,
+  Clock,
   Danger,
   DirectInbox,
   ExportSquare,
@@ -8,8 +11,10 @@ import {
   Hierarchy,
   Lock,
   MagicStar,
+  Refresh,
   Send2,
   Status,
+  Timer1,
   TickCircle,
 } from "iconsax-reactjs";
 import { CompactTable } from "@/components/common/compact-table";
@@ -40,6 +45,30 @@ const STEP_ICON: Record<number, ComponentType<{ className?: string; variant?: "O
   5: Lock,
   6: Send2,
   7: Status,
+};
+
+type IconType = ComponentType<{ className?: string; variant?: "Outline" }>;
+
+const FACT_TONE = {
+  brand: "bg-brand-soft text-brand",
+  success: "bg-success-soft text-success",
+  warning: "bg-warning-soft text-warning",
+  danger: "bg-danger-soft text-danger",
+  violet: "bg-violet-soft text-violet",
+};
+
+/** Icon and colour beside each fact card, by what it means: time = blue, health = green, errors = red,
+ *  deadlines = amber, releases = violet. Anything not listed gets a blue clock. */
+const FACT_ICON: Record<string, { icon: IconType; tone: keyof typeof FACT_TONE }> = {
+  Started: { icon: Calendar, tone: "brand" },
+  "Live since": { icon: Calendar, tone: "brand" },
+  "Last heartbeat": { icon: Activity, tone: "success" },
+  Deadline: { icon: Clock, tone: "warning" },
+  Next: { icon: Refresh, tone: "brand" },
+  Release: { icon: Box, tone: "violet" },
+  Requests: { icon: Activity, tone: "brand" },
+  Errors: { icon: Danger, tone: "danger" },
+  "Avg response": { icon: Timer1, tone: "warning" },
 };
 
 const GROUPS = [
@@ -326,67 +355,96 @@ function CurrentStepPanel({
       ]
     : current.facts;
 
+  const StepIcon = STEP_ICON[run.currentStep] ?? Status;
+
   return (
     <section
       aria-labelledby="current-step-title"
-      className="space-y-4 rounded-[22px] border border-border p-5"
+      className="overflow-hidden rounded-[22px] border border-border bg-background shadow-card"
     >
-      <div>
-        <p className="text-[13px] font-medium tracking-wide text-muted-foreground uppercase">
-          Step {run.currentStep} · {current.phase}
-        </p>
-        <div className="mt-1 flex flex-wrap items-center gap-2">
-          <h3
-            id="current-step-title"
-            className="text-2xl font-semibold text-foreground"
+      {/* Header: step icon, eyebrow, title and the status / tag pills, on a flat light blue. */}
+      <div className="border-b border-border px-5 py-4">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+          <span
+            aria-hidden
+            className="grid size-14 shrink-0 place-items-center rounded-2xl bg-brand-soft text-brand [&_svg]:size-7"
           >
-            {current.title}
-          </h3>
-          <StatusBadge status={live ? "LIVE" : current.status} />
-          {current.tags.map((tag) => (
-            <span
-              key={tag}
-              className="inline-flex h-6 items-center rounded-full bg-neutral-soft px-2.5 text-[13px] font-medium text-foreground-soft"
+            <StepIcon variant="Outline" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-[13px] font-medium tracking-wide text-muted-foreground uppercase">
+              Step {run.currentStep} · {current.phase}
+            </p>
+            <h3
+              id="current-step-title"
+              className="mt-0.5 font-heading text-2xl leading-8 font-semibold text-foreground"
             >
-              {tag}
-            </span>
-          ))}
+              {current.title}
+            </h3>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <StatusBadge status={live ? "LIVE" : current.status} />
+            {current.tags.map((tag) => (
+              <span
+                key={tag}
+                className="inline-flex h-6 items-center rounded-full bg-neutral-soft px-2.5 text-[13px] font-medium text-foreground-soft"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
 
-      {facts.length > 0 && (
-        <dl className="grid gap-2.5 [grid-template-columns:repeat(auto-fit,minmax(170px,1fr))]">
-          {facts.map((f) => (
-            <div key={f.label} className="rounded-xl bg-muted px-3.5 py-3">
-              <dt className="text-[13px] text-muted-foreground">{f.label}</dt>
-              <dd
-                className={cn(
-                  "mt-1",
-                  live ? "font-heading text-xl font-semibold" : "text-[15px]",
-                  f.tone === "danger"
-                    ? "text-danger"
-                    : f.tone === "info"
-                      ? "text-brand"
-                      : "text-foreground",
-                )}
-              >
-                {f.value}
-              </dd>
-              {f.hint && (
-                <dd className="mt-0.5 text-[13px] text-muted-foreground">
-                  {f.hint}
-                </dd>
-              )}
-            </div>
-          ))}
-        </dl>
-      )}
+      <div className="space-y-5 p-5">
+        {facts.length > 0 && (
+          <dl className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(190px,1fr))]">
+            {facts.map((f) => {
+              const meta = FACT_ICON[f.label] ?? { icon: Clock, tone: "brand" as const };
+              const Icon = meta.icon;
+              // A fact that is going wrong (late heartbeat, errors) turns red whatever its usual colour.
+              const iconTone = f.tone === "danger" ? "danger" : meta.tone;
+              return (
+                <div
+                  key={f.label}
+                  className="flex items-start gap-3 rounded-2xl border border-border bg-primary-soft/60 px-4 py-3.5"
+                >
+                  <span
+                    aria-hidden
+                    className={cn("grid size-9 shrink-0 place-items-center rounded-xl [&_svg]:size-5", FACT_TONE[iconTone])}
+                  >
+                    <Icon variant="Outline" />
+                  </span>
+                  <div className="min-w-0">
+                    <dt className="text-[13px] text-muted-foreground">{f.label}</dt>
+                    <dd
+                      className={cn(
+                        "text-[15px] leading-6 font-medium",
+                        f.tone === "danger"
+                          ? "text-danger"
+                          : f.tone === "info"
+                            ? "text-brand"
+                            : "text-foreground",
+                      )}
+                    >
+                      {f.value}
+                    </dd>
+                    {f.hint && (
+                      <dd className="text-[13px] text-muted-foreground">{f.hint}</dd>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </dl>
+        )}
 
-      {current.checkGroup && <StepChecks group={current.checkGroup} />}
+        {current.checkGroup && <StepChecks group={current.checkGroup} />}
 
-      {live && logs && (
-        <LiveLogs run={run} logs={logs} searchParams={searchParams} />
-      )}
+        {live && logs && (
+          <LiveLogs run={run} logs={logs} searchParams={searchParams} />
+        )}
+      </div>
     </section>
   );
 }
@@ -533,14 +591,21 @@ function StepChecks({
 }) {
   return (
     <div className="space-y-2.5">
-      <h4 className="text-[13px] font-medium tracking-wide text-muted-foreground uppercase">
+      <h4 className="font-heading text-lg font-semibold text-foreground">
         {group.title}
       </h4>
       <ul className="grid gap-2.5 sm:grid-cols-2">
         {group.checks.map((check, i) => (
           <li
             key={check.title}
-            className="flex items-center gap-3.5 rounded-xl bg-muted px-4 py-3"
+            className={cn(
+              "flex items-center gap-3.5 rounded-xl border px-4 py-3",
+              check.status === "PASSED"
+                ? "border-success/20 bg-success-soft"
+                : check.status === "FAILED"
+                  ? "border-danger/20 bg-danger-soft"
+                  : "border-brand-border/50 bg-brand-soft",
+            )}
           >
             {check.status === "PASSED" ? (
               <TickCircle

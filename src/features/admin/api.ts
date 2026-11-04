@@ -404,15 +404,20 @@ export async function getWebsite(websiteId: string): Promise<AdminWebsite> {
   return withLogo(adminWebsites.find((w) => w.id === websiteId) ?? notFound("Website"));
 }
 
-/** GET /api/admin/deploys?projectId=&page=&size= — newest first. */
+/** GET /api/admin/deploys?projectId=&latestOnly=&page=&size= — newest first. */
 export async function listDeploys(
-  filters: { websiteId?: string },
+  filters: { websiteId?: string; latestOnly?: boolean },
   query: TableQuery,
 ): Promise<Page<Deploy>> {
   await delay(150);
-  const items = adminDeploys
+  const newestFirst = adminDeploys
     .filter((d) => !filters.websiteId || d.websiteId === filters.websiteId)
     .sort((a, b) => b.startedAt.localeCompare(a.startedAt));
+  // latestOnly: one row per website, its newest deploy (and so its latest status).
+  const seen = new Set<string>();
+  const items = filters.latestOnly
+    ? newestFirst.filter((d) => !seen.has(d.websiteId) && !!seen.add(d.websiteId))
+    : newestFirst;
   const page = toPage(items, query);
   // Mock only: Spring returns the website's logo on each deploy.
   const withLogos = await Promise.all(
@@ -666,8 +671,26 @@ export async function markAllNotificationsRead(): Promise<void> {
 
 // ── Profile ──────────────────────────────────────────────────────────────────
 
+// Mock only: survives hot reloads so an edit sticks while you click around.
+const globalForAdmin = globalThis as typeof globalThis & { __wbAdminProfile?: AdminProfile };
+const profileStore: AdminProfile = (globalForAdmin.__wbAdminProfile ??= structuredClone(adminProfile));
+
 /** GET /api/admin/me — the signed-in admin (Spring reads who from the session). */
 export async function getAdminProfile(): Promise<AdminProfile> {
   await delay(100);
-  return adminProfile;
+  return profileStore;
+}
+
+/** PATCH /api/admin/me — the admin changes their own display name (email and role stay locked). */
+export async function updateAdminProfile(body: { fullName: string }): Promise<AdminProfile> {
+  await delay(300);
+  profileStore.fullName = body.fullName;
+  return profileStore;
+}
+
+/** PUT /api/admin/me/avatar — `null` removes the photo. */
+export async function updateAdminAvatar(avatarUrl: string | null): Promise<AdminProfile> {
+  await delay(400);
+  profileStore.avatarUrl = avatarUrl;
+  return profileStore;
 }
