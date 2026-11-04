@@ -103,7 +103,7 @@ const toSiteProduct = ({ name, description, price, category, imageUrl }: SiteBus
  * opening hours from Business information (the editor shows those fields locked), and the products and
  * categories from Products (the editor hides those lists). Product Cards shows the newest products, one
  * row (as many as its columns); All products shows the whole catalogue. Spring does this when it serves
- * the page and when it deploys, so a change in the portal goes live on the next deploy.
+ * the page, so a change in the portal shows on the live website right away, without a deploy.
  */
 export function fillBusinessData(data: PageData, business: SiteBusinessData): PageData {
   const site = data.root.props as SiteRootProps;

@@ -127,7 +127,7 @@ export function WebsitesView({
       {/* flex-1 + centring: the empty state sits in the middle of the free space, not at the top. */}
       <div className="flex flex-1 flex-col pt-1 pb-6">
         {filtering && visible.length === 0 ? (
-          <div className="flex flex-1 items-center justify-center">
+          <div key={status} className="swap-in flex flex-1 items-center justify-center">
             <EmptyState
               icon={<SearchNormal1 variant="Outline" />}
               title={q ? "No results found" : "No websites here yet"}
@@ -135,7 +135,7 @@ export function WebsitesView({
             />
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div key={status} className="swap-in grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {!filtering && <NewWebsiteCard templates={templates} businessTypes={businessTypes} />}
             {visible.map((website) => (
               <WebsiteCard

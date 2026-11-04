@@ -14,9 +14,9 @@ export const buttonVariants = cva(
     "relative inline-flex shrink-0 items-center justify-center rounded-full font-semibold whitespace-nowrap select-none",
     // Tailwind 4 moves buttons with the `translate`/`scale` properties (not `transform`), so list those,
     // and `filter` for the plan-coloured buttons that darken with `brightness-*`.
-    "transition-[background-color,color,border-color,box-shadow,translate,scale,filter] duration-150 ease-out",
+    "transition-[background-color,color,border-color,box-shadow,translate,scale,filter] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
     "outline-none focus-visible:ring-3 focus-visible:ring-ring/40 focus-visible:ring-offset-2",
-    "motion-safe:active:scale-97",
+    "motion-safe:active:scale-[0.985]",
     "disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0",
   ],
@@ -24,17 +24,17 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          "bg-brand text-primary-foreground shadow-button hover:bg-brand-strong hover:shadow-button-hover active:bg-brand-dark motion-safe:hover:-translate-y-px motion-safe:active:translate-y-0",
+          "bg-brand text-primary-foreground shadow-button hover:bg-brand-strong hover:shadow-button-hover active:bg-brand-dark motion-safe:hover:-translate-y-px",
         secondary:
-          "border border-border bg-background text-foreground shadow-button hover:border-primary/40 hover:bg-muted hover:shadow-button-hover active:bg-primary-soft motion-safe:hover:-translate-y-px motion-safe:active:translate-y-0",
+          "border border-border bg-background text-foreground shadow-button hover:border-primary/40 hover:bg-muted hover:shadow-button-hover active:bg-primary-soft motion-safe:hover:-translate-y-px",
         soft: "bg-brand-soft text-brand-strong hover:bg-brand/20 active:bg-brand/25",
         ghost:
           "text-foreground-soft hover:bg-primary-soft hover:text-foreground active:bg-brand-soft",
-        dark: "bg-brand-dark text-primary-foreground shadow-button hover:bg-brand-dark/90 hover:shadow-button-hover motion-safe:hover:-translate-y-px motion-safe:active:translate-y-0",
+        dark: "bg-brand-dark text-primary-foreground shadow-button hover:bg-brand-dark/90 hover:shadow-button-hover motion-safe:hover:-translate-y-px",
         danger:
           "bg-danger-soft text-danger hover:bg-danger hover:text-primary-foreground active:bg-danger/90",
         white:
-          "bg-background text-brand-strong shadow-button hover:bg-primary-soft hover:shadow-button-hover motion-safe:hover:-translate-y-px motion-safe:active:translate-y-0",
+          "bg-background text-brand-strong shadow-button hover:bg-primary-soft hover:shadow-button-hover motion-safe:hover:-translate-y-px",
         outline:
           "border border-border-strong text-foreground hover:border-primary hover:bg-primary-soft active:bg-brand-soft",
         tonal: "bg-brand-soft text-brand-deep hover:bg-brand/20 active:bg-brand/25",

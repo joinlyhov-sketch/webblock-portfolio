@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { SlidingPill, useSlidingPill } from "@/hooks/use-sliding-pill";
 import { cn } from "@/lib/utils";
 
 export type PillTab = {
@@ -27,27 +29,53 @@ export function PillTabs({
 }) {
   const pathname = usePathname();
   const large = size === "lg";
+  const activeIndex = tabs.findIndex((tab) => tab.active ?? (tab.href !== undefined && pathname === tab.href));
+  // A tab link can take a moment to answer, so the clicked tab shows as active at once. It is only
+  // trusted while the real active tab is still the one it was clicked from.
+  const [picked, setPicked] = useState<{ index: number; from: number }>();
+  const shownIndex = picked && picked.from === activeIndex ? picked.index : activeIndex;
+  const { ref, pill, animate } = useSlidingPill<HTMLElement>(shownIndex, size);
 
   return (
     <nav
+      ref={ref}
       aria-label={label}
-      className={cn("inline-flex w-fit max-w-full items-end self-start rounded-full bg-segment", large ? "p-1" : "gap-0.5 p-[3px]")}
+      className={cn("relative inline-flex w-fit max-w-full items-end self-start rounded-full bg-segment", large ? "p-1" : "gap-0.5 p-[3px]")}
     >
-      {tabs.map((tab) => {
-        const active = tab.active ?? (tab.href !== undefined && pathname === tab.href);
+      <SlidingPill pill={pill} animate={animate} className="bg-background shadow-segment" />
+      {tabs.map((tab, index) => {
+        const active = index === shownIndex;
         const tabClass = cn(
-              "inline-flex items-center justify-center rounded-full px-[18px] text-sm leading-[21px] outline-none transition-[background-color,color,box-shadow,transform] duration-200 ease-out motion-safe:active:scale-[0.97] focus-visible:ring-3 focus-visible:ring-ring/40",
-              large ? "h-9 w-[108px]" : "h-7 w-[88px]",
-              active
-                ? "bg-background font-semibold text-brand-deep shadow-segment"
-                : "font-medium text-muted-foreground hover:bg-background/60 hover:text-foreground",
+          "relative inline-flex items-center justify-center rounded-full px-[18px] text-sm leading-[21px] outline-none transition-colors duration-200 focus-visible:ring-3 focus-visible:ring-ring/40",
+          large ? "h-9 w-[108px]" : "h-7 w-[88px]",
+          active
+            ? cn("font-semibold text-brand-deep", !pill && "bg-background shadow-segment")
+            : "font-medium text-muted-foreground hover:text-foreground",
         );
         return tab.onSelect || tab.href === undefined ? (
-          <button key={tab.label} type="button" aria-pressed={active} onClick={tab.onSelect} className={tabClass}>
+          <button
+            key={tab.label}
+            type="button"
+            data-tab={index}
+            aria-pressed={active}
+            onClick={() => {
+              setPicked({ index, from: activeIndex });
+              tab.onSelect?.();
+            }}
+            className={tabClass}
+          >
             {tab.label}
           </button>
         ) : (
-          <Link key={tab.label} href={tab.href} scroll={false} aria-current={active ? "page" : undefined} className={tabClass}>
+          <Link
+            key={tab.label}
+            href={tab.href}
+            scroll={false}
+            data-tab={index}
+            aria-current={active ? "page" : undefined}
+            onClick={() => setPicked({ index, from: activeIndex })}
+            className={tabClass}
+          >
             {tab.label}
           </Link>
         );

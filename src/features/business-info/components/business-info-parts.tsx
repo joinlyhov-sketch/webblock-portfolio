@@ -43,16 +43,12 @@ export function SiteBanner({
   website,
   preview,
   logoUrl,
-  label,
-  compactLabel,
 }: {
   website: BusinessInfoView["website"];
   preview: PageData | null;
   logoUrl: string | null;
-  label?: string;
-  compactLabel?: string;
 }) {
-  if (preview) return <SiteTopPreview data={preview} logoUrl={logoUrl} label={label} compactLabel={compactLabel} />;
+  if (preview) return <SiteTopPreview data={preview} logoUrl={logoUrl} />;
   return (
     <div className="relative h-[220px] overflow-hidden rounded-xl bg-preview-panel sm:h-[300px]">
       <Image

@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { Field } from "@puckeditor/core";
 import { Add, ArrowRight2, Colorfilter, Edit2, Magicpen, Setting2, SidebarLeft } from "iconsax-reactjs";
 import { AiAvatar } from "@/components/common/ai-avatar";
+import { SlidingPill, useSlidingPill } from "@/hooks/use-sliding-pill";
 import { cn } from "@/lib/utils";
 import type { BlockName, SiteRootProps } from "../../types";
 import { AiChat } from "./ai-chat";
@@ -163,9 +164,6 @@ export function PropertiesPanel({
                 <span className={cn("block truncate text-[14px] leading-[18px] font-semibold", aiOpen ? "text-brand-deep" : "text-foreground")}>
                   {aiOpen ? "WebBlock AI" : "Edit your site with AI"}
                 </span>
-                <span className="block truncate text-[11px] leading-4 text-muted-foreground">
-                  {aiOpen ? "Describe a change to continue" : "Tell AI what you’d like to change"}
-                </span>
               </span>
               {!aiOpen && (
                 <span className="relative z-10 inline-flex h-8 shrink-0 items-center gap-1 rounded-full bg-brand-strong px-2.5 text-[11px] font-semibold text-primary-foreground shadow-button transition-[background-color,translate] group-hover/ai:bg-brand-deep motion-safe:group-hover/ai:-translate-y-px">
@@ -204,28 +202,7 @@ export function PropertiesPanel({
             </div>
 
             <div className="px-4 pt-1 pb-2">
-              <div role="tablist" aria-label="Settings" className="flex rounded-full bg-segment p-1">
-                {(
-                  [
-                    ["content", "Content"],
-                    ["layout", "Layout & Design"],
-                  ] as const
-                ).map(([value, label]) => (
-                  <button
-                    key={value}
-                    type="button"
-                    role="tab"
-                    aria-selected={tab === value}
-                    onClick={() => setTab(value)}
-                    className={cn(
-                      "h-9 flex-1 rounded-full text-sm transition-[background-color,color,box-shadow] outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
-                      tab === value ? "bg-background font-semibold text-brand-deep shadow-button" : "font-medium text-muted-foreground hover:text-foreground",
-                    )}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
+              <SettingsTabs tab={tab} onChange={setTab} />
             </div>
 
             <div role="tabpanel" className="editor-scrollbar min-h-0 flex-1 overflow-y-auto pb-6 [--puck-field-radius:14px]">
@@ -250,5 +227,39 @@ export function PropertiesPanel({
         )}
       </aside>
     </PanelFrame>
+  );
+}
+
+const SETTINGS_TABS: { value: Tab; label: string }[] = [
+  { value: "content", label: "Content" },
+  { value: "layout", label: "Layout & Design" },
+];
+
+/** Content / Layout & Design switch: the white pill slides to the chosen tab. */
+function SettingsTabs({ tab, onChange }: { tab: Tab; onChange: (tab: Tab) => void }) {
+  const activeIndex = SETTINGS_TABS.findIndex((t) => t.value === tab);
+  const { ref, pill, animate } = useSlidingPill<HTMLDivElement>(activeIndex);
+  return (
+    <div ref={ref} role="tablist" aria-label="Settings" className="relative flex rounded-full bg-segment p-1">
+      <SlidingPill pill={pill} animate={animate} className="bg-background shadow-button" />
+      {SETTINGS_TABS.map(({ value, label }, index) => (
+        <button
+          key={value}
+          type="button"
+          role="tab"
+          data-tab={index}
+          aria-selected={tab === value}
+          onClick={() => onChange(value)}
+          className={cn(
+            "relative h-9 flex-1 rounded-full text-sm transition-colors duration-200 outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
+            tab === value
+              ? cn("font-semibold text-brand-deep", !pill && "bg-background shadow-button")
+              : "font-medium text-muted-foreground hover:text-foreground",
+          )}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
   );
 }

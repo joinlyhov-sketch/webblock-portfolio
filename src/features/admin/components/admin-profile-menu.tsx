@@ -1,9 +1,12 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
-import { Calendar, Camera, Copy, MagicStar, Personalcard, ShieldTick, Sms, TickCircle } from "iconsax-reactjs";
+import { useState, useTransition, type ReactNode } from "react";
+import { Calendar, Copy, Logout, MagicStar, Personalcard, ShieldTick, Sms, TickCircle } from "iconsax-reactjs";
 import { Avatar } from "@/components/common/avatar";
+import { ConfirmDialog } from "@/components/common/confirm-dialog";
 import { Pill } from "@/components/common/status-badge";
+import { Button } from "@/components/ui/button";
+import { signOutAction } from "@/features/auth/actions";
 import {
   Popover,
   PopoverContent,
@@ -12,20 +15,16 @@ import {
 import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { AdminProfile } from "../types";
-import { EditAdminProfileDialog } from "./edit-admin-profile-dialog";
 
-/** Header avatar (Figma "Header · Admin profile"): opens the "Admin profile" card, with Edit profile. */
+/**
+ * Header avatar (Figma "Header · Admin profile"): opens the "Admin profile" card. The card ends with
+ * Log out, the only way to sign out below 1024px, where the sidebar (and its log out button) is hidden.
+ */
 export function AdminProfileMenu({ profile }: { profile: AdminProfile }) {
   const [copied, setCopied] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
-  const [editUpload, setEditUpload] = useState(false);
-
-  function openEdit(upload: boolean) {
-    setMenuOpen(false);
-    setEditUpload(upload);
-    setEditOpen(true);
-  }
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [signingOut, startSignOut] = useTransition();
 
   async function copyId() {
     try {
@@ -75,21 +74,16 @@ export function AdminProfileMenu({ profile }: { profile: AdminProfile }) {
 
         <div className="-mt-10 flex flex-col items-center px-4 text-center">
           {/* Avatar in a thin blue gradient ring, with a green "signed in" dot on its bottom-right edge. */}
-          <span className="relative grid rounded-full bg-background p-1 shadow-card motion-safe:animate-fade-up">
+          <span className="relative grid rounded-full bg-linear-to-br from-primary to-brand-border p-[3px] shadow-card motion-safe:animate-fade-up">
             <Avatar
               variant="solid"
               name={profile.fullName}
               src={profile.avatarUrl}
-              className="size-[78px] text-xl"
+              className="size-[70px] text-lg ring-[3px] ring-background"
             />
-            <button
-              type="button"
-              aria-label="Change photo"
-              onClick={() => openEdit(true)}
-              className="absolute right-0 bottom-0 grid size-8 place-items-center rounded-full border-[3px] border-background bg-brand text-primary-foreground outline-none transition-transform hover:scale-105 focus-visible:ring-3 focus-visible:ring-ring/40"
-            >
-              <Camera variant="Outline" aria-hidden className="size-4" />
-            </button>
+            <span className="absolute right-1 bottom-1 size-3.5 rounded-full bg-success ring-[2.5px] ring-background">
+              <span className="sr-only">Signed in</span>
+            </span>
           </span>
           <p className="mt-3 max-w-full truncate font-heading text-lg leading-6 font-semibold text-foreground">
             {profile.fullName}
@@ -127,12 +121,37 @@ export function AdminProfileMenu({ profile }: { profile: AdminProfile }) {
             value={formatDate(profile.joinedAt)}
           />
         </ul>
+        <div className="px-4 pb-4">
+          <Button
+            variant="secondary"
+            className="w-full"
+            onClick={() => {
+              // Close the card first: the confirm popup lives outside it, so it survives the close.
+              setMenuOpen(false);
+              setConfirmOpen(true);
+            }}
+          >
+            <Logout variant="Outline" aria-hidden />
+            Log out
+          </Button>
+        </div>
         <span aria-live="polite" className="sr-only">
           {copied ? "Account ID copied" : ""}
         </span>
       </PopoverContent>
     </Popover>
-    <EditAdminProfileDialog open={editOpen} onClose={() => setEditOpen(false)} profile={profile} startWithUpload={editUpload} />
+
+    <ConfirmDialog
+      open={confirmOpen}
+      onClose={() => setConfirmOpen(false)}
+      onConfirm={() => startSignOut(() => signOutAction())}
+      loading={signingOut}
+      icon={<Logout variant="Outline" />}
+      title="Log out of WebBlock?"
+      description="You’ll need to sign in again to manage the platform."
+      confirmLabel="Log out"
+      look="soft"
+    />
     </>
   );
 }

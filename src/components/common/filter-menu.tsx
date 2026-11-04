@@ -42,10 +42,14 @@ export function FilterMenu({
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
+        {/* No lift or press-scale here: the trigger would jump while the menu opens right under it. */}
         <Button
           variant="secondary"
           size="sm"
-          className={cn("max-w-[200px] font-medium", className)}
+          className={cn(
+            "max-w-[200px] font-medium motion-safe:hover:translate-y-0 motion-safe:active:scale-100 data-[state=open]:border-primary/40 data-[state=open]:bg-muted",
+            className,
+          )}
           title={`${label}: ${current}`}
         >
           <ArrowDown2 variant="Outline" aria-hidden className="shrink-0" />

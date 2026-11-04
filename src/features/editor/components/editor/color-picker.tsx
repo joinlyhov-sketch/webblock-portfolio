@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { ColorArea, hexToHsv, hsvToHex, type Hsv } from "./color-area";
 
 // Website colours the owner can pick (data for their site, not platform styling).
 const PRESETS = [
@@ -35,9 +36,16 @@ export function ColorPicker({
   onChange: (value: string | null) => void;
 }) {
   const [draft, setDraft] = useState(value ?? "");
+  const [hsv, setHsv] = useState<Hsv>(() => hexToHsv(HEX.test(value ?? "") ? (value as string) : "#2a5fbd"));
 
   return (
-    <Popover onOpenChange={(open) => open && setDraft(value ?? "")}>
+    <Popover
+      onOpenChange={(open) => {
+        if (!open) return;
+        setDraft(value ?? "");
+        if (value && HEX.test(value)) setHsv(hexToHsv(value));
+      }}
+    >
       <PopoverTrigger
         aria-label={`${label} colour`}
         className="flex min-w-0 flex-1 items-center gap-1.5 rounded-full border border-border bg-muted px-2 py-1.5 text-xs text-foreground outline-none transition-colors hover:border-primary/40 focus-visible:ring-3 focus-visible:ring-ring/40 data-[state=open]:border-brand"
@@ -49,7 +57,7 @@ export function ColorPicker({
         />
         <span className="truncate">{label}</span>
       </PopoverTrigger>
-      <PopoverContent align="start" className="flex w-[244px] flex-col gap-3 rounded-[14px] p-3 shadow-menu">
+      <PopoverContent align="start" className="flex w-[248px] flex-col gap-3 rounded-2xl p-3.5 shadow-menu">
         <p className="text-[13px] font-semibold text-foreground">{label} colour</p>
         <div role="listbox" aria-label={`${label} presets`} className="grid grid-cols-8 gap-1.5">
           {PRESETS.map((color) => (
@@ -62,22 +70,26 @@ export function ColorPicker({
               onClick={() => onChange(color)}
               style={{ backgroundColor: color }}
               className={cn(
-                "size-6 rounded-md border border-border outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
+                "size-6 rounded-full border border-border outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
                 value === color && "ring-2 ring-brand ring-offset-1",
               )}
             />
           ))}
         </div>
+        <ColorArea
+          value={hsv}
+          onChange={(next) => {
+            setHsv(next);
+            const hex = hsvToHex(next);
+            setDraft(hex);
+            onChange(hex);
+          }}
+        />
         <div className="flex items-center gap-2">
-          <input
-            type="color"
-            aria-label={`Custom ${label.toLowerCase()} colour`}
-            value={HEX.test(draft) ? draft : value ?? "#000000"}
-            onChange={(e) => {
-              setDraft(e.target.value);
-              onChange(e.target.value);
-            }}
-            className="size-9 shrink-0 cursor-pointer rounded-lg border border-border bg-background p-0.5"
+          <span
+            aria-hidden
+            style={{ backgroundColor: HEX.test(draft) ? draft : value ?? "transparent" }}
+            className="size-9 shrink-0 rounded-full border border-border"
           />
           <Input
             aria-label={`${label} hex code`}
@@ -87,10 +99,13 @@ export function ColorPicker({
             onChange={(e) => {
               const next = e.target.value.trim();
               setDraft(next);
-              if (HEX.test(next)) onChange(next.toLowerCase());
+              if (HEX.test(next)) {
+                setHsv(hexToHsv(next));
+                onChange(next.toLowerCase());
+              }
             }}
             aria-invalid={draft !== "" && !HEX.test(draft)}
-            className="h-9 text-xs"
+            className="h-9 rounded-full text-xs"
           />
         </div>
         <Button variant="ghost" size="sm" disabled={value === null} onClick={() => onChange(null)}>

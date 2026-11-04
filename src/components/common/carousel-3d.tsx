@@ -12,7 +12,18 @@ export type Carousel3DItem = {
   imageSrc: string;
   /** Image width / height. */
   aspect: number;
+  /**
+   * Smaller copies of `imageSrc`. The stage loads the smallest one that is still sharp on the front
+   * card (and a bigger one if the stage grows), falling back to `imageSrc` when none is wide enough.
+   */
+  sources?: { width: number; src: string }[];
 };
+
+/**
+ * Canvas pixels per CSS pixel. 2 supersamples standard displays so the screenshot text stays sharp;
+ * going higher on 3x phones or zoomed browsers costs 2–4x the GPU work for no visible gain.
+ */
+const PIXEL_RATIO = 2;
 
 const CARD_WIDTH = 1.6;
 /** Glass frame around each screenshot, and the thin light edge just inside it. */
@@ -159,15 +170,7 @@ function Carousel3DStage({
     // `StageBoundary` shows the fallback.
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
     const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
-    function updatePixelRatio() {
-      // Render at least DPR 2 on standard displays for supersampling, and match higher device pixel ratios
-      // or browser zoom up to 4 to keep screenshot text and UI razor-sharp without blurriness.
-      const dpr = Math.min(Math.max(window.devicePixelRatio || 1, 2), 4);
-      if (renderer.getPixelRatio() !== dpr) {
-        renderer.setPixelRatio(dpr);
-      }
-    }
-    updatePixelRatio();
+    renderer.setPixelRatio(PIXEL_RATIO);
     renderer.setClearColor(0x000000, 0);
     const canvas = renderer.domElement;
     canvas.setAttribute("aria-hidden", "true");
@@ -183,7 +186,35 @@ function Carousel3DStage({
     const frameColor = tokenColor("--color-glass-frame");
     const rimColor = tokenColor("--color-glass-rim");
     const loadingColor = tokenColor("--color-muted");
-    const loader = new THREE.TextureLoader();
+    let alive = true;
+
+    // ImageBitmapLoader decodes the screenshot off the main thread (TextureLoader decodes it on the
+    // main thread during the GPU upload: 100–300 ms per image on a mid-range phone). Bitmaps ignore
+    // `texture.flipY`, so they are flipped while decoding instead.
+    const bitmapLoader =
+      typeof createImageBitmap === "function"
+        ? new THREE.ImageBitmapLoader().setOptions({ imageOrientation: "flipY", premultiplyAlpha: "none" })
+        : null;
+    const textureLoader = new THREE.TextureLoader();
+
+    /** Loads `src` as a texture. `flipped`: the pixels are stored upside down (bitmaps). */
+    function loadTexture(src: string, onLoad: (texture: THREE.Texture, flipped: boolean) => void) {
+      if (bitmapLoader) {
+        bitmapLoader.load(src, (bitmap) => {
+          if (!alive) return bitmap.close();
+          const texture = new THREE.Texture(bitmap);
+          texture.needsUpdate = true;
+          // Disposing the texture frees the GPU copy; closing frees the decoded bitmap.
+          texture.addEventListener("dispose", () => bitmap.close());
+          onLoad(texture, true);
+        });
+      } else {
+        textureLoader.load(src, (texture) => {
+          if (!alive) return texture.dispose();
+          onLoad(texture, false);
+        });
+      }
+    }
 
     const disposables: { dispose: () => void }[] = [];
     const cards = items.map((item, index) => {
@@ -215,38 +246,63 @@ function Carousel3DStage({
       const imageMaterial = new THREE.MeshBasicMaterial({ color: loadingColor.clone() });
       const image = new THREE.Mesh(imageGeometry, imageMaterial);
 
-      loader.load(item.imageSrc, (texture) => {
-        texture.colorSpace = THREE.SRGBColorSpace;
-        texture.generateMipmaps = false;
-        texture.minFilter = THREE.LinearFilter;
-        texture.magFilter = THREE.LinearFilter;
-        if (maxAnisotropy > 1) texture.anisotropy = maxAnisotropy;
-        imageMaterial.map = texture;
-        imageMaterial.needsUpdate = true;
-        disposables.push(texture);
+      // Smallest first; the full-size image last, as "wide enough for anything".
+      const sources = [
+        ...[...(item.sources ?? [])].sort((a, b) => a.width - b.width),
+        { width: Infinity, src: item.imageSrc },
+      ];
+      let requested = 0;
+      let shown = 0;
+      let screenshot: THREE.Texture | null = null;
+      disposables.push({ dispose: () => screenshot?.dispose() });
 
-        // Frosted glass: the screenshot shrunk to a few pixels (so it blurs when stretched back)
-        // and veiled in white, so the frame picks up the soft colours of the page behind it.
+      /** Loads the smallest source at least `needPx` device pixels wide, if it is bigger than what was asked for so far. */
+      function ensureSharp(needPx: number) {
+        const source = sources.find((s) => s.width >= needPx) ?? sources[sources.length - 1];
+        if (source.width <= requested) return;
+        requested = source.width;
+        loadTexture(source.src, (texture, flipped) => {
+          // A bigger source asked for later may have arrived first.
+          if (source.width <= shown) return texture.dispose();
+          texture.colorSpace = THREE.SRGBColorSpace;
+          texture.generateMipmaps = false;
+          texture.minFilter = THREE.LinearFilter;
+          texture.magFilter = THREE.LinearFilter;
+          if (maxAnisotropy > 1) texture.anisotropy = maxAnisotropy;
+          const first = screenshot === null;
+          screenshot?.dispose();
+          screenshot = texture;
+          shown = source.width;
+          imageMaterial.map = texture;
+          imageMaterial.needsUpdate = true;
+          if (first) addGlass(texture.image as CanvasImageSource, flipped);
+          kick();
+        });
+      }
+
+      // Frosted glass: the screenshot shrunk to a few pixels (so it blurs when stretched back)
+      // and veiled in white, so the frame picks up the soft colours of the page behind it.
+      function addGlass(source: CanvasImageSource, flipped: boolean) {
         const canvas = document.createElement("canvas");
         canvas.width = 24;
         canvas.height = Math.max(8, Math.round(24 / item.aspect));
         const ctx = canvas.getContext("2d");
-        if (ctx) {
-          ctx.fillStyle = "#ffffff";
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.globalAlpha = 0.5;
-          ctx.drawImage(texture.image as CanvasImageSource, 0, 0, canvas.width, canvas.height);
-          const glass = new THREE.CanvasTexture(canvas);
-          glass.colorSpace = THREE.SRGBColorSpace;
-          glass.minFilter = THREE.LinearFilter;
-          glass.magFilter = THREE.LinearFilter;
-          frameMaterial.map = glass;
-          frameMaterial.color.set(0xffffff);
-          frameMaterial.needsUpdate = true;
-          disposables.push(glass);
-        }
-        kick();
-      });
+        if (!ctx) return;
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.globalAlpha = 0.5;
+        ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
+        const glass = new THREE.CanvasTexture(canvas);
+        // The canvas copies the bitmap's upside-down pixels, so it must not be flipped again.
+        glass.flipY = !flipped;
+        glass.colorSpace = THREE.SRGBColorSpace;
+        glass.minFilter = THREE.LinearFilter;
+        glass.magFilter = THREE.LinearFilter;
+        frameMaterial.map = glass;
+        frameMaterial.color.set(0xffffff);
+        frameMaterial.needsUpdate = true;
+        disposables.push(glass);
+      }
 
       frame.userData.index = index;
       image.userData.index = index;
@@ -254,7 +310,7 @@ function Carousel3DStage({
       group.add(frame, rim, image);
       scene.add(group);
       disposables.push(frameGeometry, frameMaterial, rimGeometry, rimMaterial, imageGeometry, imageMaterial);
-      return { group, imageMaterial, height, hit: [frame, rim, image] };
+      return { group, imageMaterial, height, ensureSharp, hit: [frame, rim, image] };
     });
     const hitTargets = cards.flatMap((card) => card.hit);
 
@@ -263,6 +319,7 @@ function Carousel3DStage({
     let position = reduceMotion ? targetRef.current : targetRef.current - 1;
     let width = 1;
     let pxPerCard = 1;
+    let frontCardPx = 0;
     let visible = false;
     let raf = 0;
     let last = 0;
@@ -358,6 +415,11 @@ function Carousel3DStage({
       restCentres();
       // Pixels between the front card and its neighbour: one card of drag.
       pxPerCard = Math.max((Math.abs(side.x - front.x) * width) / 2, 40);
+      // CSS width of the front card (the largest on screen), which decides how big a texture it needs.
+      const matrix = cards[0].group.matrixWorld;
+      const left = corner.set(-CARD_WIDTH / 2, 0, 0).applyMatrix4(matrix).project(camera).x;
+      const right = corner.set(CARD_WIDTH / 2, 0, 0).applyMatrix4(matrix).project(camera).x;
+      frontCardPx = ((right - left) * width) / 2;
       camera.setViewOffset(width, height, 0, (-(front.y - FRONT_LIFT) * height) / 2, width, height);
     }
 
@@ -365,13 +427,13 @@ function Carousel3DStage({
       const rect = container!.getBoundingClientRect();
       width = Math.max(rect.width, 1);
       const height = Math.max(rect.height, 1);
-      updatePixelRatio();
       renderer.setSize(width, height, false);
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       fit(height);
+      cards.forEach((card) => card.ensureSharp(frontCardPx * PIXEL_RATIO));
       if (raf === 0) draw();
     }
 
@@ -428,20 +490,6 @@ function Carousel3DStage({
     canvas.addEventListener("pointerup", onPointerUp);
     canvas.addEventListener("pointercancel", onPointerCancel);
 
-    let dprMediaQuery: MediaQueryList | null = null;
-    const onDprChange = () => {
-      listenDpr();
-      resize();
-    };
-    function listenDpr() {
-      if (dprMediaQuery) {
-        dprMediaQuery.removeEventListener("change", onDprChange);
-      }
-      dprMediaQuery = window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
-      dprMediaQuery.addEventListener("change", onDprChange);
-    }
-    listenDpr();
-
     window.addEventListener("resize", resize);
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(container);
@@ -453,14 +501,12 @@ function Carousel3DStage({
     resize();
 
     return () => {
+      alive = false;
       cancelAnimationFrame(raf);
       kickRef.current = () => {};
       window.removeEventListener("resize", resize);
       resizeObserver.disconnect();
       inView.disconnect();
-      if (dprMediaQuery) {
-        dprMediaQuery.removeEventListener("change", onDprChange);
-      }
       canvas.removeEventListener("pointerdown", onPointerDown);
       canvas.removeEventListener("pointermove", onPointerMove);
       canvas.removeEventListener("pointerup", onPointerUp);
