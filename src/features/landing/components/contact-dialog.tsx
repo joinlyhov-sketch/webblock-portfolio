@@ -63,7 +63,7 @@ function useContactHash(): [boolean, () => void] {
 
 /**
  * "Talk to us" popup on the landing, privacy and terms pages: name, email and message, sent to
- * `/api/contact`. The navbar has a dedicated contact page; email and "Mail to us" links open this popup.
+ * `/api/contact`. The navbar points to the landing CTA; email and "Mail to us" links open this popup.
  */
 export function ContactDialog() {
   const [open, close] = useContactHash();
@@ -186,7 +186,6 @@ export function ContactForm({ onClose }: { onClose?: () => void } = {}) {
               id="contact-name"
               label="Your name"
               labelClassName={labelClass}
-              hint={`Required · Up to ${LIMITS.name} characters.`}
               error={error("name")}
             >
               <Input
@@ -202,7 +201,7 @@ export function ContactForm({ onClose }: { onClose?: () => void } = {}) {
                 placeholder="e.g. Sokha Chan"
                 {...fieldEvents}
                 aria-invalid={!!error("name") || undefined}
-                aria-describedby="contact-name-count contact-name-hint"
+                aria-describedby="contact-name-count"
               />
               <p
                 id="contact-name-count"
@@ -239,7 +238,6 @@ export function ContactForm({ onClose }: { onClose?: () => void } = {}) {
               id="contact-message"
               label="Message"
               labelClassName={labelClass}
-              hint={`Write ${CONTACT_MESSAGE_MIN}–${LIMITS.message} characters.`}
               error={error("message")}
             >
               <Textarea
@@ -250,9 +248,9 @@ export function ContactForm({ onClose }: { onClose?: () => void } = {}) {
                 value={values.message}
                 placeholder="Tell us what you need help with."
                 {...fieldEvents}
-                className="min-h-[140px] rounded-xl px-3.5 py-3 text-sm leading-[21.7px]"
+                className="min-h-[140px] resize-none rounded-xl px-3.5 py-3 text-sm leading-[21.7px]"
                 aria-invalid={!!error("message") || undefined}
-                aria-describedby="contact-message-count contact-message-hint"
+                aria-describedby="contact-message-count"
               />
               <p
                 id="contact-message-count"

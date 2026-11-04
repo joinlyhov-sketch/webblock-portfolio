@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { Field } from "@puckeditor/core";
-import { Add, ArrowRight2, Colorfilter, Edit2, Magicpen, Setting2, SidebarRight } from "iconsax-reactjs";
+import { Add, ArrowRight2, Colorfilter, Edit2, Magicpen, Setting2, SidebarLeft } from "iconsax-reactjs";
 import { AiAvatar } from "@/components/common/ai-avatar";
 import { cn } from "@/lib/utils";
 import type { BlockName, SiteRootProps } from "../../types";
@@ -121,7 +121,7 @@ export function PropertiesPanel({
       rail={
         <PanelRail
           label="Block settings"
-          show={{ label: "Show settings panel", icon: <SidebarRight variant="Outline" className={cn("transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none", open && "-rotate-180")} />, onClick: () => onOpenChange(true) }}
+          show={{ label: "Show settings panel", icon: <SidebarLeft variant="Outline" className={cn("transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none", open && "-rotate-180")} />, onClick: () => onOpenChange(true) }}
           items={[
             { label: "WebBlock AI", icon: <Magicpen variant="Outline" />, onClick: () => openAt("ai") },
             { label: "Content", icon: <Edit2 variant="Outline" />, onClick: () => openAt("content") },
@@ -228,7 +228,7 @@ export function PropertiesPanel({
               </div>
             </div>
 
-            <div role="tabpanel" className="min-h-0 flex-1 overflow-y-auto pb-6 [--puck-field-radius:14px]">
+            <div role="tabpanel" className="editor-scrollbar min-h-0 flex-1 overflow-y-auto pb-6 [--puck-field-radius:14px]">
               <FieldList
                 key={`${selectedItem?.props.id ?? "root"}-${tab}`}
                 fields={fields}

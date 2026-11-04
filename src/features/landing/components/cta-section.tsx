@@ -3,20 +3,11 @@ import Link from "next/link";
 import { Reveal } from "@/components/common/motion";
 import { Button } from "@/components/ui/button";
 import { CONTACT_HASH } from "../content";
-import { Diamond, DotGrid } from "./decor";
 
 /** "Get your business online today" band (Figma "07 Get started"). */
 export function CtaSection() {
   return (
-    <section aria-labelledby="cta-title" className="relative isolate overflow-hidden px-4 py-16 sm:px-6 lg:py-24">
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <DotGrid />
-        <Diamond className="top-[102px] left-[8%] hidden md:block" size={12} />
-        <Diamond className="top-[130px] right-[9%] hidden md:block" size={14} delay={0.6} />
-        <Diamond className="top-[373px] left-[12%] hidden md:block" size={10} delay={1.1} />
-        <Diamond className="top-[472px] right-[14%] hidden md:block" size={12} delay={0.3} />
-      </div>
-
+    <section id="cta" aria-labelledby="cta-title" className="scroll-mt-28 relative isolate overflow-hidden px-4 py-16 sm:px-6 lg:py-24">
       <Reveal y={24} className="mx-auto max-w-[1280px]">
         <div className="relative isolate flex flex-col items-center gap-6 overflow-hidden rounded-[24px] border border-cta-border bg-linear-[160deg] from-cta-from via-cta-via via-40% to-cta-to to-70% px-6 py-14 text-center shadow-cta sm:rounded-[32px] sm:px-16 sm:py-20">
           <Image aria-hidden src="/landing/decor/cta-glow-left.svg" alt="" width={480} height={480} className="pointer-events-none absolute top-[104px] -left-[211px] -z-10 max-w-none" />

@@ -29,7 +29,7 @@ export function LandingHeader() {
           <Button asChild variant="outline" size="lp-md">
             <Link href="/sign-in">Sign in</Link>
           </Button>
-          <Button asChild variant="tonal" size="lp-md">
+          <Button asChild variant="primary" size="lp-md">
             <Link href="/register">Start free</Link>
           </Button>
         </div>

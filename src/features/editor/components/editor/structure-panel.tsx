@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Drawer } from "@puckeditor/core";
-import { Add, AddSquare, Copy, Layer, Menu, SidebarLeft, Trash } from "iconsax-reactjs";
+import { Add, AddSquare, Copy, Layer, Menu, SidebarLeft, SidebarRight, Trash } from "iconsax-reactjs";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { BlockName } from "../../types";
@@ -88,7 +88,7 @@ export function StructurePanel({
       rail={
         <PanelRail
           label="Page"
-          show={{ label: "Show page panel", icon: <SidebarLeft variant="Outline" className={cn("transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none", open && "rotate-180")} />, onClick: () => onOpenChange(true) }}
+          show={{ label: "Show page panel", icon: <SidebarRight variant="Outline" className={cn("transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none", open && "rotate-180")} />, onClick: () => onOpenChange(true) }}
           items={[
             { label: "Page structure", icon: <Layer variant="Outline" />, onClick: () => openAt("page-structure") },
             { label: "Add a block", icon: <AddSquare variant="Outline" />, onClick: () => openAt("add-block-list") },
@@ -213,7 +213,7 @@ export function StructurePanel({
         <section className="flex min-h-0 flex-1 flex-col px-4 pt-4 pb-1.5">
           <h2 className="font-sans text-[13px] font-semibold text-foreground">Add a block</h2>
           {/* Puck spaces drawer items with --puck-space-3 (12px); Figma uses 8px between blocks. */}
-          <div id="add-block-list" className="-mx-1 min-h-0 flex-1 overflow-y-auto px-1 pt-2.5 pb-3 [--puck-space-3:8px]">
+          <div id="add-block-list" className="editor-scrollbar -mx-1 min-h-0 flex-1 overflow-y-auto px-1 pt-2.5 pb-3 [--puck-space-3:8px]">
             <Drawer>
               {BLOCK_ORDER.map((name) => {
                 const meta = BLOCK_META[name];

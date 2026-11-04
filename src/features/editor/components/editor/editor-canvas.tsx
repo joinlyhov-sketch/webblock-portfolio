@@ -41,7 +41,7 @@ export function EditorCanvas({ device }: { device: Device }) {
   }
 
   return (
-    <div ref={ref} className="relative flex min-w-0 flex-1 flex-col overflow-auto px-16 pt-2 pb-10">
+    <div ref={ref} className="editor-scrollbar relative flex min-w-0 flex-1 flex-col overflow-auto px-16 pt-2 pb-10">
       {/* The zoom is applied by SiteRoot (inside the preview) through these variables, not here:
           Puck positions its selection overlays inside the preview, so zooming an outer box would
           scale them twice. */}

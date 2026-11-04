@@ -60,8 +60,8 @@ export function BillingView({ data }: { data: BillingData }) {
               {paid
                 ? "Renew early to keep your websites online without a break."
                 : data.websiteName
-                  ? `Pick a plan to keep ${data.websiteName} online after your trial.`
-                  : "Pick a plan to keep your websites online after your trial."}
+                  ? "Pick a plan to keep your sites online after trial."
+                  : "Pick a plan to keep your sites online after trial."}
             </p>
           </div>
           <div className="flex items-center justify-between gap-3">

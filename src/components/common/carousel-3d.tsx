@@ -150,7 +150,9 @@ function Carousel3DStage({
     // (hundreds of ms on slow devices). If this throws (no WebGL, too many open contexts),
     // `StageBoundary` shows the fallback.
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // The preview cards contain small text, so render the WebGL canvas above standard DPR on
+    // regular displays and keep enough pixels for high-density screens without oversizing it.
+    renderer.setPixelRatio(Math.min(Math.max(window.devicePixelRatio, 2), 3));
     renderer.setClearColor(0x000000, 0);
     const canvas = renderer.domElement;
     canvas.setAttribute("aria-hidden", "true");
