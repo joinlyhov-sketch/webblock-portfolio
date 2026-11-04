@@ -12,23 +12,30 @@ import { Field, SETTINGS_FIELD, SettingsCard } from "./settings-card";
 /** "Set a password" for Google-only accounts, "Password" (with the current one) once one exists. */
 export function PasswordCard({ hasPassword }: { hasPassword: boolean }) {
   const formRef = useRef<HTMLFormElement>(null);
-  const submittedValues = useRef<{ currentPassword: string; password: string; confirmPassword: string } | null>(null);
+  const [submittedValues, setSubmittedValues] = useState<{ currentPassword: string; password: string; confirmPassword: string } | null>(null);
   const [state, formAction, pending] = useActionState(setPasswordAction, null);
   const [currentPassword, setCurrentPassword] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [touched, setTouched] = useState({ currentPassword: false, password: false, confirmPassword: false });
 
+  const [prevState, setPrevState] = useState(state);
+  if (prevState !== state) {
+    setPrevState(state);
+    if (state?.ok) {
+      setCurrentPassword("");
+      setPassword("");
+      setConfirmPassword("");
+      setTouched({ currentPassword: false, password: false, confirmPassword: false });
+      setSubmittedValues(null);
+    }
+  }
+
   useEffect(() => {
     if (!state) return;
     if (state.ok) {
       toast.success(state.message ?? "Password saved");
       formRef.current?.reset();
-      setCurrentPassword("");
-      setPassword("");
-      setConfirmPassword("");
-      setTouched({ currentPassword: false, password: false, confirmPassword: false });
-      submittedValues.current = null;
     } else if (!state.fieldErrors) {
       toast.error("Could not save the password", state.message);
     }
@@ -56,10 +63,10 @@ export function PasswordCard({ hasPassword }: { hasPassword: boolean }) {
       : undefined,
   };
   const serverErrorsMatchCurrentValues =
-    submittedValues.current !== null &&
-    submittedValues.current.currentPassword === currentPassword &&
-    submittedValues.current.password === password &&
-    submittedValues.current.confirmPassword === confirmPassword;
+    submittedValues !== null &&
+    submittedValues.currentPassword === currentPassword &&
+    submittedValues.password === password &&
+    submittedValues.confirmPassword === confirmPassword;
   const error = (field: keyof typeof localErrors) =>
     localErrors[field] ??
     (serverErrorsMatchCurrentValues && state && !state.ok ? state.fieldErrors?.[field]?.[0] : undefined);
@@ -83,10 +90,10 @@ export function PasswordCard({ hasPassword }: { hasPassword: boolean }) {
           setTouched({ currentPassword: true, password: true, confirmPassword: true });
           if ((hasPassword && !currentPassword) || passwordProblem(password) || confirmPassword !== password) {
             event.preventDefault();
-            submittedValues.current = null;
+            setSubmittedValues(null);
             return;
           }
-          submittedValues.current = { currentPassword, password, confirmPassword };
+          setSubmittedValues({ currentPassword, password, confirmPassword });
         }}
       >
         {hasPassword && (

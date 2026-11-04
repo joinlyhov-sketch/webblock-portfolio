@@ -44,6 +44,14 @@ export function ProfileCard({
   const initials = saved?.initials ?? profile.initials;
   const planStyle = TONE_STYLE[PLAN_TONE[profile.plan]];
 
+  const [prevState, setPrevState] = useState(state);
+  if (prevState !== state) {
+    setPrevState(state);
+    if (state?.ok) {
+      setNameValue(state.data.fullName);
+    }
+  }
+
   // Tell the sidebar (a different part of the page) about the new name or photo.
   useEffect(() => {
     announceProfile({ fullName, initials, avatarUrl });
@@ -52,7 +60,6 @@ export function ProfileCard({
   useEffect(() => {
     if (!state) return;
     if (state.ok) {
-      setNameValue(state.data.fullName);
       toast.success(state.message ?? "Profile saved");
     }
     else if (!state.fieldErrors) toast.error("Could not save your profile", state.message);
