@@ -1,4 +1,5 @@
-import { getPlan, listPlans, PlansView } from "@/features/admin";
+import { PlansView } from "@/features/admin/components/admin-client-views";
+import { getPlan, listPlans } from "@/features/admin";
 import { nullIfNotFound } from "@/lib/api/errors";
 import { requireAdmin } from "@/lib/auth/session";
 import type { SearchParams } from "@/lib/table-query";

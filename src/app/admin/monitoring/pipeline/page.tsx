@@ -1,8 +1,7 @@
+import { PipelineView } from "@/features/admin/components/admin-client-views";
 import {
-  getPipelineRun,
-  listLiveLogs,
+  getPipelineDetail,
   listPipelineRuns,
-  PipelineView,
   type LogLevel,
   type PipelineStage,
 } from "@/features/admin/monitoring";
@@ -24,11 +23,7 @@ export default async function AdminPipelinePage({ searchParams }: { searchParams
   const [runs, detail] = await Promise.all([
     listPipelineRuns({ stage: STAGES.find((s) => s === query.stage) }, parseTableQuery(query)),
     websiteId
-      ? Promise.all([
-          getPipelineRun(websiteId),
-          listLiveLogs(websiteId, { level: LEVELS.find((l) => l === query.log) }, { page: 0, size: 6 }),
-        ])
-          .then(([run, logs]) => ({ run, logs: run.live ? logs : null }))
+      ? getPipelineDetail(websiteId, LEVELS.find((l) => l === query.log))
           .catch(nullIfNotFound)
       : null,
   ]);

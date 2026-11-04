@@ -113,7 +113,8 @@ function TitledModal({
         if (routed) {
           if (!next) {
             setRoutedOpen(false);
-            const exitMs = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 150;
+            const duration = side === "right" ? 200 : 150;
+            const exitMs = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : duration;
             setTimeout(() => router.push(closeHref, { scroll: false }), exitMs);
           }
         } else {
@@ -122,9 +123,10 @@ function TitledModal({
       }}
     >
       <DialogContent
+        side={side}
         className={cn(
           side === "right"
-            ? "top-0 right-0 left-auto h-dvh max-h-dvh w-[calc(100vw-16px)] max-w-[1220px] translate-x-0 translate-y-0 rounded-l-3xl rounded-r-none md:w-[70vw] motion-safe:animate-pop-in motion-safe:data-[state=closed]:animate-pop-out"
+            ? "w-[calc(100vw-16px)] max-w-[1220px] rounded-l-3xl rounded-r-none md:w-[70vw]"
             : SIZE[size],
           className,
         )}

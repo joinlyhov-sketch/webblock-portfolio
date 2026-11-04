@@ -1,10 +1,9 @@
+import { WebsitesView } from "@/features/admin/components/admin-client-views";
 import {
   getWebsite,
   listDeploys,
   listWebsites,
-  WebsitesView,
-  type PlanCode,
-  type ReleaseStatus,
+  type SiteStatus,
 } from "@/features/admin";
 import { nullIfNotFound } from "@/lib/api/errors";
 import { requireAdmin } from "@/lib/auth/session";
@@ -12,8 +11,7 @@ import { parseTableQuery, type SearchParams } from "@/lib/table-query";
 
 export const metadata = { title: "User Websites" };
 
-const RELEASES: ReleaseStatus[] = ["LIVE", "GOING_LIVE", "FAILED"];
-const PLANS: PlanCode[] = ["FREE_TRIAL", "PLUS", "PRO", "ULTRA"];
+const SITES: SiteStatus[] = ["ONLINE", "NOT_DEPLOYED", "OFFLINE_BILLING", "SUSPENDED"];
 const param = (v: SearchParams[string]) =>
   typeof v === "string" && v ? v : undefined;
 
@@ -24,29 +22,19 @@ export default async function AdminWebsitesPage({
 }) {
   await requireAdmin();
   const query = await searchParams;
-  const release = RELEASES.find((r) => r === query.release);
   const websiteId = param(query.website);
 
-  // The tabs' numbers follow the search, plan and owner filters, but not the tab itself.
   const base = {
     q: param(query.q),
-    plan: PLANS.find((p) => p === query.plan),
+    site: SITES.find((s) => s === query.site),
     ownerId: param(query.owner),
   };
-  const count = (r?: ReleaseStatus) =>
-    listWebsites({ ...base, release: r }, { page: 0, size: 1 }).then(
-      (page) => page.totalItems,
-    );
-
-  const [websites, releaseCounts, detail] = await Promise.all([
+  const [websites, detail] = await Promise.all([
     listWebsites(
-      { ...base, release },
+      base,
       parseTableQuery(query, {
         sort: { field: "lastDeployAt", direction: "desc" },
       }),
-    ),
-    Promise.all([count(), count("LIVE"), count("FAILED")]).then(
-      ([all, live, failed]) => ({ all, live, failed }),
     ),
     websiteId
       ? Promise.all([
@@ -61,7 +49,6 @@ export default async function AdminWebsitesPage({
   return (
     <WebsitesView
       websites={websites}
-      releaseCounts={releaseCounts}
       searchParams={query}
       detail={detail}
     />

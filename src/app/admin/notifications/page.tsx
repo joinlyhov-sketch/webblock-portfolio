@@ -1,4 +1,5 @@
-import { listNotifications, NotificationsView } from "@/features/admin";
+import { NotificationsView } from "@/features/admin/components/admin-client-views";
+import { listNotifications } from "@/features/admin";
 import { requireAdmin } from "@/lib/auth/session";
 
 export const metadata = { title: "Notifications" };

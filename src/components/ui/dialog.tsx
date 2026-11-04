@@ -17,15 +17,27 @@ export function DialogContent({
   className,
   children,
   showClose = true,
+  side = "center",
   ...props
-}: ComponentProps<typeof DialogPrimitive.Content> & { showClose?: boolean }) {
+}: ComponentProps<typeof DialogPrimitive.Content> & {
+  showClose?: boolean;
+  side?: "center" | "right";
+}) {
   return (
     <DialogPrimitive.Portal>
       <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-scrim backdrop-blur-[7px] motion-safe:animate-fade-in motion-safe:data-[state=closed]:animate-fade-out" />
       <DialogPrimitive.Content
         data-mobile-sheet
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100dvh-32px)] w-[calc(100vw-32px)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-[20px] border border-border bg-background shadow-popover outline-none motion-safe:animate-pop-in motion-safe:data-[state=closed]:animate-pop-out",
+          "fixed z-50 flex flex-col overflow-hidden bg-background outline-none",
+          side === "center" && [
+            "top-1/2 left-1/2 max-h-[calc(100dvh-32px)] w-[calc(100vw-32px)] -translate-x-1/2 -translate-y-1/2 rounded-[20px] border border-border shadow-popover",
+            "motion-safe:animate-pop-in motion-safe:data-[state=closed]:animate-pop-out",
+          ],
+          side === "right" && [
+            "top-0 right-0 h-dvh max-h-dvh border-l border-border shadow-2xl",
+            "data-[state=open]:animate-sheet-in-right data-[state=closed]:animate-sheet-out-right motion-reduce:animate-none",
+          ],
           className,
         )}
         {...props}

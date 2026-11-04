@@ -1,4 +1,5 @@
 export {
+  getPipelineDetail,
   getPipelineRun,
   listActivity,
   listActivityActors,

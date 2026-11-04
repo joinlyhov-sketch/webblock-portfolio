@@ -113,6 +113,22 @@
   body:has([data-mobile-ui]) *, body:has([data-mobile-ui]) *::before, body:has([data-mobile-ui]) *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
 
+* {
+  scrollbar-width: none;
+
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+* {
+
+}
+
 /*
  * Design tokens (from Figma "Local WebBlock UI"). Components use these via Tailwind classes — never raw hex.
  * Names follow shadcn/ui (background, foreground, muted, muted-foreground, input, ring, destructive…)

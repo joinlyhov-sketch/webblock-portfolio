@@ -8,7 +8,7 @@ import {
   Danger,
   DocumentText,
   DollarCircle,
-  Global,
+  Forbidden2,
   MinusCirlce,
   Refresh2,
   Receipt2,
@@ -58,6 +58,7 @@ const STATUSES: SubscriptionStatus[] = [
   "PENDING",
   "CANCELED",
   "EXPIRED",
+  "SUSPENDED",
 ];
 const PLANS: PlanCode[] = ["FREE_TRIAL", "PLUS", "PRO", "ULTRA"];
 export function SubscriptionsView({
@@ -207,7 +208,7 @@ export function SubscriptionsView({
                     {s.userName}
                   </span>
                   <span className="block max-w-[240px] truncate text-sm text-muted-foreground">
-                    {s.websiteName}
+                    {s.websiteName || "No website yet"}
                   </span>
                 </span>
               </Link>
@@ -273,6 +274,15 @@ export function SubscriptionsView({
 function statusCallout(s: Subscription) {
   const plan = `${planLabel(s.plan)} plan`;
   switch (s.status) {
+    case "SUSPENDED":
+      return (
+        <Callout
+          tone="danger"
+          icon={<Forbidden2 variant="Outline" />}
+          title="Subscription suspended"
+          description={`${plan} · the account is suspended`}
+        />
+      );
     case "ACTIVE":
       return (
         <Callout
@@ -321,7 +331,7 @@ export function SubscriptionDetail({
 }) {
   return (
     <Modal
-      title={`${s.userName} · ${s.websiteName}`}
+      title={`${s.userName} · ${s.websiteName || `${planLabel(s.plan)} plan`}`}
       hideTitle
       size="xl"
       // Same fixed size as the website popup; the body scrolls inside it.
@@ -339,7 +349,9 @@ export function SubscriptionDetail({
         }
         badge={<StatusBadge status={s.status} />}
         title={s.userName}
-        link={{ href: `/sites/${s.websiteId}`, label: s.websiteDomain }}
+        link={s.websiteId && s.websiteDomain
+          ? { href: `/sites/${s.websiteId}`, label: s.websiteDomain }
+          : undefined}
         chips={
           <>
             <HeroChip icon={<Sms variant="Outline" />}>{s.userEmail}</HeroChip>
@@ -354,7 +366,6 @@ export function SubscriptionDetail({
             className="rounded-none border-0 [&>div]:px-1"
             items={[
               { icon: <Crown1 variant="Outline" />, label: "Plan", value: <PlanBadge plan={s.plan} /> },
-              { icon: <Global variant="Outline" />, label: "Project", value: s.websiteName },
               { icon: <TickCircle variant="Outline" />, label: "Status", value: <StatusBadge status={s.status} /> },
               { icon: <CalendarAdd variant="Outline" />, label: "Start date", value: formatDate(s.startAt) },
               { icon: <CalendarRemove variant="Outline" />, label: "End date", value: formatDate(s.endAt) },
@@ -403,7 +414,9 @@ export function SubscriptionDetail({
             </ul>
           ) : (
             <p className="py-6 text-center text-sm text-muted-foreground">
-              No payments yet — free trials aren&apos;t billed.
+              {s.plan === "FREE_TRIAL"
+                ? "No payments yet — free trials aren't billed."
+                : "No payments yet."}
             </p>
           )}
         </DetailCard>

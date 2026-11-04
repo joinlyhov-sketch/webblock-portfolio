@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Hierarchy, SearchNormal1 } from "iconsax-reactjs";
 import { WebsiteLogo } from "@/components/common/website-logo";
 import { CardHeader } from "@/components/common/card";
@@ -7,7 +11,7 @@ import { EmptyState } from "@/components/common/empty-state";
 import { SegmentedTabs } from "@/components/common/segmented-tabs";
 import { StatusBadge } from "@/components/common/status-badge";
 import { Button } from "@/components/ui/button";
-import { AdminPageHeader } from "@/features/admin";
+import { AdminPageHeader } from "../../components/admin-page-header";
 import type { Page } from "@/lib/api/types";
 import { formatDateTime } from "@/lib/format";
 import { tableHref, type SearchParams } from "@/lib/table-query";
@@ -30,6 +34,18 @@ export function PipelineView({
   /** The website opened with `?run=<websiteId>`, with its live logs once live. */
   detail: { run: PipelineRun; logs: Page<LogLine> | null } | null;
 }) {
+  const router = useRouter();
+  useEffect(() => {
+    const refresh = () => {
+      if (document.visibilityState === "visible") router.refresh();
+    };
+    const interval = window.setInterval(refresh, 5_000);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, [router]);
   const stage =
     typeof searchParams.stage === "string" ? searchParams.stage : undefined;
   const runHref = (websiteId: string) =>

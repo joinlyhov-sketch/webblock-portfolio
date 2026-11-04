@@ -8,6 +8,7 @@ import {
   Crown1,
   Danger,
   Edit2,
+  Forbidden2,
   Global,
   Hierarchy,
   Link21,
@@ -28,10 +29,9 @@ import { DataTable } from "@/components/common/data-table";
 import { EmptyState } from "@/components/common/empty-state";
 import { FilterMenu } from "@/components/common/filter-menu";
 import { Modal } from "@/components/common/modal";
-import { PlanBadge, planLabel } from "@/components/common/plan-badge";
+import { PlanBadge } from "@/components/common/plan-badge";
 import { RowsSelect } from "@/components/common/rows-select";
-import { SegmentedTabs } from "@/components/common/segmented-tabs";
-import { StatusBadge } from "@/components/common/status-badge";
+import { StatusBadge, statusLabel } from "@/components/common/status-badge";
 import { TableSearch } from "@/components/common/table-search";
 import { Button } from "@/components/ui/button";
 import type { Page } from "@/lib/api/types";
@@ -42,39 +42,45 @@ import {
   formatRelative,
 } from "@/lib/format";
 import { tableHref, type SearchParams } from "@/lib/table-query";
-import type { AdminWebsite, Deploy, PlanCode, SiteStatus } from "../types";
+import type { AdminWebsite, Deploy, SiteStatus } from "../types";
 import { AdminPageHeader } from "./admin-page-header";
 import { DetailCard, DetailHero, HeroChip } from "./detail-hero";
 import { WebsiteDetailActions, WebsiteRowMenu } from "./website-actions";
+function CloudOfflineIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M3 3l18 18M8.8 4.7A7 7 0 0 1 19 11a4.5 4.5 0 0 1 2.4 7.7M5 8.5A5.5 5.5 0 0 0 6.5 19H15" />
+    </svg>
+  );
+}
 const OFFLINE_REASON = {
-  ONLINE: { reason: "None", hint: "site is reachable" },
-  NOT_DEPLOYED: { reason: "Not deployed", hint: "no release yet" },
-  OFFLINE_BILLING: { reason: "Plan expired", hint: "renew to go back online" },
-  SUSPENDED: { reason: "Suspended", hint: "by an admin" },
-} satisfies Record<SiteStatus, { reason: string; hint: string }>;
-const PLANS: PlanCode[] = ["FREE_TRIAL", "PLUS", "PRO", "ULTRA"];
+  ONLINE: { reason: "None", hint: "site is reachable", icon: <CloudOfflineIcon /> },
+  NOT_DEPLOYED: { reason: "Not deployed", hint: "no release yet", icon: <Edit2 variant="Outline" /> },
+  OFFLINE_BILLING: {
+    reason: "Plan expired",
+    hint: "renew to go back online",
+    icon: <CloudOfflineIcon />,
+  },
+  SUSPENDED: { reason: "Suspended", hint: "by an admin", icon: <Forbidden2 variant="Outline" /> },
+} satisfies Record<SiteStatus, { reason: string; hint: string; icon: ReactNode }>;
+const SITES: SiteStatus[] = ["ONLINE", "NOT_DEPLOYED", "OFFLINE_BILLING", "SUSPENDED"];
 export function WebsitesView({
   websites,
-  releaseCounts,
   searchParams,
   detail,
 }: {
   websites: Page<AdminWebsite>;
-  /** Websites per release tab, under the current search, plan and owner filters. */
-  releaseCounts: { all: number; live: number; failed: number };
   searchParams: SearchParams;
   /** The website opened with `?website=<id>`, with its recent deploys. */
   detail: { website: AdminWebsite; deploys: Page<Deploy> } | null;
 }) {
-  const release =
-    typeof searchParams.release === "string" ? searchParams.release : undefined;
   const q = typeof searchParams.q === "string" ? searchParams.q : "";
   const owner =
     typeof searchParams.owner === "string" ? searchParams.owner : "";
   const detailHref = (id: string) => tableHref(searchParams, { website: id });
-  const plan =
-    typeof searchParams.plan === "string" ? searchParams.plan : undefined;
-  const filtered = Boolean(q || release || plan || owner);
+  const site =
+    typeof searchParams.site === "string" ? searchParams.site : undefined;
+  const filtered = Boolean(q || site || owner);
   return (
     <>
       <AdminPageHeader
@@ -97,17 +103,17 @@ export function WebsitesView({
               placeholder="Search by owner or domain"
             />
             <FilterMenu
-              label="Plan"
+              label="Site"
               options={[
                 {
                   label: "All",
-                  href: tableHref(searchParams, { plan: null, page: null }),
-                  active: !plan,
+                  href: tableHref(searchParams, { site: null, plan: null, page: null }),
+                  active: !site,
                 },
-                ...PLANS.map((p) => ({
-                  label: planLabel(p),
-                  href: tableHref(searchParams, { plan: p, page: null }),
-                  active: plan === p,
+                ...SITES.map((s) => ({
+                  label: statusLabel(s),
+                  href: tableHref(searchParams, { site: s, plan: null, page: null }),
+                  active: site === s,
                 })),
               ]}
             />
@@ -123,37 +129,9 @@ export function WebsitesView({
                 />
               </Link>
             )}
-            <SegmentedTabs
-              size="sm"
-              className="mb-0 ml-auto"
-              tabs={[
-                {
-                  label: "All",
-                  count: releaseCounts.all,
-                  href: tableHref(searchParams, { release: null, page: null }),
-                  active: !release,
-                },
-                {
-                  label: "Live",
-                  count: releaseCounts.live,
-                  href: tableHref(searchParams, {
-                    release: "LIVE",
-                    page: null,
-                  }),
-                  active: release === "LIVE",
-                },
-                {
-                  label: "Failed",
-                  count: releaseCounts.failed,
-                  href: tableHref(searchParams, {
-                    release: "FAILED",
-                    page: null,
-                  }),
-                  active: release === "FAILED",
-                },
-              ]}
-            />
-            <RowsSelect value={websites.size} className="h-8" />
+            <div className="ml-auto">
+              <RowsSelect value={websites.size} className="h-8" />
+            </div>
           </>
         }
         empty={
@@ -220,7 +198,9 @@ export function WebsitesView({
             key: "release",
             header: "Latest release",
             cell: (w) =>
-              w.releaseStatus ? (
+              w.siteStatus === "SUSPENDED" ? (
+                <StatusBadge status="SUSPENDED" />
+              ) : w.releaseStatus ? (
                 <StatusBadge status={w.releaseStatus} />
               ) : (
                 <span className="text-placeholder">—</span>
@@ -335,7 +315,9 @@ export function WebsiteDetail({
           />
         }
         badge={
-          website.releaseStatus ? (
+          website.siteStatus === "SUSPENDED" ? (
+            <StatusBadge status="SUSPENDED" />
+          ) : website.releaseStatus ? (
             <StatusBadge status={website.releaseStatus} />
           ) : (
             <StatusBadge status="DRAFT" />
@@ -370,7 +352,14 @@ export function WebsiteDetail({
         }
       />
       <div className="space-y-5 px-6 py-5">
-        {deployCallout(latest)}
+        {website.siteStatus === "SUSPENDED" ? (
+          <Callout
+            tone="danger"
+            icon={<Forbidden2 variant="Outline" />}
+            title="Website suspended"
+            description="This website is suspended and is not serving visitors."
+          />
+        ) : deployCallout(latest)}
         <DetailCard title="Recent deploys" icon={<Refresh2 variant="Outline" />} aside={`${deploys.items.length} deploys`}>
           {deploys.items.length ? (
             <ul className="divide-y divide-border text-sm">
@@ -389,7 +378,11 @@ export function WebsiteDetail({
                     {formatDayMonthYear(d.startedAt)}
                   </span>
                   <span>
-                    <StatusBadge status={d.status} />
+                    <StatusBadge
+                      status={website.siteStatus === "SUSPENDED" && d.status === "LIVE"
+                        ? "SUSPENDED"
+                        : d.status}
+                    />
                   </span>
                   <span className="text-right text-foreground-soft tabular-nums">
                     {d.durationSeconds === null
@@ -493,7 +486,7 @@ export function WebsiteDetail({
               }
             />
             <HostingTile
-              icon={<Danger variant="Outline" />}
+              icon={offline.icon}
               iconTone={
                 website.siteStatus === "ONLINE"
                   ? "muted"

@@ -49,7 +49,7 @@ export function RowsSelect({
         <Select value={String(value)} onValueChange={(next) => choose(Number(next))}>
           <SelectTrigger
             aria-label="Rows per page"
-            className={cn("h-[34px] w-[70px] cursor-pointer gap-1 rounded-full border border-border bg-background pr-2.5 pl-3.5 text-sm font-medium text-foreground transition-[border-color,box-shadow] focus-visible:border-primary focus-visible:ring-3 focus-visible:ring-ring/25 data-[state=open]:border-primary [&_svg]:size-3.5", className)}
+            className={cn("h-8 w-[70px] cursor-pointer gap-1 rounded-full border border-border bg-background pr-2.5 pl-3.5 text-[13px] font-medium text-foreground transition-[border-color,box-shadow] focus-visible:border-primary focus-visible:ring-3 focus-visible:ring-ring/25 data-[state=open]:border-primary [&_svg]:size-3.5", className)}
           >
             <SelectValue />
           </SelectTrigger>
@@ -139,7 +139,7 @@ function RowsCombo({
     <div ref={rootRef} className="relative">
       <div
         className={cn(
-          "flex h-[34px] w-[84px] items-center rounded-full border border-border bg-background transition-[border-color,box-shadow] focus-within:border-primary focus-within:ring-3 focus-within:ring-ring/25",
+          "flex h-8 w-[84px] items-center rounded-full border border-border bg-background transition-[border-color,box-shadow] focus-within:border-primary focus-within:ring-3 focus-within:ring-ring/25",
           open && "border-primary",
           className,
         )}
@@ -154,7 +154,7 @@ function RowsCombo({
           onFocus={(event) => event.currentTarget.select()}
           onBlur={commit}
           onKeyDown={onInputKeyDown}
-          className="h-full w-0 min-w-0 flex-1 rounded-l-full bg-transparent pl-3.5 text-sm font-medium text-foreground tabular-nums outline-none"
+          className="h-full w-0 min-w-0 flex-1 rounded-l-full bg-transparent pl-3.5 text-[13px] font-medium text-foreground tabular-nums outline-none"
         />
         <button
           type="button"

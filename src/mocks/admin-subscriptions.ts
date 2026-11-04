@@ -1,6 +1,7 @@
 import type { Payment, Subscription, SubscriptionStats } from "@/features/admin/types";
 import { PETAL_AND_STEM_ID, SOVANNARITH_ID } from "./session";
 import { at, daysAgo, daysFromNow } from "./time";
+import { userAccounts } from "./admin-users";
 
 /** Sovannarith's trial, same window as his account page (src/mocks/account.ts): 14 days, started 5 days ago. */
 export const SOVANNARITH_TRIAL_START = daysAgo(5);
@@ -167,6 +168,30 @@ export const subscriptions: Subscription[] = [
     redeployLimit: 100,
   },
 ];
+
+// Every account has a plan, including trials before its first website is created.
+for (const user of userAccounts) {
+  if (subscriptions.some((s) => s.userId === user.id)) continue;
+  const redeployLimit = { FREE_TRIAL: 0, PLUS: 3, PRO: 30, ULTRA: 100 }[user.plan];
+  subscriptions.push({
+    id: `e4a6c8f0-3b5d-4f7a-8c9e-${user.id.slice(-12)}`,
+    userId: user.id,
+    userName: user.fullName,
+    userEmail: user.email,
+    userAvatarUrl: user.avatarUrl,
+    websiteId: null,
+    websiteName: "",
+    websiteDomain: "",
+    plan: user.plan,
+    status: "ACTIVE",
+    startAt: user.joinedAt,
+    endAt: user.plan === "FREE_TRIAL"
+      ? new Date(new Date(user.joinedAt).getTime() + 14 * 86_400_000).toISOString()
+      : daysFromNow(30),
+    redeploysLeft: redeployLimit,
+    redeployLimit,
+  });
+}
 
 const S = "e4a6c8f0-3b5d-4f7a-8c9e-0a2c4e6a";
 const pay = (n: string, sub: string, plan: Payment["plan"], periodStart: string, amount: string, status: Payment["status"], createdAt: string): Payment => ({

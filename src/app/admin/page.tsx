@@ -1,8 +1,8 @@
+import { OverviewView } from "@/features/admin/components/admin-client-views";
 import {
   getOverview,
   getWebsite,
   listDeploys,
-  OverviewView,
 } from "@/features/admin";
 import { nullIfNotFound } from "@/lib/api/errors";
 import { requireAdmin } from "@/lib/auth/session";
