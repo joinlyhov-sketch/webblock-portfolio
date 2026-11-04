@@ -446,7 +446,7 @@ function ActivityLogDrawer({
               No {filter === "ALL" ? "activity" : `${ACTIVITY_TYPE[filter].label.toLowerCase()} activity`} recorded yet.
             </div>
           ) : (
-            <ul className="divide-y divide-border">
+            <ul key={filter} className="swap-in divide-y divide-border">
               {filtered.map((event) => (
                 <li key={event.id} className="flex items-start gap-3 py-3.5">
                   <ActivityIcon event={event} />

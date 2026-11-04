@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowLeft2, ArrowRight2 } from "iconsax-reactjs";
 import { Button } from "@/components/ui/button";
+import { SlidingPill, useSlidingPill } from "@/hooks/use-sliding-pill";
 import { cn } from "@/lib/utils";
 
 export type SegmentedTab = {
@@ -22,14 +23,17 @@ const VARIANT = {
   /** White pill on a grey track (app screens). */
   track: {
     nav: "w-fit max-w-full items-center self-start overflow-x-auto bg-segment-track [scrollbar-width:none]",
-    active: "bg-background font-semibold text-brand-deep shadow-tab",
+    active: "font-semibold text-brand-deep",
     idle: "font-medium text-muted-foreground hover:text-foreground",
+    /** The sliding pill. */
+    pill: "bg-background shadow-tab",
   },
   /** Blue filled pill in a bordered track (admin portal). */
   filled: {
     nav: "mb-6 border border-border bg-surface",
-    active: "bg-primary font-medium text-primary-foreground",
+    active: "font-medium text-primary-foreground",
     idle: "font-medium text-muted-foreground hover:text-foreground",
+    pill: "bg-primary",
   },
 } as const;
 
@@ -94,6 +98,15 @@ export function SegmentedTabs({
   // Bring the active tab into view when it is chosen from elsewhere (e.g. a shared link). Re-runs once
   // the width limit is set, since before that every tab still fits.
   const activeIndex = tabs.findIndex(isActive);
+  // The page can take a moment to answer a tab link, so the clicked tab shows as active at once. It is
+  // only trusted while the real active tab is still the one it was clicked from.
+  const [picked, setPicked] = useState<{ index: number; from: number }>();
+  const shownIndex = picked && picked.from === activeIndex ? picked.index : activeIndex;
+
+  // The pill slides under the shown tab. Until it is measured (server render, first paint) the tab
+  // paints its own pill so there is never a frame without one.
+  const { pill, animate: animatePill } = useSlidingPill(shownIndex, `${tabs.length}-${size}-${variant}`, navRef);
+
   useEffect(() => {
     const nav = navRef.current;
     const tab = nav?.children[activeIndex] as HTMLElement | undefined;
@@ -107,7 +120,7 @@ export function SegmentedTabs({
   function slide(direction: 1 | -1) {
     const nav = navRef.current;
     if (!nav) return;
-    const items = [...nav.children] as HTMLElement[];
+    const items = [...nav.querySelectorAll<HTMLElement>("[data-tab]")];
     const target =
       direction === 1
         ? items.find((t) => t.offsetLeft + t.offsetWidth > nav.scrollLeft + nav.clientWidth + 1)
@@ -127,24 +140,33 @@ export function SegmentedTabs({
       onScroll={sliding ? updateEdges : undefined}
       style={sliding ? { maxWidth, maskImage: fade, WebkitMaskImage: fade } : undefined}
       className={cn(
-        "inline-flex rounded-full",
+        // `relative` makes the tabs' offsetLeft count from the track and anchors the pill.
+        "relative inline-flex rounded-full",
         size === "sm" ? "h-8 p-0.5" : "p-1",
         v.nav,
-        // `relative` makes the tabs' offsetLeft count from the track; min-w-0 lets it shrink on small screens.
-        sliding && "relative min-w-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        // min-w-0 lets the track shrink on small screens.
+        sliding && "min-w-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
         className,
       )}
     >
-      {tabs.map((tab) => {
-        const active = isActive(tab);
+      <SlidingPill pill={pill} animate={animatePill} className={v.pill} />
+      {tabs.map((tab, index) => {
+        const active = index === shownIndex;
         const tabClass = cn(
-          "inline-flex items-center justify-center gap-2 rounded-full whitespace-nowrap transition-[background-color,color,box-shadow] outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
+          "relative inline-flex items-center justify-center gap-2 rounded-full whitespace-nowrap transition-colors duration-200 outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
+          !pill && active && v.pill,
           size === "sm" ? "h-7 px-3.5 text-[13px] leading-none" : variant === "track" ? "h-9 min-w-[100px] px-4 text-sm leading-[21px]" : "px-4 py-1.5 text-sm",
           active ? v.active : v.idle,
         );
         const content = (
           <>
-            {tab.label}
+            {/* An invisible semibold copy reserves the widest width, so the weight change never resizes the tab. */}
+            <span className="inline-grid">
+              <span className="col-start-1 row-start-1">{tab.label}</span>
+              <span aria-hidden className="invisible col-start-1 row-start-1 font-semibold">
+                {tab.label}
+              </span>
+            </span>
             {tab.count !== undefined && (
               <span
                 className={cn(
@@ -158,11 +180,29 @@ export function SegmentedTabs({
           </>
         );
         return tab.onSelect || tab.href === undefined ? (
-          <button key={tab.label} type="button" aria-pressed={active} onClick={tab.onSelect} className={tabClass}>
+          <button
+            key={tab.label}
+            type="button"
+            data-tab={index}
+            aria-pressed={active}
+            onClick={() => {
+              setPicked({ index, from: activeIndex });
+              tab.onSelect?.();
+            }}
+            className={tabClass}
+          >
             {content}
           </button>
         ) : (
-          <Link key={tab.href} href={tab.href} scroll={false} aria-current={active ? "page" : undefined} className={tabClass}>
+          <Link
+            key={tab.href}
+            href={tab.href}
+            scroll={false}
+            data-tab={index}
+            aria-current={active ? "page" : undefined}
+            onClick={() => setPicked({ index, from: activeIndex })}
+            className={tabClass}
+          >
             {content}
           </Link>
         );

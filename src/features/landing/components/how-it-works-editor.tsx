@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { AddSquare, ArrowDown2, Layer, Magicpen, Setting2, SidebarLeft } from "iconsax-reactjs";
+import { AddSquare, ArrowRight2, Layer, Magicpen, Setting2, SidebarLeft } from "iconsax-reactjs";
+import { AiAvatar } from "@/components/common/ai-avatar";
 import { cn } from "@/lib/utils";
 import { CanvasDots, EditorTopBar, SiteAllProducts, SiteHero, SiteNav, SiteProductCards } from "./editor-mock";
 import { RealSize, Tracked, tl, type Tracks } from "./how-it-works-timeline";
@@ -23,9 +24,9 @@ export function CustomizeScreen() {
   return (
     <Tracked tracks={tl.editor} className="absolute inset-0 origin-center">
       <RealSize width={EDITOR_WIDTH} height={EDITOR_HEIGHT} scale={EDITOR_SCALE}>
-        <div className="grid size-full grid-rows-[42.222px_minmax(0,1fr)] gap-[8.444px] bg-editor-canvas p-[8.444px]">
+        <div className="flex size-full flex-col bg-editor-canvas">
           <EditorTopBar />
-          <div className="grid min-h-0 grid-cols-[39.407px_minmax(0,1fr)_270.222px] gap-[8.444px]">
+          <div className="grid min-h-0 flex-1 grid-cols-[39.407px_minmax(0,1fr)_270.222px] gap-[8.444px] p-[8.444px]">
             <PageRail />
             <Canvas />
             <SettingsPanel />
@@ -119,17 +120,18 @@ function StyledHeading({ className, children }: { className: string; children: R
 function SettingsPanel() {
   return (
     <div className={panel}>
-      <div className="px-[11.259px] pt-[8.444px] pb-[5.63px]">
-        <div className="flex items-center gap-[7.037px] rounded-[9.852px] border-[0.704px] border-border bg-background py-[5.63px] pr-[7.037px] pl-[5.63px]">
-          <span className="flex size-[22.519px] shrink-0 items-center justify-center rounded-[7.037px] bg-brand-soft text-brand">
-            <Magicpen variant="Outline" className="size-[11.259px]" />
+      {/* The editor's "Edit your site with AI" card (properties-panel) at the mock's 0.704 scale. */}
+      <div className="px-[8.444px] pt-[8.444px] pb-[5.63px]">
+        <div className="flex items-center gap-[8.444px] rounded-[11.259px] border-[0.704px] border-brand/20 bg-[linear-gradient(125deg,#f0f6ff_0%,#ffffff_60%,#f5f2ff_100%)] p-[8.444px] shadow-[0_4.2px_12.7px_-8.4px_rgba(47,107,196,0.5)]">
+          <AiAvatar className="size-[31px] shrink-0 ring-[1.407px] ring-white shadow-[0_1.4px_5.6px_rgba(47,107,196,0.16)]" />
+          <span className="min-w-0 flex-1 whitespace-nowrap">
+            <span className="mb-[2.815px] inline-flex items-center gap-[2.815px] rounded-full bg-brand/10 px-[4.222px] py-[1.407px] text-[6.3px] leading-none font-bold tracking-[0.08em] text-brand-strong">
+              <Magicpen variant="Outline" className="size-[8.444px]" /> AI SITE EDITOR
+            </span>
+            <span className="block text-[9.852px] leading-[12.667px] font-semibold text-foreground">Edit your site with AI</span>
           </span>
-          <span className="flex-1">
-            <span className="block text-[9.852px] leading-[14.074px] font-semibold text-foreground">WebBlock AI</span>
-            <span className="block text-[8.444px] leading-[12.667px] text-placeholder">Ask AI to edit your site</span>
-          </span>
-          <span className="flex size-[19.704px] items-center justify-center rounded-full bg-segment">
-            <ArrowDown2 variant="Outline" className="size-[9.852px] text-foreground-soft" />
+          <span className="inline-flex h-[22.519px] shrink-0 items-center gap-[2.815px] rounded-full bg-brand-strong px-[7.037px] text-[7.741px] font-semibold text-primary-foreground shadow-button">
+            Try AI <ArrowRight2 variant="Outline" className="size-[9.852px]" />
           </span>
         </div>
       </div>

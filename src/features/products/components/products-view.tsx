@@ -237,6 +237,7 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
         <div data-fit-viewport className="flex min-h-0 flex-1 flex-col">
         <DataTable
           className="flex-1"
+          swapKey={`${category}|${sort?.field}:${sort?.direction}|${pageIndex}`}
           label="Products"
           itemLabel="products"
           itemLabelOne="product"
@@ -289,7 +290,7 @@ export function ProductsView({ data, initialFilter }: { data: ProductsData; init
           {page.items.length === 0 ? (
             <div className="flex min-h-[300px] flex-1 items-center justify-center">{empty}</div>
           ) : (
-            <ul className="grid min-h-0 flex-1 grid-cols-2 content-start gap-3 overflow-y-auto p-3 [scrollbar-color:var(--color-border)_transparent] [scrollbar-width:thin] sm:gap-6 sm:p-6 sm:grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
+            <ul key={`${category}|${pageIndex}`} className="swap-in grid min-h-0 flex-1 grid-cols-2 content-start gap-3 overflow-y-auto p-3 [scrollbar-color:var(--color-border)_transparent] [scrollbar-width:thin] sm:gap-6 sm:p-6 sm:grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
               {page.items.map((product) => (
                 <li key={product.id}>
                   <ProductCard product={product} />

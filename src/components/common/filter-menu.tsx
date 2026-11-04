@@ -39,7 +39,15 @@ export function FilterMenu({
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
-        <Button variant="secondary" size="sm" className={cn("font-medium", className)}>
+        {/* No lift or press-scale here: the trigger would jump while the menu opens right under it. */}
+        <Button
+          variant="secondary"
+          size="sm"
+          className={cn(
+            "font-medium motion-safe:hover:translate-y-0 motion-safe:active:scale-100 data-[state=open]:border-primary/40 data-[state=open]:bg-muted",
+            className,
+          )}
+        >
           <ArrowDown2 variant="Outline" aria-hidden />
           {label}: {current}
         </Button>

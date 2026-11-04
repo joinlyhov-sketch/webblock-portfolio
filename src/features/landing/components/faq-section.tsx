@@ -52,12 +52,18 @@ export function FaqSection() {
           <Accordion type="single" collapsible className="flex flex-col gap-2.5">
             {faqItems.map((item, i) => (
               <RevealItem key={item.question} y={12}>
-                <AccordionItem value={`faq-${i}`} className="rounded-[14px] border-b-0 bg-background px-5 py-[18px]">
+                {/* Frosted glass over the orbs, with a faint white-to-blue gradient; the open item glows a little more. */}
+                <AccordionItem
+                  value={`faq-${i}`}
+                  className="rounded-[22px] border border-white/70 bg-linear-to-br from-white/80 via-white/55 to-brand/8 px-5 py-4 shadow-[0_10px_30px_-18px_rgba(35,83,155,0.35),inset_0_1px_0_rgba(255,255,255,0.9)] ring-1 ring-brand/5 backdrop-blur-xl transition-[background-color,box-shadow,border-color] duration-300 last:border-b hover:border-white hover:shadow-[0_14px_34px_-18px_rgba(35,83,155,0.45),inset_0_1px_0_white] data-[state=open]:border-brand/20 data-[state=open]:from-white/90 data-[state=open]:to-brand/12"
+                >
                   <AccordionTrigger className="items-center gap-3.5 py-0 text-lg font-normal text-foreground data-[state=open]:text-brand [&>svg]:size-5 [&>svg]:translate-y-0">
-                    <MessageQuestion variant="Outline" aria-hidden className="size-5 shrink-0 text-brand" />
+                    <span className="grid size-9 shrink-0 place-items-center rounded-full border border-white/80 bg-linear-to-br from-white to-brand/12 text-brand shadow-[0_4px_10px_-6px_rgba(35,83,155,0.5)]">
+                      <MessageQuestion variant="Outline" aria-hidden className="size-[18px]" />
+                    </span>
                     <span className="flex-1">{item.question}</span>
                   </AccordionTrigger>
-                  <AccordionContent className="pt-2.5 pb-0 pl-[34px] text-base text-foreground-soft">
+                  <AccordionContent className="pt-2.5 pb-0 pl-[50px] text-base text-foreground-soft">
                     {item.answer}
                   </AccordionContent>
                 </AccordionItem>

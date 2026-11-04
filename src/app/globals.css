@@ -1357,6 +1357,16 @@ body::-webkit-scrollbar {
   }
 }
 
+/* Results that change with a tab, filter, sort or page: the new content eases in instead of snapping. Key the
+   element by what changed so it remounts (and plays) only then. */
+@utility swap-in {
+  animation: enter 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  --tw-enter-opacity: 0.35;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
 @utility animate-out {
   animation: exit 110ms ease-in forwards;
   @media (prefers-reduced-motion: reduce) {

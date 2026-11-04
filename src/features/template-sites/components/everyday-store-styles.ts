@@ -161,7 +161,7 @@ a.es-row:hover .es-row-val{color:var(--es-blue)}
 .es-form-sub{font-size:12px;color:var(--es-muted);margin:6px 0 16px;line-height:1.4}
 .es-label{display:block;font-size:11px;font-weight:500;margin:0 0 6px}
 .es-field{display:block;width:100%;background:var(--es-surface);border:1px solid var(--es-field);border-radius:10px;padding:0 12px;height:36px;font-size:12px;margin-bottom:14px;outline:0;transition:box-shadow .15s}
-textarea.es-field{height:90px;padding:10px 12px;resize:vertical}
+textarea.es-field{height:90px;padding:10px 12px;resize:none}
 .es-field:focus{box-shadow:0 0 0 3px rgba(47,107,196,.2)}
 .es-field::placeholder{color:var(--es-muted)}
 .es-topics{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}

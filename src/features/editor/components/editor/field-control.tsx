@@ -9,6 +9,7 @@ import {
   TextalignRight,
 } from "iconsax-reactjs";
 import { SelectField } from "@/components/common/select-field";
+import { SlidingPill, useSlidingPill } from "@/hooks/use-sliding-pill";
 import { cn } from "@/lib/utils";
 import type { FieldMeta } from "../puck-config";
 import { ruleMessage } from "./field-rules";
@@ -43,13 +44,16 @@ export function OptionGroup({
   value: string;
   onChange: (value: string) => void;
 }) {
+  const { ref, pill, animate } = useSlidingPill<HTMLDivElement>(options.findIndex((o) => o.value === value));
   return (
     <div
+      ref={ref}
       role="radiogroup"
       aria-labelledby={`${id}-label`}
-      className="flex gap-0.5 rounded-full bg-segment p-1"
+      className="relative flex gap-0.5 rounded-full bg-segment p-1"
     >
-      {options.map((option) => {
+      <SlidingPill pill={pill} animate={animate} className="bg-background shadow-button" />
+      {options.map((option, index) => {
         const active = option.value === value;
         const Icon =
           label === "Content alignment" ? OPTION_ICON[option.value] : undefined;
@@ -58,12 +62,13 @@ export function OptionGroup({
             key={option.value}
             type="button"
             role="radio"
+            data-tab={index}
             aria-checked={active}
             onClick={() => onChange(option.value)}
             className={cn(
-              "flex h-8 flex-1 items-center justify-center gap-1.5 rounded-full px-3 text-[13px] transition-[background-color,color,box-shadow] outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
+              "relative flex h-8 flex-1 items-center justify-center gap-1.5 rounded-full px-3 text-[13px] transition-colors duration-200 outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
               active
-                ? "bg-background font-semibold text-brand-strong shadow-button"
+                ? cn("font-semibold text-brand-strong", !pill && "bg-background shadow-button")
                 : "font-medium text-muted-foreground hover:text-foreground",
             )}
           >
@@ -194,7 +199,7 @@ export function FieldControl({
             onChange={(e) => onChange(e.target.value)}
             className={cn(
               inputClass,
-              "resize-y py-3 leading-[1.55]",
+              "resize-none py-3 leading-[1.55]",
               isHeading
                 ? "min-h-16 font-heading text-base font-semibold"
                 : "min-h-[84px]",

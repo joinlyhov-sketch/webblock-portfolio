@@ -65,6 +65,11 @@ type DataTableProps<T> = {
   rowClassName?: string;
   /** Stretch to the bottom of a flex-column parent (the Admin `<main>`), never shorter than 420px. */
   fill?: boolean;
+  /**
+   * What the rows depend on (filter, sort, page). When it changes the new rows fade in instead of snapping.
+   * Defaults to the page's `searchParams` plus page and sort; pass it when the parent keeps them in state.
+   */
+  swapKey?: string;
   /** Denser rows and smaller text (Admin Portal): 48px rows, 12px text, 34px header. */
   compact?: boolean;
   className?: string;
@@ -107,6 +112,7 @@ export function DataTable<T>({
   minWidth,
   rowClassName,
   fill = false,
+  swapKey,
   compact = false,
   className,
 }: DataTableProps<T>) {
@@ -114,6 +120,7 @@ export function DataTable<T>({
   const offset = data.page * data.size;
   const colSpan = columns.length + 1;
   const noItems = data.totalItems === 0;
+  const rowsKey = swapKey ?? `${JSON.stringify(searchParams)}|${sort?.field}:${sort?.direction}|${data.page}`;
 
   return (
     <section
@@ -185,7 +192,7 @@ export function DataTable<T>({
         </TableHeader>
 
         {!noItems && (
-          <TableBody>
+          <TableBody key={rowsKey} className="swap-in">
             {data.items.map((row, i) => (
               <TableRow
                 key={rowKey(row)}
