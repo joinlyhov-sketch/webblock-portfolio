@@ -1,6 +1,5 @@
 export { listPublicPlans } from "./api";
 export { ContactDialog } from "./components/contact-dialog";
-export { ContactForm } from "./components/contact-dialog";
 export { LandingFooter } from "./components/landing-footer";
 export { LandingHeader } from "./components/landing-header";
 export { LandingView } from "./components/landing-view";

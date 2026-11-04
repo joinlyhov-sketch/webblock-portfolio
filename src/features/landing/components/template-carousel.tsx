@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
-import Image from "next/image";
+import Image, { getImageProps } from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { ArrowLeft2, ArrowRight2, Lock1, Maximize4 } from "iconsax-reactjs";
@@ -21,11 +21,28 @@ const Carousel3D = dynamic(() => import("@/components/common/carousel-3d").then(
   loading: () => <div aria-hidden className={stageClass} />,
 });
 
+/**
+ * Optimised copies for the 3D cards (the originals are 2560px): 1080px covers the front card on
+ * phones and most laptops, 1920px large desktops. Asking for half the width makes its "2x" `src`
+ * exactly that width; quality 90 keeps the screenshot text crisp, as on the other mocks.
+ */
+const TEXTURE_WIDTHS = [1080, 1920];
+
 const items: Carousel3DItem[] = showcaseTemplates.map((template) => ({
   id: template.slug,
   label: template.name,
   imageSrc: template.image.src,
   aspect: template.image.width / template.image.height,
+  sources: TEXTURE_WIDTHS.map((width) => ({
+    width,
+    src: getImageProps({
+      src: template.image.src,
+      alt: "",
+      width: width / 2,
+      height: Math.round((width / 2) * (template.image.height / template.image.width)),
+      quality: 90,
+    }).props.src,
+  })),
 }));
 
 /** Plates starts in the middle of the fan. */

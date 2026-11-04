@@ -88,7 +88,11 @@ export function TemplateScreenshot({
   sizes: string;
   /** Preload when the image is the hero's main (LCP) image. */
   preload?: boolean;
-  /** Load immediately (above the fold) instead of lazily. */
+  /**
+   * Load immediately (above the fold) instead of lazily, at low priority: React would otherwise
+   * preload every eager image in the <head>, where they compete with the CSS that has to arrive
+   * before anything paints.
+   */
   eager?: boolean;
   /** Empty alt for repeated thumbnails that add nothing for screen readers. */
   decorative?: boolean;
@@ -100,6 +104,7 @@ export function TemplateScreenshot({
         src={template.image.src}
         preload={preload}
         loading={eager ? "eager" : undefined}
+        fetchPriority={eager ? "low" : undefined}
         width={template.image.width}
         height={template.image.height}
         sizes={sizes}
