@@ -24,7 +24,7 @@ const SAVE_STATE = {
   unsaved: "UNSAVED",
 } satisfies Record<SaveState, BadgeStatus>;
 
-/** Download arrow over a tray, matching the Save draft icon reference. */
+/** Notebook with a pencil, matching the Save draft icon reference. */
 function SaveDraftIcon() {
   return (
     <svg
@@ -32,13 +32,17 @@ function SaveDraftIcon() {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.8"
+      strokeWidth="1.9"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M12 2.75v10.5m-4-4 4 4 4-4" />
-      <path d="M8 11.75H6A3.25 3.25 0 0 0 2.75 15v3A3.25 3.25 0 0 0 6 21.25h12A3.25 3.25 0 0 0 21.25 18v-3A3.25 3.25 0 0 0 18 11.75h-2" />
-      <path d="M6.5 15.25v2h11v-2" />
+      <g transform="translate(2.4 2.4) scale(0.8)">
+        <path d="M5.5 4.75h11.25A3.25 3.25 0 0 1 20 8v6.25l-5 5H5.5A3.5 3.5 0 0 1 2 15.75v-7.5a3.5 3.5 0 0 1 3.5-3.5Z" />
+        <path d="M6.5 5V3.25a1.25 1.25 0 0 1 2.5 0V5m1.5 0V3.25a1.25 1.25 0 0 1 2.5 0V5m1.5 0V3.25a1.25 1.25 0 0 1 2.5 0V5m1.5 0V3.25a1.25 1.25 0 0 1 2.5 0V5" />
+        <path d="M6 9h10.5M6 12.5h10.5M6 16h6" />
+        <path d="m14.75 18.25-.8 3.3 3.3-.8 6.05-6.05a1.77 1.77 0 0 0-2.5-2.5l-6.05 6.05Z" />
+        <path d="m19.5 13.5 2.5 2.5" />
+      </g>
     </svg>
   );
 }

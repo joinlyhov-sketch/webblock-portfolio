@@ -165,9 +165,6 @@ export type PaymentView = {
   order: PaymentOrder;
   /** Days left of the user's free trial (what the sidebar shows), or `null` when this payment is not the first one. */
   trialDaysLeft: number | null;
-  /** Where the back link goes. */
-  backHref: string;
-  backLabel: string;
   subtitle: string;
   /** Time left on the code when the page was rendered; the client counts down from here. */
   remainingMs: number;
@@ -200,17 +197,10 @@ export async function getPaymentView(
     if (e instanceof ApiError && e.status === 404) notFound();
     throw e;
   });
-  const toSettings = options.from === "settings" && order.status === "PENDING";
   const subscription = await getSubscription(userId);
   return {
     order,
     trialDaysLeft: order.kind === "SUBSCRIBE" ? daysUntil(subscription.trialEndsAt) : null,
-    backHref: toSettings
-      ? "/settings/billing"
-      : order.websiteId
-        ? `/billing/plans?from=deploy&website=${order.websiteId}`
-        : "/billing/plans",
-    backLabel: toSettings ? "Back to settings" : "Back to plans",
     subtitle: SUBTITLE[order.kind](order),
     remainingMs: Math.max(0, new Date(order.expiresAt).getTime() - Date.now()),
     totalMs: Math.max(new Date(order.expiresAt).getTime() - new Date(order.createdAt).getTime(), TEN_MINUTES_MS),

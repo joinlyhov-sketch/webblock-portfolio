@@ -1,6 +1,6 @@
 import { PaymentSummary, PaymentCardHeader, PaymentProgress, KhqrPanel, PaymentSuccessPanel, StatePill } from "./payment-parts";
 import { Lock1 } from "iconsax-reactjs";
-import { BillingBackdrop, BillingContent, BillingScreen, BillingTitle, BillingTopBar } from "./billing-shell";
+import { BillingBackdrop, BillingContent, BillingScreen, BillingTitle } from "./billing-shell";
 import { PendingPayment } from "./pending-payment";
 import { PaymentConfetti } from "./payment-confetti";
 import type { PaymentView as PaymentData } from "../service";
@@ -10,7 +10,6 @@ export function PaymentView({ view }: { view: PaymentData }) {
   const { order } = view;
   return (
     <BillingScreen>
-      <BillingTopBar backHref={view.backHref} backLabel={view.backLabel} />
       <BillingBackdrop variant="payment" />
       {order.status === "PAID" && <PaymentConfetti />}
       <BillingContent>

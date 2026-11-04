@@ -150,7 +150,7 @@ function ChangeBackdrop() {
 /** Soft glow, dot fields and floating cubes behind the billing screens. */
 export function BillingBackdrop({ variant }: { variant: "payment" | "deploy" | "change" }) {
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-x-0 top-[72px] bottom-0 overflow-hidden">
+    <div aria-hidden className={cn("pointer-events-none absolute inset-x-0 bottom-0 overflow-hidden", variant === "payment" ? "top-0" : "top-[72px]")}>
       {variant === "change" ? (
         <ChangeBackdrop />
       ) : (
