@@ -28,8 +28,9 @@ async function withWebsiteLogo(run: PipelineRun, now = Date.now()): Promise<Pipe
   return { ...run, logoUrl: logoUrl ?? null, templateSlug };
 }
 
-const delay = async (ms = 250) => {
-  await new Promise((resolve) => setTimeout(resolve, ms));
+const delay = async (ms = 0) => {
+  if (ms < 0) return;
+
   settleDeploys();
 };
 

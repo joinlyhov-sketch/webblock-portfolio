@@ -41,8 +41,9 @@ import type {
 } from "./types";
 
 /** Every read waits a moment, then first lets running deploys move forward (the backend does this on its own). */
-const delay = async (ms = 250) => {
-  await new Promise((resolve) => setTimeout(resolve, ms));
+const delay = async (ms = 0) => {
+  if (ms < 0) return;
+
   settleDeploys();
 };
 

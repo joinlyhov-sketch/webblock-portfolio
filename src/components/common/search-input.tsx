@@ -20,6 +20,8 @@ type SearchInputProps = {
   /** `pill` is the compact toolbar search, `hero` the big one with a round button. */
   variant?: "pill" | "hero";
   className?: string;
+  /** Delay in milliseconds before updating the URL. Default is 150ms for snappy typing. */
+  debounceMs?: number;
 };
 
 /** Search box that keeps its text in the URL (`?q=`), so results are shareable and survive refresh. */
@@ -31,6 +33,7 @@ export function SearchInput({
   label,
   variant = "pill",
   className,
+  debounceMs = 150,
 }: SearchInputProps) {
   const { setParam, pending } = useUrlParam();
   const [localValue, setLocalValue] = useState(defaultValue);
@@ -49,9 +52,9 @@ export function SearchInput({
     if (controlled) return;
     const next = value.trim();
     if (next === defaultValue) return;
-    const timer = setTimeout(() => setParam("q", next), 300);
+    const timer = setTimeout(() => setParam("q", next), debounceMs);
     return () => clearTimeout(timer);
-  }, [controlled, value, defaultValue, setParam]);
+  }, [controlled, value, defaultValue, setParam, debounceMs]);
 
   const hero = variant === "hero";
 

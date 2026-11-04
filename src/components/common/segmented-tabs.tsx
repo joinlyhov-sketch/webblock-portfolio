@@ -52,7 +52,7 @@ export function SegmentedTabs({
   /** Accessible name of the tab group. */
   label?: string;
   variant?: keyof typeof VARIANT;
-  /** "sm" for table toolbars (13px). */
+  /** "sm" for compact table toolbars (13px, h-8). */
   size?: "md" | "sm";
   /** Most tabs shown at once; more than this makes the track a slider. */
   visible?: number;
@@ -127,7 +127,8 @@ export function SegmentedTabs({
       onScroll={sliding ? updateEdges : undefined}
       style={sliding ? { maxWidth, maskImage: fade, WebkitMaskImage: fade } : undefined}
       className={cn(
-        "inline-flex rounded-full p-1",
+        "inline-flex rounded-full",
+        size === "sm" ? "h-8 p-0.5" : "p-1",
         v.nav,
         // `relative` makes the tabs' offsetLeft count from the track; min-w-0 lets it shrink on small screens.
         sliding && "relative min-w-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
@@ -138,7 +139,7 @@ export function SegmentedTabs({
         const active = isActive(tab);
         const tabClass = cn(
           "inline-flex items-center justify-center gap-2 rounded-full whitespace-nowrap transition-[background-color,color,box-shadow] outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
-          size === "sm" ? "h-7 px-3 py-1 text-xs" : variant === "track" ? "h-9 min-w-[100px] px-4 text-sm leading-[21px]" : "px-4 py-1.5 text-sm",
+          size === "sm" ? "h-7 px-3.5 text-[13px] leading-none" : variant === "track" ? "h-9 min-w-[100px] px-4 text-sm leading-[21px]" : "px-4 py-1.5 text-sm",
           active ? v.active : v.idle,
         );
         const content = (
