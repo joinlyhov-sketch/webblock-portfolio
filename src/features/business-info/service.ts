@@ -21,7 +21,7 @@ export type BusinessInfoView = {
   website: Pick<Website, "id" | "name" | "businessType" | "domain" | "thumbnailUrl">;
   /**
    * The top of the website for the live preview banner: the draft's root props (header) and its
-   * hero (or first section). The draft is what the next deploy puts online. `null` when the
+   * hero (or first section). Business details fill it when the site is served, with no deploy. `null` when the
    * website has no page yet: the banner shows the saved screenshot instead.
    */
   preview: PageData | null;
@@ -95,7 +95,7 @@ export async function saveBusinessInfo(websiteId: string, formData: FormData): P
 
   try {
     await updateBusinessInfo(websiteId, { ...parsed.data, logoUrl });
-    return { ok: true, data: undefined, message: "Your changes go live on your next deploy." };
+    return { ok: true, data: undefined, message: "Your website now shows your new details." };
   } catch (e) {
     if (e instanceof ApiError) return { ok: false, message: e.message, values };
     throw e;

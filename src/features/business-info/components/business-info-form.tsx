@@ -120,13 +120,7 @@ export function BusinessInfoForm({
 
       <InfoCard className="p-2.5">
         {/* The picked logo shows in the site header right away, before Save changes. */}
-        <SiteBanner
-          website={website}
-          preview={preview}
-          logoUrl={logoPreview}
-          label="Preview: goes live on your next deploy"
-          compactLabel="Preview"
-        />
+        <SiteBanner website={website} preview={preview} logoUrl={logoPreview} />
         <div className="flex flex-col gap-4 px-4 pt-4 pb-3 sm:flex-row sm:items-center">
           <div className="flex min-w-0 flex-1 items-center gap-4">
           <div className="relative shrink-0">

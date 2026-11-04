@@ -26,7 +26,7 @@ export function BusinessInfoView({ data }: { data: BusinessInfoData }) {
         <PageHeader
           className="mb-0"
           title="Business information"
-          description="You’re editing your details. Changes go live on your next deploy."
+          description="You’re editing your details. Saved changes show on your website right away."
         />
         <BusinessInfoForm info={info} website={website} preview={data.preview} />
       </>
