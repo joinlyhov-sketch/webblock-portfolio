@@ -327,7 +327,7 @@ function UserDetail({
           <div className="min-w-0">
             <h2
               title={user.fullName}
-              className="line-clamp-2 text-[22px] leading-[30px] font-semibold tracking-[-0.17px] break-words text-foreground"
+              className="line-clamp-2 font-heading text-xl leading-7 font-semibold tracking-[-0.2px] break-words text-foreground"
             >
               {user.fullName}
             </h2>
@@ -387,7 +387,7 @@ function UserDetail({
                         className="size-9"
                       />
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-bold text-foreground">
+                        <span className="block truncate text-[15px] leading-6 font-semibold text-foreground">
                           {w.name}
                         </span>
                         <span className="block truncate text-sm text-muted-foreground">

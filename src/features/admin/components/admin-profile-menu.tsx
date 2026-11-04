@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { Calendar, Copy, MagicStar, Personalcard, ShieldTick, Sms, TickCircle } from "iconsax-reactjs";
+import { Calendar, Camera, Copy, MagicStar, Personalcard, ShieldTick, Sms, TickCircle } from "iconsax-reactjs";
 import { Avatar } from "@/components/common/avatar";
 import { Pill } from "@/components/common/status-badge";
 import {
@@ -12,10 +12,20 @@ import {
 import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { AdminProfile } from "../types";
+import { EditAdminProfileDialog } from "./edit-admin-profile-dialog";
 
-/** Header avatar (Figma "Header · Admin profile"): opens the read-only "Admin profile" card. */
+/** Header avatar (Figma "Header · Admin profile"): opens the "Admin profile" card, with Edit profile. */
 export function AdminProfileMenu({ profile }: { profile: AdminProfile }) {
   const [copied, setCopied] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editUpload, setEditUpload] = useState(false);
+
+  function openEdit(upload: boolean) {
+    setMenuOpen(false);
+    setEditUpload(upload);
+    setEditOpen(true);
+  }
 
   async function copyId() {
     try {
@@ -28,7 +38,8 @@ export function AdminProfileMenu({ profile }: { profile: AdminProfile }) {
   }
 
   return (
-    <Popover>
+    <>
+    <Popover open={menuOpen} onOpenChange={setMenuOpen}>
       <PopoverTrigger asChild>
         <button
           type="button"
@@ -64,16 +75,21 @@ export function AdminProfileMenu({ profile }: { profile: AdminProfile }) {
 
         <div className="-mt-10 flex flex-col items-center px-4 text-center">
           {/* Avatar in a thin blue gradient ring, with a green "signed in" dot on its bottom-right edge. */}
-          <span className="relative grid rounded-full bg-linear-to-br from-primary to-brand-border p-[3px] shadow-card motion-safe:animate-fade-up">
+          <span className="relative grid rounded-full bg-background p-1 shadow-card motion-safe:animate-fade-up">
             <Avatar
               variant="solid"
               name={profile.fullName}
               src={profile.avatarUrl}
-              className="size-[70px] text-lg ring-[3px] ring-background"
+              className="size-[78px] text-xl"
             />
-            <span className="absolute right-1 bottom-1 size-3.5 rounded-full bg-success ring-[2.5px] ring-background">
-              <span className="sr-only">Signed in</span>
-            </span>
+            <button
+              type="button"
+              aria-label="Change photo"
+              onClick={() => openEdit(true)}
+              className="absolute right-0 bottom-0 grid size-8 place-items-center rounded-full border-[3px] border-background bg-brand text-primary-foreground outline-none transition-transform hover:scale-105 focus-visible:ring-3 focus-visible:ring-ring/40"
+            >
+              <Camera variant="Outline" aria-hidden className="size-4" />
+            </button>
           </span>
           <p className="mt-3 max-w-full truncate font-heading text-lg leading-6 font-semibold text-foreground">
             {profile.fullName}
@@ -116,6 +132,8 @@ export function AdminProfileMenu({ profile }: { profile: AdminProfile }) {
         </span>
       </PopoverContent>
     </Popover>
+    <EditAdminProfileDialog open={editOpen} onClose={() => setEditOpen(false)} profile={profile} startWithUpload={editUpload} />
+    </>
   );
 }
 

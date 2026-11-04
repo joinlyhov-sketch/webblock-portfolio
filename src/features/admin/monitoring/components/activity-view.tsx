@@ -57,8 +57,8 @@ export function ActivityView({
         toolbar={
           <div className="w-full space-y-3">
             <CardHeader title="Recent activity" icon={<Activity variant="Outline" />} />
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="max-w-full overflow-x-auto">
+            <div className="flex items-center gap-3">
+              <div className="min-w-0 flex-1 overflow-x-auto">
                 <SegmentedTabs
                   size="sm"
                   className="mb-0 whitespace-nowrap"
@@ -84,9 +84,10 @@ export function ActivityView({
                   ]}
                 />
               </div>
-              <div className="ml-auto flex items-center gap-2">
+              <div className="ml-auto flex shrink-0 items-center gap-2">
                 <FilterMenu
                   label="Done by"
+                  className="w-[200px] justify-start"
                   options={[
                     { label: "All", href: byHref(null), active: !by },
                     {
