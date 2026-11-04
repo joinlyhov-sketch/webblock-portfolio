@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   ArrowRotateLeft as Undo,
   ArrowRotateRight as Redo,
+  DocumentDownload,
   ExportSquare,
   Eye,
   Global,
@@ -23,29 +24,6 @@ const SAVE_STATE = {
   live: "LIVE",
   unsaved: "UNSAVED",
 } satisfies Record<SaveState, BadgeStatus>;
-
-/** Notebook with a pencil, matching the Save draft icon reference. */
-function SaveDraftIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <g transform="translate(2.4 2.4) scale(0.8)">
-        <path d="M5.5 4.75h11.25A3.25 3.25 0 0 1 20 8v6.25l-5 5H5.5A3.5 3.5 0 0 1 2 15.75v-7.5a3.5 3.5 0 0 1 3.5-3.5Z" />
-        <path d="M6.5 5V3.25a1.25 1.25 0 0 1 2.5 0V5m1.5 0V3.25a1.25 1.25 0 0 1 2.5 0V5m1.5 0V3.25a1.25 1.25 0 0 1 2.5 0V5m1.5 0V3.25a1.25 1.25 0 0 1 2.5 0V5" />
-        <path d="M6 9h10.5M6 12.5h10.5M6 16h6" />
-        <path d="m14.75 18.25-.8 3.3 3.3-.8 6.05-6.05a1.77 1.77 0 0 0-2.5-2.5l-6.05 6.05Z" />
-        <path d="m19.5 13.5 2.5 2.5" />
-      </g>
-    </svg>
-  );
-}
 
 /**
  * Figma "Editor top bar": a flat full-width bar with site info, undo/redo + device toggle in the middle
@@ -128,7 +106,7 @@ export function EditorTopBar({
       {/* On phones: a full-width second row, icon-only except Deploy (labels stay for screen readers). */}
       <div className="flex items-center gap-3 max-md:basis-full max-md:justify-end max-md:gap-2">
         <Button variant={portalHref ? "ghost" : "secondary"} onClick={onSave} loading={busy === "save"} disabled={busy !== null}>
-          {busy !== "save" && <SaveDraftIcon />} <span className="max-sm:sr-only">Save draft</span>
+          {busy !== "save" && <DocumentDownload variant="Linear" aria-hidden />} <span className="max-sm:sr-only">Save draft</span>
         </Button>
         {portalHref && (
           <>
