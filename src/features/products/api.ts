@@ -4,6 +4,8 @@ import { delay } from "@/lib/api/delay";
 import type { Page } from "@/lib/api/types";
 import { toPage, type TableQuery } from "@/lib/table-query";
 import { productCategories, products as seed } from "@/mocks/products";
+import { templateCatalogue } from "@/mocks/products";
+import { templatePages } from "@/mocks/template-pages";
 import type { Product, ProductCounts } from "./types";
 
 const globalForStore = globalThis as typeof globalThis & {
@@ -13,6 +15,34 @@ const globalForStore = globalThis as typeof globalThis & {
 const store: Product[] = (globalForStore.__wbProducts ??= structuredClone(seed));
 const categoryStore: Record<string, string[]> = (globalForStore.__wbProductCategories ??=
   structuredClone(productCategories));
+
+// Earlier mock versions copied a template's complete sample catalogue into a new website's portal.
+// Remove those exact catalogues once so websites created before the fix also start empty. Real owner
+// products are preserved unless the entire catalogue exactly matches a template's sample set.
+const templateCatalogues = Object.values(templatePages)
+  .map(templateCatalogue)
+  .filter(({ products }) => products.length > 0);
+const websiteIds = [...new Set(store.map((product) => product.websiteId))];
+for (const websiteId of websiteIds) {
+  const websiteProducts = store.filter((product) => product.websiteId === websiteId);
+  const matchingCatalogue = templateCatalogues.find(({ products }) =>
+    products.length === websiteProducts.length &&
+    products.every((sample, index) => {
+      const current = websiteProducts[index];
+      return current.name === sample.name &&
+        current.category === sample.category &&
+        current.description === sample.description &&
+        current.price === sample.price &&
+        current.imageUrl === (sample.imageUrl ?? null);
+    }),
+  );
+  if (matchingCatalogue) {
+    for (let i = store.length - 1; i >= 0; i -= 1) {
+      if (store[i].websiteId === websiteId) store.splice(i, 1);
+    }
+    delete categoryStore[websiteId];
+  }
+}
 
 export type ListProductsFilter = {
   q?: string;
@@ -160,28 +190,4 @@ export async function deleteProduct(websiteId: string, productId: string): Promi
   await delay(300);
   store.splice(store.indexOf(product), 1);
   return product;
-}
-
-/**
- * Mock only: Spring copies the template's sample products and categories into a new website's product
- * list inside POST /projects ("Use template"), so the site and the Owner Portal start out the same.
- */
-export function addTemplateProducts(websiteId: string, body: { products: ProductBody[]; categories: string[] }): void {
-  categoryStore[websiteId] = [...body.categories];
-  const now = Date.now();
-  // Oldest last, a second apart, so "newest first" keeps the template's order.
-  body.products.forEach((product, i) => {
-    const at = new Date(now - i * 1000).toISOString();
-    store.push({
-      id: crypto.randomUUID(),
-      websiteId,
-      name: product.name,
-      category: product.category,
-      description: product.description,
-      price: product.price,
-      imageUrl: product.imageUrl ?? null,
-      createdAt: at,
-      updatedAt: at,
-    });
-  });
 }

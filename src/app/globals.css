@@ -1095,10 +1095,48 @@
 }
 
 @layer base {
+  /* Editor panels use a quiet Figma-style scrollbar while remaining fully scrollable. */
+  .editor-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(148 163 184 / 0.38) transparent;
+  }
+  .editor-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .editor-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .editor-scrollbar::-webkit-scrollbar-thumb {
+    border: 1px solid transparent;
+    border-radius: 9999px;
+    background: rgb(148 163 184 / 0.38);
+    background-clip: content-box;
+  }
+  .editor-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--color-brand);
+    background-clip: content-box;
+  }
+  .editor-scrollbar::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
   /* Templates: keep the scrollbar's space reserved so the centred hero doesn't shift sideways when a
      search leaves too few results for the page to scroll. Only pages with the marker get it. */
   html:has([data-stable-gutter]) {
     scrollbar-gutter: stable;
+  }
+
+  /* Radix Select locks body scrolling. Reserve the current scrollbar space before that lock, then
+     suppress its compensating body margin so the content width stays fixed while the menu opens. */
+  html[data-select-stable-gutter] {
+    scrollbar-gutter: stable;
+  }
+  html:has([data-stable-gutter]) body[data-scroll-locked],
+  html[data-select-stable-gutter] body[data-scroll-locked] {
+    margin-right: 0 !important;
   }
 
   /* Tailwind v4 dropped the pointer cursor on buttons; every clickable control gets it back. */
@@ -1170,6 +1208,45 @@
     animation: none;
     transform: rotate(var(--r0, 14deg));
   }
+}
+
+.profile-crop-zoom {
+  height: 20px;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.profile-crop-zoom::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 9999px;
+  background: linear-gradient(to right, var(--color-primary) 0 var(--crop-progress), var(--color-border) var(--crop-progress) 100%);
+}
+
+.profile-crop-zoom::-moz-range-track {
+  height: 4px;
+  border-radius: 9999px;
+  background: linear-gradient(to right, var(--color-primary) 0 var(--crop-progress), var(--color-border) var(--crop-progress) 100%);
+}
+
+.profile-crop-zoom::-webkit-slider-thumb {
+  width: 14px;
+  height: 14px;
+  margin-top: -5px;
+  appearance: none;
+  border: 2px solid var(--color-background);
+  border-radius: 9999px;
+  background: var(--color-primary);
+  box-shadow: 0 1px 4px rgb(15 23 42 / 0.24);
+}
+
+.profile-crop-zoom::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--color-background);
+  border-radius: 9999px;
+  background: var(--color-primary);
+  box-shadow: 0 1px 4px rgb(15 23 42 / 0.24);
 }
 
 /*

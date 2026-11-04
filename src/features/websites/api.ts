@@ -4,11 +4,9 @@ import { delay } from "@/lib/api/delay";
 import type { Page } from "@/lib/api/types";
 import { createBusinessInfo } from "@/features/business-info/api";
 import { setSiteOnline } from "@/features/monitoring/api";
-import { addTemplateProducts } from "@/features/products/api";
 import { toPage } from "@/lib/table-query";
 import { businessTypes, websites as seed } from "@/mocks/websites";
 import { websiteOwners } from "@/mocks/session";
-import { templateCatalogue } from "@/mocks/products";
 import { newWebsitePage, websitePages } from "@/mocks/website-pages";
 import type { BusinessDetails } from "./types";
 import type { Website, WebsiteStatus, WebsiteStatusCounts } from "./types";
@@ -108,8 +106,7 @@ export async function createWebsite(ownerId: string, body: CreateWebsiteBody): P
   websiteOwners.push({ websiteId: website.id, ownerId });
   const page = newWebsitePage(website.id, website.templateId, website.updatedAt, body.details);
   websitePages.push(page);
-  // Spring does these inside the same request: the business details record (Owner Portal → Business
-  // information) and the template's sample products (Owner Portal → Products).
+  // Spring creates the business details record here; template showcase products stay in the page draft.
   const { details } = body;
   createBusinessInfo({
     websiteId: website.id,
@@ -121,7 +118,6 @@ export async function createWebsite(ownerId: string, body: CreateWebsiteBody): P
     mapsUrl: null,
     hours: details.hours,
   });
-  addTemplateProducts(website.id, templateCatalogue(page.draft));
   return website;
 }
 

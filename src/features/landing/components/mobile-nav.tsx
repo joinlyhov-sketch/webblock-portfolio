@@ -42,7 +42,7 @@ export function MobileNav({ links }: { links: NavLink[] }) {
               Sign in
             </Link>
           </Button>
-          <Button asChild variant="tonal" size="lp-md">
+          <Button asChild variant="primary" size="lp-md">
             <Link href="/register" onClick={close}>
               Start free
             </Link>

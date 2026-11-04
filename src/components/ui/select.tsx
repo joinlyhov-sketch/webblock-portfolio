@@ -10,9 +10,51 @@ import { usePortalContainer } from "./portal-container";
 // shadcn/ui Select, restyled: the open list looks exactly like the website card "…" menu.
 
 function Select({
+  open: openProp,
+  defaultOpen = false,
+  onOpenChange,
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Root>) {
-  return <SelectPrimitive.Root data-slot="select" {...props} />;
+  const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen);
+  const open = openProp ?? uncontrolledOpen;
+  const releaseGutter = React.useRef<number | null>(null);
+
+  const handleOpenChange = React.useCallback((next: boolean) => {
+    if (releaseGutter.current !== null) {
+      cancelAnimationFrame(releaseGutter.current);
+      releaseGutter.current = null;
+    }
+
+    setUncontrolledOpen(next);
+    if (next && window.innerWidth > document.documentElement.clientWidth) {
+      document.documentElement.dataset.selectStableGutter = "";
+    } else if (!next) {
+      // Let Radix release its body scroll lock before releasing the reserved scrollbar space.
+      releaseGutter.current = requestAnimationFrame(() => {
+        delete document.documentElement.dataset.selectStableGutter;
+        releaseGutter.current = null;
+      });
+    }
+
+    onOpenChange?.(next);
+  }, [onOpenChange]);
+
+  React.useEffect(
+    () => () => {
+      if (releaseGutter.current !== null) cancelAnimationFrame(releaseGutter.current);
+      delete document.documentElement.dataset.selectStableGutter;
+    },
+    [],
+  );
+
+  return (
+    <SelectPrimitive.Root
+      data-slot="select"
+      {...props}
+      open={open}
+      onOpenChange={handleOpenChange}
+    />
+  );
 }
 
 function SelectGroup({
@@ -68,7 +110,7 @@ function SelectContent({
       <SelectPrimitive.Content
         data-slot="select-content"
         className={cn(
-          "relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
+          "relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto motion-safe:data-[state=closed]:animate-out motion-safe:data-[state=closed]:fade-out-0 motion-safe:data-[state=closed]:zoom-out-95 motion-safe:data-[state=open]:animate-in motion-safe:data-[state=open]:fade-in-0 motion-safe:data-[state=open]:zoom-in-95",
           menuContentClasses,
           className,
         )}

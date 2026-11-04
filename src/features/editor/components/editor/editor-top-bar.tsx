@@ -5,7 +5,6 @@ import {
   ArrowLeft,
   ArrowRotateLeft as Undo,
   ArrowRotateRight as Redo,
-  Export,
   ExportSquare,
   Eye,
   Global,
@@ -24,6 +23,25 @@ const SAVE_STATE = {
   live: "LIVE",
   unsaved: "UNSAVED",
 } satisfies Record<SaveState, BadgeStatus>;
+
+/** Download arrow over a tray, matching the Save draft icon reference. */
+function SaveDraftIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 2.75v10.5m-4-4 4 4 4-4" />
+      <path d="M8 11.75H6A3.25 3.25 0 0 0 2.75 15v3A3.25 3.25 0 0 0 6 21.25h12A3.25 3.25 0 0 0 21.25 18v-3A3.25 3.25 0 0 0 18 11.75h-2" />
+      <path d="M6.5 15.25v2h11v-2" />
+    </svg>
+  );
+}
 
 /**
  * Figma "Editor top bar": a flat full-width bar with site info, undo/redo + device toggle in the middle
@@ -106,7 +124,7 @@ export function EditorTopBar({
       {/* On phones: a full-width second row, icon-only except Deploy (labels stay for screen readers). */}
       <div className="flex items-center gap-3 max-md:basis-full max-md:justify-end max-md:gap-2">
         <Button variant={portalHref ? "ghost" : "secondary"} onClick={onSave} loading={busy === "save"} disabled={busy !== null}>
-          {busy !== "save" && <Export variant="Outline" />} <span className="max-sm:sr-only">Save draft</span>
+          {busy !== "save" && <SaveDraftIcon />} <span className="max-sm:sr-only">Save draft</span>
         </Button>
         {portalHref && (
           <>

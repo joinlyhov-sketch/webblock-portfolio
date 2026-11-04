@@ -35,7 +35,7 @@ export function AccordionTrigger({
         className={cn(
           "flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium outline-none",
           "focus-visible:ring-3 focus-visible:ring-ring/40 disabled:pointer-events-none disabled:opacity-50",
-          "[&[data-state=open]>svg]:rotate-180",
+          "[&[data-state=open]>svg:last-child]:rotate-180",
           className,
         )}
         {...props}

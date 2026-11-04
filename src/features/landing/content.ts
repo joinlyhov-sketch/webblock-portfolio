@@ -4,6 +4,8 @@ export type NavLink = { label: string; href: string };
 
 /** Opens the "Talk to us" contact form (`ContactDialog`) on any landing, privacy or terms page. */
 export const CONTACT_HASH = "#contact-form";
+/** Scroll target for the landing page's main contact call to action. */
+export const CTA_HREF = "/#cta";
 
 /** Home-page anchors, prefixed with `/` so they also work from /privacy and /terms. Section ids live on the section components. */
 export const navLinks: NavLink[] = [
@@ -11,7 +13,7 @@ export const navLinks: NavLink[] = [
   { label: "How it works", href: "/#how-it-works" },
   { label: "Pricing", href: "/#pricing" },
   { label: "FAQ", href: "/#faq" },
-  { label: "Contact", href: "/contact" },
+  { label: "Contact", href: CTA_HREF },
 ];
 
 export type FaqItem = { question: string; answer: string };

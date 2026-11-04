@@ -215,7 +215,13 @@ export function ProfileCard({
         </form>
       </div>
 
-      <UploadImageModal open={uploadOpen} onClose={() => setUploadOpen(false)} rule={AVATAR_RULE} onUpload={upload} />
+      <UploadImageModal
+        open={uploadOpen}
+        onClose={() => setUploadOpen(false)}
+        rule={AVATAR_RULE}
+        onUpload={upload}
+        cropCircle
+      />
     </SettingsCard>
   );
 }
