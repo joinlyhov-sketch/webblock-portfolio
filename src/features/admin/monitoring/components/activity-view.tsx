@@ -7,7 +7,7 @@ import { FilterMenu } from "@/components/common/filter-menu";
 import { SegmentedTabs } from "@/components/common/segmented-tabs";
 import { StatusBadge } from "@/components/common/status-badge";
 import { Button } from "@/components/ui/button";
-import { AdminPageHeader } from "@/features/admin";
+import { AdminPageHeader } from "../../components/admin-page-header";
 import type { Page } from "@/lib/api/types";
 import { formatDateTime } from "@/lib/format";
 import { tableHref, type SearchParams } from "@/lib/table-query";

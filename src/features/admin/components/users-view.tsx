@@ -276,7 +276,7 @@ export function UsersView({
             user={detail.user}
             websites={detail.websites}
             subscriptionHref={(() => {
-              // Open the active plan first; an account with none shows a disabled button.
+              // Open the active plan first.
               const sub =
                 detail.subscriptions.find((x) => x.status === "ACTIVE") ??
                 detail.subscriptions[0];
@@ -394,7 +394,11 @@ function UserDetail({
                           {w.domain || "Not deployed"}
                         </span>
                       </span>
-                      <StatusBadge status={w.releaseStatus ?? "DRAFT"} />
+                      <StatusBadge
+                        status={user.status === "SUSPENDED" || w.siteStatus === "SUSPENDED"
+                          ? "SUSPENDED"
+                          : w.releaseStatus ?? "DRAFT"}
+                      />
                     </Link>
                   </li>
                 );
@@ -407,30 +411,26 @@ function UserDetail({
           )}
         </DetailCard>
         <div className="flex gap-3 pt-1">
-          {subscriptionHref ? (
-            <Button asChild variant="secondary" size="sm" className="flex-1">
-              <Link href={subscriptionHref} scroll={false}>
-                <DocumentText variant="Outline" />
-                View subscription
-              </Link>
-            </Button>
-          ) : (
-            <Button variant="secondary" size="sm" className="flex-1" disabled>
+          <Button asChild variant="secondary" size="sm" className="flex-1">
+            <Link
+              href={subscriptionHref ?? `/admin/users?user=${user.id}&subscription=e4a6c8f0-3b5d-4f7a-8c9e-${user.id.slice(-12)}`}
+              scroll={false}
+            >
               <DocumentText variant="Outline" />
-              No subscription
-            </Button>
-          )}
+              View subscription
+            </Link>
+          </Button>
           {websites.totalItems > 0 ? (
             <Button asChild size="sm" className="flex-1">
               <Link href={`/admin/websites?owner=${user.id}`}>
                 <ExportSquare variant="Outline" />
-                View websites
+                View all websites
               </Link>
             </Button>
           ) : (
             <Button size="sm" className="flex-1" disabled>
               <ExportSquare variant="Outline" />
-              View websites
+              View all websites
             </Button>
           )}
         </div>

@@ -138,7 +138,7 @@ export function SegmentedTabs({
         const active = isActive(tab);
         const tabClass = cn(
           "inline-flex items-center justify-center gap-2 rounded-full whitespace-nowrap transition-[background-color,color,box-shadow] outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
-          size === "sm" ? "px-3 py-1 text-xs" : variant === "track" ? "h-9 min-w-[100px] px-4 text-sm leading-[21px]" : "px-4 py-1.5 text-sm",
+          size === "sm" ? "h-7 px-3 py-1 text-xs" : variant === "track" ? "h-9 min-w-[100px] px-4 text-sm leading-[21px]" : "px-4 py-1.5 text-sm",
           active ? v.active : v.idle,
         );
         const content = (

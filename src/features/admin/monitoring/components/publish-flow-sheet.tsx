@@ -1,5 +1,4 @@
 import { Fragment, type ComponentType } from "react";
-import Link from "next/link";
 import {
   Box,
   Danger,
@@ -16,6 +15,7 @@ import {
 import { CompactTable } from "@/components/common/compact-table";
 import { Modal } from "@/components/common/modal";
 import { ScrollStrip } from "@/components/common/scroll-strip";
+import { SegmentedTabs } from "@/components/common/segmented-tabs";
 import { StatusBadge } from "@/components/common/status-badge";
 import type { Page } from "@/lib/api/types";
 import { formatLogTime, formatRelative, formatTime } from "@/lib/format";
@@ -432,32 +432,18 @@ function LiveLogs({
           </p>
         </div>
         <div className="flex items-center gap-2.5">
-          <nav
-            aria-label="Filter logs by level"
-            className="inline-flex rounded-full border border-border bg-surface p-1"
-          >
-            {tabs.map((tab) => (
-              <Link
-                key={tab.value}
-                href={tableHref(searchParams, {
+          <SegmentedTabs
+            label="Filter logs by level"
+            size="sm"
+            tabs={tabs.map((tab) => ({
+              label: tab.label,
+              count: tab.count,
+              active: active === tab.value,
+              href: tableHref(searchParams, {
                   log: tab.value === "ALL" ? null : tab.value,
-                })}
-                scroll={false}
-                aria-current={active === tab.value ? "true" : undefined}
-                className={cn(
-                  "rounded-full px-3 py-1 text-sm transition-colors",
-                  active === tab.value
-                    ? "bg-background font-semibold text-foreground shadow-button"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {tab.label}{" "}
-                <span className="font-normal text-placeholder tabular-nums">
-                  {tab.count.toLocaleString("en-US")}
-                </span>
-              </Link>
-            ))}
-          </nav>
+              }),
+            }))}
+          />
         </div>
       </header>
 
@@ -532,7 +518,7 @@ function LiveLogs({
         />
       </div>
       <p className="border-t border-border bg-surface px-4 py-2.5 text-[13px] text-muted-foreground">
-        Showing the latest {logs.items.length} lines · reload to see newer lines ·
+        Showing the latest {logs.items.length} of {logs.totalItems} lines · updates every 5 seconds ·
         logs are kept for 15 minutes
       </p>
     </section>

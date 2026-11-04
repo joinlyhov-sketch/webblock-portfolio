@@ -29,6 +29,7 @@ export function UserRowMenu({
           suspended
             ? {
                 label: "Reactivate user",
+                success: true,
                 icon: <TickCircle variant="Outline" />,
                 onSelect: () =>
                   run(
@@ -50,7 +51,7 @@ export function UserRowMenu({
         pending={pending}
         icon={<Forbidden2 variant="Outline" />}
         title={`Suspend ${user.fullName}?`}
-        description="They won't be able to sign in or edit their websites. Their websites and data are kept, so you can reactivate them any time."
+        description="They won't be able to sign in or edit their websites. All their websites will be suspended. Their websites and data are kept, so you can reactivate them any time."
         confirmLabel="Suspend user"
         look="soft"
         onConfirm={() =>

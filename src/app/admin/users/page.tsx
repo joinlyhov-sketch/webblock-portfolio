@@ -1,3 +1,4 @@
+import { UsersView } from "@/features/admin/components/admin-client-views";
 import {
   getSubscription,
   getUser,
@@ -8,7 +9,6 @@ import {
   getUserStats,
   listUsers,
   listWebsites,
-  UsersView,
   type PlanCode,
 } from "@/features/admin";
 import { nullIfNotFound } from "@/lib/api/errors";
@@ -49,7 +49,7 @@ export default async function AdminUsersPage({
           .then(([user, websites, subs]) => ({
             user,
             websites,
-            // This account's subscriptions (one per project), for the "View subscription" button.
+            // Account subscriptions include plans purchased before creating a website.
             subscriptions: subs.items.filter((x) => x.userId === userId),
           }))
           .catch(nullIfNotFound)
