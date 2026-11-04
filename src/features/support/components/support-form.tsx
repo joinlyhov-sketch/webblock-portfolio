@@ -221,7 +221,7 @@ export function SupportForm({ view }: { view: Pick<SupportView, "email" | "websi
               </p>
               <div className="w-full max-w-[460px] rounded-[14px] border border-dashed border-border bg-faq-row px-4 py-3 text-left">
                 <p className="text-xs leading-[18px] text-muted-foreground">Ticket</p>
-                <p className="text-sm leading-[21px] text-foreground">
+                <p className="text-sm leading-[21px] break-words text-foreground">
                   <strong className="font-bold">#{receipt.ticket}</strong> · {receipt.topic}
                   {receipt.website && ` · ${receipt.website}`}
                 </p>

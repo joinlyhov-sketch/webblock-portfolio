@@ -39,7 +39,7 @@ export function PasswordCard({ hasPassword }: { hasPassword: boolean }) {
     const requirements: string[] = [];
     if (value.length < PASSWORD_MIN) requirements.push(`at least ${PASSWORD_MIN} characters`);
     if (!/[A-Z]/.test(value)) requirements.push("one uppercase letter");
-    if (!/[^A-Za-z0-9]/.test(value)) requirements.push("one symbol");
+    if (!/\d/.test(value)) requirements.push("one number");
     if (requirements.length) return `Use ${requirements.join(", ")}.`;
     if (value.length > PASSWORD_MAX) return `Use ${PASSWORD_MAX} characters or fewer.`;
     return undefined;

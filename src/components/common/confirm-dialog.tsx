@@ -111,7 +111,7 @@ export function ConfirmDialog({
           </div>
 
           <div className="px-6 pb-6">
-            <DialogTitle className="text-lg leading-6 font-semibold text-foreground">{title}</DialogTitle>
+            <DialogTitle className="text-lg leading-6 font-semibold break-words text-foreground">{title}</DialogTitle>
             <DialogDescription className="mx-auto mt-2 max-w-[272px] text-[13px] leading-5 text-muted-foreground">
               {description}
             </DialogDescription>
@@ -151,7 +151,7 @@ export function ConfirmDialog({
           >
             {icon ?? <Danger variant="Outline" />}
           </span>
-          <DialogTitle className="text-[17px] font-semibold text-foreground">{title}</DialogTitle>
+          <DialogTitle className="text-[17px] font-semibold break-words text-foreground">{title}</DialogTitle>
           <DialogDescription className="mt-1.5 text-[13px] leading-5 text-muted-foreground">
             {description}
           </DialogDescription>

@@ -168,7 +168,7 @@ function TitledModal({
       >
         <div className={cn("min-h-0 flex-1 overflow-y-auto", !hideTitle && "px-6 pt-6")}>
           <DialogTitle
-            className={cn(hideTitle ? "sr-only" : "pr-10 text-[22px] leading-7 font-semibold text-foreground")}
+            className={cn(hideTitle ? "sr-only" : "pr-10 text-[22px] leading-7 font-semibold break-words text-foreground")}
           >
             {title}
           </DialogTitle>

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /** Character limits, shared by the schema and the form inputs (`maxLength`). */
-export const PRODUCT_LIMITS = { name: 120, category: 40, description: 300 };
+export const PRODUCT_LIMITS = { name: 120, category: 40, description: 200 };
 const LIMITS = PRODUCT_LIMITS;
 
 export const productInput = z.object({
