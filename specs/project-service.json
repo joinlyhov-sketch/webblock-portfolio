@@ -1,0 +1,3761 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "WebBlock Project API",
+    "description": "The user REST API of the Project service, generated from the code in the prototype profile. Notion \"Web Block architecture\" section 2 stays the authority for the API contract. Every success body is wrapped in the envelope {success, data, meta}; the schemas here show the data before the wrapping. Errors are RFC 9457 Problem Details.",
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "security": [
+    {
+      "bearer": []
+    }
+  ],
+  "paths": {
+    "/api/v1/ui/projects/{projectId}/products/{productId}": {
+      "get": {
+        "tags": [
+          "ui-product-controller"
+        ],
+        "operationId": "get",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "ui-product-controller"
+        ],
+        "operationId": "update",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "ui-product-controller"
+        ],
+        "operationId": "delete",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/projects/{projectId}/page": {
+      "get": {
+        "tags": [
+          "ui-page-controller"
+        ],
+        "operationId": "get_1",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebsitePageResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "ui-page-draft-controller"
+        ],
+        "operationId": "save",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveDraftRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebsitePageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/projects/{projectId}/business-info": {
+      "get": {
+        "tags": [
+          "ui-business-info-controller"
+        ],
+        "operationId": "get_2",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessInfoResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "ui-business-info-controller"
+        ],
+        "operationId": "update_1",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BusinessInfoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessInfoResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{projectId}": {
+      "get": {
+        "tags": [
+          "project-controller"
+        ],
+        "operationId": "get_3",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectView"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "project-creation-controller"
+        ],
+        "operationId": "create",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProjectRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectView"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "project-controller"
+        ],
+        "operationId": "delete_1",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{projectId}/page": {
+      "get": {
+        "tags": [
+          "page-controller"
+        ],
+        "operationId": "get_4",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebsitePageResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "page-controller"
+        ],
+        "operationId": "save_1",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveDraftRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebsitePageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/projects": {
+      "get": {
+        "tags": [
+          "ui-project-controller"
+        ],
+        "operationId": "list",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiPageProjectView"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "ui-project-creation-controller"
+        ],
+        "operationId": "create_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUiProjectRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/projects/{projectId}/suspend": {
+      "post": {
+        "tags": [
+          "ui-project-controller"
+        ],
+        "operationId": "suspend",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/projects/{projectId}/reactivate": {
+      "post": {
+        "tags": [
+          "ui-project-controller"
+        ],
+        "operationId": "reactivate",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/projects/{projectId}/products": {
+      "get": {
+        "tags": [
+          "ui-product-controller"
+        ],
+        "operationId": "list_1",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiPageProductResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "ui-product-controller"
+        ],
+        "operationId": "create_2",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/projects/{projectId}/product-categories": {
+      "get": {
+        "tags": [
+          "ui-product-category-controller"
+        ],
+        "operationId": "list_2",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "ui-product-category-controller"
+        ],
+        "operationId": "create_3",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/JsonNode"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/projects/{projectId}/page/versions/{versionId}/restore": {
+      "post": {
+        "tags": [
+          "ui-page-restore-controller"
+        ],
+        "operationId": "restore",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "versionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RestoreVersionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebsitePageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/projects/{projectId}/page/publish": {
+      "post": {
+        "tags": [
+          "ui-generation-request-controller"
+        ],
+        "operationId": "capture",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaptureGenerationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaptureResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/projects/{projectId}/deployments": {
+      "post": {
+        "tags": [
+          "ui-generation-request-controller"
+        ],
+        "operationId": "capture_1",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaptureGenerationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaptureResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/projects/{projectId}/media": {
+      "get": {
+        "tags": [
+          "ui-media-controller"
+        ],
+        "operationId": "list_3",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiPageMediaAssetResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "ui-media-controller"
+        ],
+        "operationId": "upload",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaAssetResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{projectId}/versions/{versionId}/restore": {
+      "post": {
+        "tags": [
+          "page-version-controller"
+        ],
+        "operationId": "restore_1",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "versionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RestoreVersionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebsitePageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{projectId}/suspend": {
+      "post": {
+        "tags": [
+          "project-controller"
+        ],
+        "operationId": "suspend_1",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{projectId}/reactivate": {
+      "post": {
+        "tags": [
+          "project-controller"
+        ],
+        "operationId": "reactivate_1",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{projectId}/generation-requests": {
+      "get": {
+        "tags": [
+          "generation-request-controller"
+        ],
+        "operationId": "list_4",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultGenerationRequestRecord"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "generation-request-controller"
+        ],
+        "operationId": "capture_2",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaptureGenerationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaptureResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{projectId}/generation-contracts": {
+      "get": {
+        "tags": [
+          "generation-contract-controller"
+        ],
+        "operationId": "list_5",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultGenerationContractRecord"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "generation-contract-controller"
+        ],
+        "operationId": "create_4",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGenerationContractRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerationContractRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/templates": {
+      "get": {
+        "tags": [
+          "ui-template-controller"
+        ],
+        "operationId": "list_6",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 50,
+              "minLength": 0,
+              "pattern": ".*\\S.*"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiPageUiTemplateResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/templates/{templateCode}": {
+      "get": {
+        "tags": [
+          "ui-template-controller"
+        ],
+        "operationId": "get_5",
+        "parameters": [
+          {
+            "name": "templateCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiTemplateDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/projects/{projectId}": {
+      "get": {
+        "tags": [
+          "ui-project-controller"
+        ],
+        "operationId": "get_6",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/projects/{projectId}/products/counts": {
+      "get": {
+        "tags": [
+          "ui-product-controller"
+        ],
+        "operationId": "counts",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductCounts"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/projects/{projectId}/page/versions": {
+      "get": {
+        "tags": [
+          "ui-page-version-controller"
+        ],
+        "operationId": "list_7",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DeployVersion"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/projects/{projectId}/activity": {
+      "get": {
+        "tags": [
+          "ui-activity-controller"
+        ],
+        "operationId": "list_8",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiPageActivityResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/projects/counts": {
+      "get": {
+        "tags": [
+          "ui-project-controller"
+        ],
+        "operationId": "counts_1",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectCounts"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/domains/check": {
+      "get": {
+        "tags": [
+          "ui-domain-controller"
+        ],
+        "operationId": "check",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DomainCheck"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/business-types": {
+      "get": {
+        "tags": [
+          "ui-business-type-controller"
+        ],
+        "operationId": "names",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/admin/projects": {
+      "get": {
+        "tags": [
+          "admin-project-controller"
+        ],
+        "operationId": "list_9",
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ownerId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiPageAdminProjectItem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/admin/projects/{projectId}": {
+      "get": {
+        "tags": [
+          "admin-project-controller"
+        ],
+        "operationId": "get_7",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminProjectDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/admin/projects/{projectId}/generation-requests": {
+      "get": {
+        "tags": [
+          "admin-generation-request-controller"
+        ],
+        "operationId": "listForProject",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiPageAdminGenerationRequestItem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/admin/projects/counts": {
+      "get": {
+        "tags": [
+          "admin-project-controller"
+        ],
+        "operationId": "counts_2",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminProjectCounts"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/admin/generation-requests": {
+      "get": {
+        "tags": [
+          "admin-generation-request-controller"
+        ],
+        "operationId": "list_10",
+        "parameters": [
+          {
+            "name": "latestPerProject",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "updatedBefore",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiPageAdminGenerationRequestItem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/admin/audit": {
+      "get": {
+        "tags": [
+          "admin-project-controller"
+        ],
+        "operationId": "audit",
+        "parameters": [
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "actorUserId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiPageObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/templates": {
+      "get": {
+        "tags": [
+          "template-controller"
+        ],
+        "operationId": "list_11",
+        "parameters": [
+          {
+            "name": "businessTypeCode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 50,
+              "minLength": 0,
+              "pattern": ".*\\S.*"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TemplateResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/templates/{templateCode}": {
+      "get": {
+        "tags": [
+          "template-controller"
+        ],
+        "operationId": "get_8",
+        "parameters": [
+          {
+            "name": "templateCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/subdomains/{subdomain}": {
+      "get": {
+        "tags": [
+          "subdomain-controller"
+        ],
+        "operationId": "check_1",
+        "parameters": [
+          {
+            "name": "subdomain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DomainCheck"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects": {
+      "get": {
+        "tags": [
+          "project-controller"
+        ],
+        "operationId": "list_12",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultProjectView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{projectId}/versions": {
+      "get": {
+        "tags": [
+          "page-version-controller"
+        ],
+        "operationId": "list_13",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultDeployVersion"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{projectId}/generation-requests/{generationRequestId}": {
+      "get": {
+        "tags": [
+          "generation-request-controller"
+        ],
+        "operationId": "get_9",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "generationRequestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerationRequestRecord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/counts": {
+      "get": {
+        "tags": [
+          "project-controller"
+        ],
+        "operationId": "counts_3",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectCounts"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/component-catalog/{version}": {
+      "get": {
+        "tags": [
+          "component-catalog-controller"
+        ],
+        "operationId": "get_10",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/JsonNode"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/business-types": {
+      "get": {
+        "tags": [
+          "business-type-controller"
+        ],
+        "operationId": "list_14",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BusinessTypeResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/business-types/{code}": {
+      "get": {
+        "tags": [
+          "business-type-controller"
+        ],
+        "operationId": "get_11",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessTypeDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "JsonNode": {
+        "type": "object",
+        "properties": {
+          "empty": {
+            "type": "boolean"
+          },
+          "array": {
+            "type": "boolean"
+          },
+          "null": {
+            "type": "boolean"
+          },
+          "object": {
+            "type": "boolean"
+          },
+          "float": {
+            "type": "boolean"
+          },
+          "number": {
+            "type": "boolean"
+          },
+          "binary": {
+            "type": "boolean"
+          },
+          "string": {
+            "type": "boolean"
+          },
+          "missingNode": {
+            "type": "boolean"
+          },
+          "container": {
+            "type": "boolean"
+          },
+          "floatingPointNumber": {
+            "type": "boolean"
+          },
+          "integralNumber": {
+            "type": "boolean"
+          },
+          "nodeType": {
+            "type": "string",
+            "enum": [
+              "ARRAY",
+              "BINARY",
+              "BOOLEAN",
+              "MISSING",
+              "NULL",
+              "NUMBER",
+              "OBJECT",
+              "POJO",
+              "STRING"
+            ]
+          },
+          "valueNode": {
+            "type": "boolean"
+          },
+          "pojo": {
+            "type": "boolean"
+          },
+          "bigDecimal": {
+            "type": "boolean"
+          },
+          "bigInteger": {
+            "type": "boolean"
+          },
+          "textual": {
+            "type": "boolean",
+            "deprecated": true
+          },
+          "long": {
+            "type": "boolean"
+          },
+          "boolean": {
+            "type": "boolean"
+          },
+          "double": {
+            "type": "boolean"
+          },
+          "int": {
+            "type": "boolean"
+          },
+          "short": {
+            "type": "boolean"
+          },
+          "embeddedValue": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ProductRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "price": {
+            "type": "string",
+            "pattern": "^\\d{1,6}(\\.\\d{1,2})?$"
+          },
+          "imageUrl": {
+            "$ref": "#/components/schemas/JsonNode"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "category",
+          "description",
+          "name",
+          "price"
+        ]
+      },
+      "ProductResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "websiteId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "price": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SaveDraftRequest": {
+        "type": "object",
+        "properties": {
+          "expectedEditRevision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "data": {
+            "$ref": "#/components/schemas/JsonNode"
+          }
+        },
+        "required": [
+          "data",
+          "expectedEditRevision"
+        ]
+      },
+      "WebsitePageResponse": {
+        "type": "object",
+        "properties": {
+          "websiteId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "draft": {
+            "$ref": "#/components/schemas/JsonNode"
+          },
+          "published": {
+            "$ref": "#/components/schemas/JsonNode"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "editRevision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "BusinessHourRequest": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string",
+            "enum": [
+              "MONDAY",
+              "TUESDAY",
+              "WEDNESDAY",
+              "THURSDAY",
+              "FRIDAY",
+              "SATURDAY",
+              "SUNDAY"
+            ]
+          },
+          "open": {
+            "type": "boolean"
+          },
+          "opensAt": {
+            "type": "string",
+            "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+          },
+          "closesAt": {
+            "type": "string",
+            "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+          }
+        },
+        "required": [
+          "closesAt",
+          "day",
+          "open",
+          "opensAt"
+        ]
+      },
+      "BusinessInfoRequest": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 320,
+            "minLength": 0
+          },
+          "address": {
+            "type": "string"
+          },
+          "mapsUrl": {
+            "type": "string"
+          },
+          "hours": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BusinessHourRequest"
+            }
+          },
+          "logoUrl": {
+            "$ref": "#/components/schemas/JsonNode"
+          }
+        },
+        "required": [
+          "address",
+          "description",
+          "email",
+          "hours",
+          "phone"
+        ]
+      },
+      "BusinessHourResponse": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string",
+            "enum": [
+              "MONDAY",
+              "TUESDAY",
+              "WEDNESDAY",
+              "THURSDAY",
+              "FRIDAY",
+              "SATURDAY",
+              "SUNDAY"
+            ]
+          },
+          "open": {
+            "type": "boolean"
+          },
+          "opensAt": {
+            "type": "string"
+          },
+          "closesAt": {
+            "type": "string"
+          }
+        }
+      },
+      "BusinessInfoResponse": {
+        "type": "object",
+        "properties": {
+          "websiteId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": {
+            "type": "string"
+          },
+          "logoUrl": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "mapsUrl": {
+            "type": "string"
+          },
+          "hours": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BusinessHourResponse"
+            }
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "BusinessProfileRequest": {
+        "type": "object",
+        "properties": {
+          "businessName": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "businessType": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 5000,
+            "minLength": 0
+          },
+          "logoUrl": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 0
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 0,
+            "pattern": "^\\s*+$|^(?=[^0-9]*+[0-9])[0-9+()\\-. ]*+$"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 320,
+            "minLength": 0
+          },
+          "address": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 0
+          },
+          "hours": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OpeningHourRequest"
+            }
+          }
+        }
+      },
+      "CreateProjectRequest": {
+        "type": "object",
+        "properties": {
+          "templateId": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "businessType": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 0
+          },
+          "category": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "thumbnailUrl": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 0
+          },
+          "details": {
+            "$ref": "#/components/schemas/BusinessProfileRequest"
+          }
+        },
+        "required": [
+          "businessType",
+          "details",
+          "name",
+          "templateId"
+        ]
+      },
+      "OpeningHourRequest": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string",
+            "enum": [
+              "MONDAY",
+              "TUESDAY",
+              "WEDNESDAY",
+              "THURSDAY",
+              "FRIDAY",
+              "SATURDAY",
+              "SUNDAY"
+            ]
+          },
+          "open": {
+            "type": "boolean"
+          },
+          "opensAt": {
+            "type": "string",
+            "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+          },
+          "closesAt": {
+            "type": "string",
+            "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+          }
+        },
+        "required": [
+          "day"
+        ]
+      },
+      "ProjectView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "businessType": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "templateId": {
+            "type": "string"
+          },
+          "thumbnailUrl": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "suspendedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reactivatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "editRevision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "hasUndeployedChanges": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CreateUiProjectRequest": {
+        "type": "object",
+        "properties": {
+          "templateId": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "businessType": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "category": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "thumbnailUrl": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 0
+          },
+          "details": {
+            "$ref": "#/components/schemas/BusinessProfileRequest"
+          }
+        },
+        "required": [
+          "businessType",
+          "details",
+          "name",
+          "templateId"
+        ]
+      },
+      "CategoryRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "RestoreVersionRequest": {
+        "type": "object",
+        "properties": {
+          "expectedEditRevision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "expectedEditRevision"
+        ]
+      },
+      "CaptureGenerationRequest": {
+        "type": "object",
+        "properties": {
+          "generationContractId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subdomain": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          }
+        }
+      },
+      "CaptureResponse": {
+        "type": "object",
+        "properties": {
+          "generationRequestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "captured",
+              "generating",
+              "publishing",
+              "published",
+              "failed"
+            ]
+          }
+        }
+      },
+      "MediaAssetResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "url": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateGenerationContractRequest": {
+        "type": "object",
+        "properties": {
+          "productTypeIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "productTypeIds"
+        ]
+      },
+      "ContractProductType": {
+        "type": "object",
+        "properties": {
+          "productTypeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "schemaVersion": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "GenerationContractRecord": {
+        "type": "object",
+        "properties": {
+          "generationContractId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "versionNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "apiContractVersion": {
+            "type": "string"
+          },
+          "productTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContractProductType"
+            }
+          },
+          "createdByUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Image": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "width": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "height": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "TemplatePreviews": {
+        "type": "object",
+        "properties": {
+          "desktop": {
+            "$ref": "#/components/schemas/Image"
+          }
+        }
+      },
+      "UiPageUiTemplateResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UiTemplateResponse"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "UiTemplateResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "thumbnailUrl": {
+            "type": "string"
+          },
+          "badge": {
+            "type": "string"
+          },
+          "previews": {
+            "$ref": "#/components/schemas/TemplatePreviews"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Page": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "puckTree": {
+            "$ref": "#/components/schemas/JsonNode"
+          }
+        }
+      },
+      "UiTemplateDetailResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "thumbnailUrl": {
+            "type": "string"
+          },
+          "badge": {
+            "type": "string"
+          },
+          "previews": {
+            "$ref": "#/components/schemas/TemplatePreviews"
+          },
+          "styleKey": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "page": {
+            "$ref": "#/components/schemas/Page"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "UiPageProjectView": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProjectView"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "UiPageProductResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductResponse"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "CategoryCount": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ProductCounts": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CategoryCount"
+            }
+          }
+        }
+      },
+      "DeployVersion": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "current": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UiPageMediaAssetResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaAssetResponse"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ActivityResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "websiteId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "type": "string"
+          },
+          "outcome": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UiPageActivityResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActivityResponse"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ProjectCounts": {
+        "type": "object",
+        "properties": {
+          "ALL": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "DRAFT": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "LIVE": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "SUSPENDED": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "DomainCheck": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "host": {
+            "type": "string"
+          },
+          "available": {
+            "type": "boolean"
+          },
+          "problem": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminProjectItem": {
+        "type": "object",
+        "properties": {
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "thumbnailUrl": {
+            "type": "string"
+          },
+          "ownerUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string"
+          },
+          "templateCode": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "logoUrl": {
+            "type": "string"
+          },
+          "productCount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "UiPageAdminProjectItem": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminProjectItem"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "AdminProjectDetail": {
+        "type": "object",
+        "properties": {
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "thumbnailUrl": {
+            "type": "string"
+          },
+          "ownerUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string"
+          },
+          "templateCode": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "logoUrl": {
+            "type": "string"
+          },
+          "productCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "hasUndeployedChanges": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AdminGenerationRequestItem": {
+        "type": "object",
+        "properties": {
+          "generationRequestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string"
+          },
+          "failureCode": {
+            "type": "string"
+          },
+          "commitSha": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UiPageAdminGenerationRequestItem": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminGenerationRequestItem"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "AdminProjectCounts": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "live": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "suspended": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "byStatus": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        }
+      },
+      "UiPageObject": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {}
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "TemplateResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "thumbnailUrl": {
+            "type": "string"
+          },
+          "badge": {
+            "type": "string"
+          },
+          "previews": {
+            "$ref": "#/components/schemas/TemplatePreviews"
+          }
+        }
+      },
+      "TemplateDetailResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "thumbnailUrl": {
+            "type": "string"
+          },
+          "badge": {
+            "type": "string"
+          },
+          "previews": {
+            "$ref": "#/components/schemas/TemplatePreviews"
+          },
+          "styleKey": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "page": {
+            "$ref": "#/components/schemas/Page"
+          }
+        }
+      },
+      "PagedResultProjectView": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProjectView"
+            }
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nextCursor": {
+            "type": "string"
+          }
+        }
+      },
+      "PagedResultDeployVersion": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeployVersion"
+            }
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nextCursor": {
+            "type": "string"
+          }
+        }
+      },
+      "GenerationRequestRecord": {
+        "type": "object",
+        "properties": {
+          "generationRequestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "captured",
+              "generating",
+              "publishing",
+              "published",
+              "failed"
+            ]
+          },
+          "failureCode": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PagedResultGenerationRequestRecord": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GenerationRequestRecord"
+            }
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nextCursor": {
+            "type": "string"
+          }
+        }
+      },
+      "PagedResultGenerationContractRecord": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GenerationContractRecord"
+            }
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nextCursor": {
+            "type": "string"
+          }
+        }
+      },
+      "BusinessTypeResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "BusinessTypeDetailResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "productTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductTypeResponse"
+            }
+          }
+        }
+      },
+      "ProductTypeResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "fieldSchema": {
+            "$ref": "#/components/schemas/JsonNode"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearer": {
+        "type": "http",
+        "description": "A Keycloak access token with audience project, or a dev token of the prototype profile",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

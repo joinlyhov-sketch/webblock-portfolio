@@ -1,0 +1,2730 @@
+openapi: 3.0.3
+info:
+  title: WebBlock Provisioning API
+  version: 0.2.0
+  description: >-
+    Draft contract for the REST surface that Provisioning owns. The paths
+    and the revision 16 amendments are decision 0006 sections 2 and 3, and
+    version 0.2.0 is the one breaking
+    release of decision 0023 (G1 to G7). A release is created from the Project
+    service's "source published" event and its build starts automatically, so
+    no operation creates a release. The build operation (decision 0014) only
+    starts or retries the build of an existing release. Hosting is suspended and
+    resumed from Payment's and Project's events, and by platform staff through
+    the four admin operations under /v1/admin/projects/{projectId} (decision
+    0023 G9 to G13): suspend and resume a site, redeploy its live release, and
+    read its commands with their requester. Only a caller holding the ADMIN
+    role takes them, on any project, without the project access check. The
+    rollback of an uncertain route (FR-50) keeps its path under /v1/projects
+    and is ADMIN only in the same way. An ADMIN also gets the owner reads of
+    any project (the release, command, deployment, diagnostics and listing
+    reads, and the /v1/ui project reads) without the project access check;
+    build, deploy and promote keep it for an ADMIN (FR-51). Source
+    repository, commit, image, namespace and hostname always come from trusted
+    records and are never accepted from the caller. The two listing reads
+    (decision 0014 section 21 ruling 7) page through a project's releases and
+    commands with limit and cursor; they add no mutation. Every success is the
+    envelope of Notion 2.1 (success, data, meta; decision 0023 G2), served as
+    application/json; every error is a Problem (decision 0023 G5). Every name
+    a client sees (body fields, path and query parameters) is camelCase; the
+    values of enums and failure codes are unchanged (G3). The response shapes
+    are Provisioning's draft and have not been reviewed by their consumers
+    (open decision OD-25). The /v1/ui routes serve the web app's server:
+    they answer the bare object or a numbered Page with no envelope, take
+    page, size and sort, and have no MCP tool (FR-57). Two of them read a
+    site's access lines and live counts from Loki (FR-63).
+  x-status: draft
+servers:
+  - url: /
+security:
+  - bearerAuth: []
+tags:
+  - name: releases
+    description: Build, deploy and promote a release, and read releases and their diagnostics.
+  - name: commands
+    description: Read the commands of a project and their outcome.
+  - name: deployment
+    description: Read the live and candidate deployment of a project.
+  - name: admin
+    description: ADMIN only. Roll back, suspend, resume and redeploy a site, and read its commands.
+  - name: ui
+    description: The web app's reads under /v1/ui. Bare answers and numbered pages; REST only.
+paths:
+  /v1/projects/{projectId}/releases/{releaseId}/deploy:
+    post:
+      operationId: deploy_release
+      tags: [releases]
+      summary: Accept private candidate deployment
+      description: |
+        Accepts a private candidate deployment of a built release. Public traffic does not move.
+        - Takes no request body: a body must be absent, empty, or the empty JSON object.
+        - `409 COMMAND_IN_PROGRESS`: another command of the project is in flight.
+        - `422` when:
+          - the route is not stable;
+          - hosting is offline;
+          - the release is not built;
+          - the release was created before the live release.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/ReleaseId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '202':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: Durably accepted. data is the accepted command; poll its statusUrl for progress.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandAcceptedResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '422': { $ref: '#/components/responses/Unprocessable' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/projects/{projectId}/releases/{releaseId}/promote:
+    post:
+      operationId: promote_release
+      tags: [releases]
+      summary: Accept route promotion
+      description: |
+        Accepts promotion of a `candidate_ready` release by changing route intent.
+        - If the promotion fails, the same command restores the route to the project's live release.
+        - Takes no request body: a body must be absent, empty, or the empty JSON object.
+        - `409 COMMAND_IN_PROGRESS`: another command of the project is in flight.
+        - `422` when:
+          - the route is not stable;
+          - hosting is offline;
+          - the release is not `candidate_ready`;
+          - the release was created before the live release.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/ReleaseId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '202':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: Durably accepted. data is the accepted command; poll its statusUrl for progress.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandAcceptedResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '422': { $ref: '#/components/responses/Unprocessable' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/projects/{projectId}/releases/{releaseId}/rollback:
+    post:
+      operationId: rollback_release
+      tags: [admin]
+      summary: Operator recovery of an uncertain route to the live release or the offline page
+      description: |
+        Operator recovery of an uncertain route.
+        - Accepted only when the project's `routingStatus` is `uncertain`, the state a failed or
+          unverified route change leaves behind.
+        - The path names the release that is still promoting.
+        - The route is restored to the project's live release (`liveReleaseId`), or to the offline page
+          when `hostingStatus` is `offline` or the project has no live release.
+        - The route is never restored to a release chosen by the caller.
+        - It is not a way to leave a healthy live release: with any other routing status the request is a
+          `422 RELEASE_STATE_INVALID`.
+        - Takes no request body: a body must be absent, empty, or the empty JSON object.
+        - Entitlement is not consulted, so recovery is never blocked by an expired plan and
+          `PUBLISH_LIMIT_REACHED` never answers it.
+        - Only a caller whose roles hold `ADMIN` (exactly, case-sensitive) may call it, on any
+          project, without the project access check.
+        - Anyone else, the project's owner included, is `403 ACCESS_DENIED` before the project is looked at.
+        - The command records the admin's subject.
+        - The production profile refuses it with `503 OPERATION_UNAVAILABLE`, as every mutation.
+        - An ADMIN reads any project on the owner reads, without the project access check, so the
+          returned status URL (get_command) and get_deployment answer the admin who does not own the
+          project too.
+        - See FR-50, FR-51 and decision 0019 section 7.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/ReleaseId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '202':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: Durably accepted. data is the accepted command; poll its statusUrl for progress.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandAcceptedResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '422': { $ref: '#/components/responses/Unprocessable' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/projects/{projectId}/releases/{releaseId}:
+    get:
+      operationId: get_release
+      tags: [releases]
+      summary: Read release and step status
+      description: Returns the persisted release with its steps.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/ReleaseId'
+      responses:
+        '200':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: Persisted state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReleaseResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/ReadConflict' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/projects/{projectId}/commands/{commandId}:
+    get:
+      operationId: get_command
+      tags: [commands]
+      summary: Read accepted command progress
+      description: |
+        Returns the persisted command.
+        - Any command of the project can be read.
+        - This includes a hosting command created from a Payment event, which names no release.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/CommandId'
+      responses:
+        '200':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: Persisted state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/ReadConflict' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/projects/{projectId}/deployment:
+    get:
+      operationId: get_deployment
+      tags: [deployment]
+      summary: Read the live release, routing status and hosting status
+      description: |
+        Returns the project's stored hosting state.
+        - The confirmed live release.
+        - The last command number.
+        - The routing status and the hosting status.
+        - A summary of the command in flight, when there is one.
+        - `404 DEPLOYMENT_NOT_FOUND`: a project for which no release was ever accepted has no stored state.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: Persisted state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/ReadConflict' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/projects/{projectId}/releases/{releaseId}/diagnostics:
+    get:
+      operationId: get_release_diagnostics
+      tags: [releases]
+      summary: Read redacted, bounded diagnostics
+      description: |
+        Returns what the stored rows say about a release.
+        - The release's status and failure code.
+        - Its most recent steps (at most 20, with their failure codes and times).
+        - The project's most recent commands (at most 10, with their failure codes).
+        - The outcome of the "source published" event the release came from.
+        - The answer is bounded and redacted: codes, counts and times only, never a build log location, a
+          failure text, a repository or a commit.
+        - `stepsTruncated` and `commandsTruncated` say whether older rows were left out.
+        - See decision 0014 section 21 ruling 6.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/ReleaseId'
+      responses:
+        '200':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: Redacted, bounded diagnostics.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiagnosticsResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/ReadConflict' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/projects/{projectId}/releases/{releaseId}/build:
+    post:
+      operationId: build_release
+      tags: [releases]
+      summary: Start or retry the build of a release (prototype)
+      description: |
+        Prototype operation: requests the build of a release.
+        - Applies to an `accepted` release, or to the next build attempt of a `building` release whose
+          last attempt failed while attempts remain.
+        - The release's pending build attempt is the durable request: this operation checks it, writes
+          nothing, and asks the build worker to start it at once.
+        - The build worker alone calls the build system, and starts the attempt after a short grace even
+          if that request is lost.
+        - It is not a command: no `Idempotency-Key` is taken; the build is tracked through the release
+          and its build steps.
+        - Accepting a "source published" event starts the first build by itself.
+        - A release that has reached `failed` is not rebuilt.
+        - Takes no request body: a body must be absent, empty, or the empty JSON object.
+        - `422 RELEASE_NOT_BUILDABLE`: the release has no pending build attempt.
+        - `409 BUILD_IN_PROGRESS`: an attempt is running.
+        - Two requests for the same pending attempt are both accepted and start it once.
+        - The 202 body is the release as read when the request was accepted, so its build step may still
+          be pending.
+        - See decision 0014 section 3 ("Build") and decision 0016 section 5 item 2.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/ReleaseId'
+      responses:
+        '202':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: The build attempt was requested; the build worker starts it. Read the release for progress.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReleaseResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/BuildConflict' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '422': { $ref: '#/components/responses/Unprocessable' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/projects/{projectId}/releases:
+    get:
+      operationId: list_releases
+      tags: [releases]
+      summary: List the project's releases, newest first
+      description: |
+        Pages through the project's releases, newest first (by creation time, then release ID).
+        - Each item is a summary without steps; read one release with get_release for its steps.
+        - `data` holds the page's releases and `meta.page` its `limit` and `nextCursor`.
+        - `nextCursor` is null on the last page; otherwise pass it as `cursor` to read the next page.
+        - A project the caller cannot access is a `404 PROJECT_NOT_FOUND`, like every read.
+        - A project without releases is an empty page.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: One page of releases.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReleaseListResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/ReadConflict' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/projects/{projectId}/commands:
+    get:
+      operationId: list_commands
+      tags: [commands]
+      summary: List the project's commands, newest first
+      description: |
+        Pages through the project's commands, newest first (by command number).
+        - Hosting commands created from Payment events are included.
+        - `data` holds the page's commands and `meta.page` its `limit` and `nextCursor`.
+        - `nextCursor` is null on the last page; otherwise pass it as `cursor` to read the next page.
+        - A project the caller cannot access is a `404 PROJECT_NOT_FOUND`, like every read.
+        - A project without commands is an empty page.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: One page of commands.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandListResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/ReadConflict' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/admin/projects/{projectId}/hosting/suspend:
+    post:
+      operationId: suspend_website
+      tags: [admin]
+      summary: Admin suspend of one site
+      description: |
+        Accepts a suspend of the project's site with the offline reason `admin_suspended`.
+        - The command adds only that reason: a site already offline for another reason stays offline and
+          keeps its other reasons.
+        - Only a caller whose roles hold `ADMIN` (exactly, case-sensitive) may call it, on any
+          project, without the project access check.
+        - Anyone else is `403 ACCESS_DENIED` before the project is looked at, so the answer is the same
+          for every project.
+        - The key is stored as `admin:<Idempotency-Key>`, so it never takes a key of a system event.
+        - The command records the admin's subject.
+        - Takes no request body: a body must be absent, empty, or the empty JSON object.
+        - `409 COMMAND_IN_PROGRESS`: another command of the project is in flight.
+        - `422 ROUTE_NOT_STABLE`: the route is not stable.
+        - The production profile refuses it with `503 OPERATION_UNAVAILABLE`, as every mutation.
+        - See decision 0023 G9 to G11.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/AdminIdempotencyKey'
+      responses:
+        '202':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: Durably accepted. data is the accepted command.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandAcceptedResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '422': { $ref: '#/components/responses/Unprocessable' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/admin/projects/{projectId}/hosting/resume:
+    post:
+      operationId: resume_website
+      tags: [admin]
+      summary: Admin resume of one site
+      description: |
+        Accepts a resume of the project's site.
+        - The command removes only the offline reason `admin_suspended`; the site is online again only
+          when no other reason is left.
+        - It is accepted even when the reason is not there.
+        - Only a caller whose roles hold `ADMIN` may call it, on any project, without the project
+          access check.
+        - Anyone else is `403 ACCESS_DENIED` before the project is looked at.
+        - The key is stored as `admin:<Idempotency-Key>`.
+        - The command records the admin's subject.
+        - Takes no request body: a body must be absent, empty, or the empty JSON object.
+        - `409 COMMAND_IN_PROGRESS`: another command of the project is in flight.
+        - `422 ROUTE_NOT_STABLE`: the route is not stable.
+        - The production profile refuses it with `503 OPERATION_UNAVAILABLE`, as every mutation.
+        - See decision 0023 G9 to G11.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/AdminIdempotencyKey'
+      responses:
+        '202':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: Durably accepted. data is the accepted command.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandAcceptedResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '422': { $ref: '#/components/responses/Unprocessable' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/admin/projects/{projectId}/redeploy:
+    post:
+      operationId: redeploy_release
+      tags: [admin]
+      summary: Admin redeploy of the live release
+      description: |
+        Accepts a redeploy of the project's live release.
+        - Its pods restart one by one with the same image.
+        - The route, `routingStatus` and the release status do not change.
+        - The command names the release that is live when it is accepted.
+        - Only a caller whose roles hold `ADMIN` may call it, on any project, without the project
+          access check.
+        - Anyone else is `403 ACCESS_DENIED` before the project is looked at.
+        - The key is in the same key space as deploy, promote and rollback.
+        - The command records the admin's subject.
+        - Takes no request body: a body must be absent, empty, or the empty JSON object.
+        - `409 COMMAND_IN_PROGRESS`: another command of the project is in flight.
+        - `422 REDEPLOY_NOT_ALLOWED`: the project has no live release (or no site), or hosting is offline.
+        - `422 ROUTE_NOT_STABLE`: the route is not stable.
+        - The production profile refuses it with `503 OPERATION_UNAVAILABLE`, as every mutation.
+        - See decision 0023 G9 and G12.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '202':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: Durably accepted. data is the accepted command.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandAcceptedResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '422': { $ref: '#/components/responses/Unprocessable' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/admin/projects/{projectId}/commands:
+    get:
+      operationId: admin_list_commands
+      tags: [admin]
+      summary: Admin list of the project's commands with their requester
+      description: |
+        Pages through the project's commands, newest first (by command number), as list_commands does.
+        - Each command carries `requestedBySubject`: the subject that asked for it, absent for a command
+          from an event.
+        - Only a caller whose roles hold `ADMIN` may call it, on any project, without the project
+          access check.
+        - Anyone else is `403 ACCESS_DENIED` before the project is looked at.
+        - A project without commands, or one that does not exist, is an empty page.
+        - `data` holds the page's commands and `meta.page` its `limit` and `nextCursor`.
+        - `nextCursor` is null on the last page; otherwise pass it as `cursor` to read the next page.
+        - The production profile serves it.
+        - See decision 0023 G9.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: One page of commands with their requester.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminCommandListResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/ReadConflict' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/ui/projects/{projectId}/status:
+    get:
+      operationId: ui_get_site_status
+      tags: [ui]
+      summary: Read whether the site is online
+      description: |
+        Returns the bare `SiteStatus` of the project.
+        - `online` is true only when hosting is online and a live release exists.
+        - A project before its first release answers 200 with `online` false.
+        - `uptimePercent` and `checkedAt` are null: nothing probes the site.
+        - A project the caller cannot access is a `404 PROJECT_NOT_FOUND`, like every read.
+        - See FR-58.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: The site status, with no envelope.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteStatus'
+        '400': { $ref: '#/components/responses/UiBadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/ReadConflict' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/ui/projects/{projectId}/deploys:
+    get:
+      operationId: ui_list_deploys
+      tags: [ui]
+      summary: Page through the project's deploys
+      description: |
+        Returns a bare `Page` of the project's releases as deploys, newest `startedAt` first.
+        - `number` is the release's place among all the project's releases, from 1.
+        - `status` is `SUCCEEDED`, `FAILED` or null; `releaseStatus` is the release status unchanged.
+        - `totalItems` counts every release; a page past the end has no items.
+        - See FR-57 and FR-58.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/UiPage'
+        - $ref: '#/components/parameters/UiSize'
+        - $ref: '#/components/parameters/UiSort'
+      responses:
+        '200':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: One page of deploys, with no envelope.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiDeployPage'
+        '400': { $ref: '#/components/responses/UiBadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/ReadConflict' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/ui/projects/{projectId}/deploys/stats:
+    get:
+      operationId: ui_get_deploy_stats
+      tags: [ui]
+      summary: Count the project's deploys
+      description: |
+        Returns the bare counts of the project's releases.
+        - `total` counts every release.
+        - `succeeded` counts `live` and `superseded`; `failed` counts `failed`.
+        - See FR-58.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: The deploy counts, with no envelope.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiDeployStats'
+        '400': { $ref: '#/components/responses/UiBadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/ReadConflict' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/ui/projects/{projectId}/deployments:
+    get:
+      operationId: ui_list_deployments
+      tags: [ui]
+      summary: Page through the project's running deploys
+      description: |
+        Returns a bare `Page` of deploys, as `ui_list_deploys` does.
+        - `status=RUNNING` keeps the releases from `accepted` to `promoting`.
+        - Without `status` every release is listed.
+        - `number` counts all the project's releases, whatever the filter.
+        - See FR-58.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/UiDeployFilter'
+        - $ref: '#/components/parameters/UiPage'
+        - $ref: '#/components/parameters/UiSize'
+        - $ref: '#/components/parameters/UiSort'
+      responses:
+        '200':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: One page of deploys, with no envelope.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiDeployPage'
+        '400': { $ref: '#/components/responses/UiBadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/ReadConflict' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/ui/projects/{projectId}/deployments/{deploymentId}:
+    get:
+      operationId: ui_get_deployment
+      tags: [ui]
+      summary: Read the release of a generation request
+      description: |
+        Returns the project's release of the Project generation request, with its steps.
+        - `deploymentId` is the generation request ID, not a release ID.
+        - Steps are in stage order, then by attempt.
+        - `404 RELEASE_NOT_FOUND`: the project has no release of that request.
+        - See FR-59.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/DeploymentId'
+      responses:
+        '200':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: The release, with no envelope.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiRelease'
+        '400': { $ref: '#/components/responses/UiBadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/ReadConflict' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/ui/admin/stats:
+    get:
+      operationId: ui_get_admin_stats
+      tags: [ui]
+      summary: Count live, failed and building sites
+      description: |
+        Returns the bare counts of every project's releases.
+        - `live` counts projects with a live release.
+        - `failed` and `building` count projects whose newest release is `failed`, or `accepted` to
+          `promoting`.
+        - `failed24h` counts releases that turned `failed` in the last 24 hours.
+        - `latestFailed` is the newest `failed` release, or null.
+        - Only a caller whose roles hold `ADMIN` may call it; anyone else is `403 ACCESS_DENIED`
+          before any read.
+        - See FR-60.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+      responses:
+        '200':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: The admin counts, with no envelope.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiAdminStats'
+        '400': { $ref: '#/components/responses/UiBadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/ReadConflict' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/ui/admin/deploys:
+    get:
+      operationId: ui_list_admin_deploys
+      tags: [ui]
+      summary: Page through the deploys of every site
+      description: |
+        Returns a bare `Page` of every project's releases, newest `createdAt` first.
+        - `projectId` keeps one project's releases; `totalItems` counts the same.
+        - `number` is the release's place among its own project's releases, from 1.
+        - `status` is the release status; `currentStep` and `currentStepName` name the stage it is in.
+        - `requestedBySubject` is left out when the release has no known requester.
+        - Only a caller whose roles hold `ADMIN` may call it; anyone else is `403 ACCESS_DENIED`
+          before any read.
+        - `size` goes up to 200 here, so the web app's server can read the newest 200.
+        - See FR-57 and FR-60.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/UiProjectFilter'
+        - $ref: '#/components/parameters/UiPage'
+        - $ref: '#/components/parameters/UiAdminSize'
+        - $ref: '#/components/parameters/UiAdminSort'
+      responses:
+        '200':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: One page of deploys, with no envelope.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiAdminDeployPage'
+        '400': { $ref: '#/components/responses/UiBadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/ReadConflict' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/ui/admin/releases/latest:
+    get:
+      operationId: ui_list_latest_releases
+      tags: [ui]
+      summary: Page through each site's newest release
+      description: |
+        Returns a bare `Page` of each project's newest release, newest `createdAt` first.
+        - Each item is the release view with its steps, plus `liveSince` and `previousReleaseId`.
+        - `liveSince` is the `promotedAt` of the project's live release.
+        - `previousReleaseId` is the newest `superseded` release when the newest is live, else the
+          live release.
+        - `stage` `LIVE` keeps the projects whose newest release is live, `RELEASE` the others.
+        - `totalItems` counts the projects the same filter keeps.
+        - Only a caller whose roles hold `ADMIN` may call it; anyone else is `403 ACCESS_DENIED`
+          before any read.
+        - `size` goes up to 200 here, so the web app's server can read the newest 200.
+        - See FR-57 and FR-60.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/UiLatestStage'
+        - $ref: '#/components/parameters/UiPage'
+        - $ref: '#/components/parameters/UiAdminSize'
+        - $ref: '#/components/parameters/UiAdminSort'
+      responses:
+        '200':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: One page of latest releases, with no envelope.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiLatestReleasePage'
+        '400': { $ref: '#/components/responses/UiBadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/ReadConflict' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/ui/admin/projects/{projectId}/releases/latest:
+    get:
+      operationId: ui_get_project_latest_release
+      tags: [ui]
+      summary: Read one site's newest release with diagnostics
+      description: |
+        Returns the project's newest release as a latest release item, plus `diagnostics`.
+        - `diagnostics` is the body of get_release_diagnostics for that release.
+        - `404 RELEASE_NOT_FOUND`: the project has no release.
+        - Only a caller whose roles hold `ADMIN` may call it; anyone else is `403 ACCESS_DENIED`
+          before any read, so
+          the answer says nothing about the project.
+        - See FR-60.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: The latest release, with no envelope.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiLatestReleaseWithDiagnostics'
+        '400': { $ref: '#/components/responses/UiBadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/ReadConflict' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/ui/admin/projects/{projectId}/redeploy:
+    post:
+      operationId: ui_redeploy_release
+      tags: [ui]
+      summary: Admin redeploy of the live release
+      description: |
+        Accepts a redeploy of the project's live release and answers the bare `CommandAccepted`.
+        - It runs the operation `redeploy_release`: the same checks, errors, idempotency and audit event.
+        - Only a caller whose roles hold `ADMIN` may call it, on any project, without the project
+          access check; anyone else is `403 ACCESS_DENIED` before anything is stored.
+        - Takes no request body: a body must be absent, empty, or the empty JSON object.
+        - `409 COMMAND_IN_PROGRESS`: another command of the project is in flight.
+        - `422 ROUTE_NOT_STABLE`: the route is not stable.
+        - `422 REDEPLOY_NOT_ALLOWED`: the project has no live release (or no site), or hosting is offline.
+        - See FR-61.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '202':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: Durably accepted. The accepted command, with no envelope.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandAccepted'
+        '400': { $ref: '#/components/responses/UiBadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '422': { $ref: '#/components/responses/Unprocessable' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/ui/admin/projects/{projectId}/suspend:
+    post:
+      operationId: ui_suspend_website
+      tags: [ui]
+      summary: Admin suspend of one site
+      description: |
+        Accepts a suspend of the project's site and answers the bare `CommandAccepted`.
+        - It runs the operation `suspend_website`: the same checks, errors, idempotency and audit event.
+        - Only a caller whose roles hold `ADMIN` may call it, on any project, without the project
+          access check; anyone else is `403 ACCESS_DENIED` before anything is stored.
+        - Takes no request body: a body must be absent, empty, or the empty JSON object.
+        - `409 COMMAND_IN_PROGRESS`: another command of the project is in flight.
+        - `422 ROUTE_NOT_STABLE`: the route is not stable.
+        - `404 DEPLOYMENT_NOT_FOUND`: the project has no site yet.
+        - See FR-61.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/AdminIdempotencyKey'
+      responses:
+        '202':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: Durably accepted. The accepted command, with no envelope.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandAccepted'
+        '400': { $ref: '#/components/responses/UiBadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '422': { $ref: '#/components/responses/Unprocessable' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/ui/admin/projects/{projectId}/resume:
+    post:
+      operationId: ui_resume_website
+      tags: [ui]
+      summary: Admin resume of one site
+      description: |
+        Accepts a resume of the project's site and answers the bare `CommandAccepted`.
+        - It runs the operation `resume_website`: the same checks, errors, idempotency and audit event.
+        - Only a caller whose roles hold `ADMIN` may call it, on any project, without the project
+          access check; anyone else is `403 ACCESS_DENIED` before anything is stored.
+        - Takes no request body: a body must be absent, empty, or the empty JSON object.
+        - `409 COMMAND_IN_PROGRESS`: another command of the project is in flight.
+        - `422 ROUTE_NOT_STABLE`: the route is not stable.
+        - `404 DEPLOYMENT_NOT_FOUND`: the project has no site yet.
+        - See FR-61.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/AdminIdempotencyKey'
+      responses:
+        '202':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: Durably accepted. The accepted command, with no envelope.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandAccepted'
+        '400': { $ref: '#/components/responses/UiBadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '422': { $ref: '#/components/responses/Unprocessable' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/ui/admin/audit:
+    get:
+      operationId: ui_list_audit_entries
+      tags: [ui]
+      summary: Page through the audited admin and hosting commands
+      description: |
+        Returns a bare `Page` of the shared `AuditEntry`, newest `occurredAt` first, ties by ID.
+        - One entry per `suspend_hosting`, `resume_hosting`, `rollback` or `redeploy` command of
+          any project; deploy and promote commands are not entries.
+        - `id` is the command ID, `occurredAt` its creation time, `targetId` its project.
+        - `actorUserId` is the Keycloak subject that asked; null when the system asked (Payment,
+          the owner status, a project deletion).
+        - `result`: `accepted` is `QUEUED`; `failed` and `skipped` are `FAILED`.
+        - `action`, `actorUserId` and `since` filter; `totalItems` counts the same.
+        - `size` goes up to 200 here, so the web app's server can merge 200 per service.
+        - Only a caller whose roles hold `ADMIN` may call it; anyone else is `403 ACCESS_DENIED`
+          before any read.
+        - See FR-57 and FR-62.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/UiAuditAction'
+        - $ref: '#/components/parameters/UiAuditActor'
+        - $ref: '#/components/parameters/UiAuditSince'
+        - $ref: '#/components/parameters/UiPage'
+        - $ref: '#/components/parameters/UiAuditSize'
+        - $ref: '#/components/parameters/UiAuditSort'
+      responses:
+        '200':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: One page of audit entries, with no envelope.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiAuditEntryPage'
+        '400': { $ref: '#/components/responses/UiBadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/ReadConflict' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/ui/admin/projects/{projectId}/access-logs:
+    get:
+      operationId: ui_list_access_logs
+      tags: [ui]
+      summary: Page through one site's access lines of the last 24 hours
+      description: |
+        Returns a bare `Page` of the site's access lines (`LogLine`), newest first.
+        - Read from the Loki that holds the site's Traefik access log.
+        - Only the last 24 hours. `totalItems` is Loki's count of the lines, at most 1000; a page
+          past 1000 lines has no items.
+        - `level` keeps one level: below 400 `INFO`, 400 to 499 `WARN`, 500 and up `ERROR`.
+        - `path` has no query string or fragment; `note` is always null. No header, client
+          address, user agent or cookie is read or returned.
+        - A line with a missing or unreadable field is left out of `items`.
+        - `404 DEPLOYMENT_NOT_FOUND`: the project has no site yet.
+        - `503 ACCESS_LOGS_UNAVAILABLE`: Loki is not set, not reachable, too slow or answers
+          anything but its JSON; nothing of the answer is sent. Try later.
+        - Only a caller whose roles hold `ADMIN` may call it; anyone else is `403 ACCESS_DENIED`
+          before any read.
+        - See FR-63.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/UiAccessLevel'
+        - $ref: '#/components/parameters/UiPage'
+        - $ref: '#/components/parameters/UiSize'
+        - $ref: '#/components/parameters/UiAccessSort'
+      responses:
+        '200':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: One page of access lines, with no envelope.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiLogLinePage'
+        '400': { $ref: '#/components/responses/UiBadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/ReadConflict' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/AccessLogsUnavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+  /v1/ui/admin/projects/{projectId}/access-stats:
+    get:
+      operationId: ui_get_access_stats
+      tags: [ui]
+      summary: Read one site's live counts of the last 5 minutes
+      description: |
+        Returns the bare live stats of the site's requests in the last 5 minutes, from Loki.
+        - `logCounts` counts the requests by level; `requests5m` is their sum and `errors5m` the
+          `ERROR` count.
+        - `errorRate5m` is `errors5m` / `requests5m` with 4 places, `"0.0000"` with no request.
+        - `avgResponseMs` is the average duration in whole milliseconds, null with no request.
+        - `404 DEPLOYMENT_NOT_FOUND`: the project has no site yet.
+        - `503 ACCESS_LOGS_UNAVAILABLE`: as for the access logs; the web app shows "stats
+          unavailable".
+        - Only a caller whose roles hold `ADMIN` may call it; anyone else is `403 ACCESS_DENIED`
+          before any read.
+        - See FR-63.
+      parameters:
+        - $ref: '#/components/parameters/RequestIdIn'
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          description: The live stats, with no envelope.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiAccessStats'
+        '400': { $ref: '#/components/responses/UiBadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/ReadConflict' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '503': { $ref: '#/components/responses/AccessLogsUnavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >-
+        Bearer token issued through the platform identity contract. The issuer,
+        audience, agent identity registration and allowed action scopes are open
+        decision OD-05 and are deliberately not named here.
+  headers:
+    RequestId:
+      description: >-
+        Returned on every answer: the valid inbound `X-Request-Id`, else a new UUIDv7 (decision 0022 E8).
+      schema: { $ref: '#/components/schemas/RequestId' }
+  parameters:
+    ProjectId:
+      name: projectId
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Uuid' }
+    ReleaseId:
+      name: releaseId
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Uuid' }
+    CommandId:
+      name: commandId
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Uuid' }
+    Limit:
+      name: limit
+      in: query
+      required: false
+      description: |
+        The number of items per page, 1 to 50; 20 when absent.
+        - Given at most once, as decimal digits without a plus sign or leading zero.
+        - `INVALID_FORMAT` (field `limit`): a value that is not such a number.
+        - `OUT_OF_RANGE` (field `limit`): a number outside 1 to 50.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 50
+    Cursor:
+      name: cursor
+      in: query
+      required: false
+      description: |
+        The `meta.page.nextCursor` of the previous page, unchanged.
+        - It is opaque and names a position in the list, not a project: the project is always the one in
+          the path.
+        - Given at most once.
+        - `INVALID_FORMAT` (field `cursor`): a cursor the service did not make, or one of the other list.
+      schema: { $ref: '#/components/schemas/Cursor' }
+    DeploymentId:
+      name: deploymentId
+      in: path
+      required: true
+      description: The Project generation request ID whose release is read.
+      schema: { $ref: '#/components/schemas/Uuid' }
+    UiPage:
+      name: page
+      in: query
+      required: false
+      description: |
+        The page number from 0; 0 when absent.
+        - Given at most once, as decimal digits without a plus sign or leading zero.
+        - `INVALID_FORMAT` (field `page`): a value that is not such a number.
+        - `OUT_OF_RANGE` (field `page`): a number below 0 or above 1000000.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 1000000
+    UiSize:
+      name: size
+      in: query
+      required: false
+      description: |
+        The number of items per page, 1 to 50; 20 when absent.
+        - Given at most once, as decimal digits without a plus sign or leading zero.
+        - `INVALID_FORMAT` (field `size`): a value that is not such a number.
+        - `OUT_OF_RANGE` (field `size`): a number outside 1 to 50.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 50
+    UiSort:
+      name: sort
+      in: query
+      required: false
+      description: |
+        The order, as `field,dir`; newest `startedAt` first when absent.
+        - The only field is `startedAt`; `dir` is `asc` or `desc`; ties go by ID.
+        - `INVALID_FORMAT` (field `sort`): any other field or direction.
+      schema:
+        type: string
+        enum: ['startedAt,asc', 'startedAt,desc']
+    UiDeployFilter:
+      name: status
+      in: query
+      required: false
+      description: |
+        `RUNNING` keeps the releases from `accepted` to `promoting`.
+        - Absent lists every release.
+        - `INVALID_FORMAT` (field `status`): any other value.
+      schema:
+        type: string
+        enum: [RUNNING]
+    UiProjectFilter:
+      name: projectId
+      in: query
+      required: false
+      description: |
+        Keeps one project's releases.
+        - Absent keeps every project.
+        - `INVALID_FORMAT` (field `projectId`): not a canonical lowercase UUID, or the nil UUID.
+      schema: { $ref: '#/components/schemas/Uuid' }
+    UiAdminSort:
+      name: sort
+      in: query
+      required: false
+      description: |
+        The order, as `field,dir`; newest `createdAt` first when absent.
+        - The only field is `createdAt`; `dir` is `asc` or `desc`; ties go by ID.
+        - `INVALID_FORMAT` (field `sort`): any other field or direction.
+      schema:
+        type: string
+        enum: ['createdAt,asc', 'createdAt,desc']
+    UiLatestStage:
+      name: stage
+      in: query
+      required: false
+      description: |
+        `LIVE` keeps the projects whose newest release is live; `RELEASE` the others.
+        - Absent keeps every project.
+        - `INVALID_FORMAT` (field `stage`): any other value.
+      schema:
+        type: string
+        enum: [LIVE, RELEASE]
+    UiAuditAction:
+      name: action
+      in: query
+      required: false
+      description: |
+        Keeps the entries of one action.
+        - Absent keeps the four actions.
+        - `INVALID_FORMAT` (field `action`): any other value, `DEPLOY` included.
+      schema:
+        type: string
+        enum: [SUSPEND_HOSTING, RESUME_HOSTING, ROLLBACK, REDEPLOY]
+    UiAuditActor:
+      name: actorUserId
+      in: query
+      required: false
+      description: |
+        Keeps the entries one actor asked for: the Keycloak subject, matched exactly.
+        - Absent keeps every actor and the system.
+        - `INVALID_FORMAT` (field `actorUserId`): not a canonical lowercase UUID, or the nil UUID.
+      schema: { $ref: '#/components/schemas/Uuid' }
+    UiAuditSince:
+      name: since
+      in: query
+      required: false
+      description: |
+        Keeps the entries that occurred at or after this instant.
+        - An RFC 3339 date-time with `Z` or an offset; encode a `+` offset as `%2B`.
+        - `INVALID_FORMAT` (field `since`): a date alone, a time without an offset, or no real
+          date-time.
+      schema:
+        type: string
+        format: date-time
+        maxLength: 40
+    UiAdminSize:
+      name: size
+      in: query
+      required: false
+      description: |
+        The number of items per page, 1 to 200; 20 when absent.
+        - Given at most once, as decimal digits without a plus sign or leading zero.
+        - `INVALID_FORMAT` (field `size`): a value that is not such a number.
+        - `OUT_OF_RANGE` (field `size`): a number outside 1 to 200.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 200
+    UiAuditSize:
+      name: size
+      in: query
+      required: false
+      description: |
+        The number of entries per page, 1 to 200; 20 when absent.
+        - Given at most once, as decimal digits without a plus sign or leading zero.
+        - `INVALID_FORMAT` (field `size`): a value that is not such a number.
+        - `OUT_OF_RANGE` (field `size`): a number outside 1 to 200.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 200
+    UiAuditSort:
+      name: sort
+      in: query
+      required: false
+      description: |
+        The order, as `field,dir`; newest `occurredAt` first when absent.
+        - The only field is `occurredAt`; `dir` is `asc` or `desc`; ties go by ID.
+        - `INVALID_FORMAT` (field `sort`): any other field or direction.
+      schema:
+        type: string
+        enum: ['occurredAt,asc', 'occurredAt,desc']
+    UiAccessLevel:
+      name: level
+      in: query
+      required: false
+      description: |
+        Keeps the access lines of one level.
+        - Absent keeps every level.
+        - `INVALID_FORMAT` (field `level`): any other value, lower case included.
+      schema:
+        type: string
+        enum: [INFO, WARN, ERROR]
+    UiAccessSort:
+      name: sort
+      in: query
+      required: false
+      description: |
+        The order; newest first is the only one.
+        - Absent or `at,desc`: newest `at` first, as Loki answers.
+        - `INVALID_FORMAT` (field `sort`): any other value, `at,asc` included.
+      schema:
+        type: string
+        enum: ['at,desc']
+    RequestIdIn:
+      name: X-Request-Id
+      in: header
+      required: false
+      description: >-
+        Optional: 1 to 128 letters, digits and `. _ : -`. Any other value is ignored; a new ID is made.
+      schema: { $ref: '#/components/schemas/RequestId' }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: |
+        Client retry key scoped to the project.
+        - 1 to 255 bytes of UTF-8, with no control characters and no leading or trailing white space.
+        - The length is counted in bytes, so a key with multi-byte characters holds fewer than 255
+          characters; the schema below can only bound characters.
+        - The same key with the same request (the same operation on the same project and release) returns
+          the original command, whatever its status.
+        - `422 IDEMPOTENCY_KEY_REUSED`: the same key with a different request.
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 255
+    AdminIdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: |
+        The admin's retry key for a suspend or resume, scoped to the project.
+        - 1 to 249 bytes of UTF-8, with no control characters and no leading or trailing white space.
+        - It is stored as `admin:<key>`, which keeps the 255 byte rule, so a key of 250 to 255 bytes is
+          `TOO_LONG`.
+        - It never takes a key of a system event (project-deleted sent here is a separate admin key).
+        - The same key with the same request returns the original command, whatever its status.
+        - `422 IDEMPOTENCY_KEY_REUSED`: the same key with a different request.
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 249
+  responses:
+    BadRequest:
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/RequestId' }
+      description: |
+        The request is invalid: `VALIDATION_FAILED`.
+        - `errors` lists each bad input with its field and one of `REQUIRED`, `INVALID_FORMAT`,
+          `OUT_OF_RANGE`, `TOO_LONG`, never the value sent.
+        - A path identifier (`projectId`, `releaseId`, `commandId`) that is not a canonical lowercase UUID
+          or is the nil UUID.
+        - The `Idempotency-Key` header missing, repeated, too long or invalid.
+        - A request body (`body`) on a read, or on a mutation that is neither empty nor the empty JSON
+          object.
+        - A query (`query`) on an operation that takes none, or an unknown or repeated parameter, whose
+          name is not echoed.
+        - A `Content-Length` that is not one decimal number.
+        - A `limit` that is not a number (`INVALID_FORMAT`) or not from 1 to 50 (`OUT_OF_RANGE`).
+        - A `cursor` the service did not make (`INVALID_FORMAT`).
+        - The old paging names `page_size` and `page_token` are unknown parameters, so a `query` error.
+        - On MCP the field is the tool argument; an unknown argument is the field `arguments`.
+        - On MCP a refused header of /mcp names the header (`Host`, `Origin`, `Content-Type`, `Accept`),
+          and invalid JSON or a batch names the `body`.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+        application/json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    UiBadRequest:
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/RequestId' }
+      description: |
+        The request is invalid: `VALIDATION_FAILED`.
+        - `errors` names the first bad input with one of `REQUIRED`, `INVALID_FORMAT`, `OUT_OF_RANGE`.
+        - A path identifier (`projectId`, `deploymentId`) that is not a canonical lowercase UUID.
+        - A `page`, `size`, `sort`, `status`, `stage` or `projectId` filter the route does not
+          accept, never echoing the value.
+        - A query (`query`) on a route that takes none, or an unknown or repeated parameter.
+        - A request body (`body`): a read takes none; an admin action takes only an empty body or
+          the empty JSON object.
+        - On an admin action, the `Idempotency-Key` header missing, repeated, too long or invalid.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+        application/json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Unauthorized:
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/RequestId' }
+      description: >-
+        Authentication is missing or invalid: `UNAUTHENTICATED`, with one title for every cause.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+        application/json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Forbidden:
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/RequestId' }
+      description: |
+        The token lacks the action: `ACCESS_DENIED`.
+        - The action is checked before project access, so the answer depends on the token alone and says
+          nothing about any project.
+        - The admin operations need the `ADMIN` role as well: without it they are refused here, before
+          any lookup.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+        application/json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    NotFound:
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/RequestId' }
+      description: |
+        Not found. Codes:
+        - `PROJECT_NOT_FOUND`: the caller has no access to the project or the project is unknown,
+          identical in both cases. An ADMIN passes the access step of every read, so a read answers an
+          ADMIN with the codes below.
+        - Once access passed:
+          - `RELEASE_NOT_FOUND`
+          - `COMMAND_NOT_FOUND`
+          - `DEPLOYMENT_NOT_FOUND`
+        - `RESOURCE_NOT_FOUND`: an unknown path, or a method a path does not take.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+        application/json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Conflict:
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/RequestId' }
+      description: |
+        The request ran into another change. Codes:
+        - `COMMAND_IN_PROGRESS`: another command of the project is in flight; the body names it in
+          `commandId`.
+        - `CONCURRENT_CHANGE`: a concurrent change; retry later.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+        application/json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    BuildConflict:
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/RequestId' }
+      description: |
+        The build cannot start now (build_release only, prototype). Codes:
+        - `BUILD_IN_PROGRESS`: the release's build attempt is running.
+        - `CONCURRENT_CHANGE`: a concurrent change; retry later.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+        application/json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Unprocessable:
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/RequestId' }
+      description: |
+        A business rule refuses the request; a retry cannot help until the stored state changes.
+        - `IDEMPOTENCY_KEY_REUSED`: the key was used with a different request.
+        - `ROUTE_NOT_STABLE`: the route is changing or uncertain.
+        - `HOSTING_OFFLINE`: hosting is suspended.
+        - `RELEASE_STATE_INVALID`: the release is in the wrong status for the operation, or a rollback was
+          requested while the route is not uncertain.
+        - `RELEASE_OUTDATED`: the release was created before the live release.
+        - `RELEASE_NOT_BUILDABLE` (build_release): the release is neither accepted nor building with a
+          pending next attempt.
+        - `COMMAND_NUMBER_EXHAUSTED`: the project's `lastCommandNumber` has reached its maximum.
+        - `PUBLISH_LIMIT_REACHED` (deploy_release and promote_release only): a limit owned by the Payment
+          service.
+        - `REDEPLOY_NOT_ALLOWED` (redeploy_release): the project has no live release, or hosting is
+          offline.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+        application/json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    ReadConflict:
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/RequestId' }
+      description: |
+        The read met a concurrent change: `CONCURRENT_CHANGE`; retry later.
+        - A lock it waited for was not granted in time.
+        - A read answers no other 409.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+        application/json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    PayloadTooLarge:
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/RequestId' }
+      description: >-
+        The request body is larger than the limit for the operation: `REQUEST_TOO_LARGE`.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+        application/json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Internal:
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/RequestId' }
+      description: >-
+        An unexpected failure: `INTERNAL_ERROR`, with a fixed title; the detail is in the logs only.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+        application/json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Unavailable:
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/RequestId' }
+      description: |
+        The request cannot be served now. Mutations fail closed. Codes:
+        - `DEPENDENCY_UNAVAILABLE`: a required dependency, the database included, is down or not
+          configured.
+        - `PROJECT_ACCESS_UNAVAILABLE`: project access cannot be checked.
+        - `IDENTITY_UNAVAILABLE`: identity keys cannot be fetched.
+        - `SERVICE_OVERLOADED`: the in-flight limit is reached.
+        - `OPERATION_UNAVAILABLE`: the operation is switched off or not available in this phase.
+        - A project access failure is always `PROJECT_ACCESS_UNAVAILABLE` at 503, a passed deadline
+          included, so it looks the same for every project.
+        - When another call to the Project or Payment service failed with an `ErrorInfo.reason` in
+          UPPER_SNAKE that does not end in `NOT_FOUND`, that reason is the code instead, with the title of
+          the code it replaces.
+        - Such a reason is answered at 503, or at our own status when the reason is one of our codes, or
+          at 504 after a deadline.
+        - If the operation does not declare that status, the answer is our own `DEPENDENCY_UNAVAILABLE` or
+          `DEPENDENCY_TIMEOUT`.
+        - See decision 0023 G14 and its precision.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+        application/json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    GatewayTimeout:
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/RequestId' }
+      description: |
+        A deadline passed. Codes:
+        - `REQUEST_TIMEOUT`: the request took longer than the service allows.
+        - `DEPENDENCY_TIMEOUT`: the Project or Payment service did not answer before the call's deadline.
+        - For `DEPENDENCY_TIMEOUT`, a reason the Project or Payment service sent is the code instead, as for 503.
+        - A project access check that timed out is a 503 `PROJECT_ACCESS_UNAVAILABLE`, never a 504.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+        application/json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    AccessLogsUnavailable:
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/RequestId' }
+      description: |
+        The request cannot be served now. Codes:
+        - `ACCESS_LOGS_UNAVAILABLE`: the site's access lines cannot be read now: Loki is not set,
+          not reachable, past its time, or answered other than 200 with its JSON of at most
+          4 MiB. Nothing is retried; try later.
+        - The other codes of a 503: `DEPENDENCY_UNAVAILABLE` (the database), `IDENTITY_UNAVAILABLE`,
+          `SERVICE_OVERLOADED` and `OPERATION_UNAVAILABLE`.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+        application/json:
+          schema: { $ref: '#/components/schemas/Problem' }
+  schemas:
+    RequestId:
+      type: string
+      pattern: '^[A-Za-z0-9._:-]{1,128}$'
+    Uuid:
+      type: string
+      format: uuid
+      minLength: 36
+      maxLength: 36
+      pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+      not:
+        enum: ['00000000-0000-0000-0000-000000000000']
+    Timestamp:
+      type: string
+      format: date-time
+      maxLength: 40
+    LastCommandNumber:
+      type: integer
+      format: int64
+      minimum: 0
+      maximum: 9007199254740991
+      description: >-
+        The number of the project's last accepted command, its fencing
+        counter. It is 0 until the project's first command is accepted and
+        advances by exactly one for each accepted command.
+    CommandNumber:
+      type: integer
+      format: int64
+      minimum: 1
+      maximum: 9007199254740991
+      description: >-
+        The project's last command number after the acceptance that created
+        this command, which fences the command's work. Assigned by the server;
+        never sent by a client.
+    Problem:
+      type: object
+      additionalProperties: false
+      description: >-
+        An RFC 9457 Problem Details object (decisions 0018 and 0023 G5),
+        served as application/problem+json, or as application/json (the same
+        body) to a client whose Accept header allows only that. Sanitized: it
+        never carries provider error text, tokens, customer content or a
+        value the caller sent, and it has no detail member. Members in this
+        order: type, title, status, instance (REST only), code, requestId,
+        traceId (only when the request is traced), errors (always), commandId
+        (only with the code COMMAND_IN_PROGRESS, naming the command in
+        flight). An MCP tool result marked as an error carries the same object
+        without instance.
+      required: [type, title, status, code, requestId, errors]
+      properties:
+        type:
+          type: string
+          pattern: '^urn:webblock:problem:[a-z0-9-]+$'
+          description: >-
+            urn:webblock:problem: followed by the code in lower case with each
+            underscore replaced by a hyphen; one URN per code. An identifier,
+            not a page.
+        title:
+          type: string
+          maxLength: 500
+          description: The code's fixed message; it never depends on the request.
+        status:
+          type: integer
+          minimum: 400
+          maximum: 599
+          description: The HTTP status of the response; the same number on MCP.
+        instance:
+          type: string
+          description: >-
+            REST only: the request path without the query string, as a URI
+            reference (percent-encoded). Absent on MCP.
+        code:
+          type: string
+          pattern: '^[A-Z][A-Z0-9_]{0,99}$'
+          description: >-
+            Stable machine-readable error code in UPPER_SNAKE, listed with
+            each error response.
+        requestId: { $ref: '#/components/schemas/RequestId' }
+        traceId: { $ref: '#/components/schemas/TraceId' }
+        errors:
+          type: array
+          maxItems: 10
+          description: >-
+            One entry per bad input of a 400 VALIDATION_FAILED; empty for
+            every other error.
+          items: { $ref: '#/components/schemas/FieldError' }
+        commandId: { $ref: '#/components/schemas/Uuid' }
+    FieldError:
+      type: object
+      additionalProperties: false
+      required: [field, code, message]
+      properties:
+        field:
+          type: string
+          maxLength: 100
+          description: >-
+            The input's name as the client sends it: on REST projectId,
+            releaseId, commandId, Idempotency-Key, Content-Length, body or
+            query; on MCP the tool argument, arguments for an unknown one, a
+            refused header or body.
+        code:
+          type: string
+          enum: [REQUIRED, INVALID_FORMAT, OUT_OF_RANGE, TOO_LONG]
+        message:
+          type: string
+          maxLength: 200
+          description: The code's fixed message; never the value sent.
+    ReleaseStatus:
+      type: string
+      enum: [accepted, building, built, candidate_ready, promoting, live, superseded, failed, rolled_back]
+    ReleaseStepName:
+      type: string
+      enum: [build, access_setup, candidate, promotion, observation, rollback]
+    ReleaseStepStatus:
+      type: string
+      enum: [pending, running, succeeded, failed]
+    RoutingStatus:
+      type: string
+      enum: [stable, changing, uncertain]
+    HostingStatus:
+      type: string
+      enum: [online, offline]
+    CommandKind:
+      type: string
+      enum: [deploy, promote, rollback, suspend_hosting, resume_hosting, redeploy]
+    CommandStatus:
+      type: string
+      enum: [accepted, running, succeeded, failed, skipped]
+    CommandAccepted:
+      type: object
+      additionalProperties: false
+      required: [commandId, status, statusUrl]
+      properties:
+        commandId: { $ref: '#/components/schemas/Uuid' }
+        status: { $ref: '#/components/schemas/CommandStatus' }
+        statusUrl:
+          type: string
+          maxLength: 300
+          description: Relative path of get_command for this command.
+    CommandSummary:
+      type: object
+      additionalProperties: false
+      description: >-
+        The identity and progress of a command, without its target. Read the
+        whole command with get_command.
+      required: [commandId, kind, status]
+      properties:
+        commandId: { $ref: '#/components/schemas/Uuid' }
+        kind: { $ref: '#/components/schemas/CommandKind' }
+        status: { $ref: '#/components/schemas/CommandStatus' }
+    ReleaseStep:
+      type: object
+      additionalProperties: false
+      required: [stepName, attempt, status]
+      properties:
+        stepName: { $ref: '#/components/schemas/ReleaseStepName' }
+        attempt:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        status: { $ref: '#/components/schemas/ReleaseStepStatus' }
+        startedAt: { $ref: '#/components/schemas/Timestamp' }
+        finishedAt: { $ref: '#/components/schemas/Timestamp' }
+        deadlineAt: { $ref: '#/components/schemas/Timestamp' }
+        failureCode:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '^[a-z][a-z0-9_]{0,99}$'
+        failureRetryable:
+          type: boolean
+          description: >-
+            Present exactly when failureCode is: whether a new deploy or build of the
+            same input may succeed without a code or configuration change (the
+            failure-code catalogue, .claude/docs/runbooks/failure-codes.md). False for a
+            code the catalogue does not list.
+    Release:
+      type: object
+      additionalProperties: false
+      description: >-
+        One attempt to build and publish one accepted source commit. The
+        source fields never change after acceptance.
+      required: [releaseId, projectId, generationRequestId, repositoryId, gitCommitSha, status, steps, createdAt, updatedAt]
+      properties:
+        releaseId: { $ref: '#/components/schemas/Uuid' }
+        projectId: { $ref: '#/components/schemas/Uuid' }
+        generationRequestId: { $ref: '#/components/schemas/Uuid' }
+        repositoryId:
+          type: integer
+          format: int64
+          minimum: 1
+          maximum: 9007199254740991
+          description: GitHub repository ID of the accepted source.
+        gitCommitSha:
+          type: string
+          minLength: 40
+          maxLength: 64
+          pattern: '^([0-9a-f]{40}|[0-9a-f]{64})$'
+          description: Exact accepted commit, 40 or 64 lowercase hexadecimal characters; never a branch or an abbreviated SHA.
+        containerImageDigest:
+          type: string
+          maxLength: 71
+          pattern: '^sha256:[0-9a-f]{64}$'
+          description: Bare digest, present from status built onward; the registry location is derived from trusted configuration.
+        status: { $ref: '#/components/schemas/ReleaseStatus' }
+        failureCode:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '^[a-z][a-z0-9_]{0,99}$'
+          description: Present exactly when status is failed or rolled_back.
+        failureRetryable:
+          type: boolean
+          description: >-
+            Present exactly when failureCode is: whether a new deploy or build of the
+            same input may succeed without a code or configuration change (the
+            failure-code catalogue, .claude/docs/runbooks/failure-codes.md). False for a
+            code the catalogue does not list.
+        failureSummary:
+          type: string
+          maxLength: 500
+        steps:
+          type: array
+          maxItems: 100
+          items: { $ref: '#/components/schemas/ReleaseStep' }
+        createdAt: { $ref: '#/components/schemas/Timestamp' }
+        updatedAt: { $ref: '#/components/schemas/Timestamp' }
+        promotedAt: { $ref: '#/components/schemas/Timestamp' }
+    Command:
+      type: object
+      additionalProperties: false
+      description: >-
+        An accepted command. releaseId is present exactly when kind is deploy,
+        redeploy, promote or rollback; a suspend_hosting or resume_hosting command acts
+        on the project and names no release. The command's idempotency key is
+        never returned.
+      required: [commandId, projectId, kind, commandNumber, status, createdAt, updatedAt]
+      properties:
+        commandId: { $ref: '#/components/schemas/Uuid' }
+        projectId: { $ref: '#/components/schemas/Uuid' }
+        releaseId: { $ref: '#/components/schemas/Uuid' }
+        kind: { $ref: '#/components/schemas/CommandKind' }
+        commandNumber: { $ref: '#/components/schemas/CommandNumber' }
+        status: { $ref: '#/components/schemas/CommandStatus' }
+        failureCode:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '^[a-z][a-z0-9_]{0,99}$'
+          description: Present exactly when status is failed or skipped.
+        failureRetryable:
+          type: boolean
+          description: >-
+            Present exactly when failureCode is: whether a new deploy or build of the
+            same input may succeed without a code or configuration change (the
+            failure-code catalogue, .claude/docs/runbooks/failure-codes.md). False for a
+            code the catalogue does not list.
+        createdAt: { $ref: '#/components/schemas/Timestamp' }
+        updatedAt: { $ref: '#/components/schemas/Timestamp' }
+    AdminCommand:
+      type: object
+      additionalProperties: false
+      description: >-
+        A command as the admin read shows it (decision 0023 G9): the Command
+        fields and requestedBySubject, the subject that asked for it (an
+        admin's or a client's), absent for a command from an event. No client
+        operation returns it. The idempotency key is never returned.
+      required: [commandId, projectId, kind, commandNumber, status, createdAt, updatedAt]
+      properties:
+        commandId: { $ref: '#/components/schemas/Uuid' }
+        projectId: { $ref: '#/components/schemas/Uuid' }
+        releaseId: { $ref: '#/components/schemas/Uuid' }
+        kind: { $ref: '#/components/schemas/CommandKind' }
+        commandNumber: { $ref: '#/components/schemas/CommandNumber' }
+        status: { $ref: '#/components/schemas/CommandStatus' }
+        failureCode:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '^[a-z][a-z0-9_]{0,99}$'
+          description: Present exactly when status is failed or skipped.
+        failureRetryable:
+          type: boolean
+          description: >-
+            Present exactly when failureCode is: whether a new deploy or build of the
+            same input may succeed without a code or configuration change (the
+            failure-code catalogue, .claude/docs/runbooks/failure-codes.md). False for a
+            code the catalogue does not list.
+        createdAt: { $ref: '#/components/schemas/Timestamp' }
+        updatedAt: { $ref: '#/components/schemas/Timestamp' }
+        requestedBySubject:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: The token subject that asked for the command; absent for a command from an event.
+    Deployment:
+      type: object
+      additionalProperties: false
+      description: >-
+        The project's stored hosting state. liveReleaseId is the last
+        release confirmed live and is absent before the first one; it stays set
+        while hosting is offline. inFlightCommand summarizes the project's
+        command in flight (accepted or running) and is absent when there is
+        none; it may be a hosting command created from a Payment event.
+      required: [projectId, lastCommandNumber, routingStatus, hostingStatus, updatedAt]
+      properties:
+        projectId: { $ref: '#/components/schemas/Uuid' }
+        liveReleaseId: { $ref: '#/components/schemas/Uuid' }
+        lastCommandNumber: { $ref: '#/components/schemas/LastCommandNumber' }
+        routingStatus: { $ref: '#/components/schemas/RoutingStatus' }
+        hostingStatus: { $ref: '#/components/schemas/HostingStatus' }
+        inFlightCommand: { $ref: '#/components/schemas/CommandSummary' }
+        updatedAt: { $ref: '#/components/schemas/Timestamp' }
+    ReleaseSummary:
+      type: object
+      additionalProperties: false
+      description: A release without its steps, as list_releases returns it.
+      required: [releaseId, projectId, gitCommitSha, status, createdAt, updatedAt]
+      properties:
+        releaseId: { $ref: '#/components/schemas/Uuid' }
+        projectId: { $ref: '#/components/schemas/Uuid' }
+        gitCommitSha:
+          type: string
+          minLength: 40
+          maxLength: 64
+          pattern: '^([0-9a-f]{40}|[0-9a-f]{64})$'
+        containerImageDigest:
+          type: string
+          maxLength: 71
+          pattern: '^sha256:[0-9a-f]{64}$'
+        status: { $ref: '#/components/schemas/ReleaseStatus' }
+        failureCode:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '^[a-z][a-z0-9_]{0,99}$'
+        failureRetryable:
+          type: boolean
+          description: >-
+            Present exactly when failureCode is: whether a new deploy or build of the
+            same input may succeed without a code or configuration change (the
+            failure-code catalogue, .claude/docs/runbooks/failure-codes.md). False for a
+            code the catalogue does not list.
+        createdAt: { $ref: '#/components/schemas/Timestamp' }
+        updatedAt: { $ref: '#/components/schemas/Timestamp' }
+        promotedAt: { $ref: '#/components/schemas/Timestamp' }
+    Cursor:
+      type: string
+      minLength: 1
+      maxLength: 200
+      pattern: '^[A-Za-z0-9_-]+$'
+    DiagnosticRelease:
+      type: object
+      additionalProperties: false
+      description: The release's own state; its failure text is left out (read it with get_release).
+      required: [status, createdAt, updatedAt]
+      properties:
+        status: { $ref: '#/components/schemas/ReleaseStatus' }
+        failureCode:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '^[a-z][a-z0-9_]{0,99}$'
+        failureRetryable:
+          type: boolean
+          description: >-
+            Present exactly when failureCode is: whether a new deploy or build of the
+            same input may succeed without a code or configuration change (the
+            failure-code catalogue, .claude/docs/runbooks/failure-codes.md). False for a
+            code the catalogue does not list.
+        createdAt: { $ref: '#/components/schemas/Timestamp' }
+        updatedAt: { $ref: '#/components/schemas/Timestamp' }
+        promotedAt: { $ref: '#/components/schemas/Timestamp' }
+    SourceEventOutcome:
+      type: object
+      additionalProperties: false
+      description: >-
+        What became of the "source published" event the release was accepted
+        from: its status, the outcome code of a rejected or failed event, the
+        processing attempts, how many later events with the same key named
+        another repository or commit, and the times. No repository, commit or
+        payload.
+      required: [status, attempts, mismatchedRepeatCount, receivedAt]
+      properties:
+        status:
+          type: string
+          enum: [pending, accepted, rejected, failed]
+        outcomeCode:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '^[a-z][a-z0-9_]{0,99}$'
+        attempts:
+          type: integer
+          minimum: 0
+          maximum: 2147483647
+        mismatchedRepeatCount:
+          type: integer
+          minimum: 0
+          maximum: 2147483647
+        receivedAt: { $ref: '#/components/schemas/Timestamp' }
+        finishedAt: { $ref: '#/components/schemas/Timestamp' }
+    Diagnostics:
+      type: object
+      additionalProperties: false
+      description: >-
+        Bounded and redacted: codes, counts and times from the stored rows,
+        never a log location, failure text, token, credential, source or
+        customer content. sourceEvent is absent when no event row is found
+        for the release.
+      required: [releaseId, projectId, release, steps, stepsTruncated, commands, commandsTruncated]
+      properties:
+        releaseId: { $ref: '#/components/schemas/Uuid' }
+        projectId: { $ref: '#/components/schemas/Uuid' }
+        release: { $ref: '#/components/schemas/DiagnosticRelease' }
+        steps:
+          type: array
+          maxItems: 20
+          items: { $ref: '#/components/schemas/ReleaseStep' }
+        stepsTruncated:
+          type: boolean
+        commands:
+          type: array
+          maxItems: 10
+          items: { $ref: '#/components/schemas/Command' }
+        commandsTruncated:
+          type: boolean
+        sourceEvent: { $ref: '#/components/schemas/SourceEventOutcome' }
+    NullValue:
+      description: >-
+        The JSON null. Written so that OpenAPI 3.0 readers and JSON Schema
+        validators both accept exactly null.
+      nullable: true
+      enum: [null]
+    Page:
+      type: object
+      additionalProperties: false
+      description: >-
+        One page of a list (decision 0023 G4): the limit it was read with and
+        the cursor of the next page, null on the last page.
+      required: [limit, nextCursor]
+      properties:
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 50
+        nextCursor:
+          anyOf:
+            - $ref: '#/components/schemas/Cursor'
+            - $ref: '#/components/schemas/NullValue'
+    Meta:
+      type: object
+      additionalProperties: false
+      description: >-
+        The meta of a success (Notion 2.1, decision 0023 G2). page is null:
+        only a list has a page.
+      required: [requestId, timestamp, path, status, page]
+      properties:
+        requestId: { $ref: '#/components/schemas/RequestId' }
+        traceId: { $ref: '#/components/schemas/TraceId' }
+        timestamp: { $ref: '#/components/schemas/MetaTimestamp' }
+        path: { $ref: '#/components/schemas/MetaPath' }
+        status: { $ref: '#/components/schemas/SuccessStatus' }
+        page: { $ref: '#/components/schemas/NullValue' }
+    ListMeta:
+      type: object
+      additionalProperties: false
+      description: The meta of a list, the same as Meta but with its page.
+      required: [requestId, timestamp, path, status, page]
+      properties:
+        requestId: { $ref: '#/components/schemas/RequestId' }
+        traceId: { $ref: '#/components/schemas/TraceId' }
+        timestamp: { $ref: '#/components/schemas/MetaTimestamp' }
+        path: { $ref: '#/components/schemas/MetaPath' }
+        status: { $ref: '#/components/schemas/SuccessStatus' }
+        page: { $ref: '#/components/schemas/Page' }
+    TraceId:
+      type: string
+      pattern: '^[0-9a-f]{32}$'
+      description: The trace of the request; present only when it was sampled.
+    MetaTimestamp:
+      type: string
+      format: date-time
+      pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$'
+      description: When the answer was made, in UTC with milliseconds.
+    MetaPath:
+      type: string
+      description: >-
+        The request path without the query string, as a URI reference
+        (percent-encoded).
+    SuccessStatus:
+      type: integer
+      minimum: 200
+      maximum: 299
+      description: The HTTP status of the response.
+    Success:
+      type: boolean
+      enum: [true]
+    CommandAcceptedResponse:
+      type: object
+      additionalProperties: false
+      required: [success, data, meta]
+      properties:
+        success: { $ref: '#/components/schemas/Success' }
+        data: { $ref: '#/components/schemas/CommandAccepted' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    ReleaseResponse:
+      type: object
+      additionalProperties: false
+      required: [success, data, meta]
+      properties:
+        success: { $ref: '#/components/schemas/Success' }
+        data: { $ref: '#/components/schemas/Release' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    CommandResponse:
+      type: object
+      additionalProperties: false
+      required: [success, data, meta]
+      properties:
+        success: { $ref: '#/components/schemas/Success' }
+        data: { $ref: '#/components/schemas/Command' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    DeploymentResponse:
+      type: object
+      additionalProperties: false
+      required: [success, data, meta]
+      properties:
+        success: { $ref: '#/components/schemas/Success' }
+        data: { $ref: '#/components/schemas/Deployment' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    DiagnosticsResponse:
+      type: object
+      additionalProperties: false
+      required: [success, data, meta]
+      properties:
+        success: { $ref: '#/components/schemas/Success' }
+        data: { $ref: '#/components/schemas/Diagnostics' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    ReleaseListResponse:
+      type: object
+      additionalProperties: false
+      required: [success, data, meta]
+      properties:
+        success: { $ref: '#/components/schemas/Success' }
+        data:
+          type: array
+          maxItems: 50
+          items: { $ref: '#/components/schemas/ReleaseSummary' }
+        meta: { $ref: '#/components/schemas/ListMeta' }
+    CommandListResponse:
+      type: object
+      additionalProperties: false
+      required: [success, data, meta]
+      properties:
+        success: { $ref: '#/components/schemas/Success' }
+        data:
+          type: array
+          maxItems: 50
+          items: { $ref: '#/components/schemas/Command' }
+        meta: { $ref: '#/components/schemas/ListMeta' }
+    AdminCommandListResponse:
+      type: object
+      additionalProperties: false
+      required: [success, data, meta]
+      properties:
+        success: { $ref: '#/components/schemas/Success' }
+        data:
+          type: array
+          maxItems: 50
+          items: { $ref: '#/components/schemas/AdminCommand' }
+        meta: { $ref: '#/components/schemas/ListMeta' }
+    SiteStatus:
+      type: object
+      additionalProperties: false
+      description: >-
+        Whether the site is online (FR-58). websiteId is the project ID. online is
+        true only when hosting is online and a live release exists. uptimePercent and
+        checkedAt are always null, as nothing probes the site.
+      required: [websiteId, online, uptimePercent, checkedAt]
+      properties:
+        websiteId: { $ref: '#/components/schemas/Uuid' }
+        online: { type: boolean }
+        uptimePercent: { $ref: '#/components/schemas/NullValue' }
+        checkedAt: { $ref: '#/components/schemas/NullValue' }
+    UiDeployStatus:
+      type: string
+      description: >-
+        SUCCEEDED for live and superseded, FAILED for failed; null for the other
+        release statuses, which releaseStatus tells.
+      enum: [SUCCEEDED, FAILED]
+    UiDeploy:
+      type: object
+      additionalProperties: false
+      description: >-
+        A release as a deploy (FR-58). id is the release ID, websiteId the project ID,
+        number its place among all the project's releases from 1, startedAt its
+        creation. finishedAt is promotedAt for live and superseded, updatedAt for
+        failed and rolled_back, else null; durationSeconds the whole seconds from
+        startedAt to finishedAt. failureCode is set for failed and rolled_back only.
+      required: [id, websiteId, number, startedAt, finishedAt, durationSeconds, status, releaseStatus, failureCode]
+      properties:
+        id: { $ref: '#/components/schemas/Uuid' }
+        websiteId: { $ref: '#/components/schemas/Uuid' }
+        number:
+          type: integer
+          format: int64
+          minimum: 1
+        startedAt: { $ref: '#/components/schemas/Timestamp' }
+        finishedAt:
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - $ref: '#/components/schemas/NullValue'
+        durationSeconds:
+          anyOf:
+            - type: integer
+              format: int64
+              minimum: 0
+            - $ref: '#/components/schemas/NullValue'
+        status:
+          anyOf:
+            - $ref: '#/components/schemas/UiDeployStatus'
+            - $ref: '#/components/schemas/NullValue'
+        releaseStatus: { $ref: '#/components/schemas/ReleaseStatus' }
+        failureCode:
+          anyOf:
+            - $ref: '#/components/schemas/UiFailureCode'
+            - $ref: '#/components/schemas/NullValue'
+    UiFailureCode:
+      type: string
+      minLength: 1
+      maxLength: 100
+      pattern: '^[a-z][a-z0-9_]{0,99}$'
+    UiDeployPage:
+      type: object
+      additionalProperties: false
+      description: >-
+        One page of deploys (FR-57). page is 0-based and size the page size asked
+        for; totalItems counts every deploy the same filters select.
+      required: [items, page, size, totalItems]
+      properties:
+        items:
+          type: array
+          maxItems: 50
+          items: { $ref: '#/components/schemas/UiDeploy' }
+        page:
+          type: integer
+          minimum: 0
+          maximum: 1000000
+        size:
+          type: integer
+          minimum: 1
+          maximum: 50
+        totalItems:
+          type: integer
+          format: int64
+          minimum: 0
+    UiDeployStats:
+      type: object
+      additionalProperties: false
+      description: >-
+        The project's deploy counts (FR-58): total every release, succeeded live and
+        superseded, failed failed.
+      required: [total, succeeded, failed]
+      properties:
+        total: { type: integer, format: int64, minimum: 0 }
+        succeeded: { type: integer, format: int64, minimum: 0 }
+        failed: { type: integer, format: int64, minimum: 0 }
+    UiReleaseStep:
+      type: object
+      additionalProperties: false
+      required: [stepName, attempt, status, startedAt, finishedAt]
+      properties:
+        stepName: { $ref: '#/components/schemas/ReleaseStepName' }
+        attempt:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        status: { $ref: '#/components/schemas/ReleaseStepStatus' }
+        startedAt:
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - $ref: '#/components/schemas/NullValue'
+        finishedAt:
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - $ref: '#/components/schemas/NullValue'
+    UiRelease:
+      type: object
+      additionalProperties: false
+      description: >-
+        The project's release of one generation request (FR-59), numbered among all
+        its releases from 1, with its steps in stage order then by attempt. status
+        is the release status unchanged.
+      required: [releaseId, projectId, number, status, failureCode, createdAt, updatedAt, promotedAt, steps]
+      properties:
+        releaseId: { $ref: '#/components/schemas/Uuid' }
+        projectId: { $ref: '#/components/schemas/Uuid' }
+        number:
+          type: integer
+          format: int64
+          minimum: 1
+        status: { $ref: '#/components/schemas/ReleaseStatus' }
+        failureCode:
+          anyOf:
+            - $ref: '#/components/schemas/UiFailureCode'
+            - $ref: '#/components/schemas/NullValue'
+        createdAt: { $ref: '#/components/schemas/Timestamp' }
+        updatedAt: { $ref: '#/components/schemas/Timestamp' }
+        promotedAt:
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - $ref: '#/components/schemas/NullValue'
+        steps:
+          type: array
+          maxItems: 100
+          items: { $ref: '#/components/schemas/UiReleaseStep' }
+    UiLatestFailure:
+      type: object
+      additionalProperties: false
+      description: The newest failed release; failedAt is its updatedAt.
+      required: [projectId, releaseId, failedAt]
+      properties:
+        projectId: { $ref: '#/components/schemas/Uuid' }
+        releaseId: { $ref: '#/components/schemas/Uuid' }
+        failedAt: { $ref: '#/components/schemas/Timestamp' }
+    UiAdminStats:
+      type: object
+      additionalProperties: false
+      description: >-
+        The admin counts (FR-60). live counts projects with a live release; failed and
+        building count projects whose newest release is failed, or accepted to promoting;
+        failed24h counts releases that turned failed in the last 24 hours.
+      required: [live, failed, building, failed24h, latestFailed]
+      properties:
+        live: { type: integer, format: int64, minimum: 0 }
+        failed: { type: integer, format: int64, minimum: 0 }
+        building: { type: integer, format: int64, minimum: 0 }
+        failed24h: { type: integer, format: int64, minimum: 0 }
+        latestFailed:
+          anyOf:
+            - $ref: '#/components/schemas/UiLatestFailure'
+            - $ref: '#/components/schemas/NullValue'
+    UiAdminDeploy:
+      type: object
+      additionalProperties: false
+      description: >-
+        A release of any project (FR-60), numbered among its own project's releases from 1.
+        status is the release status. currentStep is 1 for accepted and building, 2 for built
+        and candidate_ready, 4 for promoting, else null; currentStepName names that stage.
+        durationSeconds follows the deploy rule. requestedBySubject is the subject of the
+        release's newest deploy command, left out when there is none.
+      required:
+        - releaseId
+        - projectId
+        - number
+        - status
+        - currentStep
+        - totalSteps
+        - currentStepName
+        - createdAt
+        - durationSeconds
+      properties:
+        releaseId: { $ref: '#/components/schemas/Uuid' }
+        projectId: { $ref: '#/components/schemas/Uuid' }
+        number:
+          type: integer
+          format: int64
+          minimum: 1
+        status: { $ref: '#/components/schemas/ReleaseStatus' }
+        currentStep:
+          anyOf:
+            - type: integer
+              minimum: 1
+              maximum: 5
+            - $ref: '#/components/schemas/NullValue'
+        totalSteps:
+          type: integer
+          enum: [5]
+        currentStepName:
+          anyOf:
+            - $ref: '#/components/schemas/ReleaseStepName'
+            - $ref: '#/components/schemas/NullValue'
+        createdAt: { $ref: '#/components/schemas/Timestamp' }
+        durationSeconds:
+          anyOf:
+            - type: integer
+              format: int64
+              minimum: 0
+            - $ref: '#/components/schemas/NullValue'
+        requestedBySubject:
+          type: string
+          minLength: 1
+          maxLength: 255
+    UiAdminDeployPage:
+      type: object
+      additionalProperties: false
+      description: One page of admin deploys (FR-57, FR-60); up to 200 a page.
+      required: [items, page, size, totalItems]
+      properties:
+        items:
+          type: array
+          maxItems: 200
+          items: { $ref: '#/components/schemas/UiAdminDeploy' }
+        page:
+          type: integer
+          minimum: 0
+          maximum: 1000000
+        size:
+          type: integer
+          minimum: 1
+          maximum: 200
+        totalItems:
+          type: integer
+          format: int64
+          minimum: 0
+    UiAuditEntry:
+      type: object
+      additionalProperties: false
+      description: >-
+        One audited command (FR-62) in the shape every service's audit read shares. id is the
+        command ID; occurredAt its creation time; actorUserId the Keycloak subject that asked,
+        null when the system asked; targetId the project. result is QUEUED for accepted,
+        RUNNING, SUCCEEDED, and FAILED for failed and skipped.
+      required:
+        - id
+        - occurredAt
+        - service
+        - action
+        - actorUserId
+        - targetType
+        - targetId
+        - result
+      properties:
+        id: { $ref: '#/components/schemas/Uuid' }
+        occurredAt: { $ref: '#/components/schemas/Timestamp' }
+        service:
+          type: string
+          enum: [provisioning]
+        action:
+          type: string
+          enum: [SUSPEND_HOSTING, RESUME_HOSTING, ROLLBACK, REDEPLOY]
+        actorUserId:
+          anyOf:
+            - type: string
+              format: uuid
+              minLength: 1
+              maxLength: 255
+            - $ref: '#/components/schemas/NullValue'
+        targetType:
+          type: string
+          enum: [PROJECT]
+        targetId: { $ref: '#/components/schemas/Uuid' }
+        result:
+          type: string
+          enum: [QUEUED, RUNNING, SUCCEEDED, FAILED]
+    UiAuditEntryPage:
+      type: object
+      additionalProperties: false
+      description: One page of audit entries (FR-57, FR-62); up to 200 a page.
+      required: [items, page, size, totalItems]
+      properties:
+        items:
+          type: array
+          maxItems: 200
+          items: { $ref: '#/components/schemas/UiAuditEntry' }
+        page:
+          type: integer
+          minimum: 0
+          maximum: 1000000
+        size:
+          type: integer
+          minimum: 1
+          maximum: 200
+        totalItems:
+          type: integer
+          format: int64
+          minimum: 0
+    UiLogLine:
+      type: object
+      additionalProperties: false
+      description: >-
+        One access line of a site (FR-63). id is Loki's nanosecond time, a hyphen and the first
+        16 hex characters of the SHA-256 of the raw line, with -2, -3 for a repeat on one page; the
+        same line keeps its id. at is Loki's entry time in UTC. level is INFO below 400, WARN
+        from 400 to 499, ERROR from 500. path has no query string or fragment, at most 2048
+        characters. durationMs is whole milliseconds, half up. note is always null.
+      required: [id, at, level, method, path, note, statusCode, durationMs]
+      properties:
+        id:
+          type: string
+          pattern: '^[0-9]{1,30}-[0-9a-f]{16}(-[0-9]+)?$'
+          maxLength: 60
+        at: { $ref: '#/components/schemas/Timestamp' }
+        level:
+          type: string
+          enum: [INFO, WARN, ERROR]
+        method:
+          type: string
+          minLength: 1
+          maxLength: 32
+        path:
+          type: string
+          minLength: 1
+          maxLength: 2048
+          pattern: '^/[^?#]*$'
+        note: { $ref: '#/components/schemas/NullValue' }
+        statusCode:
+          type: integer
+          minimum: 100
+          maximum: 599
+        durationMs:
+          type: integer
+          format: int64
+          minimum: 0
+    UiLogLinePage:
+      type: object
+      additionalProperties: false
+      description: >-
+        One page of a site's access lines (FR-57, FR-63); up to 50 a page; totalItems at most
+        1000.
+      required: [items, page, size, totalItems]
+      properties:
+        items:
+          type: array
+          maxItems: 50
+          items: { $ref: '#/components/schemas/UiLogLine' }
+        page:
+          type: integer
+          minimum: 0
+          maximum: 1000000
+        size:
+          type: integer
+          minimum: 1
+          maximum: 50
+        totalItems:
+          type: integer
+          minimum: 0
+          maximum: 1000
+    UiAccessStats:
+      type: object
+      additionalProperties: false
+      description: >-
+        A site's live stats of the last 5 minutes (FR-63). requests5m is the sum of logCounts;
+        errors5m the ERROR count; errorRate5m their ratio with 4 places, "0.0000" with no
+        request; avgResponseMs whole milliseconds, null with no request.
+      required: [requests5m, errors5m, errorRate5m, avgResponseMs, logCounts]
+      properties:
+        requests5m:
+          type: integer
+          format: int64
+          minimum: 0
+        errors5m:
+          type: integer
+          format: int64
+          minimum: 0
+        errorRate5m:
+          type: string
+          pattern: '^[01]\.[0-9]{4}$'
+        avgResponseMs:
+          anyOf:
+            - type: integer
+              format: int64
+              minimum: 0
+            - $ref: '#/components/schemas/NullValue'
+        logCounts:
+          type: object
+          additionalProperties: false
+          required: [INFO, WARN, ERROR]
+          properties:
+            INFO:
+              type: integer
+              format: int64
+              minimum: 0
+            WARN:
+              type: integer
+              format: int64
+              minimum: 0
+            ERROR:
+              type: integer
+              format: int64
+              minimum: 0
+    UiLatestRelease:
+      type: object
+      additionalProperties: false
+      description: >-
+        A project's newest release (FR-60) as the release view, plus liveSince (promotedAt of
+        the project's live release) and previousReleaseId (for a live release the newest
+        superseded one, else the live release), each null when none.
+      required:
+        - releaseId
+        - projectId
+        - number
+        - status
+        - failureCode
+        - createdAt
+        - updatedAt
+        - promotedAt
+        - steps
+        - liveSince
+        - previousReleaseId
+      properties:
+        releaseId: { $ref: '#/components/schemas/Uuid' }
+        projectId: { $ref: '#/components/schemas/Uuid' }
+        number:
+          type: integer
+          format: int64
+          minimum: 1
+        status: { $ref: '#/components/schemas/ReleaseStatus' }
+        failureCode:
+          anyOf:
+            - $ref: '#/components/schemas/UiFailureCode'
+            - $ref: '#/components/schemas/NullValue'
+        createdAt: { $ref: '#/components/schemas/Timestamp' }
+        updatedAt: { $ref: '#/components/schemas/Timestamp' }
+        promotedAt:
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - $ref: '#/components/schemas/NullValue'
+        steps:
+          type: array
+          maxItems: 100
+          items: { $ref: '#/components/schemas/UiReleaseStep' }
+        liveSince:
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - $ref: '#/components/schemas/NullValue'
+        previousReleaseId:
+          anyOf:
+            - $ref: '#/components/schemas/Uuid'
+            - $ref: '#/components/schemas/NullValue'
+    UiLatestReleasePage:
+      type: object
+      additionalProperties: false
+      description: One page of latest releases, one per project (FR-57, FR-60); up to 200 a page.
+      required: [items, page, size, totalItems]
+      properties:
+        items:
+          type: array
+          maxItems: 200
+          items: { $ref: '#/components/schemas/UiLatestRelease' }
+        page:
+          type: integer
+          minimum: 0
+          maximum: 1000000
+        size:
+          type: integer
+          minimum: 1
+          maximum: 200
+        totalItems:
+          type: integer
+          format: int64
+          minimum: 0
+    UiLatestReleaseWithDiagnostics:
+      type: object
+      additionalProperties: false
+      description: >-
+        One project's latest release (FR-60) plus diagnostics, the get_release_diagnostics
+        body of that release.
+      required:
+        - releaseId
+        - projectId
+        - number
+        - status
+        - failureCode
+        - createdAt
+        - updatedAt
+        - promotedAt
+        - steps
+        - liveSince
+        - previousReleaseId
+        - diagnostics
+      properties:
+        releaseId: { $ref: '#/components/schemas/Uuid' }
+        projectId: { $ref: '#/components/schemas/Uuid' }
+        number:
+          type: integer
+          format: int64
+          minimum: 1
+        status: { $ref: '#/components/schemas/ReleaseStatus' }
+        failureCode:
+          anyOf:
+            - $ref: '#/components/schemas/UiFailureCode'
+            - $ref: '#/components/schemas/NullValue'
+        createdAt: { $ref: '#/components/schemas/Timestamp' }
+        updatedAt: { $ref: '#/components/schemas/Timestamp' }
+        promotedAt:
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - $ref: '#/components/schemas/NullValue'
+        steps:
+          type: array
+          maxItems: 100
+          items: { $ref: '#/components/schemas/UiReleaseStep' }
+        liveSince:
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - $ref: '#/components/schemas/NullValue'
+        previousReleaseId:
+          anyOf:
+            - $ref: '#/components/schemas/Uuid'
+            - $ref: '#/components/schemas/NullValue'
+        diagnostics: { $ref: '#/components/schemas/Diagnostics' }

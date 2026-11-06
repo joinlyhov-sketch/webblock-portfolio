@@ -53,7 +53,8 @@ They set a mock session cookie (`wb_role`) and take you to `/websites` or `/admi
 | `pnpm start` | Run the production build |
 | `pnpm typecheck` | `tsc --noEmit` |
 | `pnpm lint` | ESLint |
-| `node .claude/hooks/invariants.mjs --all` | Project rule checks (see [Rules](#rules)) |
+| `pnpm sync-dev [branch]` | Bring in the latest `dev` (or a teammate's branch) safely — use instead of `git pull` |
+| `node .claude/hooks/check-project-rules.mjs --all` | Project rule checks (see [Rules](#rules)) |
 
 ## Project structure
 
@@ -96,7 +97,8 @@ Imports flow one way: `app → features → components/common → components/ui 
 
 ## Rules
 
-These are checked automatically (`.claude/hooks/invariants.mjs`) on every edit, in `/verify`, and in CI:
+These are checked automatically (`.claude/hooks/check-project-rules.mjs`) on every Claude edit and in
+`/check-project`:
 
 1. **Zero-transaction websites:** no cart, checkout, payment form, booking or WhatsApp in website or
    editor code. Subscription billing (KHQR via WeBill365) lives only in `features/billing` and only shows the QR
@@ -108,15 +110,18 @@ These are checked automatically (`.claude/hooks/invariants.mjs`) on every edit, 
 4. **Mock data matches the API DTOs:** camelCase, UUID string ids, prices as strings, ISO-8601 UTC dates.
 
 Full conventions (design tokens, fonts, loading/empty/error states, formatting) are in
-[`CLAUDE.md`](CLAUDE.md) and [`.claude/rules/`](.claude/rules).
+[`CLAUDE.md`](CLAUDE.md) and [`.claude/rules/`](.claude/rules). The whole Claude setup is explained in
+[`.claude/README.md`](.claude/README.md).
 
 ## Contributing
 
-- **Branches:** create `feature/<short-name>` from `dev` and open a pull request into `dev`.
-  Never commit directly to `dev` or `Master`. `Master` is for submission and only the designated
-  teammate merges into it.
-- **Before opening a PR:** `pnpm lint`, `pnpm build` and `node .claude/hooks/invariants.mjs --all`
-  must pass.
-- **CI** (`.github/workflows/ci.yml`) runs on pushes to `dev`/`Master` and on PRs into them:
-  invariant checks and their tests, lint, build, and a gitleaks secret scan.
+- **Getting the latest code:** `pnpm sync-dev` (never a plain `git pull` or VS Code's Sync button).
+- **Branches:** create `feature/<short-name>` from the latest `dev`; API work uses
+  `feature/<feature>-api`. Only the repo manager commits to `dev` directly and pulls finished
+  branches in. `Master` is for submission and only the designated teammate merges into it.
+- **Before handing in a branch:** `/prepare-pull-request` in Claude, or by hand: `pnpm lint`,
+  `pnpm build` and `node .claude/hooks/check-project-rules.mjs --all` must pass.
+- **Connecting features to the backend:** see
+  [`.claude/docs/how-to/connect-a-feature-to-the-api.md`](.claude/docs/how-to/connect-a-feature-to-the-api.md).
+- There is no GitHub CI: all checks run locally (Claude hooks and `/check-project`).
 - Commit `pnpm-lock.yaml` whenever dependencies change. Never commit `.env`.

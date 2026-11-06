@@ -1,0 +1,680 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "notification-service API",
+    "description": "Web, push and email notifications",
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/api/notification/v1/ui/support/messages": {
+      "post": {
+        "tags": [
+          "ui-support-controller"
+        ],
+        "operationId": "support",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SupportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportMessage"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notification/v1/ui/notifications/read-all": {
+      "post": {
+        "tags": [
+          "ui-notification-controller"
+        ],
+        "operationId": "readAll",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/api/notification/v1/ui/contact": {
+      "post": {
+        "tags": [
+          "ui-support-controller"
+        ],
+        "operationId": "contact",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContactRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactMessage"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notification/v1/ui/admin/projects/{projectId}/contact-owner": {
+      "post": {
+        "tags": [
+          "ui-admin-contact-controller"
+        ],
+        "operationId": "contact_1",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "[A-Za-z0-9._:-]+"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContactOwnerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/api/notification/v1/ui/admin/notifications/{id}/read": {
+      "post": {
+        "tags": [
+          "ui-admin-notification-controller"
+        ],
+        "operationId": "read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminNotification"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notification/v1/ui/admin/notifications/read-all": {
+      "post": {
+        "tags": [
+          "ui-admin-notification-controller"
+        ],
+        "operationId": "readAll_1",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/api/notification/v1/users/token": {
+      "get": {
+        "tags": [
+          "knock-token-controller"
+        ],
+        "summary": "Token for the Knock notification bell of the signed-in user",
+        "operationId": "token",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/KnockTokenResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notification/v1/ui/support/topics": {
+      "get": {
+        "tags": [
+          "ui-support-controller"
+        ],
+        "operationId": "topics",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Topic"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notification/v1/ui/support/faq": {
+      "get": {
+        "tags": [
+          "ui-support-controller"
+        ],
+        "operationId": "faq",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Faq"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notification/v1/ui/notifications": {
+      "get": {
+        "tags": [
+          "ui-notification-controller"
+        ],
+        "operationId": "list",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "maximum": 1000,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "createdAt,desc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiPageAppNotification"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notification/v1/ui/admin/notifications": {
+      "get": {
+        "tags": [
+          "ui-admin-notification-controller"
+        ],
+        "operationId": "list_1",
+        "parameters": [
+          {
+            "name": "unread",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "maximum": 1000,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "createdAt,desc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiPageAdminNotification"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notification/v1/ui/admin/notifications/unread-count": {
+      "get": {
+        "tags": [
+          "ui-admin-notification-controller"
+        ],
+        "operationId": "unreadCount",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SupportRequest": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 254,
+            "minLength": 0
+          },
+          "website": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "topic": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "subject": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 3
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 10
+          }
+        },
+        "required": [
+          "from",
+          "message",
+          "subject",
+          "topic"
+        ]
+      },
+      "SupportMessage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ticket": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string"
+          },
+          "topic": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ContactRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 2,
+            "pattern": "[\\p{L}\\p{M}][\\p{L}\\p{M} .'’-]*"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 254,
+            "minLength": 0
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 10,
+            "pattern": "(?s).*\\p{L}.*"
+          }
+        },
+        "required": [
+          "email",
+          "message",
+          "name"
+        ]
+      },
+      "ContactMessage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ContactOwnerRequest": {
+        "type": "object",
+        "properties": {
+          "subject": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 3
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 10
+          }
+        },
+        "required": [
+          "message",
+          "subject"
+        ]
+      },
+      "AdminNotification": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "actorId": {
+            "type": "string"
+          },
+          "actorName": {
+            "type": "string"
+          },
+          "actorAvatarUrl": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "link": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "readAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "KnockTokenResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Topic": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        }
+      },
+      "Faq": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "question": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "string"
+          }
+        }
+      },
+      "AppNotification": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "read": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UiPageAppNotification": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AppNotification"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "UiPageAdminNotification": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminNotification"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

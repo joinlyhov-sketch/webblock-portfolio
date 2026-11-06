@@ -5,6 +5,13 @@
     "pr": "",
     "sessionUrl": false
   },
+  "model": "sonnet",
+  "effortLevel": "high",
+  "enabledPlugins": {
+    "intent@synced": false,
+    "figma@synced": false,
+    "impeccable@synced": false
+  },
   "permissions": {
     "allow": [
       "Bash(pnpm dev)",
@@ -16,8 +23,10 @@
       "Bash(git status)",
       "Bash(git diff *)",
       "Bash(git log *)",
-      "Bash(node .claude/hooks/invariants.mjs --all)",
-      "Bash(node --test .claude/hooks/invariants.test.mjs)"
+      "Bash(node .claude/hooks/check-project-rules.mjs --all)",
+      "Bash(node --test .claude/hooks/tests/*.test.mjs)",
+      "Bash(node --test .claude/hooks/tests/*)",
+      "Bash(node --test scripts/sync-dev.test.mjs)"
     ],
     "ask": [
       "Bash(pnpm install *)",
@@ -50,7 +59,25 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/invariants.mjs\" --pre"
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-project-rules.mjs\" --pre"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-safe-pull.mjs\""
+          }
+        ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-big-reads.mjs\""
           }
         ]
       }
@@ -61,7 +88,18 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/invariants.mjs\" --post"
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-project-rules.mjs\" --post"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-before-finish.mjs\"",
+            "timeout": 300
           }
         ]
       }

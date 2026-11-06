@@ -12,7 +12,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "sync-dev": "node scripts/sync-dev.mjs"
   },
   "dependencies": {
     "@puckeditor/core": "^0.23.0",
@@ -41,6 +42,7 @@
     "@types/three": "^0.187.0",
     "eslint": "^9",
     "eslint-config-next": "16.4.3",
+    "next-devtools-mcp": "0.4.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

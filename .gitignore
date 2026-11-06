@@ -50,6 +50,9 @@ CLAUDE.local.md
 .claude/settings.local.json
 
 # playwright
+# Browser-tool recordings (page snapshots + console logs). They capture whatever the app shows,
+# which will be real people's data once the backend is connected — never commit them.
+/.playwright-mcp/
 /test-results
 /playwright-report
 /tests/.auth

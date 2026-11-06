@@ -1,0 +1,1834 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "user-service API",
+    "description": "Users / accounts",
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/api/user/v1/ui/me": {
+      "get": {
+        "tags": [
+          "UI: my account"
+        ],
+        "summary": "My profile (creates the account on the first call)",
+        "operationId": "get",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "UI: my account"
+        ],
+        "summary": "Change my full name",
+        "operationId": "update",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/v1/ui/me/password": {
+      "put": {
+        "tags": [
+          "UI: my account"
+        ],
+        "summary": "Change or set my password; signs me out everywhere",
+        "operationId": "changePassword",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UiChangePasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/v1/ui/me/avatar": {
+      "put": {
+        "tags": [
+          "UI: my account"
+        ],
+        "summary": "Upload or change my profile photo (form field \"file\", PNG or JPG, max 5 MB)",
+        "operationId": "changePhoto",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "UI: my account"
+        ],
+        "summary": "Remove my profile photo",
+        "operationId": "removePhoto",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/v1/me": {
+      "get": {
+        "tags": [
+          "My account"
+        ],
+        "summary": "Get my account (creates it on the first call)",
+        "operationId": "getMe",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAccountResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "My account"
+        ],
+        "summary": "Change my full name (also in Keycloak)",
+        "operationId": "updateMe",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAccountResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/v1/me/password": {
+      "put": {
+        "tags": [
+          "My account"
+        ],
+        "summary": "Change my password (or set a first one for a Google-only account); signs me out everywhere",
+        "operationId": "changePassword_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/v1/me/avatar": {
+      "put": {
+        "tags": [
+          "My account"
+        ],
+        "summary": "Upload or change my profile photo (form field \"file\", PNG or JPG, max 5 MB)",
+        "operationId": "changePhoto_1",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAccountResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "My account"
+        ],
+        "summary": "Remove my profile photo (the UI shows my initials)",
+        "operationId": "removePhoto_1",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAccountResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/v1/admin/users/{userId}/status": {
+      "put": {
+        "tags": [
+          "Admin: users"
+        ],
+        "summary": "Suspend (reason required) or activate an account",
+        "operationId": "changeStatus",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeUserStatusRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAccountResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/v1/ui/auth/refresh": {
+      "post": {
+        "tags": [
+          "UI: auth"
+        ],
+        "summary": "New tokens for a refresh token (same body as login)",
+        "operationId": "refresh",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/user/v1/ui/auth/logout": {
+      "post": {
+        "tags": [
+          "UI: auth"
+        ],
+        "summary": "End the session of this refresh token",
+        "operationId": "logout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/user/v1/ui/admin/users/{userId}/suspend": {
+      "post": {
+        "tags": [
+          "UI: admin"
+        ],
+        "summary": "Suspend an account (reasonCode required)",
+        "operationId": "suspend",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SuspendUserRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserAccount"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/v1/ui/admin/users/{userId}/reactivate": {
+      "post": {
+        "tags": [
+          "UI: admin"
+        ],
+        "summary": "Reactivate a suspended account",
+        "operationId": "reactivate",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserAccount"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/v1/register/verify-otp": {
+      "post": {
+        "tags": [
+          "Register"
+        ],
+        "summary": "Step 2: check the code, returns a verification token",
+        "operationId": "verify",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyOtpRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVerificationResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/user/v1/register/start": {
+      "post": {
+        "tags": [
+          "Register"
+        ],
+        "summary": "Step 1: full name + email, sends a 6-digit code",
+        "operationId": "start",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartRegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOtpSentResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/user/v1/register/resend-otp": {
+      "post": {
+        "tags": [
+          "Register"
+        ],
+        "summary": "Send a new code (after 60 seconds)",
+        "operationId": "resend",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResendOtpRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOtpSentResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/user/v1/register/complete": {
+      "post": {
+        "tags": [
+          "Register"
+        ],
+        "summary": "Step 3: create the password and the account",
+        "operationId": "complete",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteRegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseRegisteredResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/user/v1/password/verify-otp": {
+      "post": {
+        "tags": [
+          "Forgot password"
+        ],
+        "summary": "Step 2: check the code, returns a verification token",
+        "operationId": "verify_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyResetOtpRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVerificationResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/user/v1/password/reset": {
+      "post": {
+        "tags": [
+          "Forgot password"
+        ],
+        "summary": "Step 3: set the new password and sign out everywhere",
+        "operationId": "reset",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/user/v1/password/forgot": {
+      "post": {
+        "tags": [
+          "Forgot password"
+        ],
+        "summary": "Step 1 (and Resend): sends a code if the email has an account. Same answer either way.",
+        "operationId": "forgot",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOtpSentResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/user/v1/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Login with email and password to receive a Bearer access token",
+        "operationId": "login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseLoginResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/user/v1/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Login with email and password to receive a Bearer access token",
+        "operationId": "login_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseLoginResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/user/v1/ui/admin/users": {
+      "get": {
+        "tags": [
+          "UI: admin"
+        ],
+        "summary": "Accounts page (q = part of email or name, status, page from 0, size up to 100, sort=field,dir)",
+        "operationId": "list",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "joinedAt,desc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponseUserAccount"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/v1/ui/admin/users/{userId}": {
+      "get": {
+        "tags": [
+          "UI: admin"
+        ],
+        "summary": "One account (404 USER_NOT_FOUND if unknown)",
+        "operationId": "get_1",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserAccount"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/v1/ui/admin/users/stats": {
+      "get": {
+        "tags": [
+          "UI: admin"
+        ],
+        "summary": "Account counts: total, active, suspended, newThisMonth (UTC month)",
+        "operationId": "stats",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserStats"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/v1/ui/admin/users/export": {
+      "get": {
+        "tags": [
+          "UI: admin"
+        ],
+        "summary": "CSV of the matching accounts: Name,Email,Status,Joined (413 above webblock.admin-export.max-rows)",
+        "operationId": "export",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/v1/ui/admin/me": {
+      "get": {
+        "tags": [
+          "UI: admin"
+        ],
+        "summary": "The signed-in admin's profile",
+        "operationId": "me",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminProfile"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/v1/ui/admin/audit": {
+      "get": {
+        "tags": [
+          "UI: admin"
+        ],
+        "summary": "Suspend / reactivate history as the shared AuditEntry, newest first (size up to 200)",
+        "operationId": "audit",
+        "parameters": [
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "actorUserId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponseAuditEntry"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/v1/me/sign-in-methods": {
+      "get": {
+        "tags": [
+          "My account"
+        ],
+        "summary": "Do I have a password? Is Google connected?",
+        "operationId": "signInMethods",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseSignInMethodsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/v1/admin/users": {
+      "get": {
+        "tags": [
+          "Admin: users"
+        ],
+        "summary": "List accounts (search by email or name, filter by status, page from 0, size up to 100)",
+        "operationId": "list_1",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "createdAt,desc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageResponseAccountResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/v1/admin/users/{userId}": {
+      "get": {
+        "tags": [
+          "Admin: users"
+        ],
+        "summary": "One account by id (404 USER_NOT_FOUND if unknown)",
+        "operationId": "get_2",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAccountResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/v1/me/sign-in-methods/google": {
+      "delete": {
+        "tags": [
+          "My account"
+        ],
+        "summary": "Disconnect Google (only when the account also has a password)",
+        "operationId": "disconnectGoogle",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseSignInMethodsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UpdateProfileRequest": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "fullName"
+        ]
+      },
+      "Profile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "initials": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "avatarUrl": {
+            "type": "string"
+          },
+          "memberSince": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastSignInAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "hasPassword": {
+            "type": "boolean"
+          },
+          "googleEmail": {
+            "type": "string"
+          }
+        }
+      },
+      "UiChangePasswordRequest": {
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 0
+          },
+          "newPassword": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 8,
+            "pattern": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$"
+          }
+        },
+        "required": [
+          "newPassword"
+        ]
+      },
+      "AccountResponse": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastLoginAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "avatarUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponseAccountResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/AccountResponse"
+          }
+        }
+      },
+      "ChangePasswordRequest": {
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 0
+          },
+          "newPassword": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 8,
+            "pattern": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$"
+          },
+          "confirmPassword": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "confirmPassword",
+          "newPassword"
+        ]
+      },
+      "ApiResponseVoid": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "payload": {}
+        }
+      },
+      "ChangeUserStatusRequest": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "ACTIVE|SUSPENDED"
+          },
+          "reasonCode": {
+            "type": "string",
+            "pattern": "ABUSE|FRAUD|OWNER_REQUEST|OTHER"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "RefreshTokenRequest": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "maxLength": 8192,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "expiresIn": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "refreshExpiresIn": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "tokenType": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "SuspendUserRequest": {
+        "type": "object",
+        "properties": {
+          "reasonCode": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "ABUSE|FRAUD|OWNER_REQUEST|OTHER"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "reasonCode"
+        ]
+      },
+      "UserAccount": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountCode": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "avatarUrl": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "signInMethod": {
+            "type": "string"
+          },
+          "joinedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "VerifyOtpRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "minLength": 1
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\d{6}"
+          }
+        },
+        "required": [
+          "code",
+          "email"
+        ]
+      },
+      "ApiResponseVerificationResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/VerificationResponse"
+          }
+        }
+      },
+      "VerificationResponse": {
+        "type": "object",
+        "properties": {
+          "verificationToken": {
+            "type": "string"
+          },
+          "expiresInSeconds": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "StartRegisterRequest": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 320,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "email",
+          "fullName"
+        ]
+      },
+      "ApiResponseOtpSentResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/OtpSentResponse"
+          }
+        }
+      },
+      "OtpSentResponse": {
+        "type": "object",
+        "properties": {
+          "expiresInSeconds": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "resendAfterSeconds": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ResendOtpRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "CompleteRegisterRequest": {
+        "type": "object",
+        "properties": {
+          "verificationToken": {
+            "type": "string",
+            "minLength": 1
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 8,
+            "pattern": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$"
+          },
+          "confirmPassword": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "confirmPassword",
+          "password",
+          "verificationToken"
+        ]
+      },
+      "ApiResponseRegisteredResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/RegisteredResponse"
+          }
+        }
+      },
+      "RegisteredResponse": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "VerifyResetOtpRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "minLength": 1
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\d{6}"
+          }
+        },
+        "required": [
+          "code",
+          "email"
+        ]
+      },
+      "ResetPasswordRequest": {
+        "type": "object",
+        "properties": {
+          "verificationToken": {
+            "type": "string",
+            "minLength": 1
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 8,
+            "pattern": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$"
+          },
+          "confirmPassword": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "confirmPassword",
+          "password",
+          "verificationToken"
+        ]
+      },
+      "ForgotPasswordRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 320,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "minLength": 1
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "ApiResponseLoginResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/LoginResponse"
+          }
+        }
+      },
+      "PageResponseUserAccount": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserAccount"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "UserStats": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "active": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "suspended": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "newThisMonth": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "AdminProfile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountCode": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "avatarUrl": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "joinedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AuditEntry": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "service": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "actorUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "actorEmail": {
+            "type": "string"
+          },
+          "targetType": {
+            "type": "string"
+          },
+          "targetId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "targetName": {
+            "type": "string"
+          },
+          "result": {
+            "type": "string"
+          }
+        }
+      },
+      "PageResponseAuditEntry": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuditEntry"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ApiResponseSignInMethodsResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/SignInMethodsResponse"
+          }
+        }
+      },
+      "SignInMethodsResponse": {
+        "type": "object",
+        "properties": {
+          "hasPassword": {
+            "type": "boolean"
+          },
+          "googleEmail": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponsePageResponseAccountResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/PageResponseAccountResponse"
+          }
+        }
+      },
+      "PageResponseAccountResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountResponse"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

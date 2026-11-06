@@ -1,0 +1,2997 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "payment-service API",
+    "description": "Plans, subscriptions and KHQR payments",
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Admin plans",
+      "description": "Plan prices and limits"
+    },
+    {
+      "name": "Subscriptions",
+      "description": "The client's plan subscriptions"
+    },
+    {
+      "name": "Payment methods",
+      "description": "Which KHQR providers can be used to pay the WebBlock subscription"
+    },
+    {
+      "name": "UI public plans",
+      "description": "Public plan list for the landing page"
+    },
+    {
+      "name": "UI account",
+      "description": "The account's plan and usage in the shape the web UI expects"
+    },
+    {
+      "name": "UI plans",
+      "description": "Plans in the shape the web UI expects"
+    },
+    {
+      "name": "Internal admission",
+      "description": "Plan checks asked by Project and Provisioning"
+    },
+    {
+      "name": "Admin subscriptions",
+      "description": "Subscriptions and trials of every client"
+    },
+    {
+      "name": "UI admin",
+      "description": "Admin subscriptions, plans and overview reads in the shape the web UI expects"
+    },
+    {
+      "name": "Bills",
+      "description": "WebBlock subscription bills paid with WeBill 365 KHQR"
+    },
+    {
+      "name": "Plans",
+      "description": "Plans a client can subscribe to"
+    },
+    {
+      "name": "UI payments",
+      "description": "Payment orders in the shape the web UI expects"
+    }
+  ],
+  "paths": {
+    "/api/payment/v1/ui/admin/plans/{id}": {
+      "get": {
+        "tags": [
+          "UI admin"
+        ],
+        "operationId": "plan",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminPlan"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "UI admin"
+        ],
+        "operationId": "updatePlan",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAdminPlan"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminPlan"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/admin/subscriptions/{subscriptionId}/plan": {
+      "put": {
+        "tags": [
+          "Admin subscriptions"
+        ],
+        "operationId": "changePlan",
+        "parameters": [
+          {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeSubscriptionPlanRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminSubscriptionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/admin/plans/{planId}": {
+      "put": {
+        "tags": [
+          "Admin plans"
+        ],
+        "operationId": "update",
+        "parameters": [
+          {
+            "name": "planId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePlanRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminPlanResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/website-admissions": {
+      "post": {
+        "tags": [
+          "Internal admission"
+        ],
+        "operationId": "admitWebsite",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdmitWebsiteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdmitWebsiteResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/generation-admissions": {
+      "post": {
+        "tags": [
+          "Internal admission"
+        ],
+        "operationId": "admitGenerationAttempt",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdmitGenerationAttemptRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdmitGenerationAttemptResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/ui/payments": {
+      "post": {
+        "tags": [
+          "UI payments"
+        ],
+        "operationId": "create",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePayment"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentOrder"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/ui/payments/{id}/status-check": {
+      "post": {
+        "tags": [
+          "UI payments"
+        ],
+        "operationId": "statusCheck",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentOrder"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/subscriptions": {
+      "get": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "list",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponseSubscriptionResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "create_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSubscriptionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/subscriptions/{subscriptionId}/cancel": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "cancel",
+        "parameters": [
+          {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/bills": {
+      "get": {
+        "tags": [
+          "Bills"
+        ],
+        "operationId": "list_1",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponseBillResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Bills"
+        ],
+        "operationId": "create_2",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBillRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/bills/{billId}/void": {
+      "post": {
+        "tags": [
+          "Bills"
+        ],
+        "operationId": "voidBill",
+        "parameters": [
+          {
+            "name": "billId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/bills/{billId}/status-check": {
+      "post": {
+        "tags": [
+          "Bills"
+        ],
+        "operationId": "checkStatus",
+        "parameters": [
+          {
+            "name": "billId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/projects/{projectId}/entitlement": {
+      "get": {
+        "tags": [
+          "Internal admission"
+        ],
+        "operationId": "entitlement",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntitlementResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/clients/{clientUserId}/entitlement": {
+      "get": {
+        "tags": [
+          "Internal admission"
+        ],
+        "operationId": "clientEntitlement",
+        "parameters": [
+          {
+            "name": "clientUserId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientEntitlementResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/ui/public/plans": {
+      "get": {
+        "tags": [
+          "UI public plans"
+        ],
+        "operationId": "publicPlans",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponsePublicPlan"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/ui/plans": {
+      "get": {
+        "tags": [
+          "UI plans"
+        ],
+        "operationId": "plans",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BillingPlan"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/ui/payments/{id}": {
+      "get": {
+        "tags": [
+          "UI payments"
+        ],
+        "operationId": "get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentOrder"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/ui/me/usage": {
+      "get": {
+        "tags": [
+          "UI account"
+        ],
+        "operationId": "usage",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanUsage"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/ui/me/subscription": {
+      "get": {
+        "tags": [
+          "UI account"
+        ],
+        "operationId": "subscription",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeSubscription"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/ui/me/orders": {
+      "get": {
+        "tags": [
+          "UI payments"
+        ],
+        "operationId": "orders",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "PAID",
+                "EXPIRED",
+                "FAILED",
+                "VOID"
+              ]
+            }
+          },
+          {
+            "name": "plan",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponsePlanOrder"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/ui/me/deploy-access": {
+      "get": {
+        "tags": [
+          "UI account"
+        ],
+        "operationId": "deployAccess",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeployAccess"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/ui/admin/subscriptions": {
+      "get": {
+        "tags": [
+          "UI admin"
+        ],
+        "operationId": "subscriptions",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "ACTIVE",
+                "PAST_DUE",
+                "CANCELED",
+                "EXPIRED"
+              ]
+            }
+          },
+          {
+            "name": "plan",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponseAdminSubscription"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/ui/admin/subscriptions/{id}": {
+      "get": {
+        "tags": [
+          "UI admin"
+        ],
+        "operationId": "subscription_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminSubscription"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/ui/admin/subscriptions/{id}/payments": {
+      "get": {
+        "tags": [
+          "UI admin"
+        ],
+        "operationId": "payments",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponseAdminPayment"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/ui/admin/subscriptions/attention": {
+      "get": {
+        "tags": [
+          "UI admin"
+        ],
+        "operationId": "attention",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Attention"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/ui/admin/revenue": {
+      "get": {
+        "tags": [
+          "UI admin"
+        ],
+        "operationId": "revenue",
+        "parameters": [
+          {
+            "name": "months",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 12
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RevenuePoint"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/ui/admin/plans": {
+      "get": {
+        "tags": [
+          "UI admin"
+        ],
+        "operationId": "plans_1",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponseAdminPlan"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/ui/admin/audit": {
+      "get": {
+        "tags": [
+          "UI admin"
+        ],
+        "operationId": "audit",
+        "parameters": [
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "actorUserId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponseAuditEntry"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/subscriptions/{subscriptionId}": {
+      "get": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "get_1",
+        "parameters": [
+          {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/plans": {
+      "get": {
+        "tags": [
+          "Plans"
+        ],
+        "operationId": "list_2",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PlanResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/payment-methods": {
+      "get": {
+        "tags": [
+          "Payment methods"
+        ],
+        "operationId": "list_3",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentMethodsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/bills/{billId}": {
+      "get": {
+        "tags": [
+          "Bills"
+        ],
+        "operationId": "get_2",
+        "parameters": [
+          {
+            "name": "billId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/admin/trials": {
+      "get": {
+        "tags": [
+          "Admin subscriptions"
+        ],
+        "operationId": "trials",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponseAdminTrialResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/admin/subscriptions": {
+      "get": {
+        "tags": [
+          "Admin subscriptions"
+        ],
+        "operationId": "list_4",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "ACTIVE",
+                "PAST_DUE",
+                "CANCELED",
+                "EXPIRED"
+              ]
+            }
+          },
+          {
+            "name": "planId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "clientUserId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "startedAt"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "DESC",
+              "enum": [
+                "ASC",
+                "DESC"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponseAdminSubscriptionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/admin/subscriptions/{subscriptionId}": {
+      "get": {
+        "tags": [
+          "Admin subscriptions"
+        ],
+        "operationId": "get_3",
+        "parameters": [
+          {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminSubscriptionDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/admin/subscriptions/summary": {
+      "get": {
+        "tags": [
+          "Admin subscriptions"
+        ],
+        "operationId": "summary",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment/v1/admin/plans": {
+      "get": {
+        "tags": [
+          "Admin plans"
+        ],
+        "operationId": "list_5",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminPlanResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/website-admissions/{projectId}": {
+      "delete": {
+        "tags": [
+          "Internal admission"
+        ],
+        "operationId": "releaseWebsiteAdmission",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UpdateAdminPlan": {
+        "type": "object",
+        "properties": {
+          "priceMonthly": {
+            "type": "number",
+            "minimum": 0
+          },
+          "websiteLimit": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 1000000,
+            "minimum": 0
+          },
+          "redeploysPerMonth": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 1000000,
+            "minimum": 0
+          },
+          "productLimit": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 1000000,
+            "minimum": 0
+          },
+          "monitoring": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "[A-Za-z0-9 _-]{1,50}"
+          }
+        },
+        "required": [
+          "monitoring",
+          "priceMonthly",
+          "productLimit",
+          "redeploysPerMonth",
+          "websiteLimit"
+        ]
+      },
+      "AdminPlan": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "priceMonthly": {
+            "type": "number"
+          },
+          "trialDays": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "websiteLimit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "redeploysPerMonth": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "productLimit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "monitoring": {
+            "type": "string"
+          },
+          "logsEnabled": {
+            "type": "boolean"
+          },
+          "subscriberCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "mostPopular": {
+            "type": "boolean"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedBy": {
+            "type": "string"
+          }
+        }
+      },
+      "ChangeSubscriptionPlanRequest": {
+        "type": "object",
+        "properties": {
+          "planId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "planId"
+        ]
+      },
+      "AdminSubscriptionResponse": {
+        "type": "object",
+        "properties": {
+          "subscriptionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "clientUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "planId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "planCode": {
+            "type": "string"
+          },
+          "planName": {
+            "type": "string"
+          },
+          "priceUsd": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "ACTIVE",
+              "PAST_DUE",
+              "CANCELED",
+              "EXPIRED"
+            ]
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "currentPeriodStart": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "currentPeriodEnd": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "graceUntil": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "redeploysUsed": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "redeploysLimit": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PlanLimits": {
+        "type": "object",
+        "properties": {
+          "websites": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "redeploysPerMonth": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "products": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "monitoring": {
+            "type": "string"
+          },
+          "logs": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UpdatePlanRequest": {
+        "type": "object",
+        "properties": {
+          "priceUsd": {
+            "type": "number",
+            "minimum": 0
+          },
+          "limits": {
+            "$ref": "#/components/schemas/PlanLimits"
+          }
+        },
+        "required": [
+          "limits",
+          "priceUsd"
+        ]
+      },
+      "AdminPlanResponse": {
+        "type": "object",
+        "properties": {
+          "planId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "priceUsd": {
+            "type": "number"
+          },
+          "subscribers": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "limits": {
+            "$ref": "#/components/schemas/PlanLimits"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedBy": {
+            "type": "string"
+          }
+        }
+      },
+      "AdmitWebsiteRequest": {
+        "type": "object",
+        "properties": {
+          "clientUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "clientUserId",
+          "projectId"
+        ]
+      },
+      "AdmitWebsiteResponse": {
+        "type": "object",
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "ADMITTED",
+              "REFUSED"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "planCode": {
+            "type": "string"
+          },
+          "websitesUsed": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "websitesLimit": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "AdmitGenerationAttemptRequest": {
+        "type": "object",
+        "properties": {
+          "clientUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "generationRequestId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "clientUserId",
+          "generationRequestId",
+          "projectId"
+        ]
+      },
+      "AdmitGenerationAttemptResponse": {
+        "type": "object",
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "ADMITTED",
+              "REFUSED"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "attemptsUsed": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "attemptsLimit": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "CreatePayment": {
+        "type": "object",
+        "properties": {
+          "plan": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 0
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "SUBSCRIBE",
+              "CHANGE",
+              "RENEW"
+            ]
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "kind",
+          "plan"
+        ]
+      },
+      "PaymentOrder": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "plan": {
+            "type": "string"
+          },
+          "planName": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "websiteId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "websiteName": {
+            "type": "string"
+          },
+          "websiteDomain": {
+            "type": "string"
+          },
+          "websiteImageUrl": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "khqrData": {
+            "type": "string"
+          },
+          "qrImageUrl": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "paidAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "nextPaymentAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateSubscriptionRequest": {
+        "type": "object",
+        "properties": {
+          "planId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "planId",
+          "projectId"
+        ]
+      },
+      "SubscriptionResponse": {
+        "type": "object",
+        "properties": {
+          "subscriptionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "planId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "planCode": {
+            "type": "string"
+          },
+          "planName": {
+            "type": "string"
+          },
+          "priceUsd": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "ACTIVE",
+              "PAST_DUE",
+              "CANCELED",
+              "EXPIRED"
+            ]
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "currentPeriodStart": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "currentPeriodEnd": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "graceUntil": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateBillRequest": {
+        "type": "object",
+        "properties": {
+          "subscriptionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "WEBILL",
+              "BAKONG"
+            ]
+          }
+        },
+        "required": [
+          "subscriptionId"
+        ]
+      },
+      "BillResponse": {
+        "type": "object",
+        "properties": {
+          "billId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subscriptionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "periodStart": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "periodEnd": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "paidAmount": {
+            "type": "number"
+          },
+          "currencyCode": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "PAID",
+              "EXPIRED",
+              "FAILED",
+              "VOID"
+            ]
+          },
+          "khqrData": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "paidAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "WEBILL",
+              "BAKONG"
+            ]
+          },
+          "qrMd5": {
+            "type": "string"
+          },
+          "merchantName": {
+            "type": "string"
+          },
+          "billNumber": {
+            "type": "string"
+          }
+        }
+      },
+      "EntitlementResponse": {
+        "type": "object",
+        "properties": {
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "hosting": {
+            "type": "string",
+            "enum": [
+              "ENTITLED",
+              "ENDED"
+            ]
+          },
+          "publish": {
+            "type": "string",
+            "enum": [
+              "ALLOWED",
+              "LIMIT_REACHED"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "TRIAL_ENDED",
+              "GRACE_EXPIRED",
+              "PLAN_CANCELED",
+              "OVER_WEBSITE_LIMIT",
+              "NOT_ADMITTED"
+            ]
+          },
+          "planCode": {
+            "type": "string"
+          },
+          "publishesUsed": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "publishesLimit": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "periodEnd": {
+            "type": "string"
+          }
+        }
+      },
+      "ClientEntitlementResponse": {
+        "type": "object",
+        "properties": {
+          "planCode": {
+            "type": "string"
+          },
+          "trialEndsAt": {
+            "type": "string"
+          },
+          "websitesUsed": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "websitesLimit": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "attemptsUsed": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "attemptsLimit": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "periodEnd": {
+            "type": "string"
+          }
+        }
+      },
+      "PageResponsePublicPlan": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicPlan"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "PublicPlan": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "monthlyPrice": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "trialDays": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "websiteLimit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "redeploysPerMonth": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "productLimit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "logsEnabled": {
+            "type": "boolean"
+          },
+          "popular": {
+            "type": "boolean"
+          }
+        }
+      },
+      "BillingPlan": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "monthlyPrice": {
+            "type": "number"
+          },
+          "popular": {
+            "type": "boolean"
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanFeature"
+            }
+          }
+        }
+      },
+      "PlanFeature": {
+        "type": "object",
+        "properties": {
+          "icon": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          }
+        }
+      },
+      "PlanUsage": {
+        "type": "object",
+        "properties": {
+          "plan": {
+            "type": "string"
+          },
+          "planName": {
+            "type": "string"
+          },
+          "resetsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "metrics": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UsageMetric"
+            }
+          }
+        }
+      },
+      "UsageMetric": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "cardLabel": {
+            "type": "string"
+          },
+          "used": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "MeSubscription": {
+        "type": "object",
+        "properties": {
+          "plan": {
+            "type": "string"
+          },
+          "planName": {
+            "type": "string"
+          },
+          "trialStartsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "trialEndsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "trialDays": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "renewsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "monthlyPrice": {
+            "type": "number"
+          },
+          "startingPrice": {
+            "type": "number"
+          },
+          "usage": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UsageMetric"
+            }
+          },
+          "includes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PageResponsePlanOrder": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanOrder"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "PlanOrder": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plan": {
+            "type": "string"
+          },
+          "planName": {
+            "type": "string"
+          },
+          "websiteName": {
+            "type": "string"
+          },
+          "period": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "DeployAccess": {
+        "type": "object",
+        "properties": {
+          "allowed": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "plan": {
+            "type": "string"
+          },
+          "planName": {
+            "type": "string"
+          },
+          "firstDeploy": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AdminSubscription": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plan": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "startAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "redeploysLeft": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "redeployLimit": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PageResponseAdminSubscription": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminSubscription"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "AdminPayment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subscriptionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plan": {
+            "type": "string"
+          },
+          "periodStart": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "periodEnd": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "paidAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PageResponseAdminPayment": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminPayment"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "Attention": {
+        "type": "object",
+        "properties": {
+          "pastDueAmount": {
+            "type": "number"
+          },
+          "pastDueCount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "RevenuePoint": {
+        "type": "object",
+        "properties": {
+          "month": {
+            "type": "string",
+            "format": "date"
+          },
+          "amount": {
+            "type": "number"
+          }
+        }
+      },
+      "PageResponseAdminPlan": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminPlan"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "AuditEntry": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "service": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "actorUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "targetType": {
+            "type": "string"
+          },
+          "targetId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "targetName": {
+            "type": "string"
+          },
+          "result": {
+            "type": "string"
+          }
+        }
+      },
+      "PageResponseAuditEntry": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuditEntry"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "PageResponseSubscriptionResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubscriptionResponse"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "PlanResponse": {
+        "type": "object",
+        "properties": {
+          "planId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "priceUsd": {
+            "type": "number"
+          },
+          "limits": {
+            "$ref": "#/components/schemas/PlanLimits"
+          }
+        }
+      },
+      "PaymentMethodResponse": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": [
+              "WEBILL",
+              "BAKONG"
+            ]
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "currencies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PaymentMethodsResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PaymentMethodResponse"
+            }
+          }
+        }
+      },
+      "PageResponseBillResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BillResponse"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "AdminTrialResponse": {
+        "type": "object",
+        "properties": {
+          "clientUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "generationsUsed": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "generationLimit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "productLimit": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PageResponseAdminTrialResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminTrialResponse"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "PageResponseAdminSubscriptionResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminSubscriptionResponse"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "AdminSubscriptionDetailResponse": {
+        "type": "object",
+        "properties": {
+          "subscription": {
+            "$ref": "#/components/schemas/AdminSubscriptionResponse"
+          },
+          "payments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Payment"
+            }
+          }
+        }
+      },
+      "Payment": {
+        "type": "object",
+        "properties": {
+          "billId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "periodStart": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "periodEnd": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "currencyCode": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "PAID",
+              "EXPIRED",
+              "FAILED",
+              "VOID"
+            ]
+          },
+          "paidAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SubscriptionSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "monthlyRevenue": {
+            "type": "number"
+          },
+          "activePlans": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "trialsEndingSoon": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pending": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

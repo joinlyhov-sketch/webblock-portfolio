@@ -1,0 +1,1336 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "WebBlock AI Harness",
+    "version": "0.2.0"
+  },
+  "paths": {
+    "/v1/generation-runs": {
+      "get": {
+        "tags": [
+          "runs"
+        ],
+        "summary": "List Generation Runs for Project",
+        "description": "List generation runs for a project (newest first). Use this to easily find your run_id.",
+        "operationId": "list_generation_runs_v1_generation_runs_get",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/generation-runs/{run_id}": {
+      "get": {
+        "tags": [
+          "runs"
+        ],
+        "summary": "Get Generation Run",
+        "operationId": "get_run_v1_generation_runs__run_id__get",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/generation-runs/{run_id}/files": {
+      "get": {
+        "tags": [
+          "runs"
+        ],
+        "summary": "Get Generation Run Files",
+        "description": "Full source snapshot produced by the run (path -> content), from its SOURCE_ARCHIVE artifact.",
+        "operationId": "get_run_files_v1_generation_runs__run_id__files_get",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/generation-runs/{run_id}/check-report": {
+      "get": {
+        "tags": [
+          "runs"
+        ],
+        "summary": "Get Generation Run Check Report",
+        "operationId": "get_check_report_v1_generation_runs__run_id__check_report_get",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/projects/{project_id}/conversations": {
+      "post": {
+        "tags": [
+          "assistant"
+        ],
+        "summary": "Create Conversation for Project",
+        "operationId": "create_conversation_v1_projects__project_id__conversations_post",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectConversationCreate"
+              },
+              "example": {
+                "title": "Mondulkiri Coffee Roasters Storefront Consultation"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/conversations": {
+      "post": {
+        "tags": [
+          "assistant"
+        ],
+        "summary": "Create Conversation Direct",
+        "operationId": "create_conversation_direct_v1_conversations_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DirectConversationCreate"
+              },
+              "example": {
+                "project_id": "6c17b5d1-a784-4987-89ff-86079305776b",
+                "title": "Mondulkiri Coffee Roasters Storefront Consultation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/conversations/{conversation_id}": {
+      "get": {
+        "tags": [
+          "assistant"
+        ],
+        "summary": "Get Conversation",
+        "operationId": "get_conversation_v1_conversations__conversation_id__get",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Conversation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/conversations/{conversation_id}/messages": {
+      "post": {
+        "tags": [
+          "assistant"
+        ],
+        "summary": "Send Message",
+        "description": "Send a chat message; the reply comes with the assistant's proposed change set (or none).",
+        "operationId": "send_message_v1_conversations__conversation_id__messages_post",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Conversation Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageCreate"
+              },
+              "example": {
+                "content": "Add a feature grid showcasing Peaberry Dark Roast, Organic Washed Arabica, and Honey Processed Robusta with USD pricing."
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/change-sets/{change_set_id}": {
+      "get": {
+        "tags": [
+          "assistant"
+        ],
+        "summary": "Get Change Set",
+        "operationId": "get_change_set_v1_change_sets__change_set_id__get",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "change_set_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Change Set Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "assistant"
+        ],
+        "summary": "Apply Or Discard Change Set",
+        "description": "Decide a PROPOSED change set: APPLIED answers {change_set, page, edit_revision}, DISCARDED {change_set}.",
+        "operationId": "update_change_set_v1_change_sets__change_set_id__patch",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "change_set_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Change Set Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeSetUpdate"
+              },
+              "example": {
+                "status": "APPLIED"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ui/projects/{project_id}/ai/messages": {
+      "post": {
+        "tags": [
+          "ui"
+        ],
+        "summary": "Send UI AI Message",
+        "description": "H8: send a prompt to the project's design assistant. Creates the project's conversation on the first message,\napplies any proposed change set to the page, and returns the assistant's reply as `AiMessage`.",
+        "operationId": "send_ui_ai_message_v1_ui_projects__project_id__ai_messages_post",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UiAiMessageRequest"
+              },
+              "example": {
+                "prompt": "Improve the layout and colors of our shop homepage"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiAiMessageResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "ui"
+        ],
+        "summary": "List UI AI Messages",
+        "description": "The project's design assistant conversation as `Page<AiMessage>`, oldest first (0-based `page`).",
+        "operationId": "list_ui_ai_messages_v1_ui_projects__project_id__ai_messages_get",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiAiMessagePage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/generation-runs/{run_id}": {
+      "get": {
+        "tags": [
+          "internal"
+        ],
+        "summary": "Get Generation Run",
+        "description": "Project -> AI Codegen: GET /internal/v1/generation-runs/{runId}, after the completion event.",
+        "operationId": "get_generation_run_internal_v1_generation_runs__run_id__get",
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/generation-requests/{request_id}/runs": {
+      "get": {
+        "tags": [
+          "internal"
+        ],
+        "summary": "List Generation Request Runs",
+        "description": "Project -> AI Codegen: every run of a request, newest first (reconciliation after Project's deadline).",
+        "operationId": "list_generation_request_runs_internal_v1_generation_requests__request_id__runs_get",
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Request Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/artifacts/{artifact_id}": {
+      "get": {
+        "tags": [
+          "internal"
+        ],
+        "summary": "Download Artifact",
+        "description": "The presigned download behind an artifact's downloadUrl: the stored bytes, whose SHA-256 is its contentHash.",
+        "operationId": "download_artifact_internal_v1_artifacts__artifact_id__get",
+        "parameters": [
+          {
+            "name": "artifact_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Artifact Id"
+            }
+          },
+          {
+            "name": "expires",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Expires"
+            }
+          },
+          {
+            "name": "signature",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "title": "Signature"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/generation-runs/{run_id}/files": {
+      "get": {
+        "tags": [
+          "internal"
+        ],
+        "summary": "Get Run Files",
+        "description": "Internal mesh endpoint to download generated source snapshot.",
+        "operationId": "get_run_files_internal_v1_generation_runs__run_id__files_get",
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/generation-runs/{run_id}/check-report": {
+      "get": {
+        "tags": [
+          "internal"
+        ],
+        "summary": "Get Check Report",
+        "description": "Internal mesh endpoint to download check report artifact.",
+        "operationId": "get_check_report_internal_v1_generation_runs__run_id__check_report_get",
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/projects/{project_id}/portal-owners": {
+      "get": {
+        "tags": [
+          "internal"
+        ],
+        "summary": "List Portal Owners",
+        "description": "Project -> AI Codegen: the Keycloak users who may manage the site's products (the site client's owner role).",
+        "operationId": "list_portal_owners_internal_v1_projects__project_id__portal_owners_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/projects/{project_id}/portal-owners/{user_id}": {
+      "put": {
+        "tags": [
+          "internal"
+        ],
+        "summary": "Grant Portal Owner",
+        "description": "Project -> AI Codegen: let a Keycloak user manage the site's products (idempotent).",
+        "operationId": "grant_portal_owner_internal_v1_projects__project_id__portal_owners__user_id__put",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "internal"
+        ],
+        "summary": "Revoke Portal Owner",
+        "description": "Project -> AI Codegen: remove a Keycloak user's access to the product portal (idempotent).",
+        "operationId": "revoke_portal_owner_internal_v1_projects__project_id__portal_owners__user_id__delete",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/v1/health": {
+      "get": {
+        "tags": [
+          "internal"
+        ],
+        "summary": "Internal Health",
+        "operationId": "internal_health_internal_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ChangeSetUpdate": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "APPLIED",
+              "DISCARDED"
+            ],
+            "title": "Status",
+            "description": "APPLIED rewrites the page; DISCARDED drops the proposal."
+          }
+        },
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "ChangeSetUpdate",
+        "example": {
+          "status": "APPLIED"
+        }
+      },
+      "DirectConversationCreate": {
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id",
+            "description": "Target project ID"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title",
+            "description": "Conversation title"
+          }
+        },
+        "type": "object",
+        "required": [
+          "project_id"
+        ],
+        "title": "DirectConversationCreate",
+        "example": {
+          "project_id": "703aeacc-b280-4e32-9336-087c9b5b384c",
+          "title": "Homepage Design Consultation"
+        }
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "MessageCreate": {
+        "properties": {
+          "content": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Content",
+            "description": "Message to assistant",
+            "default": ""
+          },
+          "page_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Id",
+            "description": "Optional page to change; defaults to the home page."
+          }
+        },
+        "type": "object",
+        "title": "MessageCreate",
+        "example": {
+          "content": "Add a feature grid showcasing Peaberry Dark Roast, Organic Washed Arabica, and Honey Processed Robusta with USD pricing."
+        }
+      },
+      "ProjectConversationCreate": {
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title",
+            "description": "Conversation title"
+          }
+        },
+        "type": "object",
+        "title": "ProjectConversationCreate",
+        "example": {
+          "title": "Homepage Design Consultation"
+        }
+      },
+      "UiAiMessagePage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/UiAiMessageResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "size": {
+            "type": "integer",
+            "title": "Size"
+          },
+          "totalItems": {
+            "type": "integer",
+            "title": "Totalitems"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "page",
+          "size",
+          "totalItems"
+        ],
+        "title": "UiAiMessagePage",
+        "description": "`Page<AiMessage>` for the UI: 0-based `page`, oldest message first."
+      },
+      "UiAiMessageRequest": {
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Prompt"
+          },
+          "pageId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pageid"
+          }
+        },
+        "type": "object",
+        "required": [
+          "prompt"
+        ],
+        "title": "UiAiMessageRequest",
+        "example": {
+          "prompt": "Improve the layout and colors of our shop homepage"
+        }
+      },
+      "UiAiMessageResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "USER",
+              "ASSISTANT"
+            ],
+            "title": "Role"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "createdAt": {
+            "type": "string",
+            "title": "Createdat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "role",
+          "text",
+          "createdAt"
+        ],
+        "title": "UiAiMessageResponse"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Enter your Keycloak access token"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ]
+}

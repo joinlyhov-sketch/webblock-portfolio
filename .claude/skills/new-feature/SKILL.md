@@ -1,8 +1,9 @@
 ---
 name: new-feature
-description: Scaffold a new feature folder in src/features by copying the websites reference feature (api.ts with mock data, actions, optional service, schemas, types, components, route page).
+description: Create a brand-new feature folder in src/features by copying the websites reference feature (api.ts with mock data, actions, optional service, schemas, types, components, route page). Use when asked to add a new feature, screen area or module.
 argument-hint: <feature-name> [route path]
 ---
+<!-- What: scaffolds a new feature the same way as src/features/websites. Related: rules/structure-feature-folders.md -->
 
 Create the feature `$ARGUMENTS`.
 
@@ -16,14 +17,15 @@ Create the feature `$ARGUMENTS`.
    2. `src/mocks/<entity>.ts` — 6–12 typed records incl. edge cases (null image, long name, empty field).
       Images as `/mock/...` URL strings.
    3. `api.ts` — async read/write functions with the future Spring signature; lists return `Page<T>`;
-      not found throws `ApiError`.
+      not found throws `ApiError`. Put `// endpoint: <service> <METHOD> <path>` above each function
+      (the endpoint it will need), so `API_TRACKING.md` can list it.
    4. `schemas.ts` — zod schemas for any form.
    5. `service.ts` — only if there is real logic (form parsing beyond one schema, image checks,
-      combining several api calls into one view). See `.claude/rules/features.md`.
-   6. `actions.ts` — only if the screen writes data; follow `.claude/rules/actions.md`.
+      combining several api calls into one view). See `.claude/rules/structure-feature-folders.md`.
+   6. `actions.ts` — only if the screen writes data; follow `.claude/rules/structure-server-actions.md`.
    7. `components/` — reuse `components/common` (DataTable, StatusBadge, Modal, toast…) first.
    8. `index.ts` — public exports.
    9. The route `page.tsx` (thin) plus `loading.tsx` / `error.tsx` if the route group lacks them.
 4. Make sure loading, empty and error states exist.
-5. Run `/verify`. Report: files created, functions in `api.ts` (= the future endpoints), and anything
-   you were unsure about.
+5. Run `/check-project`. Report: files created, functions in `api.ts` (= the endpoints it needs), and
+   anything you were unsure about.

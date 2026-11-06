@@ -1,8 +1,9 @@
 ---
 name: figma-to-screen
-description: Build a WebBlock screen or component from a Figma frame URL, adapting the design to the project's routes, features, design tokens and existing common components.
+description: Build a WebBlock screen or component from a Figma frame URL, adapting the design to the project's routes, features, design tokens and existing common components. Use when given a figma.com link to implement.
 argument-hint: <figma-url> [route or feature]
 ---
+<!-- What: turns a Figma frame into a screen using the project's tokens and components. Related: rules/ui-components-and-design.md -->
 
 Build the screen from: $ARGUMENTS
 
@@ -15,8 +16,8 @@ Build the screen from: $ARGUMENTS
      ask before creating a new common component.
    - Use real semantic HTML (buttons, links, tables, labels), not absolutely positioned divs.
 3. Decide placement: which route group, which feature. Data comes from the feature's `api.ts`
-   (create mock data if missing — follow `/new-feature` rules). Text that is data (names, prices,
-   statuses) comes from mocks, not hardcoded JSX.
-4. Respect the invariants: website CTAs are "Contact us"-style and use tel:/mailto:/Maps/https only.
+   (create mock data if the endpoint isn't connected yet — follow `/new-feature`). Text that is data
+   (names, prices, statuses) comes from `api.ts`, not hardcoded JSX.
+4. Respect the business rules: website CTAs are "Contact us"-style and use tel:/mailto:/Maps/https only.
 5. Build loading, empty and error states even if Figma only shows the filled state.
-6. Run `/verify`, then compare the result with the Figma screenshot and list visible differences.
+6. Run `/check-project`, then compare the result with the Figma screenshot and list visible differences.
