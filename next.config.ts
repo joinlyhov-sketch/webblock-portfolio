@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
   experimental: {
     // Profile photo and logo uploads go through Server Actions (up to 5 MB + form overhead).
     serverActions: { bodySizeLimit: "6mb" },
+    agentUpgrade: "security",
   },
   turbopack: {
     rules: {
